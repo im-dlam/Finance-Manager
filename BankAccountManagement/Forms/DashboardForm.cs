@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -15,6 +15,10 @@ namespace BankAccountManagement.Forms
         public DashboardForm()
         {
             InitializeComponent();
+        }
+
+        private void roundedPanel1_Paint(object sender, PaintEventArgs e)
+        {
         }
     }
 }
