@@ -42,10 +42,10 @@
             this.panel2 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
             this.pnTitlebar = new System.Windows.Forms.Panel();
-            this.pnMain = new System.Windows.Forms.Panel();
             this.panel6 = new System.Windows.Forms.Panel();
-            this.panel7 = new System.Windows.Forms.Panel();
             this.btnNotifications = new System.Windows.Forms.Button();
+            this.panel7 = new System.Windows.Forms.Panel();
+            this.pnMain = new System.Windows.Forms.Panel();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.pnTitlebar.SuspendLayout();
@@ -70,7 +70,6 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(186, 604);
             this.panel1.TabIndex = 0;
-            this.panel1.Paint += new System.Windows.Forms.PaintEventHandler(this.panel1_Paint);
             // 
             // btnSettings
             // 
@@ -89,6 +88,7 @@
             this.btnSettings.Text = "   Cài đặt";
             this.btnSettings.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.btnSettings.UseVisualStyleBackColor = true;
+            this.btnSettings.Click += new System.EventHandler(this.btnSettings_Click);
             // 
             // btnStatistic
             // 
@@ -106,6 +106,7 @@
             this.btnStatistic.Text = "   Báo cáo";
             this.btnStatistic.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.btnStatistic.UseVisualStyleBackColor = true;
+            this.btnStatistic.Click += new System.EventHandler(this.btnStatistic_Click);
             // 
             // btnBanks
             // 
@@ -123,6 +124,7 @@
             this.btnBanks.Text = "   Ngân hàng";
             this.btnBanks.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.btnBanks.UseVisualStyleBackColor = true;
+            this.btnBanks.Click += new System.EventHandler(this.btnBanks_Click);
             // 
             // btnCustomers
             // 
@@ -140,6 +142,7 @@
             this.btnCustomers.Text = "   Khách hàng";
             this.btnCustomers.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.btnCustomers.UseVisualStyleBackColor = true;
+            this.btnCustomers.Click += new System.EventHandler(this.btnCustomers_Click);
             // 
             // btnTransactions
             // 
@@ -157,6 +160,7 @@
             this.btnTransactions.Text = "   Giao dịch";
             this.btnTransactions.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.btnTransactions.UseVisualStyleBackColor = true;
+            this.btnTransactions.Click += new System.EventHandler(this.btnTransactions_Click);
             // 
             // btnAccounts
             // 
@@ -174,6 +178,7 @@
             this.btnAccounts.Text = "   Tài khoản";
             this.btnAccounts.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.btnAccounts.UseVisualStyleBackColor = true;
+            this.btnAccounts.Click += new System.EventHandler(this.btnAccounts_Click);
             // 
             // btnDashboards
             // 
@@ -191,6 +196,7 @@
             this.btnDashboards.Text = "   Tổng quan";
             this.btnDashboards.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.btnDashboards.UseVisualStyleBackColor = true;
+            this.btnDashboards.Click += new System.EventHandler(this.btnDashboards_Click);
             // 
             // panel4
             // 
@@ -223,7 +229,7 @@
             this.label1.Cursor = System.Windows.Forms.Cursors.Default;
             this.label1.Font = new System.Drawing.Font("Microsoft Tai Le", 15.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.ForeColor = System.Drawing.Color.White;
-            this.label1.Location = new System.Drawing.Point(12, 34);
+            this.label1.Location = new System.Drawing.Point(17, 5);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(154, 27);
             this.label1.TabIndex = 0;
@@ -239,14 +245,6 @@
             this.pnTitlebar.Size = new System.Drawing.Size(1033, 40);
             this.pnTitlebar.TabIndex = 2;
             // 
-            // pnMain
-            // 
-            this.pnMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnMain.Location = new System.Drawing.Point(186, 40);
-            this.pnMain.Name = "pnMain";
-            this.pnMain.Size = new System.Drawing.Size(1033, 564);
-            this.pnMain.TabIndex = 3;
-            // 
             // panel6
             // 
             this.panel6.Controls.Add(this.btnNotifications);
@@ -256,14 +254,6 @@
             this.panel6.Name = "panel6";
             this.panel6.Size = new System.Drawing.Size(200, 40);
             this.panel6.TabIndex = 0;
-            // 
-            // panel7
-            // 
-            this.panel7.Dock = System.Windows.Forms.DockStyle.Right;
-            this.panel7.Location = new System.Drawing.Point(185, 0);
-            this.panel7.Name = "panel7";
-            this.panel7.Size = new System.Drawing.Size(15, 40);
-            this.panel7.TabIndex = 0;
             // 
             // btnNotifications
             // 
@@ -278,6 +268,22 @@
             this.btnNotifications.TabIndex = 1;
             this.btnNotifications.UseVisualStyleBackColor = false;
             // 
+            // panel7
+            // 
+            this.panel7.Dock = System.Windows.Forms.DockStyle.Right;
+            this.panel7.Location = new System.Drawing.Point(185, 0);
+            this.panel7.Name = "panel7";
+            this.panel7.Size = new System.Drawing.Size(15, 40);
+            this.panel7.TabIndex = 0;
+            // 
+            // pnMain
+            // 
+            this.pnMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnMain.Location = new System.Drawing.Point(186, 40);
+            this.pnMain.Name = "pnMain";
+            this.pnMain.Size = new System.Drawing.Size(1033, 564);
+            this.pnMain.TabIndex = 3;
+            // 
             // MainForm
             // 
             this.AccessibleRole = System.Windows.Forms.AccessibleRole.TitleBar;
@@ -291,7 +297,6 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Name = "MainForm";
             this.Text = "Bank Manager";
-            this.Load += new System.EventHandler(this.MainForm_Load);
             this.panel1.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
