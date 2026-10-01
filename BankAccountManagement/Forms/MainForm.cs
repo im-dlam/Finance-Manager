@@ -1,4 +1,4 @@
-﻿using BankAccountManagement.Forms;
+using BankAccountManagement.Forms;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -16,6 +16,7 @@ namespace BankAccountManagement
         public MainForm()
         {
             InitializeComponent();
+            LoadMultiForm(new DashboardForm());
         }
 
         /// <summary>
@@ -74,6 +75,10 @@ namespace BankAccountManagement
         private void btnSettings_Click(object sender, EventArgs e)
         {
             LoadMultiForm(new SettingsForm());
+        }
+
+        private void pnMain_Paint(object sender, PaintEventArgs e)
+        {
         }
     }
 }
