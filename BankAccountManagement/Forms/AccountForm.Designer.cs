@@ -2,361 +2,674 @@
 {
     partial class AccountForm
     {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
-            {
                 components.Dispose();
-            }
             base.Dispose(disposing);
         }
 
         #region Windows Form Designer generated code
 
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.Button button4;
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AccountForm));
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.label7 = new System.Windows.Forms.Label();
-            this.dataGridView1 = new System.Windows.Forms.DataGridView();
-            this.stt = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.stk = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.tctk = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.sd = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.NM = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.TT = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
-            this.dateTimePicker1 = new System.Windows.Forms.DateTimePicker();
-            this.maskedTextBox4 = new System.Windows.Forms.MaskedTextBox();
-            this.maskedTextBox3 = new System.Windows.Forms.MaskedTextBox();
-            this.maskedTextBox1 = new System.Windows.Forms.MaskedTextBox();
-            this.label6 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label1 = new System.Windows.Forms.Label();
-            button4 = new System.Windows.Forms.Button();
-            this.panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            this.pnlHeader = new System.Windows.Forms.Panel();
+            this.pnlHeaderBorder = new System.Windows.Forms.Panel();
+            this.lblTitle = new System.Windows.Forms.Label();
+            this.lblSubtitle = new System.Windows.Forms.Label();
+            this.lblSearch = new System.Windows.Forms.Label();
+            this.txtSearch = new System.Windows.Forms.TextBox();
+            this.btnSearch = new System.Windows.Forms.Button();
+            this.pnlFormCard = new System.Windows.Forms.Panel();
+            this.pnlFormContent = new System.Windows.Forms.Panel();
+            this.lblFormAccent = new System.Windows.Forms.Panel();
+            this.lblFormTitle = new System.Windows.Forms.Label();
+            this.pnlFormDivider1 = new System.Windows.Forms.Panel();
+            this.lblAccountNumber = new System.Windows.Forms.Label();
+            this.txtAccountNumber = new System.Windows.Forms.TextBox();
+            this.lblCustomer = new System.Windows.Forms.Label();
+            this.cboCustomer = new System.Windows.Forms.ComboBox();
+            this.lblBank = new System.Windows.Forms.Label();
+            this.cboBank = new System.Windows.Forms.ComboBox();
+            this.lblCurrency = new System.Windows.Forms.Label();
+            this.cboCurrency = new System.Windows.Forms.ComboBox();
+            this.lblBalance = new System.Windows.Forms.Label();
+            this.txtBalance = new System.Windows.Forms.TextBox();
+            this.lblStatus = new System.Windows.Forms.Label();
+            this.cboStatus = new System.Windows.Forms.ComboBox();
+            this.lblOpenDate = new System.Windows.Forms.Label();
+            this.dtpOpenDate = new System.Windows.Forms.DateTimePicker();
+            this.pnlFormDivider2 = new System.Windows.Forms.Panel();
+            this.btnAdd = new System.Windows.Forms.Button();
+            this.btnEdit = new System.Windows.Forms.Button();
+            this.btnDelete = new System.Windows.Forms.Button();
+            this.btnClear = new System.Windows.Forms.Button();
+            this.pnlListCard = new System.Windows.Forms.Panel();
+            this.lblListAccent = new System.Windows.Forms.Panel();
+            this.lblListTitle = new System.Windows.Forms.Label();
+            this.lblListCount = new System.Windows.Forms.Label();
+            this.pnlListDivider = new System.Windows.Forms.Panel();
+            this.dgvAccounts = new System.Windows.Forms.DataGridView();
+            this.colAccountNumber = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colCustomer = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colBank = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colCurrency = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colBalance = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colOpenDate = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colStatus = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.pnlHeader.SuspendLayout();
+            this.pnlFormCard.SuspendLayout();
+            this.pnlFormContent.SuspendLayout();
+            this.pnlListCard.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvAccounts)).BeginInit();
             this.SuspendLayout();
             // 
-            // button4
+            // pnlHeader
             // 
-            button4.BackColor = System.Drawing.Color.Navy;
-            button4.FlatAppearance.BorderSize = 40;
-            button4.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Black;
-            button4.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Black;
-            button4.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            button4.ForeColor = System.Drawing.Color.White;
-            button4.Image = ((System.Drawing.Image)(resources.GetObject("button4.Image")));
-            button4.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            button4.Location = new System.Drawing.Point(405, 512);
-            button4.Name = "button4";
-            button4.Size = new System.Drawing.Size(153, 35);
-            button4.TabIndex = 15;
-            button4.Text = "Xóa";
-            button4.UseVisualStyleBackColor = false;
-            button4.Click += new System.EventHandler(this.button4_Click);
+            this.pnlHeader.BackColor = System.Drawing.Color.White;
+            this.pnlHeader.Controls.Add(this.pnlHeaderBorder);
+            this.pnlHeader.Controls.Add(this.lblTitle);
+            this.pnlHeader.Controls.Add(this.lblSubtitle);
+            this.pnlHeader.Controls.Add(this.lblSearch);
+            this.pnlHeader.Controls.Add(this.txtSearch);
+            this.pnlHeader.Controls.Add(this.btnSearch);
+            this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlHeader.Location = new System.Drawing.Point(0, 0);
+            this.pnlHeader.Name = "pnlHeader";
+            this.pnlHeader.Size = new System.Drawing.Size(1200, 90);
+            this.pnlHeader.TabIndex = 0;
             // 
-            // panel1
+            // pnlHeaderBorder
             // 
-            this.panel1.BackColor = System.Drawing.Color.White;
-            this.panel1.Controls.Add(this.label7);
-            this.panel1.Controls.Add(this.dataGridView1);
-            this.panel1.Controls.Add(button4);
-            this.panel1.Controls.Add(this.button3);
-            this.panel1.Controls.Add(this.button2);
-            this.panel1.Controls.Add(this.button1);
-            this.panel1.Controls.Add(this.dateTimePicker1);
-            this.panel1.Controls.Add(this.maskedTextBox4);
-            this.panel1.Controls.Add(this.maskedTextBox3);
-            this.panel1.Controls.Add(this.maskedTextBox1);
-            this.panel1.Controls.Add(this.label6);
-            this.panel1.Controls.Add(this.label5);
-            this.panel1.Controls.Add(this.label4);
-            this.panel1.Controls.Add(this.label3);
-            this.panel1.Controls.Add(this.label2);
-            this.panel1.Controls.Add(this.label1);
-            this.panel1.Location = new System.Drawing.Point(58, 42);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1297, 596);
-            this.panel1.TabIndex = 0;
+            this.pnlHeaderBorder.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
+            this.pnlHeaderBorder.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.pnlHeaderBorder.Location = new System.Drawing.Point(0, 89);
+            this.pnlHeaderBorder.Name = "pnlHeaderBorder";
+            this.pnlHeaderBorder.Size = new System.Drawing.Size(1200, 1);
+            this.pnlHeaderBorder.TabIndex = 99;
             // 
-            // label7
+            // lblTitle
             // 
-            this.label7.AutoSize = true;
-            this.label7.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.Location = new System.Drawing.Point(17, 168);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(171, 28);
-            this.label7.TabIndex = 12;
-            this.label7.Text = "Lịch sử giao dịch";
+            this.lblTitle.AutoSize = true;
+            this.lblTitle.Font = new System.Drawing.Font("Segoe UI", 18F, System.Drawing.FontStyle.Bold);
+            this.lblTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
+            this.lblTitle.Location = new System.Drawing.Point(35, 20);
+            this.lblTitle.Name = "lblTitle";
+            this.lblTitle.Size = new System.Drawing.Size(415, 32);
+            this.lblTitle.TabIndex = 0;
+            this.lblTitle.Text = "QUẢN LÝ TÀI KHOẢN NGÂN HÀNG";
             // 
-            // dataGridView1
+            // lblSubtitle
             // 
-            this.dataGridView1.AllowUserToAddRows = false;
-            dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(235)))), ((int)(((byte)(246)))), ((int)(((byte)(255)))));
-            this.dataGridView1.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
-            this.dataGridView1.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
-            this.dataGridView1.BackgroundColor = System.Drawing.Color.White;
-            this.dataGridView1.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleHorizontal;
+            this.lblSubtitle.AutoSize = true;
+            this.lblSubtitle.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.lblSubtitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
+            this.lblSubtitle.Location = new System.Drawing.Point(37, 60);
+            this.lblSubtitle.Name = "lblSubtitle";
+            this.lblSubtitle.Size = new System.Drawing.Size(340, 17);
+            this.lblSubtitle.TabIndex = 1;
+            this.lblSubtitle.Text = "Theo dõi và quản lý tài khoản ngân hàng của khách hàng";
+            // 
+            // lblSearch
+            // 
+            this.lblSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblSearch.AutoSize = true;
+            this.lblSearch.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.lblSearch.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
+            this.lblSearch.Location = new System.Drawing.Point(689, 32);
+            this.lblSearch.Name = "lblSearch";
+            this.lblSearch.Size = new System.Drawing.Size(75, 19);
+            this.lblSearch.TabIndex = 2;
+            this.lblSearch.Text = "Tìm kiếm:";
+            // 
+            // txtSearch
+            // 
+            this.txtSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtSearch.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.txtSearch.Font = new System.Drawing.Font("Segoe UI", 10.5F);
+            this.txtSearch.Location = new System.Drawing.Point(770, 30);
+            this.txtSearch.Name = "txtSearch";
+            this.txtSearch.Size = new System.Drawing.Size(250, 26);
+            this.txtSearch.TabIndex = 3;
+            // 
+            // btnSearch
+            // 
+            this.btnSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnSearch.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
+            this.btnSearch.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnSearch.FlatAppearance.BorderSize = 0;
+            this.btnSearch.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(29)))), ((int)(((byte)(78)))), ((int)(((byte)(216)))));
+            this.btnSearch.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSearch.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnSearch.ForeColor = System.Drawing.Color.White;
+            this.btnSearch.Location = new System.Drawing.Point(1060, 29);
+            this.btnSearch.Name = "btnSearch";
+            this.btnSearch.Size = new System.Drawing.Size(100, 33);
+            this.btnSearch.TabIndex = 4;
+            this.btnSearch.Text = "Tìm";
+            this.btnSearch.UseVisualStyleBackColor = false;
+            // 
+            // pnlFormCard
+            // 
+            this.pnlFormCard.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.pnlFormCard.AutoScroll = true;
+            this.pnlFormCard.BackColor = System.Drawing.Color.White;
+            this.pnlFormCard.Controls.Add(this.pnlFormContent);
+            this.pnlFormCard.Location = new System.Drawing.Point(25, 115);
+            this.pnlFormCard.Name = "pnlFormCard";
+            this.pnlFormCard.Size = new System.Drawing.Size(400, 720);
+            this.pnlFormCard.TabIndex = 1;
+            // 
+            // pnlFormContent
+            // 
+            this.pnlFormContent.BackColor = System.Drawing.Color.White;
+            this.pnlFormContent.Controls.Add(this.lblFormAccent);
+            this.pnlFormContent.Controls.Add(this.lblFormTitle);
+            this.pnlFormContent.Controls.Add(this.pnlFormDivider1);
+            this.pnlFormContent.Controls.Add(this.lblAccountNumber);
+            this.pnlFormContent.Controls.Add(this.txtAccountNumber);
+            this.pnlFormContent.Controls.Add(this.lblCustomer);
+            this.pnlFormContent.Controls.Add(this.cboCustomer);
+            this.pnlFormContent.Controls.Add(this.lblBank);
+            this.pnlFormContent.Controls.Add(this.cboBank);
+            this.pnlFormContent.Controls.Add(this.lblCurrency);
+            this.pnlFormContent.Controls.Add(this.cboCurrency);
+            this.pnlFormContent.Controls.Add(this.lblBalance);
+            this.pnlFormContent.Controls.Add(this.txtBalance);
+            this.pnlFormContent.Controls.Add(this.lblStatus);
+            this.pnlFormContent.Controls.Add(this.cboStatus);
+            this.pnlFormContent.Controls.Add(this.lblOpenDate);
+            this.pnlFormContent.Controls.Add(this.dtpOpenDate);
+            this.pnlFormContent.Controls.Add(this.pnlFormDivider2);
+            this.pnlFormContent.Controls.Add(this.btnAdd);
+            this.pnlFormContent.Controls.Add(this.btnEdit);
+            this.pnlFormContent.Controls.Add(this.btnDelete);
+            this.pnlFormContent.Controls.Add(this.btnClear);
+            this.pnlFormContent.Location = new System.Drawing.Point(0, 0);
+            this.pnlFormContent.Name = "pnlFormContent";
+            this.pnlFormContent.Size = new System.Drawing.Size(380, 700);
+            this.pnlFormContent.TabIndex = 0;
+            // 
+            // lblFormAccent
+            // 
+            this.lblFormAccent.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
+            this.lblFormAccent.Location = new System.Drawing.Point(30, 22);
+            this.lblFormAccent.Name = "lblFormAccent";
+            this.lblFormAccent.Size = new System.Drawing.Size(5, 24);
+            this.lblFormAccent.TabIndex = 0;
+            // 
+            // lblFormTitle
+            // 
+            this.lblFormTitle.AutoSize = true;
+            this.lblFormTitle.Font = new System.Drawing.Font("Segoe UI", 13F, System.Drawing.FontStyle.Bold);
+            this.lblFormTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
+            this.lblFormTitle.Location = new System.Drawing.Point(42, 20);
+            this.lblFormTitle.Name = "lblFormTitle";
+            this.lblFormTitle.Size = new System.Drawing.Size(180, 25);
+            this.lblFormTitle.TabIndex = 1;
+            this.lblFormTitle.Text = "Thông tin tài khoản";
+            // 
+            // pnlFormDivider1
+            // 
+            this.pnlFormDivider1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
+            this.pnlFormDivider1.Location = new System.Drawing.Point(30, 60);
+            this.pnlFormDivider1.Name = "pnlFormDivider1";
+            this.pnlFormDivider1.Size = new System.Drawing.Size(320, 1);
+            this.pnlFormDivider1.TabIndex = 2;
+            // 
+            // lblAccountNumber
+            // 
+            this.lblAccountNumber.AutoSize = true;
+            this.lblAccountNumber.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
+            this.lblAccountNumber.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
+            this.lblAccountNumber.Location = new System.Drawing.Point(30, 80);
+            this.lblAccountNumber.Name = "lblAccountNumber";
+            this.lblAccountNumber.Size = new System.Drawing.Size(105, 17);
+            this.lblAccountNumber.TabIndex = 3;
+            this.lblAccountNumber.Text = "Số tài khoản (*)";
+            // 
+            // txtAccountNumber
+            // 
+            this.txtAccountNumber.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.txtAccountNumber.Font = new System.Drawing.Font("Segoe UI", 10.5F);
+            this.txtAccountNumber.Location = new System.Drawing.Point(30, 100);
+            this.txtAccountNumber.Name = "txtAccountNumber";
+            this.txtAccountNumber.Size = new System.Drawing.Size(320, 26);
+            this.txtAccountNumber.TabIndex = 4;
+            // 
+            // lblCustomer
+            // 
+            this.lblCustomer.AutoSize = true;
+            this.lblCustomer.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
+            this.lblCustomer.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
+            this.lblCustomer.Location = new System.Drawing.Point(30, 138);
+            this.lblCustomer.Name = "lblCustomer";
+            this.lblCustomer.Size = new System.Drawing.Size(100, 17);
+            this.lblCustomer.TabIndex = 5;
+            this.lblCustomer.Text = "Khách hàng (*)";
+            // 
+            // cboCustomer
+            // 
+            this.cboCustomer.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboCustomer.Font = new System.Drawing.Font("Segoe UI", 10.5F);
+            this.cboCustomer.Location = new System.Drawing.Point(30, 158);
+            this.cboCustomer.Name = "cboCustomer";
+            this.cboCustomer.Size = new System.Drawing.Size(320, 27);
+            this.cboCustomer.TabIndex = 6;
+            // 
+            // lblBank
+            // 
+            this.lblBank.AutoSize = true;
+            this.lblBank.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
+            this.lblBank.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
+            this.lblBank.Location = new System.Drawing.Point(30, 196);
+            this.lblBank.Name = "lblBank";
+            this.lblBank.Size = new System.Drawing.Size(96, 17);
+            this.lblBank.TabIndex = 7;
+            this.lblBank.Text = "Ngân hàng (*)";
+            // 
+            // cboBank
+            // 
+            this.cboBank.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboBank.Font = new System.Drawing.Font("Segoe UI", 10.5F);
+            this.cboBank.Location = new System.Drawing.Point(30, 216);
+            this.cboBank.Name = "cboBank";
+            this.cboBank.Size = new System.Drawing.Size(320, 27);
+            this.cboBank.TabIndex = 8;
+            // 
+            // lblCurrency
+            // 
+            this.lblCurrency.AutoSize = true;
+            this.lblCurrency.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
+            this.lblCurrency.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
+            this.lblCurrency.Location = new System.Drawing.Point(30, 254);
+            this.lblCurrency.Name = "lblCurrency";
+            this.lblCurrency.Size = new System.Drawing.Size(62, 17);
+            this.lblCurrency.TabIndex = 9;
+            this.lblCurrency.Text = "Loại tiền";
+            // 
+            // cboCurrency
+            // 
+            this.cboCurrency.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboCurrency.Font = new System.Drawing.Font("Segoe UI", 10.5F);
+            this.cboCurrency.Location = new System.Drawing.Point(30, 274);
+            this.cboCurrency.Name = "cboCurrency";
+            this.cboCurrency.Size = new System.Drawing.Size(320, 27);
+            this.cboCurrency.TabIndex = 10;
+            // 
+            // lblBalance
+            // 
+            this.lblBalance.AutoSize = true;
+            this.lblBalance.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
+            this.lblBalance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
+            this.lblBalance.Location = new System.Drawing.Point(30, 312);
+            this.lblBalance.Name = "lblBalance";
+            this.lblBalance.Size = new System.Drawing.Size(98, 17);
+            this.lblBalance.TabIndex = 11;
+            this.lblBalance.Text = "Số dư ban đầu";
+            // 
+            // txtBalance
+            // 
+            this.txtBalance.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.txtBalance.Font = new System.Drawing.Font("Segoe UI", 10.5F);
+            this.txtBalance.Location = new System.Drawing.Point(30, 332);
+            this.txtBalance.Name = "txtBalance";
+            this.txtBalance.Size = new System.Drawing.Size(320, 26);
+            this.txtBalance.TabIndex = 12;
+            // 
+            // lblStatus
+            // 
+            this.lblStatus.AutoSize = true;
+            this.lblStatus.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
+            this.lblStatus.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
+            this.lblStatus.Location = new System.Drawing.Point(30, 370);
+            this.lblStatus.Name = "lblStatus";
+            this.lblStatus.Size = new System.Drawing.Size(71, 17);
+            this.lblStatus.TabIndex = 13;
+            this.lblStatus.Text = "Trạng thái";
+            // 
+            // cboStatus
+            // 
+            this.cboStatus.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboStatus.Font = new System.Drawing.Font("Segoe UI", 10.5F);
+            this.cboStatus.Location = new System.Drawing.Point(30, 390);
+            this.cboStatus.Name = "cboStatus";
+            this.cboStatus.Size = new System.Drawing.Size(320, 27);
+            this.cboStatus.TabIndex = 14;
+            // 
+            // lblOpenDate
+            // 
+            this.lblOpenDate.AutoSize = true;
+            this.lblOpenDate.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
+            this.lblOpenDate.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
+            this.lblOpenDate.Location = new System.Drawing.Point(30, 428);
+            this.lblOpenDate.Name = "lblOpenDate";
+            this.lblOpenDate.Size = new System.Drawing.Size(64, 17);
+            this.lblOpenDate.TabIndex = 15;
+            this.lblOpenDate.Text = "Ngày mở";
+            // 
+            // dtpOpenDate
+            // 
+            this.dtpOpenDate.Font = new System.Drawing.Font("Segoe UI", 10.5F);
+            this.dtpOpenDate.Format = System.Windows.Forms.DateTimePickerFormat.Short;
+            this.dtpOpenDate.Location = new System.Drawing.Point(30, 448);
+            this.dtpOpenDate.Name = "dtpOpenDate";
+            this.dtpOpenDate.Size = new System.Drawing.Size(320, 26);
+            this.dtpOpenDate.TabIndex = 16;
+            // 
+            // pnlFormDivider2
+            // 
+            this.pnlFormDivider2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
+            this.pnlFormDivider2.Location = new System.Drawing.Point(30, 495);
+            this.pnlFormDivider2.Name = "pnlFormDivider2";
+            this.pnlFormDivider2.Size = new System.Drawing.Size(320, 1);
+            this.pnlFormDivider2.TabIndex = 17;
+            // 
+            // btnAdd
+            // 
+            this.btnAdd.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
+            this.btnAdd.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnAdd.FlatAppearance.BorderSize = 0;
+            this.btnAdd.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(29)))), ((int)(((byte)(78)))), ((int)(((byte)(216)))));
+            this.btnAdd.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnAdd.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Bold);
+            this.btnAdd.ForeColor = System.Drawing.Color.White;
+            this.btnAdd.Location = new System.Drawing.Point(30, 510);
+            this.btnAdd.Name = "btnAdd";
+            this.btnAdd.Size = new System.Drawing.Size(320, 42);
+            this.btnAdd.TabIndex = 18;
+            this.btnAdd.Text = "+  Mở tài khoản mới";
+            this.btnAdd.UseVisualStyleBackColor = false;
+            // 
+            // btnEdit
+            // 
+            this.btnEdit.BackColor = System.Drawing.Color.White;
+            this.btnEdit.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnEdit.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
+            this.btnEdit.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(239)))), ((int)(((byte)(246)))), ((int)(((byte)(255)))));
+            this.btnEdit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnEdit.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnEdit.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
+            this.btnEdit.Location = new System.Drawing.Point(30, 562);
+            this.btnEdit.Name = "btnEdit";
+            this.btnEdit.Size = new System.Drawing.Size(150, 38);
+            this.btnEdit.TabIndex = 19;
+            this.btnEdit.Text = "Sửa";
+            this.btnEdit.UseVisualStyleBackColor = false;
+            // 
+            // btnDelete
+            // 
+            this.btnDelete.BackColor = System.Drawing.Color.White;
+            this.btnDelete.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnDelete.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(38)))), ((int)(((byte)(38)))));
+            this.btnDelete.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(254)))), ((int)(((byte)(242)))), ((int)(((byte)(242)))));
+            this.btnDelete.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnDelete.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnDelete.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(38)))), ((int)(((byte)(38)))));
+            this.btnDelete.Location = new System.Drawing.Point(200, 562);
+            this.btnDelete.Name = "btnDelete";
+            this.btnDelete.Size = new System.Drawing.Size(150, 38);
+            this.btnDelete.TabIndex = 20;
+            this.btnDelete.Text = "Đóng TK";
+            this.btnDelete.UseVisualStyleBackColor = false;
+            // 
+            // btnClear
+            // 
+            this.btnClear.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
+            this.btnClear.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnClear.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(213)))), ((int)(((byte)(225)))));
+            this.btnClear.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
+            this.btnClear.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnClear.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnClear.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(65)))), ((int)(((byte)(85)))));
+            this.btnClear.Location = new System.Drawing.Point(30, 610);
+            this.btnClear.Name = "btnClear";
+            this.btnClear.Size = new System.Drawing.Size(320, 38);
+            this.btnClear.TabIndex = 21;
+            this.btnClear.Text = "Làm mới";
+            this.btnClear.UseVisualStyleBackColor = false;
+            // 
+            // pnlListCard
+            // 
+            this.pnlListCard.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlListCard.BackColor = System.Drawing.Color.White;
+            this.pnlListCard.Controls.Add(this.lblListAccent);
+            this.pnlListCard.Controls.Add(this.lblListTitle);
+            this.pnlListCard.Controls.Add(this.lblListCount);
+            this.pnlListCard.Controls.Add(this.pnlListDivider);
+            this.pnlListCard.Controls.Add(this.dgvAccounts);
+            this.pnlListCard.Location = new System.Drawing.Point(450, 115);
+            this.pnlListCard.Name = "pnlListCard";
+            this.pnlListCard.Size = new System.Drawing.Size(725, 720);
+            this.pnlListCard.TabIndex = 2;
+            // 
+            // lblListAccent
+            // 
+            this.lblListAccent.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(163)))), ((int)(((byte)(74)))));
+            this.lblListAccent.Location = new System.Drawing.Point(30, 22);
+            this.lblListAccent.Name = "lblListAccent";
+            this.lblListAccent.Size = new System.Drawing.Size(5, 24);
+            this.lblListAccent.TabIndex = 0;
+            // 
+            // lblListTitle
+            // 
+            this.lblListTitle.AutoSize = true;
+            this.lblListTitle.Font = new System.Drawing.Font("Segoe UI", 13F, System.Drawing.FontStyle.Bold);
+            this.lblListTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
+            this.lblListTitle.Location = new System.Drawing.Point(42, 20);
+            this.lblListTitle.Name = "lblListTitle";
+            this.lblListTitle.Size = new System.Drawing.Size(185, 25);
+            this.lblListTitle.TabIndex = 1;
+            this.lblListTitle.Text = "Danh sách tài khoản";
+            // 
+            // lblListCount
+            // 
+            this.lblListCount.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblListCount.AutoSize = true;
+            this.lblListCount.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.lblListCount.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(163)))), ((int)(((byte)(74)))));
+            this.lblListCount.Location = new System.Drawing.Point(590, 26);
+            this.lblListCount.Name = "lblListCount";
+            this.lblListCount.Size = new System.Drawing.Size(83, 19);
+            this.lblListCount.TabIndex = 2;
+            this.lblListCount.Text = "0 tài khoản";
+            this.lblListCount.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // pnlListDivider
+            // 
+            this.pnlListDivider.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.pnlListDivider.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
+            this.pnlListDivider.Location = new System.Drawing.Point(30, 60);
+            this.pnlListDivider.Name = "pnlListDivider";
+            this.pnlListDivider.Size = new System.Drawing.Size(665, 1);
+            this.pnlListDivider.TabIndex = 3;
+            // 
+            // dgvAccounts
+            // 
+            this.dgvAccounts.AllowUserToAddRows = false;
+            this.dgvAccounts.AllowUserToDeleteRows = false;
+            this.dgvAccounts.AllowUserToResizeRows = false;
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
+            this.dgvAccounts.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+            this.dgvAccounts.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.dgvAccounts.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dgvAccounts.BackgroundColor = System.Drawing.Color.White;
+            this.dgvAccounts.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.dgvAccounts.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleHorizontal;
+            this.dgvAccounts.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(24)))), ((int)(((byte)(44)))), ((int)(((byte)(76)))));
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(65)))), ((int)(((byte)(85)))));
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Segoe UI", 10F);
             dataGridViewCellStyle2.ForeColor = System.Drawing.Color.White;
-            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.HighlightText;
-            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding(8, 0, 8, 0);
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(65)))), ((int)(((byte)(85)))));
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.Color.White;
             dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dataGridView1.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
-            this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.stt,
-            this.stk,
-            this.tctk,
-            this.sd,
-            this.NM,
-            this.TT});
-            this.dataGridView1.EnableHeadersVisualStyles = false;
-            this.dataGridView1.Location = new System.Drawing.Point(13, 218);
-            this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.RowHeadersVisible = false;
-            this.dataGridView1.RowHeadersWidth = 51;
-            this.dataGridView1.RowTemplate.Height = 35;
-            this.dataGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridView1.Size = new System.Drawing.Size(1243, 267);
-            this.dataGridView1.TabIndex = 13;
-            this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick_2);
+            this.dgvAccounts.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
+            this.dgvAccounts.ColumnHeadersHeight = 46;
+            this.dgvAccounts.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            this.dgvAccounts.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.colAccountNumber,
+            this.colCustomer,
+            this.colBank,
+            this.colCurrency,
+            this.colBalance,
+            this.colOpenDate,
+            this.colStatus});
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = System.Drawing.Color.White;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Segoe UI", 10F);
+            dataGridViewCellStyle3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(65)))), ((int)(((byte)(85)))));
+            dataGridViewCellStyle3.Padding = new System.Windows.Forms.Padding(8, 0, 8, 0);
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(219)))), ((int)(((byte)(234)))), ((int)(((byte)(254)))));
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(58)))), ((int)(((byte)(138)))));
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgvAccounts.DefaultCellStyle = dataGridViewCellStyle3;
+            this.dgvAccounts.EnableHeadersVisualStyles = false;
+            this.dgvAccounts.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
+            this.dgvAccounts.Location = new System.Drawing.Point(30, 80);
+            this.dgvAccounts.MultiSelect = false;
+            this.dgvAccounts.Name = "dgvAccounts";
+            this.dgvAccounts.ReadOnly = true;
+            this.dgvAccounts.RowHeadersVisible = false;
+            this.dgvAccounts.RowTemplate.Height = 40;
+            this.dgvAccounts.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgvAccounts.Size = new System.Drawing.Size(665, 610);
+            this.dgvAccounts.TabIndex = 4;
             // 
-            // stt
+            // colAccountNumber
             // 
-            this.stt.HeaderText = "STT";
-            this.stt.MinimumWidth = 6;
-            this.stt.Name = "stt";
+            this.colAccountNumber.FillWeight = 110F;
+            this.colAccountNumber.HeaderText = "Số tài khoản";
+            this.colAccountNumber.Name = "colAccountNumber";
+            this.colAccountNumber.ReadOnly = true;
             // 
-            // stk
+            // colCustomer
             // 
-            this.stk.HeaderText = "Số tài khoản";
-            this.stk.MinimumWidth = 6;
-            this.stk.Name = "stk";
+            this.colCustomer.FillWeight = 130F;
+            this.colCustomer.HeaderText = "Khách hàng";
+            this.colCustomer.Name = "colCustomer";
+            this.colCustomer.ReadOnly = true;
             // 
-            // tctk
+            // colBank
             // 
-            this.tctk.HeaderText = "Tên chủ tài khoản";
-            this.tctk.MinimumWidth = 6;
-            this.tctk.Name = "tctk";
+            this.colBank.FillWeight = 110F;
+            this.colBank.HeaderText = "Ngân hàng";
+            this.colBank.Name = "colBank";
+            this.colBank.ReadOnly = true;
             // 
-            // sd
+            // colCurrency
             // 
-            this.sd.HeaderText = "Số dư (vnđ)";
-            this.sd.MinimumWidth = 6;
-            this.sd.Name = "sd";
+            this.colCurrency.FillWeight = 70F;
+            this.colCurrency.HeaderText = "Loại tiền";
+            this.colCurrency.Name = "colCurrency";
+            this.colCurrency.ReadOnly = true;
             // 
-            // NM
+            // colBalance
             // 
-            this.NM.HeaderText = "Ngày mở";
-            this.NM.MinimumWidth = 6;
-            this.NM.Name = "NM";
+            this.colBalance.HeaderText = "Số dư";
+            this.colBalance.Name = "colBalance";
+            this.colBalance.ReadOnly = true;
             // 
-            // TT
+            // colOpenDate
             // 
-            this.TT.HeaderText = "Trạng thái";
-            this.TT.MinimumWidth = 6;
-            this.TT.Name = "TT";
+            this.colOpenDate.FillWeight = 80F;
+            this.colOpenDate.HeaderText = "Ngày mở";
+            this.colOpenDate.Name = "colOpenDate";
+            this.colOpenDate.ReadOnly = true;
             // 
-            // button3
+            // colStatus
             // 
-            this.button3.BackColor = System.Drawing.Color.Navy;
-            this.button3.FlatAppearance.BorderColor = System.Drawing.Color.Black;
-            this.button3.FlatAppearance.BorderSize = 3;
-            this.button3.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button3.ForeColor = System.Drawing.Color.White;
-            this.button3.Image = ((System.Drawing.Image)(resources.GetObject("button3.Image")));
-            this.button3.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button3.Location = new System.Drawing.Point(240, 512);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(144, 35);
-            this.button3.TabIndex = 14;
-            this.button3.Text = "Sửa";
-            this.button3.UseVisualStyleBackColor = false;
-            this.button3.Click += new System.EventHandler(this.button3_Click);
-            // 
-            // button2
-            // 
-            this.button2.BackColor = System.Drawing.Color.Navy;
-            this.button2.Font = new System.Drawing.Font("Segoe UI", 7.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button2.ForeColor = System.Drawing.Color.White;
-            this.button2.Image = ((System.Drawing.Image)(resources.GetObject("button2.Image")));
-            this.button2.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.button2.Location = new System.Drawing.Point(22, 512);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(188, 35);
-            this.button2.TabIndex = 13;
-            this.button2.Text = "Thêm tài khoản";
-            this.button2.UseVisualStyleBackColor = false;
-            // 
-            // button1
-            // 
-            this.button1.BackColor = System.Drawing.Color.Navy;
-            this.button1.Font = new System.Drawing.Font("Segoe UI", 8.5F);
-            this.button1.ForeColor = System.Drawing.Color.White;
-            this.button1.Location = new System.Drawing.Point(1081, 118);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(159, 35);
-            this.button1.TabIndex = 11;
-            this.button1.Text = "Vận hành";
-            this.button1.UseVisualStyleBackColor = false;
-            // 
-            // dateTimePicker1
-            // 
-            this.dateTimePicker1.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.dateTimePicker1.Location = new System.Drawing.Point(898, 128);
-            this.dateTimePicker1.Name = "dateTimePicker1";
-            this.dateTimePicker1.Size = new System.Drawing.Size(127, 22);
-            this.dateTimePicker1.TabIndex = 10;
-            // 
-            // maskedTextBox4
-            // 
-            this.maskedTextBox4.Location = new System.Drawing.Point(281, 128);
-            this.maskedTextBox4.Name = "maskedTextBox4";
-            this.maskedTextBox4.Size = new System.Drawing.Size(277, 22);
-            this.maskedTextBox4.TabIndex = 9;
-            // 
-            // maskedTextBox3
-            // 
-            this.maskedTextBox3.Location = new System.Drawing.Point(629, 128);
-            this.maskedTextBox3.Name = "maskedTextBox3";
-            this.maskedTextBox3.Size = new System.Drawing.Size(186, 22);
-            this.maskedTextBox3.TabIndex = 8;
-            // 
-            // maskedTextBox1
-            // 
-            this.maskedTextBox1.Location = new System.Drawing.Point(22, 128);
-            this.maskedTextBox1.Name = "maskedTextBox1";
-            this.maskedTextBox1.Size = new System.Drawing.Size(193, 22);
-            this.maskedTextBox1.TabIndex = 6;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(893, 97);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(108, 28);
-            this.label6.TabIndex = 5;
-            this.label6.Text = "Trạng thái";
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(624, 97);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(66, 28);
-            this.label5.TabIndex = 4;
-            this.label5.Text = "Số dư";
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(276, 97);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(180, 28);
-            this.label4.TabIndex = 3;
-            this.label4.Text = "Tên chủ tài khoản";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(20, 97);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(130, 28);
-            this.label3.TabIndex = 2;
-            this.label3.Text = "Số tài khoản";
-            // 
-            // label2
-            // 
-            this.label2.BackColor = System.Drawing.Color.Navy;
-            this.label2.Location = new System.Drawing.Point(20, 67);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(294, 18);
-            this.label2.TabIndex = 1;
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.BackColor = System.Drawing.Color.White;
-            this.label1.Font = new System.Drawing.Font("Segoe UI", 16.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.ForeColor = System.Drawing.Color.Navy;
-            this.label1.Location = new System.Drawing.Point(15, 20);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(495, 38);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "QUẢN LÝ TÀI KHOẢN KHÁCH HÀNG";
+            this.colStatus.FillWeight = 80F;
+            this.colStatus.HeaderText = "Trạng thái";
+            this.colStatus.Name = "colStatus";
+            this.colStatus.ReadOnly = true;
             // 
             // AccountForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.Silver;
-            this.ClientSize = new System.Drawing.Size(1393, 701);
-            this.Controls.Add(this.panel1);
-            this.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
+            this.ClientSize = new System.Drawing.Size(1200, 860);
+            this.Controls.Add(this.pnlListCard);
+            this.Controls.Add(this.pnlFormCard);
+            this.Controls.Add(this.pnlHeader);
+            this.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.Margin = new System.Windows.Forms.Padding(4);
+            this.MaximizeBox = false;
             this.Name = "AccountForm";
-            this.Text = "AccountForm";
-            this.Load += new System.EventHandler(this.AccountForm_Load);
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "Quản lý tài khoản ngân hàng";
+            this.pnlHeader.ResumeLayout(false);
+            this.pnlHeader.PerformLayout();
+            this.pnlFormCard.ResumeLayout(false);
+            this.pnlFormContent.ResumeLayout(false);
+            this.pnlFormContent.PerformLayout();
+            this.pnlListCard.ResumeLayout(false);
+            this.pnlListCard.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvAccounts)).EndInit();
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.DateTimePicker dateTimePicker1;
-        private System.Windows.Forms.MaskedTextBox maskedTextBox4;
-        private System.Windows.Forms.MaskedTextBox maskedTextBox3;
-        private System.Windows.Forms.MaskedTextBox maskedTextBox1;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.DataGridView dataGridView1;
-        private System.Windows.Forms.DataGridViewTextBoxColumn stt;
-        private System.Windows.Forms.DataGridViewTextBoxColumn stk;
-        private System.Windows.Forms.DataGridViewTextBoxColumn tctk;
-        private System.Windows.Forms.DataGridViewTextBoxColumn sd;
-        private System.Windows.Forms.DataGridViewTextBoxColumn NM;
-        private System.Windows.Forms.DataGridViewTextBoxColumn TT;
-        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Panel pnlHeader;
+        private System.Windows.Forms.Panel pnlHeaderBorder;
+        private System.Windows.Forms.Label lblTitle;
+        private System.Windows.Forms.Label lblSubtitle;
+        private System.Windows.Forms.Label lblSearch;
+        private System.Windows.Forms.TextBox txtSearch;
+        private System.Windows.Forms.Button btnSearch;
+
+        private System.Windows.Forms.Panel pnlFormCard;
+        private System.Windows.Forms.Panel pnlFormContent;
+        private System.Windows.Forms.Panel lblFormAccent;
+        private System.Windows.Forms.Label lblFormTitle;
+        private System.Windows.Forms.Panel pnlFormDivider1;
+        private System.Windows.Forms.Label lblAccountNumber;
+        private System.Windows.Forms.TextBox txtAccountNumber;
+        private System.Windows.Forms.Label lblCustomer;
+        private System.Windows.Forms.ComboBox cboCustomer;
+        private System.Windows.Forms.Label lblBank;
+        private System.Windows.Forms.ComboBox cboBank;
+        private System.Windows.Forms.Label lblCurrency;
+        private System.Windows.Forms.ComboBox cboCurrency;
+        private System.Windows.Forms.Label lblBalance;
+        private System.Windows.Forms.TextBox txtBalance;
+        private System.Windows.Forms.Label lblStatus;
+        private System.Windows.Forms.ComboBox cboStatus;
+        private System.Windows.Forms.Label lblOpenDate;
+        private System.Windows.Forms.DateTimePicker dtpOpenDate;
+        private System.Windows.Forms.Panel pnlFormDivider2;
+        private System.Windows.Forms.Button btnAdd;
+        private System.Windows.Forms.Button btnEdit;
+        private System.Windows.Forms.Button btnDelete;
+        private System.Windows.Forms.Button btnClear;
+
+        private System.Windows.Forms.Panel pnlListCard;
+        private System.Windows.Forms.Panel lblListAccent;
+        private System.Windows.Forms.Label lblListTitle;
+        private System.Windows.Forms.Label lblListCount;
+        private System.Windows.Forms.Panel pnlListDivider;
+        private System.Windows.Forms.DataGridView dgvAccounts;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colAccountNumber;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colCustomer;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colBank;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colCurrency;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colBalance;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colOpenDate;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colStatus;
     }
 }
