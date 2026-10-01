@@ -9,6 +9,18 @@ namespace BankAccountManagement.Forms
     {
         public int BorderRadius { get; set; } = 30;
 
+        // Thêm thuộc tính Đổi màu viền (Mặc định là trong suốt)
+        private Color _borderColor = Color.Transparent;
+        public Color BorderColor
+        {
+            get { return _borderColor; }
+            set
+            {
+                _borderColor = value;
+                this.Invalidate(); // Lệnh này giúp Form lập tức vẽ lại màu mới khi bạn chọn ở Properties
+            }
+        }
+
         public RoundedPanel()
         {
             this.DoubleBuffered = true;
@@ -18,18 +30,23 @@ namespace BankAccountManagement.Forms
         {
             base.OnPaint(e);
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            // Hình cắt viền (To bằng 100% kích thước)
+            RectangleF rectRegion = new RectangleF(0, 0, this.Width, this.Height);
 
-            RectangleF rect = new RectangleF(0, 0, this.Width, this.Height);
+            // Hình để vẽ viền (Thụt vào 1 pixel ở cạnh phải và cạnh dưới để không bị lẹm)
+            RectangleF rectBorder = new RectangleF(0, 0, this.Width - 1, this.Height - 1);
             if (BorderRadius > 0)
             {
-                using (GraphicsPath path = GetRoundedPath(rect, BorderRadius))
+                // 1. Gọt các góc
+                using (GraphicsPath pathRegion = GetRoundedPath(rectRegion, BorderRadius))
                 {
-                    this.Region = new Region(path);
-
-                    using (Pen pen = new Pen(this.BackColor, 1))
-                    {
-                        e.Graphics.DrawPath(pen, path);
-                    }
+                    this.Region = new Region(pathRegion);
+                }
+                // 2. Vẽ cái nét viền màu thụt vào 1 tí
+                using (GraphicsPath pathBorder = GetRoundedPath(rectBorder, BorderRadius))
+                using (Pen pen = new Pen(BorderColor, 1))
+                {
+                    e.Graphics.DrawPath(pen, pathBorder);
                 }
             }
         }
