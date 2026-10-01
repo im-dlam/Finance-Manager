@@ -109,10 +109,7 @@
     <Compile Include="Forms\RoundedPanel.cs">
       <SubType>Component</SubType>
     </Compile>
-<<<<<<< HEAD
-=======
     <Compile Include="Models\DatabaseConfig.cs" />
->>>>>>> main
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\DatabaseConfigManager.cs" />
