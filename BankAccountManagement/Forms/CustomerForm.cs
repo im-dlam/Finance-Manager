@@ -1,5 +1,6 @@
 using System;
 using System.Data;
+using System.Data.SqlClient;
 using System.Windows.Forms;
 using BankAccountManagement.Services;
 
@@ -258,9 +259,16 @@ namespace BankAccountManagement.Forms
                     MessageBox.Show("Không thể lưu. Vui lòng kiểm tra lại (có thể trùng Mã KH hoặc CMND).", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
+            catch (System.Data.SqlClient.SqlException ex) when (ex.Number == 2627 || ex.Number == 2601)
+            {
+                if (ex.Message.Contains("PRIMARY KEY"))
+                    MessageBox.Show("Mã khách hàng đã tồn tại! Vui lòng nhập mã khác.", "Lỗi trùng lặp", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                else
+                    MessageBox.Show("Số CMND/CCCD đã tồn tại! Vui lòng kiểm tra lại.", "Lỗi trùng lặp", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi SQL: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Lỗi hệ thống: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
