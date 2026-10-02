@@ -110,6 +110,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Models\DatabaseConfig.cs" />
+    <Compile Include="Models\NganHang.cs" />
     <Compile Include="Models\TaiKhoan.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -117,6 +118,7 @@
     <Compile Include="Services\DatabaseConfigManager.cs" />
     <Compile Include="Services\CustomerService.cs" />
     <Compile Include="Services\DatabaseService.cs" />
+    <Compile Include="Services\NganHangService.cs" />
     <Compile Include="Services\TaiKhoanservice.cs" />
     <EmbeddedResource Include="Forms\AccountForm.resx">
       <DependentUpon>AccountForm.cs</DependentUpon>
