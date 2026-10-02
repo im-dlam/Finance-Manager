@@ -1,6 +1,4 @@
--- ============================================
--- BankAccountManagement - Database Schema
--- ============================================
+
 
 -- 1. Bảng Khách hàng
 CREATE TABLE KhachHang (
@@ -78,9 +76,7 @@ CREATE TABLE NguoiDung (
     Quyen NVARCHAR(50) DEFAULT 'Staff'
 );
 
--- ============================================
 -- Index
--- ============================================
 CREATE INDEX idx_khachhang_sdt       ON KhachHang(SoDienThoai);
 CREATE INDEX idx_khachhang_email     ON KhachHang(Email);
 CREATE INDEX idx_taikhoan_trangthai  ON TaiKhoan(TrangThai);
@@ -88,50 +84,3 @@ CREATE INDEX idx_giaodich_ngay       ON GiaoDich(NgayGiaoDich);
 CREATE INDEX idx_giaodich_trangthai  ON GiaoDich(TrangThai);
 CREATE INDEX idx_taikhoan_makh       ON TaiKhoan(MaKH);
 CREATE INDEX idx_giaodich_sotaikhoan ON GiaoDich(SoTaiKhoan);
-
--- ============================================
--- Dữ liệu mẫu
--- ============================================
-
--- Loại tiền
-INSERT INTO LoaiTien (MaLoaiTien, TenLoaiTien) VALUES
-('VND', N'Việt Nam Đồng'),
-('USD', N'Đô la Mỹ'),
-('EUR', N'Euro');
-
--- Ngân hàng
-INSERT INTO NganHang (MaNganHang, TenNganHang, ChiNhanh, SwiftCode) VALUES
-('VCB',  N'Vietcombank',          N'Hà Nội',  'BFTVVNVX'),
-('TCB',  N'Techcombank',          N'TP.HCM',  'VTCBVNVX'),
-('BIDV', N'BIDV',                 N'Đà Nẵng', 'BIDVVNVX'),
-('MB',   N'MB Bank',              N'Hà Nội',  'MSCBVNVX'),
-('ACB',  N'Á Châu Bank',          N'TP.HCM',  'ASCBVNVX');
-
--- Loại giao dịch
-INSERT INTO LoaiGiaoDich (TenLoaiGD, PhanLoai) VALUES
-(N'Gửi tiền',       'INCOME'),
-(N'Rút tiền',       'EXPENSE'),
-(N'Chuyển khoản',   'EXPENSE'),
-(N'Nhận chuyển khoản', 'INCOME'),
-(N'Thanh toán',     'EXPENSE');
-
--- Khách hàng mẫu
-INSERT INTO KhachHang (MaKH, HoTen, CMND_CCCD, NgaySinh, GioiTinh, SoDienThoai, Email, DiaChi) VALUES
-('KH001', N'Nguyễn Văn An',    '001234567890', '1990-05-15', N'Nam', '0901234567', 'an@gmail.com',    N'Hà Nội'),
-('KH002', N'Trần Thị Bình',    '001234567891', '1995-08-20', N'Nữ',  '0912345678', 'binh@gmail.com',  N'TP.HCM'),
-('KH003', N'Lê Văn Cường',     '001234567892', '1988-03-10', N'Nam', '0923456789', 'cuong@gmail.com', N'Đà Nẵng'),
-('KH004', N'Phạm Thị Dung',    '001234567893', '1992-11-25', N'Nữ',  '0934567890', 'dung@gmail.com',  N'Hải Phòng'),
-('KH005', N'Hoàng Văn Em',     '001234567894', '1985-07-08', N'Nam', '0945678901', 'em@gmail.com',    N'Cần Thơ');
-
--- Tài khoản mẫu
-INSERT INTO TaiKhoan (SoTaiKhoan, MaKH, MaNganHang, MaLoaiTien, SoDuBanDau, SoDuHienTai) VALUES
-('TK00001', 'KH001', 'VCB',  'VND', 5000000,   5000000),
-('TK00002', 'KH002', 'TCB',  'VND', 10000000,  10000000),
-('TK00003', 'KH003', 'BIDV', 'USD', 500,        500),
-('TK00004', 'KH004', 'MB',   'VND', 3000000,   3000000),
-('TK00005', 'KH005', 'ACB',  'EUR', 200,        200);
-
--- Người dùng (mật khẩu: admin123)
-INSERT INTO NguoiDung (TenDangNhap, MatKhau, Quyen) VALUES
-('admin', 'admin123', 'Admin'),
-('staff', 'staff123', 'Staff');
