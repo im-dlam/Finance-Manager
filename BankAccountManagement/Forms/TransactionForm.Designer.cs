@@ -1,4 +1,4 @@
-﻿namespace BankAccountManagement.Forms
+﻿namespace BankAccountManagement
 {
     partial class TransactionForm
     {
@@ -103,7 +103,7 @@
             this.labelSubtitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(103)))), ((int)(((byte)(116)))), ((int)(((byte)(135)))));
             this.labelSubtitle.Location = new System.Drawing.Point(93, 47);
             this.labelSubtitle.Name = "labelSubtitle";
-            this.labelSubtitle.Size = new System.Drawing.Size(285, 17);
+            this.labelSubtitle.Size = new System.Drawing.Size(411, 25);
             this.labelSubtitle.TabIndex = 2;
             this.labelSubtitle.Text = "Theo dõi và quản lý các giao dịch của tài khoản";
             // 
@@ -114,7 +114,7 @@
             this.labelTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(27)))), ((int)(((byte)(37)))), ((int)(((byte)(54)))));
             this.labelTitle.Location = new System.Drawing.Point(91, 12);
             this.labelTitle.Name = "labelTitle";
-            this.labelTitle.Size = new System.Drawing.Size(116, 32);
+            this.labelTitle.Size = new System.Drawing.Size(174, 48);
             this.labelTitle.TabIndex = 1;
             this.labelTitle.Text = "Giao dịch";
             // 
@@ -153,6 +153,7 @@
             this.buttonAdd.TabIndex = 9;
             this.buttonAdd.Text = "+  Thêm giao dịch";
             this.buttonAdd.UseVisualStyleBackColor = false;
+           
             // 
             // buttonExport
             // 
@@ -207,7 +208,7 @@
             "Chi"});
             this.comboType.Location = new System.Drawing.Point(559, 31);
             this.comboType.Name = "comboType";
-            this.comboType.Size = new System.Drawing.Size(135, 25);
+            this.comboType.Size = new System.Drawing.Size(135, 33);
             this.comboType.TabIndex = 5;
             // 
             // labelType
@@ -217,7 +218,7 @@
             this.labelType.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(72)))), ((int)(((byte)(90)))));
             this.labelType.Location = new System.Drawing.Point(562, 10);
             this.labelType.Name = "labelType";
-            this.labelType.Size = new System.Drawing.Size(81, 15);
+            this.labelType.Size = new System.Drawing.Size(126, 25);
             this.labelType.TabIndex = 4;
             this.labelType.Text = "Loại giao dịch";
             // 
@@ -233,7 +234,7 @@
             "BIDV"});
             this.comboAccount.Location = new System.Drawing.Point(394, 31);
             this.comboAccount.Name = "comboAccount";
-            this.comboAccount.Size = new System.Drawing.Size(150, 25);
+            this.comboAccount.Size = new System.Drawing.Size(150, 33);
             this.comboAccount.TabIndex = 3;
             // 
             // labelAccount
@@ -243,7 +244,7 @@
             this.labelAccount.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(72)))), ((int)(((byte)(90)))));
             this.labelAccount.Location = new System.Drawing.Point(397, 10);
             this.labelAccount.Name = "labelAccount";
-            this.labelAccount.Size = new System.Drawing.Size(58, 15);
+            this.labelAccount.Size = new System.Drawing.Size(89, 25);
             this.labelAccount.TabIndex = 2;
             this.labelAccount.Text = "Tài khoản";
             // 
@@ -254,7 +255,7 @@
             this.textSearch.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(105)))), ((int)(((byte)(116)))), ((int)(((byte)(132)))));
             this.textSearch.Location = new System.Drawing.Point(18, 31);
             this.textSearch.Name = "textSearch";
-            this.textSearch.Size = new System.Drawing.Size(360, 25);
+            this.textSearch.Size = new System.Drawing.Size(360, 34);
             this.textSearch.TabIndex = 1;
             this.textSearch.Text = "   Nội dung, tài khoản, mã giao dịch...";
             // 
@@ -265,7 +266,7 @@
             this.labelSearch.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(72)))), ((int)(((byte)(90)))));
             this.labelSearch.Location = new System.Drawing.Point(15, 10);
             this.labelSearch.Name = "labelSearch";
-            this.labelSearch.Size = new System.Drawing.Size(57, 15);
+            this.labelSearch.Size = new System.Drawing.Size(88, 25);
             this.labelSearch.TabIndex = 0;
             this.labelSearch.Text = "Tìm kiếm";
             // 
@@ -300,7 +301,7 @@
             this.labelCount.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(27)))), ((int)(((byte)(37)))), ((int)(((byte)(54)))));
             this.labelCount.Location = new System.Drawing.Point(14, 33);
             this.labelCount.Name = "labelCount";
-            this.labelCount.Size = new System.Drawing.Size(22, 25);
+            this.labelCount.Size = new System.Drawing.Size(29, 36);
             this.labelCount.TabIndex = 1;
             this.labelCount.Text = "8";
             // 
@@ -311,7 +312,7 @@
             this.labelCountTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(103)))), ((int)(((byte)(116)))), ((int)(((byte)(135)))));
             this.labelCountTitle.Location = new System.Drawing.Point(15, 10);
             this.labelCountTitle.Name = "labelCountTitle";
-            this.labelCountTitle.Size = new System.Drawing.Size(72, 15);
+            this.labelCountTitle.Size = new System.Drawing.Size(111, 25);
             this.labelCountTitle.TabIndex = 0;
             this.labelCountTitle.Text = "Số giao dịch";
             // 
@@ -333,7 +334,7 @@
             this.labelExpense.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(235)))), ((int)(((byte)(65)))), ((int)(((byte)(85)))));
             this.labelExpense.Location = new System.Drawing.Point(14, 33);
             this.labelExpense.Name = "labelExpense";
-            this.labelExpense.Size = new System.Drawing.Size(118, 25);
+            this.labelExpense.Size = new System.Drawing.Size(165, 36);
             this.labelExpense.TabIndex = 1;
             this.labelExpense.Text = "- 2,050,000 ₫";
             // 
@@ -344,7 +345,7 @@
             this.labelExpenseTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(103)))), ((int)(((byte)(116)))), ((int)(((byte)(135)))));
             this.labelExpenseTitle.Location = new System.Drawing.Point(15, 10);
             this.labelExpenseTitle.Name = "labelExpenseTitle";
-            this.labelExpenseTitle.Size = new System.Drawing.Size(54, 15);
+            this.labelExpenseTitle.Size = new System.Drawing.Size(80, 25);
             this.labelExpenseTitle.TabIndex = 0;
             this.labelExpenseTitle.Text = "Tổng chi";
             // 
@@ -366,7 +367,7 @@
             this.labelIncome.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(160)))), ((int)(((byte)(105)))));
             this.labelIncome.Location = new System.Drawing.Point(14, 33);
             this.labelIncome.Name = "labelIncome";
-            this.labelIncome.Size = new System.Drawing.Size(124, 25);
+            this.labelIncome.Size = new System.Drawing.Size(174, 36);
             this.labelIncome.TabIndex = 1;
             this.labelIncome.Text = "+ 4,700,000 ₫";
             // 
@@ -377,7 +378,7 @@
             this.labelIncomeTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(103)))), ((int)(((byte)(116)))), ((int)(((byte)(135)))));
             this.labelIncomeTitle.Location = new System.Drawing.Point(15, 10);
             this.labelIncomeTitle.Name = "labelIncomeTitle";
-            this.labelIncomeTitle.Size = new System.Drawing.Size(56, 15);
+            this.labelIncomeTitle.Size = new System.Drawing.Size(84, 25);
             this.labelIncomeTitle.TabIndex = 0;
             this.labelIncomeTitle.Text = "Tổng thu";
             // 
@@ -439,6 +440,7 @@
             this.dataGridViewTransactions.Name = "dataGridViewTransactions";
             this.dataGridViewTransactions.ReadOnly = true;
             this.dataGridViewTransactions.RowHeadersVisible = false;
+            this.dataGridViewTransactions.RowHeadersWidth = 62;
             this.dataGridViewTransactions.RowTemplate.Height = 44;
             this.dataGridViewTransactions.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dataGridViewTransactions.Size = new System.Drawing.Size(1070, 288);
@@ -447,43 +449,56 @@
             // dataGridViewTextBoxColumn1
             // 
             this.dataGridViewTextBoxColumn1.HeaderText = "Ngày giao dịch";
+            this.dataGridViewTextBoxColumn1.MinimumWidth = 8;
             this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
             this.dataGridViewTextBoxColumn1.ReadOnly = true;
+            this.dataGridViewTextBoxColumn1.Width = 150;
             // 
             // dataGridViewTextBoxColumn2
             // 
             this.dataGridViewTextBoxColumn2.HeaderText = "Nội dung";
+            this.dataGridViewTextBoxColumn2.MinimumWidth = 8;
             this.dataGridViewTextBoxColumn2.Name = "dataGridViewTextBoxColumn2";
             this.dataGridViewTextBoxColumn2.ReadOnly = true;
+            this.dataGridViewTextBoxColumn2.Width = 150;
             // 
             // dataGridViewTextBoxColumn3
             // 
             this.dataGridViewTextBoxColumn3.HeaderText = "Tài khoản";
+            this.dataGridViewTextBoxColumn3.MinimumWidth = 8;
             this.dataGridViewTextBoxColumn3.Name = "dataGridViewTextBoxColumn3";
             this.dataGridViewTextBoxColumn3.ReadOnly = true;
+            this.dataGridViewTextBoxColumn3.Width = 150;
             // 
             // dataGridViewTextBoxColumn4
             // 
             this.dataGridViewTextBoxColumn4.HeaderText = "Loại";
+            this.dataGridViewTextBoxColumn4.MinimumWidth = 8;
             this.dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
             this.dataGridViewTextBoxColumn4.ReadOnly = true;
+            this.dataGridViewTextBoxColumn4.Width = 150;
             // 
             // dataGridViewTextBoxColumn5
             // 
             this.dataGridViewTextBoxColumn5.HeaderText = "Số tiền";
+            this.dataGridViewTextBoxColumn5.MinimumWidth = 8;
             this.dataGridViewTextBoxColumn5.Name = "dataGridViewTextBoxColumn5";
             this.dataGridViewTextBoxColumn5.ReadOnly = true;
+            this.dataGridViewTextBoxColumn5.Width = 150;
             // 
             // dataGridViewTextBoxColumn7
             // 
             this.dataGridViewTextBoxColumn7.HeaderText = "Thao tác";
+            this.dataGridViewTextBoxColumn7.MinimumWidth = 8;
             this.dataGridViewTextBoxColumn7.Name = "dataGridViewTextBoxColumn7";
             this.dataGridViewTextBoxColumn7.ReadOnly = true;
+            this.dataGridViewTextBoxColumn7.Width = 150;
             // 
             // dataGridViewTextBoxColumn6
             // 
             this.dataGridViewTextBoxColumn6.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
             this.dataGridViewTextBoxColumn6.HeaderText = "Trạng thái";
+            this.dataGridViewTextBoxColumn6.MinimumWidth = 8;
             this.dataGridViewTextBoxColumn6.Name = "dataGridViewTextBoxColumn6";
             this.dataGridViewTextBoxColumn6.ReadOnly = true;
             // 
@@ -494,7 +509,7 @@
             this.labelTableTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(27)))), ((int)(((byte)(37)))), ((int)(((byte)(54)))));
             this.labelTableTitle.Location = new System.Drawing.Point(14, 19);
             this.labelTableTitle.Name = "labelTableTitle";
-            this.labelTableTitle.Size = new System.Drawing.Size(147, 20);
+            this.labelTableTitle.Size = new System.Drawing.Size(212, 30);
             this.labelTableTitle.TabIndex = 0;
             this.labelTableTitle.Text = "Danh sách giao dịch";
             // 
@@ -561,13 +576,13 @@
             this.labelPageInfo.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(103)))), ((int)(((byte)(116)))), ((int)(((byte)(135)))));
             this.labelPageInfo.Location = new System.Drawing.Point(0, 17);
             this.labelPageInfo.Name = "labelPageInfo";
-            this.labelPageInfo.Size = new System.Drawing.Size(150, 15);
+            this.labelPageInfo.Size = new System.Drawing.Size(230, 25);
             this.labelPageInfo.TabIndex = 0;
             this.labelPageInfo.Text = "Hiển thị 1 - 8 / 24 giao dịch";
             // 
             // TransactionForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(1100, 680);

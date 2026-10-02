@@ -115,6 +115,7 @@
     <Compile Include="Services\DatabaseConfigManager.cs" />
     <Compile Include="Services\CustomerService.cs" />
     <Compile Include="Services\DatabaseService.cs" />
+    <Compile Include="Services\TransactionService.cs" />
     <EmbeddedResource Include="Forms\AccountForm.resx">
       <DependentUpon>AccountForm.cs</DependentUpon>
     </EmbeddedResource>
