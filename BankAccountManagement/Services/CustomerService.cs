@@ -20,7 +20,7 @@ namespace BankAccountManagement.Services
             DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             {
-                string sql = "SELECT MaKH, HoTen, CMND_CCCD, NgaySinh, GioiTinh, SoDienThoai, Email, DiaChi, TrangThai FROM KhachHang WHERE TrangThai = 'Active' ORDER BY NgayTao DESC";
+                string sql = "SELECT MaKH, HoTen, CMND_CCCD, NgaySinh, GioiTinh, SoDienThoai, Email, DiaChi, TrangThai FROM KhachHang WHERE TrangThai = 'Active' ORDER BY MaKH ASC";
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
                     SqlDataAdapter adapter = new SqlDataAdapter(cmd);
@@ -39,7 +39,7 @@ namespace BankAccountManagement.Services
                 string sql = @"SELECT MaKH, HoTen, CMND_CCCD, NgaySinh, GioiTinh, SoDienThoai, Email, DiaChi, TrangThai 
                                FROM KhachHang 
                                WHERE TrangThai = 'Active' AND (MaKH LIKE @Keyword OR HoTen LIKE @Keyword OR SoDienThoai LIKE @Keyword OR CMND_CCCD LIKE @Keyword)
-                               ORDER BY NgayTao DESC";
+                               ORDER BY MaKH ASC";
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("@Keyword", "%" + keyword + "%");
