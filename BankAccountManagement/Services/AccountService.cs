@@ -1,16 +1,15 @@
-﻿// Services/TaiKhoanService.cs
-using BankAccountManagement.Models;
+﻿using BankAccountManagement.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 
 namespace BankAccountManagement.Services
 {
-    public class TaiKhoanService
+    public class AccountService
     {
         private readonly string _connectionString;
 
-        public TaiKhoanService()
+        public AccountService()
         {
             DatabaseConfig config = DatabaseConfigManager.Load();
             _connectionString = DatabaseService.BuildConnectionString(config);

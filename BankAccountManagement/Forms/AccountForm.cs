@@ -10,7 +10,7 @@ namespace BankAccountManagement.Forms
 {
     public partial class AccountForm : Form
     {
-        private readonly TaiKhoanService _taiKhoanService = new TaiKhoanService();
+        private readonly AccountService _AccountService = new AccountService();
         private bool _isAddNew = false;
 
         // ✅ Lưu lại giá trị gốc khi chọn dòng → tránh mất data khi field bị disabled
@@ -113,8 +113,8 @@ namespace BankAccountManagement.Forms
             try
             {
                 List<TaiKhoan> danhSach = string.IsNullOrWhiteSpace(keyword)
-                    ? _taiKhoanService.GetActiveTaiKhoan()
-                    : _taiKhoanService.SearchTaiKhoan(keyword);
+                    ? _AccountService.GetActiveTaiKhoan()
+                    : _AccountService.SearchTaiKhoan(keyword);
 
                 dgvAccounts.AutoGenerateColumns = false;
 
@@ -253,7 +253,7 @@ namespace BankAccountManagement.Forms
             {
                 try
                 {
-                    if (_taiKhoanService.CloseTaiKhoan(txtAccountNumber.Text))
+                    if (_AccountService.CloseTaiKhoan(txtAccountNumber.Text))
                     {
                         MessageBox.Show("Đóng tài khoản thành công!", "Thông báo",
                             MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -368,8 +368,8 @@ namespace BankAccountManagement.Forms
             try
             {
                 bool ok = _isAddNew
-                    ? _taiKhoanService.AddTaiKhoan(tk)
-                    : _taiKhoanService.UpdateTaiKhoan(tk);
+                    ? _AccountService.AddTaiKhoan(tk)
+                    : _AccountService.UpdateTaiKhoan(tk);
 
                 if (ok)
                 {
