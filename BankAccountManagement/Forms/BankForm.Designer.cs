@@ -497,7 +497,6 @@
             this.pnlListCard.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvBank)).EndInit();
             this.ResumeLayout(false);
-
         }
 
         #endregion
