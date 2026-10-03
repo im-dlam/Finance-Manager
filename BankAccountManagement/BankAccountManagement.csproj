@@ -100,6 +100,7 @@
     <Compile Include="Forms\StatisticsForm.Designer.cs">
       <DependentUpon>StatisticsForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\AddTransactionForm.cs"><SubType>Form</SubType></Compile>
     <Compile Include="Forms\TransactionForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -175,3 +176,4 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
+

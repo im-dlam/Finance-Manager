@@ -1,32 +1,35 @@
-﻿using BankAccountManagement.Models;
+using BankAccountManagement.Models;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BankAccountManagement.Services
 {
     public class TransactionService
     {
-        // Hàm lấy chuỗi kết nối Database từ cấu hình chung
         private string GetConnectionString()
         {
-            DatabaseConfig config = DatabaseConfigManager.Load();
-            return DatabaseService.BuildConnectionString(config);
+            return DatabaseService.BuildConnectionString(DatabaseConfigManager.Load());
         }
 
-        // 1. Lấy toàn bộ danh sách giao dịch
         public DataTable GetAllTransactions()
         {
             DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             {
-                string sql = @"SELECT MaGD, SoTaiKhoan, LoaiGiaoDich, SoTien, NgayGiaoDich, NoiDung 
-                               FROM GiaoDich 
-                               ORDER BY NgayGiaoDich DESC";
+                string sql = @"
+                    SELECT 
+                        G.NgayGiaoDich, 
+                        G.NoiDung, 
+                        G.SoTaiKhoan, 
+                        L.TenLoaiGD AS Loai, 
+                        G.SoTien,
+                        L.PhanLoai, -- Thêm để biết thu/chi
+                        N'Chi tiết' AS ThaoTac, 
+                        G.TrangThai 
+                    FROM GiaoDich G
+                    INNER JOIN LoaiGiaoDich L ON G.MaLoaiGD = L.MaLoaiGD
+                    ORDER BY G.NgayGiaoDich DESC";
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
                     SqlDataAdapter adapter = new SqlDataAdapter(cmd);
@@ -36,22 +39,42 @@ namespace BankAccountManagement.Services
             return dt;
         }
 
-        // 2. Tìm kiếm giao dịch theo Mã GD, Số tài khoản, hoặc Nội dung
-        public DataTable SearchTransactions(string keyword)
+        public DataTable SearchTransactions(string keyword, string soTaiKhoan = "", string tenLoai = "")
         {
             DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             {
-                string sql = @"SELECT MaGD, SoTaiKhoan, LoaiGiaoDich, SoTien, NgayGiaoDich, NoiDung 
-                               FROM GiaoDich 
-                               WHERE MaGD LIKE @Keyword 
-                                  OR SoTaiKhoan LIKE @Keyword 
-                                  OR NoiDung LIKE @Keyword 
-                                  OR LoaiGiaoDich LIKE @Keyword
-                               ORDER BY NgayGiaoDich DESC";
+                string sql = @"
+                    SELECT 
+                        G.NgayGiaoDich, 
+                        G.NoiDung, 
+                        G.SoTaiKhoan, 
+                        L.TenLoaiGD AS Loai, 
+                        G.SoTien,
+                        L.PhanLoai,
+                        N'Chi tiết' AS ThaoTac, 
+                        G.TrangThai 
+                    FROM GiaoDich G
+                    INNER JOIN LoaiGiaoDich L ON G.MaLoaiGD = L.MaLoaiGD
+                    WHERE (G.NoiDung LIKE @Keyword OR G.SoTaiKhoan LIKE @Keyword OR G.MaGiaoDich LIKE @Keyword)";
+
+                if (!string.IsNullOrEmpty(soTaiKhoan) && soTaiKhoan != "Tất cả")
+                {
+                    sql += " AND G.SoTaiKhoan = @SoTaiKhoan";
+                }
+                if (!string.IsNullOrEmpty(tenLoai) && tenLoai != "Tất cả")
+                {
+                    sql += " AND L.TenLoaiGD = @TenLoai";
+                }
+
+                sql += " ORDER BY G.NgayGiaoDich DESC";
+
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("@Keyword", "%" + keyword + "%");
+                    if (!string.IsNullOrEmpty(soTaiKhoan) && soTaiKhoan != "Tất cả") cmd.Parameters.AddWithValue("@SoTaiKhoan", soTaiKhoan);
+                    if (!string.IsNullOrEmpty(tenLoai) && tenLoai != "Tất cả") cmd.Parameters.AddWithValue("@TenLoai", tenLoai);
+                    
                     SqlDataAdapter adapter = new SqlDataAdapter(cmd);
                     adapter.Fill(dt);
                 }
@@ -59,8 +82,7 @@ namespace BankAccountManagement.Services
             return dt;
         }
 
-        // 3. Thực hiện giao dịch (Gửi tiền / Rút tiền) dùng Transaction để đảm bảo tính toàn vẹn dữ liệu
-        public bool ExecuteTransaction(string maGD, string soTaiKhoan, string loaiGiaoDich, decimal soTien, string noiDung)
+        public bool AddTransaction(string maGD, string soTaiKhoan, int maLoaiGD, decimal soTien, string noiDung, DateTime ngayGD, string trangThai)
         {
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             {
@@ -69,43 +91,47 @@ namespace BankAccountManagement.Services
                 {
                     try
                     {
-                        // a. Thêm bản ghi vào bảng GiaoDich
-                        string sqlInsert = @"INSERT INTO GiaoDich (MaGD, SoTaiKhoan, LoaiGiaoDich, SoTien, NgayGiaoDich, NoiDung) 
-                                             VALUES (@MaGD, @SoTaiKhoan, @LoaiGiaoDich, @SoTien, GETDATE(), @NoiDung)";
-                        using (SqlCommand cmdInsert = new SqlCommand(sqlInsert, conn, transaction))
+                        // Thêm giao dịch
+                        string sqlInsert = @"INSERT INTO GiaoDich (MaGiaoDich, SoTaiKhoan, MaLoaiGD, SoTien, NgayGiaoDich, NoiDung, TrangThai) 
+                                             VALUES (@MaGD, @SoTaiKhoan, @MaLoai, @SoTien, @Ngay, @NoiDung, @TrangThai)";
+                        using (SqlCommand cmd = new SqlCommand(sqlInsert, conn, transaction))
                         {
-                            cmdInsert.Parameters.AddWithValue("@MaGD", maGD);
-                            cmdInsert.Parameters.AddWithValue("@SoTaiKhoan", soTaiKhoan);
-                            cmdInsert.Parameters.AddWithValue("@LoaiGiaoDich", loaiGiaoDich);
-                            cmdInsert.Parameters.AddWithValue("@SoTien", soTien);
-                            cmdInsert.Parameters.AddWithValue("@NoiDung", noiDung);
-                            cmdInsert.ExecuteNonQuery();
+                            cmd.Parameters.AddWithValue("@MaGD", maGD);
+                            cmd.Parameters.AddWithValue("@SoTaiKhoan", soTaiKhoan);
+                            cmd.Parameters.AddWithValue("@MaLoai", maLoaiGD);
+                            cmd.Parameters.AddWithValue("@SoTien", soTien);
+                            cmd.Parameters.AddWithValue("@Ngay", ngayGD);
+                            cmd.Parameters.AddWithValue("@NoiDung", noiDung);
+                            cmd.Parameters.AddWithValue("@TrangThai", trangThai);
+                            cmd.ExecuteNonQuery();
                         }
 
-                        // b. Cập nhật số dư tài khoản
-                        string sqlUpdateBalance = "";
-                        if (loaiGiaoDich.Equals("GuiTien", StringComparison.OrdinalIgnoreCase) ||
-                            loaiGiaoDich.Equals("Gửi tiền", StringComparison.OrdinalIgnoreCase) ||
-                            loaiGiaoDich.Equals("Nạp tiền", StringComparison.OrdinalIgnoreCase))
+                        // Lấy loại giao dịch là Thu hay Chi
+                        string phanLoai = "";
+                        string getLoaiSql = "SELECT PhanLoai FROM LoaiGiaoDich WHERE MaLoaiGD = @MaLoai";
+                        using (SqlCommand cmd = new SqlCommand(getLoaiSql, conn, transaction))
                         {
-                            sqlUpdateBalance = "UPDATE TaiKhoan SET SoDu = SoDu + @SoTien WHERE SoTaiKhoan = @SoTaiKhoan";
-                        }
-                        else
-                        {
-                            sqlUpdateBalance = "UPDATE TaiKhoan SET SoDu = SoDu - @SoTien WHERE SoTaiKhoan = @SoTaiKhoan AND SoDu >= @SoTien";
+                            cmd.Parameters.AddWithValue("@MaLoai", maLoaiGD);
+                            phanLoai = cmd.ExecuteScalar()?.ToString() ?? "";
                         }
 
-                        using (SqlCommand cmdUpdate = new SqlCommand(sqlUpdateBalance, conn, transaction))
+                        // Nếu thành công thì trừ/cộng tiền
+                        if (trangThai == "Success" || trangThai == "Hoàn tất")
                         {
-                            cmdUpdate.Parameters.AddWithValue("@SoTien", soTien);
-                            cmdUpdate.Parameters.AddWithValue("@SoTaiKhoan", soTaiKhoan);
-                            int rowsAffected = cmdUpdate.ExecuteNonQuery();
+                            string sqlUpdate = "";
+                            if (phanLoai == "INCOME")
+                                sqlUpdate = "UPDATE TaiKhoan SET SoDuHienTai = SoDuHienTai + @SoTien WHERE SoTaiKhoan = @SoTaiKhoan";
+                            else if (phanLoai == "EXPENSE")
+                                sqlUpdate = "UPDATE TaiKhoan SET SoDuHienTai = SoDuHienTai - @SoTien WHERE SoTaiKhoan = @SoTaiKhoan";
 
-                            // Nếu không có dòng nào được cập nhật (ví dụ: Số dư không đủ rút)
-                            if (rowsAffected == 0)
+                            if (!string.IsNullOrEmpty(sqlUpdate))
                             {
-                                transaction.Rollback();
-                                return false;
+                                using (SqlCommand cmdUpdate = new SqlCommand(sqlUpdate, conn, transaction))
+                                {
+                                    cmdUpdate.Parameters.AddWithValue("@SoTien", soTien);
+                                    cmdUpdate.Parameters.AddWithValue("@SoTaiKhoan", soTaiKhoan);
+                                    cmdUpdate.ExecuteNonQuery();
+                                }
                             }
                         }
 
@@ -121,19 +147,52 @@ namespace BankAccountManagement.Services
             }
         }
 
-        // 4. Thống kê thông số giao dịch cho các thẻ thông tin (Cards)
-        public DataTable GetTransactionStatistics()
+        public DataTable GetTransactionStatistics(string keyword = "", string soTaiKhoan = "", string tenLoai = "")
         {
             DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             {
                 string sql = @"
                     SELECT 
-                        (SELECT COUNT(*) FROM GiaoDich) AS TongGiaoDich,
-                        (SELECT ISNULL(SUM(SoTien), 0) FROM GiaoDich WHERE LoaiGiaoDich LIKE N'%Gửi%' OR LoaiGiaoDich LIKE N'%Nap%') AS TongTienGui,
-                        (SELECT ISNULL(SUM(SoTien), 0) FROM GiaoDich WHERE LoaiGiaoDich LIKE N'%Rút%') AS TongTienRut,
-                        (SELECT COUNT(*) FROM GiaoDich WHERE CAST(NgayGiaoDich AS DATE) = CAST(GETDATE() AS DATE)) AS GiaoDichHomNay
+                        (SELECT COUNT(*) FROM GiaoDich G INNER JOIN LoaiGiaoDich L ON G.MaLoaiGD = L.MaLoaiGD WHERE (@Kw='' OR G.NoiDung LIKE N'%'+@Kw+N'%') AND (@Tk=N'Tất cả' OR G.SoTaiKhoan=@Tk) AND (@Loai=N'Tất cả' OR L.TenLoaiGD=@Loai)) AS TongGiaoDich,
+                        (SELECT ISNULL(SUM(G.SoTien), 0) FROM GiaoDich G INNER JOIN LoaiGiaoDich L ON G.MaLoaiGD = L.MaLoaiGD WHERE L.PhanLoai = 'INCOME' AND (@Kw='' OR G.NoiDung LIKE N'%'+@Kw+N'%') AND (@Tk=N'Tất cả' OR G.SoTaiKhoan=@Tk) AND (@Loai=N'Tất cả' OR L.TenLoaiGD=@Loai)) AS TongThu,
+                        (SELECT ISNULL(SUM(G.SoTien), 0) FROM GiaoDich G INNER JOIN LoaiGiaoDich L ON G.MaLoaiGD = L.MaLoaiGD WHERE L.PhanLoai = 'EXPENSE' AND (@Kw='' OR G.NoiDung LIKE N'%'+@Kw+N'%') AND (@Tk=N'Tất cả' OR G.SoTaiKhoan=@Tk) AND (@Loai=N'Tất cả' OR L.TenLoaiGD=@Loai)) AS TongChi
                 ";
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@Kw", keyword);
+                    cmd.Parameters.AddWithValue("@Tk", string.IsNullOrEmpty(soTaiKhoan) ? "Tất cả" : soTaiKhoan);
+                    cmd.Parameters.AddWithValue("@Loai", string.IsNullOrEmpty(tenLoai) ? "Tất cả" : tenLoai);
+                    SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+                    adapter.Fill(dt);
+                }
+            }
+            return dt;
+        }
+
+        // Lấy danh sách tài khoản cho ComboBox
+        public DataTable GetAccountsList()
+        {
+            DataTable dt = new DataTable();
+            using (SqlConnection conn = new SqlConnection(GetConnectionString()))
+            {
+                string sql = "SELECT SoTaiKhoan, (NH.TenNganHang + ' - ' + TK.SoTaiKhoan) AS HienThi FROM TaiKhoan TK INNER JOIN NganHang NH ON TK.MaNganHang = NH.MaNganHang";
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    SqlDataAdapter adapter = new SqlDataAdapter(cmd);
+                    adapter.Fill(dt);
+                }
+            }
+            return dt;
+        }
+
+        // Lấy danh sách loại giao dịch cho ComboBox
+        public DataTable GetTransactionTypes()
+        {
+            DataTable dt = new DataTable();
+            using (SqlConnection conn = new SqlConnection(GetConnectionString()))
+            {
+                string sql = "SELECT MaLoaiGD, TenLoaiGD FROM LoaiGiaoDich";
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
                     SqlDataAdapter adapter = new SqlDataAdapter(cmd);
@@ -144,4 +203,3 @@ namespace BankAccountManagement.Services
         }
     }
 }
-
