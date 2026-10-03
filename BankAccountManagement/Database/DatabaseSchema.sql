@@ -25,7 +25,8 @@ CREATE TABLE NganHang (
 -- 3. Bảng Loại tiền
 CREATE TABLE LoaiTien (
     MaLoaiTien VARCHAR(10) PRIMARY KEY,
-    TenLoaiTien NVARCHAR(50) NOT NULL
+    TenLoaiTien NVARCHAR(50) NOT NULL,
+    QuyDoi DECIMAL(18, 6) NOT NULL DEFAULT 1
 );
 
 -- 4. Bảng Tài khoản

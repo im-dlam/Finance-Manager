@@ -111,6 +111,10 @@
     </Compile>
     <Compile Include="Models\DatabaseConfig.cs" />
     <Compile Include="Models\NganHang.cs" />
+    <Compile Include="Models\Statistics\AccountTypeStatistic.cs" />
+    <Compile Include="Models\Statistics\StatisticSummary.cs" />
+    <Compile Include="Models\Statistics\TopAccountStatistic.cs" />
+    <Compile Include="Models\Statistics\TransactionStatistic.cs" />
     <Compile Include="Models\TaiKhoan.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -120,6 +124,7 @@
     <Compile Include="Services\DatabaseService.cs" />
     <Compile Include="Services\AccountService.cs" />
     <Compile Include="Services\NganHangService.cs" />
+    <Compile Include="Services\StatisticService.cs" />
     <EmbeddedResource Include="Forms\AccountForm.resx">
       <DependentUpon>AccountForm.cs</DependentUpon>
     </EmbeddedResource>
