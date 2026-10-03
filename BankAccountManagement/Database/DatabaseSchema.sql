@@ -1,3 +1,5 @@
+
+
 -- 1. Bảng Khách hàng
 CREATE TABLE KhachHang (
     MaKH VARCHAR(20) PRIMARY KEY,
@@ -23,7 +25,8 @@ CREATE TABLE NganHang (
 -- 3. Bảng Loại tiền
 CREATE TABLE LoaiTien (
     MaLoaiTien VARCHAR(10) PRIMARY KEY,
-    TenLoaiTien NVARCHAR(50) NOT NULL
+    TenLoaiTien NVARCHAR(50) NOT NULL,
+    QuyDoi DECIMAL(18, 6) NOT NULL DEFAULT 1
 );
 
 -- 4. Bảng Tài khoản
@@ -77,23 +80,10 @@ CREATE TABLE NguoiDung (
 );
 
 -- Index
-CREATE INDEX idx_khachhang_sdt
-ON KhachHang(SoDienThoai);
-
-CREATE INDEX idx_khachhang_email
-ON KhachHang(Email);
-
-CREATE INDEX idx_taikhoan_trangthai
-ON TaiKhoan(TrangThai);
-
-CREATE INDEX idx_giaodich_ngay
-ON GiaoDich(NgayGiaoDich);
-
-CREATE INDEX idx_giaodich_trangthai
-ON GiaoDich(TrangThai);
-
-CREATE INDEX idx_taikhoan_makh
-ON TaiKhoan(MaKH);
-
-CREATE INDEX idx_giaodich_sotaikhoan
-ON GiaoDich(SoTaiKhoan);
+CREATE INDEX idx_khachhang_sdt       ON KhachHang(SoDienThoai);
+CREATE INDEX idx_khachhang_email     ON KhachHang(Email);
+CREATE INDEX idx_taikhoan_trangthai  ON TaiKhoan(TrangThai);
+CREATE INDEX idx_giaodich_ngay       ON GiaoDich(NgayGiaoDich);
+CREATE INDEX idx_giaodich_trangthai  ON GiaoDich(TrangThai);
+CREATE INDEX idx_taikhoan_makh       ON TaiKhoan(MaKH);
+CREATE INDEX idx_giaodich_sotaikhoan ON GiaoDich(SoTaiKhoan);

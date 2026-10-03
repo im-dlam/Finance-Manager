@@ -175,6 +175,7 @@ namespace BankAccountManagement.Forms
             txtMaKH.Focus();
         }
 
+
         // Nút Sửa
         private void BtnEdit_Click(object sender, EventArgs e)
         {
@@ -283,4 +284,5 @@ namespace BankAccountManagement.Forms
             }
         }
     }
+
 }
