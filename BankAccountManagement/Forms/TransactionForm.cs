@@ -1,4 +1,4 @@
-using BankAccountManagement.Services;
+﻿using BankAccountManagement.Services;
 using System;
 using System.Data;
 using System.Drawing;
@@ -24,7 +24,26 @@ namespace BankAccountManagement
                 dataGridViewTransactions.Columns["dataGridViewTextBoxColumn2"].DataPropertyName = "NoiDung";
                 dataGridViewTransactions.Columns["dataGridViewTextBoxColumn3"].DataPropertyName = "SoTaiKhoan";
                 dataGridViewTransactions.Columns["dataGridViewTextBoxColumn4"].DataPropertyName = "Loai";
+                
+                // Add new columns programmatically
+                if (!dataGridViewTransactions.Columns.Contains("colTienGoc"))
+                {
+                    DataGridViewTextBoxColumn colGoc = new DataGridViewTextBoxColumn();
+                    colGoc.Name = "colTienGoc";
+                    colGoc.HeaderText = "Tiền gốc";
+                    colGoc.DataPropertyName = "SoTienGoc";
+                    dataGridViewTransactions.Columns.Insert(4, colGoc);
+                    
+                    DataGridViewTextBoxColumn colLoai = new DataGridViewTextBoxColumn();
+                    colLoai.Name = "colLoaiTien";
+                    colLoai.HeaderText = "Loại tiền";
+                    colLoai.DataPropertyName = "LoaiTien";
+                    dataGridViewTransactions.Columns.Insert(5, colLoai);
+                }
+
                 dataGridViewTransactions.Columns["dataGridViewTextBoxColumn5"].DataPropertyName = "SoTien";
+                dataGridViewTransactions.Columns["dataGridViewTextBoxColumn5"].HeaderText = "Quy đổi (VND)";
+                
                 dataGridViewTransactions.Columns["dataGridViewTextBoxColumn7"].DataPropertyName = "ThaoTac";
                 dataGridViewTransactions.Columns["dataGridViewTextBoxColumn6"].DataPropertyName = "TrangThai";
             }

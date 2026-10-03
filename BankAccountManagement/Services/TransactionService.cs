@@ -1,4 +1,4 @@
-using BankAccountManagement.Models;
+﻿using BankAccountManagement.Models;
 using System;
 using System.Data;
 using System.Data.SqlClient;
@@ -22,9 +22,7 @@ namespace BankAccountManagement.Services
                         G.NgayGiaoDich, 
                         G.NoiDung, 
                         G.SoTaiKhoan, 
-                        L.TenLoaiGD AS Loai, 
-                        G.SoTien,
-                        L.PhanLoai, -- Thêm để biết thu/chi
+                        L.TenLoaiGD AS Loai, G.SoTien, G.SoTienGoc, G.LoaiTien, L.PhanLoai, -- Thêm để biết thu/chi
                         N'Chi tiết' AS ThaoTac, 
                         G.TrangThai 
                     FROM GiaoDich G
@@ -49,9 +47,7 @@ namespace BankAccountManagement.Services
                         G.NgayGiaoDich, 
                         G.NoiDung, 
                         G.SoTaiKhoan, 
-                        L.TenLoaiGD AS Loai, 
-                        G.SoTien,
-                        L.PhanLoai,
+                        L.TenLoaiGD AS Loai, G.SoTien, G.SoTienGoc, G.LoaiTien, L.PhanLoai,
                         N'Chi tiết' AS ThaoTac, 
                         G.TrangThai 
                     FROM GiaoDich G
@@ -82,7 +78,7 @@ namespace BankAccountManagement.Services
             return dt;
         }
 
-        public bool AddTransaction(string maGD, string soTaiKhoan, int maLoaiGD, decimal soTien, string noiDung, DateTime ngayGD, string trangThai)
+        public bool AddTransaction(string maGD, string soTaiKhoan, int maLoaiGD, decimal soTienGoc, string loaiTien, decimal soTienVND, string noiDung, DateTime ngayGD, string trangThai)
         {
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             {
@@ -92,14 +88,13 @@ namespace BankAccountManagement.Services
                     try
                     {
                         // Thêm giao dịch
-                        string sqlInsert = @"INSERT INTO GiaoDich (MaGiaoDich, SoTaiKhoan, MaLoaiGD, SoTien, NgayGiaoDich, NoiDung, TrangThai) 
-                                             VALUES (@MaGD, @SoTaiKhoan, @MaLoai, @SoTien, @Ngay, @NoiDung, @TrangThai)";
+                        string sqlInsert = @"INSERT INTO GiaoDich (MaGiaoDich, SoTaiKhoan, MaLoaiGD, SoTien, SoTienGoc, LoaiTien, NgayGiaoDich, NoiDung, TrangThai) VALUES (@MaGD, @SoTaiKhoan, @MaLoai, @SoTienVND, @SoTienGoc, @LoaiTien, @Ngay, @NoiDung, @TrangThai)";
                         using (SqlCommand cmd = new SqlCommand(sqlInsert, conn, transaction))
                         {
                             cmd.Parameters.AddWithValue("@MaGD", maGD);
                             cmd.Parameters.AddWithValue("@SoTaiKhoan", soTaiKhoan);
                             cmd.Parameters.AddWithValue("@MaLoai", maLoaiGD);
-                            cmd.Parameters.AddWithValue("@SoTien", soTien);
+                            cmd.Parameters.AddWithValue("@SoTienVND", soTienVND); cmd.Parameters.AddWithValue("@SoTienGoc", soTienGoc); cmd.Parameters.AddWithValue("@LoaiTien", loaiTien);
                             cmd.Parameters.AddWithValue("@Ngay", ngayGD);
                             cmd.Parameters.AddWithValue("@NoiDung", noiDung);
                             cmd.Parameters.AddWithValue("@TrangThai", trangThai);
@@ -128,7 +123,7 @@ namespace BankAccountManagement.Services
                             {
                                 using (SqlCommand cmdUpdate = new SqlCommand(sqlUpdate, conn, transaction))
                                 {
-                                    cmdUpdate.Parameters.AddWithValue("@SoTien", soTien);
+                                    cmdUpdate.Parameters.AddWithValue("@SoTienVND", soTienVND);
                                     cmdUpdate.Parameters.AddWithValue("@SoTaiKhoan", soTaiKhoan);
                                     cmdUpdate.ExecuteNonQuery();
                                 }
@@ -200,6 +195,21 @@ namespace BankAccountManagement.Services
                 }
             }
             return dt;
+        }
+
+        public decimal GetAccountBalance(string soTaiKhoan)
+        {
+            using (System.Data.SqlClient.SqlConnection conn = new System.Data.SqlClient.SqlConnection(GetConnectionString()))
+            {
+                string sql = "SELECT ISNULL(SoDuHienTai, 0) FROM TaiKhoan WHERE SoTaiKhoan = @SoTaiKhoan";
+                using (System.Data.SqlClient.SqlCommand cmd = new System.Data.SqlClient.SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@SoTaiKhoan", soTaiKhoan);
+                    conn.Open();
+                    object result = cmd.ExecuteScalar();
+                    return result != DBNull.Value ? Convert.ToDecimal(result) : 0;
+                }
+            }
         }
     }
 }

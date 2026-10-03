@@ -17,7 +17,7 @@ namespace BankAccountManagement
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new TransactionForm());
+            Application.Run(new MainForm());
         }
     }
 }
