@@ -1,5 +1,6 @@
 ﻿using BankAccountManagement.Models;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 
@@ -35,6 +36,61 @@ namespace BankAccountManagement.Services
                 }
             }
             return dt;
+        }
+
+        /// <summary>
+        /// Get currency theo stk 
+        /// Fix: sai curren khi thêm giao dịch
+        /// </summary>
+        /// <param name="soTaiKhoan"></param>
+        /// <returns></returns>
+        public CurrencyInfo GetAccountCurrency(string soTaiKhoan)
+        {
+            using (SqlConnection conn =
+                new SqlConnection(GetConnectionString()))
+            {
+                string sql = @"
+            SELECT
+                LT.MaLoaiTien,
+                LT.TenLoaiTien,
+                LT.QuyDoi
+            FROM TaiKhoan TK
+            INNER JOIN LoaiTien LT
+                ON TK.MaLoaiTien = LT.MaLoaiTien
+            WHERE TK.SoTaiKhoan = @SoTaiKhoan";
+
+                using (SqlCommand cmd =
+                    new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue(
+                        "@SoTaiKhoan",
+                        soTaiKhoan);
+
+                    conn.Open();
+
+                    using (SqlDataReader reader =
+                        cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new CurrencyInfo
+                            {
+                                MaLoaiTien =
+                                    reader["MaLoaiTien"].ToString(),
+
+                                TenLoaiTien =
+                                    reader["TenLoaiTien"].ToString(),
+
+                                QuyDoi =
+                                    Convert.ToDecimal(
+                                        reader["QuyDoi"])
+                            };
+                        }
+                    }
+                }
+            }
+
+            return null;
         }
 
         public DataTable SearchTransactions(string keyword, string soTaiKhoan = "", string tenLoai = "")
@@ -119,12 +175,15 @@ namespace BankAccountManagement.Services
                             else if (phanLoai == "EXPENSE")
                                 sqlUpdate = "UPDATE TaiKhoan SET SoDuHienTai = SoDuHienTai - @SoTien WHERE SoTaiKhoan = @SoTaiKhoan";
 
+                            // fix: Must declare the scalar variable "@SoTien".
                             if (!string.IsNullOrEmpty(sqlUpdate))
                             {
-                                using (SqlCommand cmdUpdate = new SqlCommand(sqlUpdate, conn, transaction))
+                                using (SqlCommand cmdUpdate =
+                                    new SqlCommand(sqlUpdate, conn, transaction))
                                 {
-                                    cmdUpdate.Parameters.AddWithValue("@SoTienVND", soTienVND);
+                                    cmdUpdate.Parameters.AddWithValue("@SoTien", soTienVND);
                                     cmdUpdate.Parameters.AddWithValue("@SoTaiKhoan", soTaiKhoan);
+
                                     cmdUpdate.ExecuteNonQuery();
                                 }
                             }
@@ -211,5 +270,57 @@ namespace BankAccountManagement.Services
                 }
             }
         }
+
+        /// <summary>
+        /// Lấy danh sách các loại tiền tệ từ cơ sở dữ liệu
+        /// </summary>
+        /// <returns></returns>
+        public List<CurrencyInfo> GetCurrencies()
+        {
+            List<CurrencyInfo> currencies =
+                new List<CurrencyInfo>();
+
+            using (SqlConnection conn =
+                new SqlConnection(GetConnectionString()))
+            {
+                string sql = @"
+            SELECT
+                MaLoaiTien,
+                TenLoaiTien,
+                QuyDoi
+            FROM LoaiTien
+            ORDER BY MaLoaiTien";
+
+                using (SqlCommand cmd =
+                    new SqlCommand(sql, conn))
+                {
+                    conn.Open();
+
+                    using (SqlDataReader reader =
+                        cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            currencies.Add(
+                                new CurrencyInfo
+                                {
+                                    MaLoaiTien =
+                                        reader["MaLoaiTien"].ToString(),
+
+                                    TenLoaiTien =
+                                        reader["TenLoaiTien"].ToString(),
+
+                                    QuyDoi =
+                                        Convert.ToDecimal(
+                                            reader["QuyDoi"])
+                                });
+                        }
+                    }
+                }
+            }
+
+            return currencies;
+        }
+
     }
 }

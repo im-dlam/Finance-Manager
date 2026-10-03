@@ -1,15 +1,17 @@
-﻿using System;
+﻿using BankAccountManagement.Models;
+using BankAccountManagement.Services;
+using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
-using BankAccountManagement.Services;
-
 namespace BankAccountManagement
 {
     public class AddTransactionForm : Form
     {
         private TransactionService _transactionService;
+        private List<CurrencyInfo> _currencies;
         private Label lblHeader;
         private DateTimePicker dtpNgay;
         private TextBox txtNoiDung;
@@ -25,9 +27,11 @@ namespace BankAccountManagement
         private Label lblSoDu;
         private Label lblQuyDoi;
 
-        public AddTransactionForm()
+        public AddTransactionForm(List<CurrencyInfo> currencies)
         {
             _transactionService = new TransactionService();
+            _currencies = currencies;
+
             InitializeCustomComponent();
             LoadDropdowns();
         }
@@ -118,12 +122,12 @@ namespace BankAccountManagement
             startY += gapY;
             AddLabel("Loại tiền:", labelX, startY);
             cboLoaiTien = new ComboBox();
-            cboLoaiTien.Items.AddRange(new string[] { "VND", "USD", "EUR", "GBP", "JPY" });
+            //cboLoaiTien.Items.AddRange(new string[] { "VND", "USD", "EUR", "GBP", "JPY" });
             cboLoaiTien.DropDownStyle = ComboBoxStyle.DropDownList;
             cboLoaiTien.Location = new Point(inputX, startY);
             cboLoaiTien.Width = inputWidth;
             cboLoaiTien.Font = new Font("Segoe UI", 10);
-            cboLoaiTien.SelectedIndex = 0;
+            //cboLoaiTien.SelectedIndex = 0;
             cboLoaiTien.SelectedIndexChanged += (s, e) => { UpdateConvertedAmount(); };
             this.Controls.Add(cboLoaiTien);
 
@@ -135,7 +139,7 @@ namespace BankAccountManagement
             txtSoTien.Width = inputWidth;
             txtSoTien.Font = new Font("Segoe UI", 10);
             txtSoTien.Text = "0";
-            txtSoTien.TextAlign = HorizontalAlignment.Right;
+            txtSoTien.TextAlign = HorizontalAlignment.Left;
             txtSoTien.TextChanged += (s, e) => { UpdateConvertedAmount(); };
             this.Controls.Add(txtSoTien);
             
@@ -214,44 +218,76 @@ namespace BankAccountManagement
                 cboLoaiGD.DataSource = _transactionService.GetTransactionTypes();
                 cboLoaiGD.DisplayMember = "TenLoaiGD";
                 cboLoaiGD.ValueMember = "MaLoaiGD";
+
+                cboLoaiTien.DataSource = _currencies;
+                cboLoaiTien.DisplayMember = "TenLoaiTien";
+                cboLoaiTien.ValueMember = "MaLoaiTien";
             }
-            catch { }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Không thể tải dữ liệu giao dịch: " + ex.Message,
+                    "Lỗi",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
         }
-        
-        private decimal GetExchangeRate(string currency)
-        {
-            if (currency == "USD") return 25000m;
-            if (currency == "EUR") return 27000m;
-            if (currency == "GBP") return 31000m;
-            if (currency == "JPY") return 170m;
-            return 1m; // VND
-        }
-        
+
+
+        /// <summary>
+        /// fix: Update the balance currency when the selected account changes.
+        /// </summary>
         private void UpdateBalance()
         {
-            if (cboTaiKhoan.SelectedValue != null && cboTaiKhoan.SelectedValue is string tk)
+            if (cboTaiKhoan.SelectedValue != null &&
+                cboTaiKhoan.SelectedValue is string tk)
             {
-                decimal bal = _transactionService.GetAccountBalance(tk);
-                lblSoDu.Text = $"Số dư hiện tại: {bal:N0} VND";
-                lblSoDu.Tag = bal; // Lưu lại để check validate
+                decimal bal =
+                    _transactionService.GetAccountBalance(tk);
+
+                CurrencyInfo currency =
+                    _transactionService.GetAccountCurrency(tk);
+
+                if (currency != null)
+                {
+                    lblSoDu.Text =
+                        $"Số dư hiện tại: {bal:N2} {currency.MaLoaiTien}";
+
+                    lblSoDu.Tag = bal;
+                }
             }
         }
-        
+
         private void UpdateConvertedAmount()
         {
-            decimal soTienGoc = 0;
-            if (decimal.TryParse(txtSoTien.Text.Replace(",", ""), out soTienGoc))
-            {
-                string curr = cboLoaiTien.SelectedItem?.ToString() ?? "VND";
-                decimal vnd = soTienGoc * GetExchangeRate(curr);
-                lblQuyDoi.Text = $"Quy đổi: {vnd:N0} VND";
-                lblQuyDoi.Tag = vnd;
-            }
-            else
+            decimal soTienGoc;
+
+            if (!decimal.TryParse(
+                txtSoTien.Text.Replace(",", ""),
+                out soTienGoc))
             {
                 lblQuyDoi.Text = "Quy đổi: 0 VND";
                 lblQuyDoi.Tag = 0m;
+                return;
             }
+
+            CurrencyInfo selectedCurrency =
+                cboLoaiTien.SelectedItem as CurrencyInfo;
+
+            if (selectedCurrency == null)
+            {
+                lblQuyDoi.Text = "Quy đổi: 0 VND";
+                lblQuyDoi.Tag = 0m;
+                return;
+            }
+
+            decimal soTienVND =
+                soTienGoc * selectedCurrency.QuyDoi;
+
+            lblQuyDoi.Text =
+                $"Quy đổi: {soTienVND:N0} VND";
+
+            lblQuyDoi.Tag = soTienVND;
         }
 
         private void BtnSave_Click(object sender, EventArgs e)
@@ -271,10 +307,21 @@ namespace BankAccountManagement
                 {
                     MessageBox.Show("Số tiền gốc không hợp lệ!"); return;
                 }
-                
-                string loaiTien = cboLoaiTien.SelectedItem.ToString();
-                decimal soTienVND = soTienGoc * GetExchangeRate(loaiTien);
-                
+
+                CurrencyInfo selectedCurrency =
+                    cboLoaiTien.SelectedItem as CurrencyInfo;
+
+                if (selectedCurrency == null)
+                {
+                    MessageBox.Show("Vui lòng chọn loại tiền!");
+                    return;
+                }
+
+                string loaiTien = selectedCurrency.MaLoaiTien;
+
+                decimal soTienVND =
+                    soTienGoc * selectedCurrency.QuyDoi;
+
                 // Kiem tra so du (Expense / Rút tiền)
                 // Lấy thông tin loại GD là Thu hay Chi
                 bool isExpense = false;
@@ -296,8 +343,9 @@ namespace BankAccountManagement
                 }
 
                 string maGD = "GD" + DateTime.Now.ToString("yyyyMMddHHmmss");
-                string hardcodedTrangThai = "Hoàn tất";
-                
+                //string hardcodedTrangThai = "Hoàn tất";
+                string hardcodedTrangThai = "Success";
+
                 bool success = _transactionService.AddTransaction(
                     maGD, tk, maLoai, soTienGoc, loaiTien, soTienVND, txtNoiDung.Text, dtpNgay.Value, hardcodedTrangThai);
 

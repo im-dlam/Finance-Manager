@@ -1,5 +1,7 @@
-﻿using BankAccountManagement.Services;
+﻿using BankAccountManagement.Models;
+using BankAccountManagement.Services;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.IO;
@@ -15,74 +17,106 @@ namespace BankAccountManagement
         public TransactionForm()
         {
             InitializeComponent();
+
             _transactionService = new TransactionService();
 
             dataGridViewTransactions.AutoGenerateColumns = false;
+
             if (dataGridViewTransactions.Columns.Count >= 7)
             {
                 dataGridViewTransactions.Columns["dataGridViewTextBoxColumn1"].DataPropertyName = "NgayGiaoDich";
                 dataGridViewTransactions.Columns["dataGridViewTextBoxColumn2"].DataPropertyName = "NoiDung";
                 dataGridViewTransactions.Columns["dataGridViewTextBoxColumn3"].DataPropertyName = "SoTaiKhoan";
                 dataGridViewTransactions.Columns["dataGridViewTextBoxColumn4"].DataPropertyName = "Loai";
-                
-                // Add new columns programmatically
+
                 if (!dataGridViewTransactions.Columns.Contains("colTienGoc"))
                 {
-                    DataGridViewTextBoxColumn colGoc = new DataGridViewTextBoxColumn();
+                    DataGridViewTextBoxColumn colGoc =
+                        new DataGridViewTextBoxColumn();
+
                     colGoc.Name = "colTienGoc";
                     colGoc.HeaderText = "Tiền gốc";
                     colGoc.DataPropertyName = "SoTienGoc";
+
                     dataGridViewTransactions.Columns.Insert(4, colGoc);
-                    
-                    DataGridViewTextBoxColumn colLoai = new DataGridViewTextBoxColumn();
+
+                    DataGridViewTextBoxColumn colLoai =
+                        new DataGridViewTextBoxColumn();
+
                     colLoai.Name = "colLoaiTien";
                     colLoai.HeaderText = "Loại tiền";
                     colLoai.DataPropertyName = "LoaiTien";
+
                     dataGridViewTransactions.Columns.Insert(5, colLoai);
                 }
 
                 dataGridViewTransactions.Columns["dataGridViewTextBoxColumn5"].DataPropertyName = "SoTien";
                 dataGridViewTransactions.Columns["dataGridViewTextBoxColumn5"].HeaderText = "Quy đổi (VND)";
-                
+
                 dataGridViewTransactions.Columns["dataGridViewTextBoxColumn7"].DataPropertyName = "ThaoTac";
                 dataGridViewTransactions.Columns["dataGridViewTextBoxColumn6"].DataPropertyName = "TrangThai";
             }
 
-            LoadComboBoxes();
-            LoadData();
-            LoadStatistics();
-            
-            if (this.buttonSearch != null) this.buttonSearch.Click += buttonSearch_Click;
-            if (this.buttonRefresh != null) this.buttonRefresh.Click += buttonRefresh_Click;
-            if (this.buttonExport != null) this.buttonExport.Click += buttonExport_Click;
-            if (this.buttonAdd != null) this.buttonAdd.Click += buttonAdd_Click;
-        }
+            if (this.buttonSearch != null)
+                this.buttonSearch.Click += buttonSearch_Click;
 
+            if (this.buttonRefresh != null)
+                this.buttonRefresh.Click += buttonRefresh_Click;
+
+            if (this.buttonExport != null)
+                this.buttonExport.Click += buttonExport_Click;
+
+            if (this.buttonAdd != null)
+                this.buttonAdd.Click += buttonAdd_Click;
+
+            this.Load += TransactionForm_Load;
+       
+        }
         private void LoadComboBoxes()
         {
             try
             {
-                DataTable dtAccounts = _transactionService.GetAccountsList();
-                DataRow allAccRow = dtAccounts.NewRow();
+                DataTable dtAccounts =
+                    _transactionService.GetAccountsList();
+
+                DataRow allAccRow =
+                    dtAccounts.NewRow();
+
                 allAccRow["SoTaiKhoan"] = "Tất cả";
                 allAccRow["HienThi"] = "Tất cả";
+
                 dtAccounts.Rows.InsertAt(allAccRow, 0);
+
                 comboAccount.DataSource = dtAccounts;
                 comboAccount.DisplayMember = "HienThi";
                 comboAccount.ValueMember = "SoTaiKhoan";
                 comboAccount.SelectedIndex = 0;
 
-                DataTable dtTypes = _transactionService.GetTransactionTypes();
-                DataRow allTypeRow = dtTypes.NewRow();
+
+                DataTable dtTypes =
+                    _transactionService.GetTransactionTypes();
+
+                DataRow allTypeRow =
+                    dtTypes.NewRow();
+
                 allTypeRow["MaLoaiGD"] = 0;
                 allTypeRow["TenLoaiGD"] = "Tất cả";
+
                 dtTypes.Rows.InsertAt(allTypeRow, 0);
+
                 comboType.DataSource = dtTypes;
                 comboType.DisplayMember = "TenLoaiGD";
                 comboType.ValueMember = "TenLoaiGD";
                 comboType.SelectedIndex = 0;
             }
-            catch { }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Lỗi khi tải bộ lọc giao dịch:\n" + ex.Message,
+                    "Lỗi",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
         }
 
         private void LoadData()
@@ -227,14 +261,14 @@ namespace BankAccountManagement
             // Tìm cửa sổ gốc (MainForm) để bao phủ toàn bộ màn hình, bao gồm cả menu trái
             Form mainForm = Application.OpenForms["MainForm"];
             if (mainForm == null) mainForm = this.FindForm() ?? this;
-
+            List<CurrencyInfo> currencies = _transactionService.GetCurrencies();
             using (Form overlay = new Form())
             {
                 overlay.StartPosition = FormStartPosition.Manual;
                 overlay.FormBorderStyle = FormBorderStyle.None;
                 overlay.Opacity = 0.65d; // Tăng độ tối lên một chút để làm mờ nền rõ hơn
                 overlay.BackColor = Color.Black;
-                
+               
                 // Phủ full toàn bộ cửa sổ gốc
                 overlay.Size = mainForm.Size;
                 overlay.Location = mainForm.Location;
@@ -242,13 +276,14 @@ namespace BankAccountManagement
                 overlay.ShowInTaskbar = false;
                 overlay.Show(mainForm);
 
-                using (AddTransactionForm addForm = new AddTransactionForm())
+                using (AddTransactionForm addForm = new AddTransactionForm(currencies))
                 {
                     addForm.StartPosition = FormStartPosition.CenterParent;
                     DialogResult result = addForm.ShowDialog(overlay);
 
                     if (result == DialogResult.OK)
                     {
+                        
                         LoadData();      
                         LoadStatistics();
                     }
@@ -257,9 +292,12 @@ namespace BankAccountManagement
             }
         }
 
-        private void buttonRefresh_Click_1(object sender, EventArgs e)
+        private void TransactionForm_Load(object sender, EventArgs e)
         {
-
+            textSearch.Text = ""; // fix khong load
+            LoadComboBoxes();
+            LoadData();
+            LoadStatistics();
         }
     }
 }
