@@ -62,6 +62,7 @@ namespace BankAccountManagement.Forms
                         danhSach[i].SwiftCode         // SC
                     );
                 }
+                lblListCount.Text = $"{danhSach.Count} ngân hàng";
             }
             catch (Exception ex)
             {

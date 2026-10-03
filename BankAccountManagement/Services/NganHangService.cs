@@ -103,6 +103,11 @@ namespace BankAccountManagement.Services
             }
             catch (Exception ex)
             {
+                if (ex is SqlException sqlEx && sqlEx.Number == 2627) // Unique constraint violation
+                {
+                    throw new Exception($"Mã ngân hàng '{nh.MaNganHang}' đã tồn tại. Vui lòng sử dụng mã khác.", ex);
+                }
+
                 throw new Exception("Lỗi thêm ngân hàng: " + ex.Message, ex);
             }
         }
@@ -135,6 +140,10 @@ namespace BankAccountManagement.Services
             }
             catch (Exception ex)
             {
+                if(ex is SqlException sqlEx && sqlEx.Number == 547) // Foreign key violation
+                {
+                    throw new Exception($"Không thể cập nhật ngân hàng '{nh.MaNganHang}' vì có liên kết dữ liệu khác.", ex);
+                }
                 throw new Exception("Lỗi cập nhật ngân hàng: " + ex.Message, ex);
             }
         }
@@ -159,6 +168,10 @@ namespace BankAccountManagement.Services
             }
             catch (Exception ex)
             {
+                if(ex is SqlException sqlEx && sqlEx.Number == 547) // Foreign key violation
+                {
+                    throw new Exception($"Không thể xóa ngân hàng '{maNganHang}' vì có liên kết dữ liệu khác.", ex);
+                }
                 throw new Exception("Lỗi xóa ngân hàng: " + ex.Message, ex);
             }
         }
