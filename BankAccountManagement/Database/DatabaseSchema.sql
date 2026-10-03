@@ -61,6 +61,8 @@ CREATE TABLE GiaoDich (
     SoTaiKhoan VARCHAR(30),
     MaLoaiGD INT,
     SoTien DECIMAL(18, 2) NOT NULL,
+    SoTienGoc DECIMAL(18, 2),
+    LoaiTien VARCHAR(10) DEFAULT 'VND',
     NgayGiaoDich DATETIME DEFAULT GETDATE(),
     NoiDung NVARCHAR(255),
     TrangThai NVARCHAR(50) DEFAULT 'Success',

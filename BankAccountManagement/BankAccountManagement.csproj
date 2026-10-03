@@ -100,6 +100,9 @@
     <Compile Include="Forms\StatisticsForm.Designer.cs">
       <DependentUpon>StatisticsForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\AddTransactionForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Forms\TransactionForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -109,6 +112,7 @@
     <Compile Include="Forms\RoundedPanel.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Models\CurrencyInfo.cs" />
     <Compile Include="Models\DatabaseConfig.cs" />
     <Compile Include="Models\NganHang.cs" />
     <Compile Include="Models\Statistics\AccountTypeStatistic.cs" />
@@ -125,6 +129,7 @@
     <Compile Include="Services\AccountService.cs" />
     <Compile Include="Services\NganHangService.cs" />
     <Compile Include="Services\StatisticService.cs" />
+    <Compile Include="Services\TransactionService.cs" />
     <EmbeddedResource Include="Forms\AccountForm.resx">
       <DependentUpon>AccountForm.cs</DependentUpon>
     </EmbeddedResource>
