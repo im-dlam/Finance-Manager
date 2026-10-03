@@ -1,67 +1,96 @@
-﻿using System;
+using BankAccountManagement.Services;
+using System;
 using System.Data;
+using System.Drawing;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
-using BankAccountManagement.Services;
 
 namespace BankAccountManagement
 {
     public partial class TransactionForm : Form
     {
-        private readonly TransactionService _transactionService;
+        private TransactionService _transactionService;
 
         public TransactionForm()
         {
             InitializeComponent();
             _transactionService = new TransactionService();
 
-            // Tự động gán sự kiện Click cho các nút trong code (không lo lỗi Properties)
-            BindButtonEvents();
-        }
+            dataGridViewTransactions.AutoGenerateColumns = false;
+            if (dataGridViewTransactions.Columns.Count >= 7)
+            {
+                dataGridViewTransactions.Columns["dataGridViewTextBoxColumn1"].DataPropertyName = "NgayGiaoDich";
+                dataGridViewTransactions.Columns["dataGridViewTextBoxColumn2"].DataPropertyName = "NoiDung";
+                dataGridViewTransactions.Columns["dataGridViewTextBoxColumn3"].DataPropertyName = "SoTaiKhoan";
+                dataGridViewTransactions.Columns["dataGridViewTextBoxColumn4"].DataPropertyName = "Loai";
+                dataGridViewTransactions.Columns["dataGridViewTextBoxColumn5"].DataPropertyName = "SoTien";
+                dataGridViewTransactions.Columns["dataGridViewTextBoxColumn7"].DataPropertyName = "ThaoTac";
+                dataGridViewTransactions.Columns["dataGridViewTextBoxColumn6"].DataPropertyName = "TrangThai";
+            }
 
-        private void BindButtonEvents()
-        {
-            // Gán sự kiện nút Search
-            Control[] btnsSearch = this.Controls.Find("buttonSearch", true);
-            if (btnsSearch.Length > 0 && btnsSearch[0] is Button btnSearch)
-                btnSearch.Click += buttonSearch_Click;
-
-            // Gán sự kiện nút Refresh
-            Control[] btnsRefresh = this.Controls.Find("buttonRefresh", true);
-            if (btnsRefresh.Length > 0 && btnsRefresh[0] is Button btnRefresh)
-                btnRefresh.Click += buttonRefresh_Click;
-
-            // Gán sự kiện nút Export
-            Control[] btnsExport = this.Controls.Find("buttonExport", true);
-            if (btnsExport.Length > 0 && btnsExport[0] is Button btnExport)
-                btnExport.Click += buttonExport_Click;
-
-            // Gán sự kiện nút Add
-            Control[] btnsAdd = this.Controls.Find("buttonAdd", true);
-            if (btnsAdd.Length == 0) btnsAdd = this.Controls.Find("buttonAddTransaction", true);
-            if (btnsAdd.Length > 0 && btnsAdd[0] is Button btnAdd)
-                btnAdd.Click += buttonAdd_Click;
-        }
-
-        private void TransactionForm_Load(object sender, EventArgs e)
-        {
+            LoadComboBoxes();
             LoadData();
             LoadStatistics();
+            
+            if (this.buttonSearch != null) this.buttonSearch.Click += buttonSearch_Click;
+            if (this.buttonRefresh != null) this.buttonRefresh.Click += buttonRefresh_Click;
+            if (this.buttonExport != null) this.buttonExport.Click += buttonExport_Click;
+            if (this.buttonAdd != null) this.buttonAdd.Click += buttonAdd_Click;
         }
 
-        #region 1. Tải dữ liệu & Thống kê Cards
+        private void LoadComboBoxes()
+        {
+            try
+            {
+                DataTable dtAccounts = _transactionService.GetAccountsList();
+                DataRow allAccRow = dtAccounts.NewRow();
+                allAccRow["SoTaiKhoan"] = "Tất cả";
+                allAccRow["HienThi"] = "Tất cả";
+                dtAccounts.Rows.InsertAt(allAccRow, 0);
+                comboAccount.DataSource = dtAccounts;
+                comboAccount.DisplayMember = "HienThi";
+                comboAccount.ValueMember = "SoTaiKhoan";
+                comboAccount.SelectedIndex = 0;
+
+                DataTable dtTypes = _transactionService.GetTransactionTypes();
+                DataRow allTypeRow = dtTypes.NewRow();
+                allTypeRow["MaLoaiGD"] = 0;
+                allTypeRow["TenLoaiGD"] = "Tất cả";
+                dtTypes.Rows.InsertAt(allTypeRow, 0);
+                comboType.DataSource = dtTypes;
+                comboType.DisplayMember = "TenLoaiGD";
+                comboType.ValueMember = "TenLoaiGD";
+                comboType.SelectedIndex = 0;
+            }
+            catch { }
+        }
 
         private void LoadData()
         {
             try
             {
-                DataTable dt = _transactionService.GetAllTransactions();
+                string kw = textSearch.Text.Trim();
+                string tk = comboAccount.SelectedIndex <= 0 ? "Tất cả" : comboAccount.SelectedValue?.ToString();
+                string loai = comboType.SelectedIndex <= 0 ? "Tất cả" : comboType.SelectedValue?.ToString();
+
+                DataTable dt;
+                if (string.IsNullOrEmpty(kw) && tk == "Tất cả" && loai == "Tất cả")
+                    dt = _transactionService.GetAllTransactions();
+                else
+                    dt = _transactionService.SearchTransactions(kw, tk, loai);
+
                 dataGridViewTransactions.DataSource = dt;
 
                 if (dataGridViewTransactions.Columns["SoTien"] != null)
                 {
                     dataGridViewTransactions.Columns["SoTien"].DefaultCellStyle.Format = "N0";
+                }
+                
+                // Căn chỉnh giao diện Grid
+                foreach (DataGridViewColumn col in dataGridViewTransactions.Columns)
+                {
+                    if (col.Name == "PhanLoai") col.Visible = false;
                 }
             }
             catch (Exception ex)
@@ -74,62 +103,49 @@ namespace BankAccountManagement
         {
             try
             {
-                DataTable dtStats = _transactionService.GetTransactionStatistics();
+                string kw = textSearch.Text.Trim();
+                string tk = comboAccount.SelectedIndex <= 0 ? "Tất cả" : comboAccount.SelectedValue?.ToString();
+                string loai = comboType.SelectedIndex <= 0 ? "Tất cả" : comboType.SelectedValue?.ToString();
+
+                DataTable dtStats = _transactionService.GetTransactionStatistics(kw, tk, loai);
                 if (dtStats != null && dtStats.Rows.Count > 0)
                 {
                     DataRow row = dtStats.Rows[0];
-
-                    decimal tongThu = row["TongTienGui"] != DBNull.Value ? Convert.ToDecimal(row["TongTienGui"]) : 0;
-                    decimal tongChi = row["TongTienRut"] != DBNull.Value ? Convert.ToDecimal(row["TongTienRut"]) : 0;
+                    decimal tongThu = row["TongThu"] != DBNull.Value ? Convert.ToDecimal(row["TongThu"]) : 0;
+                    decimal tongChi = row["TongChi"] != DBNull.Value ? Convert.ToDecimal(row["TongChi"]) : 0;
                     int tongGiaoDich = row["TongGiaoDich"] != DBNull.Value ? Convert.ToInt32(row["TongGiaoDich"]) : 0;
 
-                    Control[] lblThu = this.Controls.Find("lblTongThu", true);
-                    if (lblThu.Length > 0) lblThu[0].Text = $"+ {tongThu:N0} đ";
-
-                    Control[] lblChi = this.Controls.Find("lblTongChi", true);
-                    if (lblChi.Length > 0) lblChi[0].Text = $"- {tongChi:N0} đ";
-
-                    Control[] lblSoGD = this.Controls.Find("lblSoGiaoDich", true);
-                    if (lblSoGD.Length > 0) lblSoGD[0].Text = tongGiaoDich.ToString();
+                    labelIncome.Text = $"+ {tongThu:N0} đ";
+                    labelIncome.ForeColor = Color.Green;
+                    
+                    labelExpense.Text = $"- {tongChi:N0} đ";
+                    labelExpense.ForeColor = Color.Red;
+                    
+                    labelCount.Text = tongGiaoDich.ToString();
                 }
             }
-            catch
-            {
-                // Bỏ qua nếu chưa đặt tên Control Label
-            }
+            catch { }
         }
-
-        #endregion
-
-        #region 2. Xử lý các Nút Thao Tác (Button Events)
 
         private void buttonSearch_Click(object sender, EventArgs e)
         {
-            try
-            {
-                string keyword = GetSearchKeyword();
-
-                if (string.IsNullOrEmpty(keyword))
-                {
-                    LoadData();
-                }
-                else
-                {
-                    DataTable dt = _transactionService.SearchTransactions(keyword);
-                    dataGridViewTransactions.DataSource = dt;
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi khi tìm kiếm giao dịch: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            LoadData();
+            LoadStatistics();
         }
 
         private void buttonRefresh_Click(object sender, EventArgs e)
         {
-            SetSearchKeyword("");
+            textSearch.Text = "";
+            if (comboAccount.Items.Count > 0) comboAccount.SelectedIndex = 0;
+            if (comboType.Items.Count > 0) comboType.SelectedIndex = 0;
+            
             LoadData();
             LoadStatistics();
+        }
+
+        private void dataGridViewTransactions_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+            // Optional: Handle cell clicks if needed (e.g. for "Thao tác")
         }
 
         private void buttonExport_Click(object sender, EventArgs e)
@@ -189,66 +205,42 @@ namespace BankAccountManagement
 
         private void buttonAdd_Click(object sender, EventArgs e)
         {
-            // 1. Tạo overlay làm mờ nền xung quanh
+            // Tìm cửa sổ gốc (MainForm) để bao phủ toàn bộ màn hình, bao gồm cả menu trái
+            Form mainForm = Application.OpenForms["MainForm"];
+            if (mainForm == null) mainForm = this.FindForm() ?? this;
+
             using (Form overlay = new Form())
             {
                 overlay.StartPosition = FormStartPosition.Manual;
                 overlay.FormBorderStyle = FormBorderStyle.None;
-                overlay.Opacity = 0.50d;
-                overlay.BackColor = System.Drawing.Color.Black;
-                overlay.Size = this.Size;
-                overlay.Location = this.Location;
+                overlay.Opacity = 0.65d; // Tăng độ tối lên một chút để làm mờ nền rõ hơn
+                overlay.BackColor = Color.Black;
+                
+                // Phủ full toàn bộ cửa sổ gốc
+                overlay.Size = mainForm.Size;
+                overlay.Location = mainForm.Location;
+                
                 overlay.ShowInTaskbar = false;
-                overlay.Show(this);
+                overlay.Show(mainForm);
 
-                AddTransactionForm addForm = new AddTransactionForm();
-
-                addForm.StartPosition = FormStartPosition.CenterParent;
-
-                DialogResult result = addForm.ShowDialog(overlay);
-
-                if (result == DialogResult.OK)
+                using (AddTransactionForm addForm = new AddTransactionForm())
                 {
-                    LoadData();      
-                    LoadStatistics();
+                    addForm.StartPosition = FormStartPosition.CenterParent;
+                    DialogResult result = addForm.ShowDialog(overlay);
+
+                    if (result == DialogResult.OK)
+                    {
+                        LoadData();      
+                        LoadStatistics();
+                    }
                 }
-                addForm.Dispose();
                 overlay.Close();
             }
         }
 
-        #endregion
-
-        #region 3. Hàm Hỗ Trợ Đọc/Xóa Ô Tìm Kiếm Linh Hoạt
-
-        private string GetSearchKeyword()
+        private void buttonRefresh_Click_1(object sender, EventArgs e)
         {
-            string[] possibleNames = { "textBoxSearch", "txtSearch", "txtTimKiem" };
-            foreach (string name in possibleNames)
-            {
-                Control[] controls = this.Controls.Find(name, true);
-                if (controls.Length > 0 && controls[0] is TextBox txt)
-                {
-                    return txt.Text.Trim();
-                }
-            }
-            return "";
-        }
 
-        private void SetSearchKeyword(string value)
-        {
-            string[] possibleNames = { "textBoxSearch", "txtSearch", "txtTimKiem" };
-            foreach (string name in possibleNames)
-            {
-                Control[] controls = this.Controls.Find(name, true);
-                if (controls.Length > 0 && controls[0] is TextBox txt)
-                {
-                    txt.Text = value;
-                    break;
-                }
-            }
         }
-
-        #endregion
     }
 }
