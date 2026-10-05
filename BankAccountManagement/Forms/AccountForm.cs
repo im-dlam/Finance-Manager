@@ -300,7 +300,15 @@ namespace BankAccountManagement.Forms
             txtBalance.Text = _currentSoDuHienTai.ToString();
             cboCustomer.SelectedValue = row.Cells["colCustomer"].Value;
             cboBank.SelectedValue = row.Cells["colBank"].Value;
-            cboCurrency.SelectedValue = row.Cells["colCurrency"].Value;
+            var currencyValue = row.Cells["colCurrency"].Value;
+            if (currencyValue != null && currencyValue != DBNull.Value)
+            {
+                cboCurrency.SelectedValue = currencyValue;
+            }
+            else
+            {
+                cboCurrency.SelectedIndex = -1; // Hoặc chọn giá trị mặc định nào đó
+            }
 
             if (row.Cells["colOpenDate"].Value != null)
                 dtpOpenDate.Value = Convert.ToDateTime(row.Cells["colOpenDate"].Value);
