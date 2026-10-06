@@ -389,12 +389,21 @@ namespace BankAccountManagement.Forms
             _currentMaKH = row.Cells["colCustomer"].Value?.ToString() ?? "";
             _currentSoDuHienTai = Convert.ToDecimal(row.Cells["colBalance"].Value ?? 0);
             _currentSoDuBanDau = _currentSoDuHienTai; // fallback nếu không có cột riêng
-
             txtAccountNumber.Text = row.Cells["colAccountNumber"].Value?.ToString();
             txtBalance.Text = _currentSoDuHienTai.ToString();
             cboCustomer.SelectedValue = row.Cells["colCustomer"].Value;
             cboBank.SelectedValue = row.Cells["colBank"].Value;
-            cboCurrency.SelectedValue = row.Cells["colCurrency"].Value;
+            var currencyValue = row.Cells["colCurrency"].Value;
+
+            if (currencyValue != null && currencyValue != DBNull.Value)
+            {
+                cboCurrency.SelectedValue = currencyValue;
+            }
+            else
+            {
+                cboCurrency.SelectedIndex = -1; // Xóa lựa chọn nếu dữ liệu null
+                                                // cboCurrency.SelectedValue = "VND"; // Hoặc gán một giá trị mặc định tùy logic của bạn
+            }
 
             if (row.Cells["colOpenDate"].Value != null)
                 dtpOpenDate.Value = Convert.ToDateTime(row.Cells["colOpenDate"].Value);
