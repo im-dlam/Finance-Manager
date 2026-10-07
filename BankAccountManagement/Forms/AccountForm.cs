@@ -4,6 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Globalization;
+using System.Linq;
+using System.Text;
 using System.Windows.Forms;
 
 namespace BankAccountManagement.Forms
@@ -17,6 +20,9 @@ namespace BankAccountManagement.Forms
         private string _currentMaKH = "";
         private decimal _currentSoDuHienTai = 0;
         private decimal _currentSoDuBanDau = 0;
+
+        // ✅ Danh sách gốc để lọc tìm kiếm trong bộ nhớ
+        private List<TaiKhoan> _allAccounts = new List<TaiKhoan>();
 
         // ══════════════════════════════════════════
         // KẾT NỐI DB
@@ -57,6 +63,10 @@ namespace BankAccountManagement.Forms
             btnDelete.Click += btnDelete_Click;
             btnClear.Click += btnClear_Click;
             btnSearch.Click += btnSearch_Click;
+
+            // ✅ Tìm kiếm khi gõ và khi nhấn Enter
+            txtSearch.TextChanged += txtSearch_TextChanged;
+            txtSearch.KeyDown += txtSearch_KeyDown;
         }
 
         private void AccountForm_Load(object sender, EventArgs e)
@@ -73,8 +83,6 @@ namespace BankAccountManagement.Forms
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
-
 
         // ══════════════════════════════════════════
         // ĐỔ DỮ LIỆU COMBOBOX
@@ -112,9 +120,7 @@ namespace BankAccountManagement.Forms
         {
             try
             {
-                List<TaiKhoan> danhSach = string.IsNullOrWhiteSpace(keyword)
-                    ? _AccountService.GetActiveTaiKhoan()
-                    : _AccountService.SearchTaiKhoan(keyword);
+                _allAccounts = _AccountService.GetActiveTaiKhoan() ?? new List<TaiKhoan>();
 
                 dgvAccounts.AutoGenerateColumns = false;
 
@@ -129,13 +135,98 @@ namespace BankAccountManagement.Forms
                     dgvAccounts.Columns["colStatus"].DataPropertyName = "TrangThai";
                 }
 
-                dgvAccounts.DataSource = danhSach;
-                lblListCount.Text = $"{danhSach.Count} tài khoản";
+                ApplyFilter(keyword);
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi tải dữ liệu: " + ex.Message, "Lỗi",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        // ══════════════════════════════════════════
+        // TÌM KIẾM / LỌC
+        // ══════════════════════════════════════════
+        private void ApplyFilter(string keyword)
+        {
+            string key = Normalize(keyword);
+            List<TaiKhoan> ketQua;
+
+            if (key.Length == 0)
+            {
+                ketQua = _allAccounts;
+            }
+            else
+            {
+                // Tra tên từ mã → tìm được theo tên KH / tên ngân hàng / tên loại tiền
+                var tenKH = BuildLookup(cboCustomer.DataSource as DataTable, "MaKH", "HoTen");
+                var tenNH = BuildLookup(cboBank.DataSource as DataTable, "MaNganHang", "TenNganHang");
+                var tenLT = BuildLookup(cboCurrency.DataSource as DataTable, "MaLoaiTien", "TenLoaiTien");
+
+                ketQua = _allAccounts.Where(tk =>
+                       Match(tk.SoTaiKhoan, key)
+                    || Match(tk.MaKH, key)
+                    || Match(GetValue(tenKH, tk.MaKH), key)
+                    || Match(tk.MaNganHang, key)
+                    || Match(GetValue(tenNH, tk.MaNganHang), key)
+                    || Match(tk.MaLoaiTien, key)
+                    || Match(GetValue(tenLT, tk.MaLoaiTien), key)
+                    || Match(tk.TrangThai, key)
+                ).ToList();
+            }
+
+            dgvAccounts.DataSource = null;      // reset để grid luôn refresh
+            dgvAccounts.DataSource = ketQua;
+
+            lblListCount.Text = (key.Length > 0 && ketQua.Count == 0)
+                ? "Không tìm thấy tài khoản phù hợp"
+                : $"{ketQua.Count} tài khoản";
+        }
+
+        private static Dictionary<string, string> BuildLookup(DataTable dt, string keyCol, string valueCol)
+        {
+            var dict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            if (dt == null) return dict;
+
+            foreach (DataRow r in dt.Rows)
+            {
+                string k = r[keyCol]?.ToString();
+                if (!string.IsNullOrEmpty(k) && !dict.ContainsKey(k))
+                    dict[k] = r[valueCol]?.ToString() ?? "";
+            }
+            return dict;
+        }
+
+        private static string GetValue(Dictionary<string, string> dict, string key)
+            => key != null && dict.TryGetValue(key, out string v) ? v : "";
+
+        private static bool Match(string source, string normalizedKey)
+            => !string.IsNullOrEmpty(source) && Normalize(source).Contains(normalizedKey);
+
+        // Bỏ dấu tiếng Việt + chữ thường → gõ "nguyen" vẫn ra "Nguyễn"
+        private static string Normalize(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return "";
+
+            string s = text.Trim().ToLowerInvariant().Replace('đ', 'd');
+            var sb = new StringBuilder();
+            foreach (char c in s.Normalize(NormalizationForm.FormD))
+            {
+                if (CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                    sb.Append(c);
+            }
+            return sb.ToString().Normalize(NormalizationForm.FormC);
+        }
+
+        private void txtSearch_TextChanged(object sender, EventArgs e)
+            => ApplyFilter(txtSearch.Text);
+
+        private void txtSearch_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                e.SuppressKeyPress = true;   // tắt tiếng "bíp"
+                ApplyFilter(txtSearch.Text);
             }
         }
 
@@ -221,7 +312,7 @@ namespace BankAccountManagement.Forms
             {
                 _isAddNew = false;
                 ClearInputs();
-                LoadData();
+                LoadData(txtSearch.Text);   // ✅ Giữ kết quả tìm kiếm
                 SetControlState(false);
                 return;
             }
@@ -257,7 +348,7 @@ namespace BankAccountManagement.Forms
                     {
                         MessageBox.Show("Đóng tài khoản thành công!", "Thông báo",
                             MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        LoadData();
+                        LoadData(txtSearch.Text);   // ✅ Giữ kết quả tìm kiếm
                         ClearInputs();
                         SetControlState(false);
                     }
@@ -271,11 +362,14 @@ namespace BankAccountManagement.Forms
         }
 
         private void btnSearch_Click(object sender, EventArgs e)
-            => LoadData(txtSearch.Text.Trim());
+            => ApplyFilter(txtSearch.Text);
 
         private void btnClear_Click(object sender, EventArgs e)
         {
+            txtSearch.TextChanged -= txtSearch_TextChanged;  // tránh lọc thừa khi xóa ô tìm
             txtSearch.Clear();
+            txtSearch.TextChanged += txtSearch_TextChanged;
+
             _isAddNew = false;
             ClearInputs();
             LoadData();
@@ -295,12 +389,21 @@ namespace BankAccountManagement.Forms
             _currentMaKH = row.Cells["colCustomer"].Value?.ToString() ?? "";
             _currentSoDuHienTai = Convert.ToDecimal(row.Cells["colBalance"].Value ?? 0);
             _currentSoDuBanDau = _currentSoDuHienTai; // fallback nếu không có cột riêng
-
             txtAccountNumber.Text = row.Cells["colAccountNumber"].Value?.ToString();
             txtBalance.Text = _currentSoDuHienTai.ToString();
             cboCustomer.SelectedValue = row.Cells["colCustomer"].Value;
             cboBank.SelectedValue = row.Cells["colBank"].Value;
-            cboCurrency.SelectedValue = row.Cells["colCurrency"].Value;
+            var currencyValue = row.Cells["colCurrency"].Value;
+
+            if (currencyValue != null && currencyValue != DBNull.Value)
+            {
+                cboCurrency.SelectedValue = currencyValue;
+            }
+            else
+            {
+                cboCurrency.SelectedIndex = -1; // Xóa lựa chọn nếu dữ liệu null
+                                                // cboCurrency.SelectedValue = "VND"; // Hoặc gán một giá trị mặc định tùy logic của bạn
+            }
 
             if (row.Cells["colOpenDate"].Value != null)
                 dtpOpenDate.Value = Convert.ToDateTime(row.Cells["colOpenDate"].Value);
@@ -376,7 +479,7 @@ namespace BankAccountManagement.Forms
                     string msg = _isAddNew ? "Thêm tài khoản thành công!" : "Cập nhật thành công!";
                     MessageBox.Show(msg, "Thông báo",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    LoadData();
+                    LoadData(txtSearch.Text);   // ✅ Giữ kết quả tìm kiếm
                     ClearInputs();
                     _isAddNew = false;
                     SetControlState(false);
