@@ -40,48 +40,48 @@
             this.panelKpi1Icon = new System.Windows.Forms.Panel();
             this.labelKpi1Icon = new System.Windows.Forms.Label();
             this.labelKpi1Title = new System.Windows.Forms.Label();
-            this.labelKpi1Value = new System.Windows.Forms.Label();
+            this.lblTotalAccounts = new System.Windows.Forms.Label();
             this.labelKpi1Sub = new System.Windows.Forms.Label();
             this.panelKpi2 = new System.Windows.Forms.Panel();
             this.panelKpi2Icon = new System.Windows.Forms.Panel();
             this.labelKpi2Icon = new System.Windows.Forms.Label();
             this.labelKpi2Title = new System.Windows.Forms.Label();
-            this.labelKpi2Value = new System.Windows.Forms.Label();
+            this.lblTotalBalance = new System.Windows.Forms.Label();
             this.labelKpi2Sub = new System.Windows.Forms.Label();
             this.panelKpi3 = new System.Windows.Forms.Panel();
             this.panelKpi3Icon = new System.Windows.Forms.Panel();
             this.labelKpi3Icon = new System.Windows.Forms.Label();
             this.labelKpi3Title = new System.Windows.Forms.Label();
-            this.labelKpi3Value = new System.Windows.Forms.Label();
+            this.lblTotalTransactions = new System.Windows.Forms.Label();
             this.labelKpi3Sub = new System.Windows.Forms.Label();
             this.panelKpi4 = new System.Windows.Forms.Panel();
             this.panelKpi4Icon = new System.Windows.Forms.Panel();
             this.labelKpi4Icon = new System.Windows.Forms.Label();
             this.labelKpi4Title = new System.Windows.Forms.Label();
-            this.labelKpi4Value = new System.Windows.Forms.Label();
+            this.lblTotalCustomers = new System.Windows.Forms.Label();
             this.labelKpi4Sub = new System.Windows.Forms.Label();
             this.panelCharts = new System.Windows.Forms.Panel();
             this.tableLayoutCharts = new System.Windows.Forms.TableLayoutPanel();
             this.panelChartBar = new System.Windows.Forms.Panel();
-            this.chartBar = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.chartTransactions = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.labelChartBarTitle = new System.Windows.Forms.Label();
             this.panelChartDonut = new System.Windows.Forms.Panel();
-            this.chartDonut = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.chartAccountTypes = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.labelChartDonutTitle = new System.Windows.Forms.Label();
             this.labelDonutCenter1 = new System.Windows.Forms.Label();
             this.labelDonutCenter2 = new System.Windows.Forms.Label();
             this.panelTopAccounts = new System.Windows.Forms.Panel();
             this.dgvTopAccounts = new System.Windows.Forms.DataGridView();
+            this.colSTT = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colSoTaiKhoan = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colChuTaiKhoan = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colSoDu = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.labelTopTitle = new System.Windows.Forms.Label();
             this.linkViewAll = new System.Windows.Forms.LinkLabel();
             this.panelFooter = new System.Windows.Forms.Panel();
             this.labelInfoIcon = new System.Windows.Forms.Label();
             this.labelUpdatedAt = new System.Windows.Forms.Label();
             this.buttonRefresh = new System.Windows.Forms.Button();
-            this.colSTT = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colSoTaiKhoan = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colChuTaiKhoan = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colSoDu = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.panelHeader.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxHeaderIcon)).BeginInit();
             this.panelFilter.SuspendLayout();
@@ -98,9 +98,9 @@
             this.panelCharts.SuspendLayout();
             this.tableLayoutCharts.SuspendLayout();
             this.panelChartBar.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.chartBar)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chartTransactions)).BeginInit();
             this.panelChartDonut.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.chartDonut)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chartAccountTypes)).BeginInit();
             this.panelTopAccounts.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvTopAccounts)).BeginInit();
             this.panelFooter.SuspendLayout();
@@ -221,6 +221,7 @@
             this.buttonViewStats.TabIndex = 4;
             this.buttonViewStats.Text = "Xem thống kê";
             this.buttonViewStats.UseVisualStyleBackColor = false;
+            this.buttonViewStats.Click += new System.EventHandler(this.buttonViewStats_Click);
             // 
             // panelKpi
             // 
@@ -258,7 +259,7 @@
             this.panelKpi1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelKpi1.Controls.Add(this.panelKpi1Icon);
             this.panelKpi1.Controls.Add(this.labelKpi1Title);
-            this.panelKpi1.Controls.Add(this.labelKpi1Value);
+            this.panelKpi1.Controls.Add(this.lblTotalAccounts);
             this.panelKpi1.Controls.Add(this.labelKpi1Sub);
             this.panelKpi1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelKpi1.Location = new System.Drawing.Point(20, 10);
@@ -299,16 +300,16 @@
             this.labelKpi1Title.TabIndex = 1;
             this.labelKpi1Title.Text = "Tổng số tài khoản";
             // 
-            // labelKpi1Value
+            // lblTotalAccounts
             // 
-            this.labelKpi1Value.AutoSize = true;
-            this.labelKpi1Value.Font = new System.Drawing.Font("Segoe UI Semibold", 17F, System.Drawing.FontStyle.Bold);
-            this.labelKpi1Value.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
-            this.labelKpi1Value.Location = new System.Drawing.Point(80, 31);
-            this.labelKpi1Value.Name = "labelKpi1Value";
-            this.labelKpi1Value.Size = new System.Drawing.Size(27, 31);
-            this.labelKpi1Value.TabIndex = 2;
-            this.labelKpi1Value.Text = "0";
+            this.lblTotalAccounts.AutoSize = true;
+            this.lblTotalAccounts.Font = new System.Drawing.Font("Segoe UI Semibold", 17F, System.Drawing.FontStyle.Bold);
+            this.lblTotalAccounts.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
+            this.lblTotalAccounts.Location = new System.Drawing.Point(80, 31);
+            this.lblTotalAccounts.Name = "lblTotalAccounts";
+            this.lblTotalAccounts.Size = new System.Drawing.Size(27, 31);
+            this.lblTotalAccounts.TabIndex = 2;
+            this.lblTotalAccounts.Text = "0";
             // 
             // labelKpi1Sub
             // 
@@ -327,7 +328,7 @@
             this.panelKpi2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelKpi2.Controls.Add(this.panelKpi2Icon);
             this.panelKpi2.Controls.Add(this.labelKpi2Title);
-            this.panelKpi2.Controls.Add(this.labelKpi2Value);
+            this.panelKpi2.Controls.Add(this.lblTotalBalance);
             this.panelKpi2.Controls.Add(this.labelKpi2Sub);
             this.panelKpi2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelKpi2.Location = new System.Drawing.Point(308, 10);
@@ -368,16 +369,16 @@
             this.labelKpi2Title.TabIndex = 1;
             this.labelKpi2Title.Text = "Tổng số dư";
             // 
-            // labelKpi2Value
+            // lblTotalBalance
             // 
-            this.labelKpi2Value.AutoSize = true;
-            this.labelKpi2Value.Font = new System.Drawing.Font("Segoe UI Semibold", 15F, System.Drawing.FontStyle.Bold);
-            this.labelKpi2Value.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(16)))), ((int)(((byte)(150)))), ((int)(((byte)(105)))));
-            this.labelKpi2Value.Location = new System.Drawing.Point(80, 32);
-            this.labelKpi2Value.Name = "labelKpi2Value";
-            this.labelKpi2Value.Size = new System.Drawing.Size(23, 28);
-            this.labelKpi2Value.TabIndex = 2;
-            this.labelKpi2Value.Text = "0";
+            this.lblTotalBalance.AutoSize = true;
+            this.lblTotalBalance.Font = new System.Drawing.Font("Segoe UI Semibold", 15F, System.Drawing.FontStyle.Bold);
+            this.lblTotalBalance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(16)))), ((int)(((byte)(150)))), ((int)(((byte)(105)))));
+            this.lblTotalBalance.Location = new System.Drawing.Point(80, 32);
+            this.lblTotalBalance.Name = "lblTotalBalance";
+            this.lblTotalBalance.Size = new System.Drawing.Size(23, 28);
+            this.lblTotalBalance.TabIndex = 2;
+            this.lblTotalBalance.Text = "0";
             // 
             // labelKpi2Sub
             // 
@@ -396,7 +397,7 @@
             this.panelKpi3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelKpi3.Controls.Add(this.panelKpi3Icon);
             this.panelKpi3.Controls.Add(this.labelKpi3Title);
-            this.panelKpi3.Controls.Add(this.labelKpi3Value);
+            this.panelKpi3.Controls.Add(this.lblTotalTransactions);
             this.panelKpi3.Controls.Add(this.labelKpi3Sub);
             this.panelKpi3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelKpi3.Location = new System.Drawing.Point(596, 10);
@@ -437,16 +438,16 @@
             this.labelKpi3Title.TabIndex = 1;
             this.labelKpi3Title.Text = "Giao dịch trong kỳ";
             // 
-            // labelKpi3Value
+            // lblTotalTransactions
             // 
-            this.labelKpi3Value.AutoSize = true;
-            this.labelKpi3Value.Font = new System.Drawing.Font("Segoe UI Semibold", 17F, System.Drawing.FontStyle.Bold);
-            this.labelKpi3Value.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(124)))), ((int)(((byte)(58)))), ((int)(((byte)(237)))));
-            this.labelKpi3Value.Location = new System.Drawing.Point(80, 31);
-            this.labelKpi3Value.Name = "labelKpi3Value";
-            this.labelKpi3Value.Size = new System.Drawing.Size(27, 31);
-            this.labelKpi3Value.TabIndex = 2;
-            this.labelKpi3Value.Text = "0";
+            this.lblTotalTransactions.AutoSize = true;
+            this.lblTotalTransactions.Font = new System.Drawing.Font("Segoe UI Semibold", 17F, System.Drawing.FontStyle.Bold);
+            this.lblTotalTransactions.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(124)))), ((int)(((byte)(58)))), ((int)(((byte)(237)))));
+            this.lblTotalTransactions.Location = new System.Drawing.Point(80, 31);
+            this.lblTotalTransactions.Name = "lblTotalTransactions";
+            this.lblTotalTransactions.Size = new System.Drawing.Size(27, 31);
+            this.lblTotalTransactions.TabIndex = 2;
+            this.lblTotalTransactions.Text = "0";
             // 
             // labelKpi3Sub
             // 
@@ -465,7 +466,7 @@
             this.panelKpi4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panelKpi4.Controls.Add(this.panelKpi4Icon);
             this.panelKpi4.Controls.Add(this.labelKpi4Title);
-            this.panelKpi4.Controls.Add(this.labelKpi4Value);
+            this.panelKpi4.Controls.Add(this.lblTotalCustomers);
             this.panelKpi4.Controls.Add(this.labelKpi4Sub);
             this.panelKpi4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelKpi4.Location = new System.Drawing.Point(884, 10);
@@ -506,16 +507,16 @@
             this.labelKpi4Title.TabIndex = 1;
             this.labelKpi4Title.Text = "Khách hàng";
             // 
-            // labelKpi4Value
+            // lblTotalCustomers
             // 
-            this.labelKpi4Value.AutoSize = true;
-            this.labelKpi4Value.Font = new System.Drawing.Font("Segoe UI Semibold", 17F, System.Drawing.FontStyle.Bold);
-            this.labelKpi4Value.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(217)))), ((int)(((byte)(119)))), ((int)(((byte)(6)))));
-            this.labelKpi4Value.Location = new System.Drawing.Point(80, 31);
-            this.labelKpi4Value.Name = "labelKpi4Value";
-            this.labelKpi4Value.Size = new System.Drawing.Size(27, 31);
-            this.labelKpi4Value.TabIndex = 2;
-            this.labelKpi4Value.Text = "0";
+            this.lblTotalCustomers.AutoSize = true;
+            this.lblTotalCustomers.Font = new System.Drawing.Font("Segoe UI Semibold", 17F, System.Drawing.FontStyle.Bold);
+            this.lblTotalCustomers.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(217)))), ((int)(((byte)(119)))), ((int)(((byte)(6)))));
+            this.lblTotalCustomers.Location = new System.Drawing.Point(80, 31);
+            this.lblTotalCustomers.Name = "lblTotalCustomers";
+            this.lblTotalCustomers.Size = new System.Drawing.Size(27, 31);
+            this.lblTotalCustomers.TabIndex = 2;
+            this.lblTotalCustomers.Text = "0";
             // 
             // labelKpi4Sub
             // 
@@ -560,7 +561,7 @@
             // 
             this.panelChartBar.BackColor = System.Drawing.Color.White;
             this.panelChartBar.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panelChartBar.Controls.Add(this.chartBar);
+            this.panelChartBar.Controls.Add(this.chartTransactions);
             this.panelChartBar.Controls.Add(this.labelChartBarTitle);
             this.panelChartBar.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelChartBar.Location = new System.Drawing.Point(20, 10);
@@ -570,7 +571,7 @@
             this.panelChartBar.Size = new System.Drawing.Size(448, 410);
             this.panelChartBar.TabIndex = 0;
             // 
-            // chartBar
+            // chartTransactions
             // 
             chartArea1.AxisX.IsMarginVisible = false;
             chartArea1.AxisX.LabelStyle.Font = new System.Drawing.Font("Segoe UI", 8F);
@@ -584,19 +585,19 @@
             chartArea1.BackColor = System.Drawing.Color.White;
             chartArea1.BorderWidth = 0;
             chartArea1.Name = "ChartArea1";
-            this.chartBar.ChartAreas.Add(chartArea1);
-            this.chartBar.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chartBar.Location = new System.Drawing.Point(12, 42);
-            this.chartBar.Name = "chartBar";
+            this.chartTransactions.ChartAreas.Add(chartArea1);
+            this.chartTransactions.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chartTransactions.Location = new System.Drawing.Point(12, 42);
+            this.chartTransactions.Name = "chartTransactions";
             series1.ChartArea = "ChartArea1";
             series1.CustomProperties = "PointWidth=0.55";
             series1.Font = new System.Drawing.Font("Segoe UI", 8F);
             series1.IsValueShownAsLabel = true;
             series1.LabelForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             series1.Name = "Số giao dịch";
-            this.chartBar.Series.Add(series1);
-            this.chartBar.Size = new System.Drawing.Size(422, 354);
-            this.chartBar.TabIndex = 1;
+            this.chartTransactions.Series.Add(series1);
+            this.chartTransactions.Size = new System.Drawing.Size(422, 354);
+            this.chartTransactions.TabIndex = 1;
             // 
             // labelChartBarTitle
             // 
@@ -613,7 +614,7 @@
             // 
             this.panelChartDonut.BackColor = System.Drawing.Color.White;
             this.panelChartDonut.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panelChartDonut.Controls.Add(this.chartDonut);
+            this.panelChartDonut.Controls.Add(this.chartAccountTypes);
             this.panelChartDonut.Controls.Add(this.labelChartDonutTitle);
             this.panelChartDonut.Controls.Add(this.labelDonutCenter1);
             this.panelChartDonut.Controls.Add(this.labelDonutCenter2);
@@ -625,29 +626,29 @@
             this.panelChartDonut.Size = new System.Drawing.Size(276, 410);
             this.panelChartDonut.TabIndex = 1;
             // 
-            // chartDonut
+            // chartAccountTypes
             // 
             chartArea2.BackColor = System.Drawing.Color.White;
             chartArea2.Name = "ChartArea1";
-            this.chartDonut.ChartAreas.Add(chartArea2);
-            this.chartDonut.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.chartAccountTypes.ChartAreas.Add(chartArea2);
+            this.chartAccountTypes.Dock = System.Windows.Forms.DockStyle.Fill;
             legend1.Alignment = System.Drawing.StringAlignment.Center;
             legend1.Docking = System.Windows.Forms.DataVisualization.Charting.Docking.Bottom;
             legend1.Font = new System.Drawing.Font("Segoe UI", 8F);
             legend1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             legend1.IsTextAutoFit = false;
             legend1.Name = "Legend1";
-            this.chartDonut.Legends.Add(legend1);
-            this.chartDonut.Location = new System.Drawing.Point(12, 42);
-            this.chartDonut.Name = "chartDonut";
+            this.chartAccountTypes.Legends.Add(legend1);
+            this.chartAccountTypes.Location = new System.Drawing.Point(12, 42);
+            this.chartAccountTypes.Name = "chartAccountTypes";
             series2.ChartArea = "ChartArea1";
             series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Doughnut;
             series2.CustomProperties = "DoughnutRadius=60";
             series2.Legend = "Legend1";
             series2.Name = "Series1";
-            this.chartDonut.Series.Add(series2);
-            this.chartDonut.Size = new System.Drawing.Size(250, 354);
-            this.chartDonut.TabIndex = 1;
+            this.chartAccountTypes.Series.Add(series2);
+            this.chartAccountTypes.Size = new System.Drawing.Size(250, 354);
+            this.chartAccountTypes.TabIndex = 1;
             // 
             // labelChartDonutTitle
             // 
@@ -748,6 +749,36 @@
             this.dgvTopAccounts.Size = new System.Drawing.Size(366, 354);
             this.dgvTopAccounts.TabIndex = 1;
             // 
+            // colSTT
+            // 
+            this.colSTT.HeaderText = "STT";
+            this.colSTT.Name = "colSTT";
+            this.colSTT.ReadOnly = true;
+            this.colSTT.Width = 60;
+            // 
+            // colSoTaiKhoan
+            // 
+            this.colSoTaiKhoan.HeaderText = "Số tài khoản";
+            this.colSoTaiKhoan.Name = "colSoTaiKhoan";
+            this.colSoTaiKhoan.ReadOnly = true;
+            this.colSoTaiKhoan.Width = 102;
+            // 
+            // colChuTaiKhoan
+            // 
+            this.colChuTaiKhoan.HeaderText = "Chủ tài khoản";
+            this.colChuTaiKhoan.Name = "colChuTaiKhoan";
+            this.colChuTaiKhoan.ReadOnly = true;
+            this.colChuTaiKhoan.Width = 105;
+            // 
+            // colSoDu
+            // 
+            this.colSoDu.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
+            this.colSoDu.DefaultCellStyle = dataGridViewCellStyle2;
+            this.colSoDu.HeaderText = "Số dư";
+            this.colSoDu.Name = "colSoDu";
+            this.colSoDu.ReadOnly = true;
+            // 
             // labelTopTitle
             // 
             this.labelTopTitle.AutoSize = true;
@@ -824,36 +855,6 @@
             this.buttonRefresh.Text = "↻  Làm mới";
             this.buttonRefresh.UseVisualStyleBackColor = false;
             // 
-            // colSTT
-            // 
-            this.colSTT.HeaderText = "STT";
-            this.colSTT.Name = "colSTT";
-            this.colSTT.ReadOnly = true;
-            this.colSTT.Width = 60;
-            // 
-            // colSoTaiKhoan
-            // 
-            this.colSoTaiKhoan.HeaderText = "Số tài khoản";
-            this.colSoTaiKhoan.Name = "colSoTaiKhoan";
-            this.colSoTaiKhoan.ReadOnly = true;
-            this.colSoTaiKhoan.Width = 102;
-            // 
-            // colChuTaiKhoan
-            // 
-            this.colChuTaiKhoan.HeaderText = "Chủ tài khoản";
-            this.colChuTaiKhoan.Name = "colChuTaiKhoan";
-            this.colChuTaiKhoan.ReadOnly = true;
-            this.colChuTaiKhoan.Width = 105;
-            // 
-            // colSoDu
-            // 
-            this.colSoDu.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleRight;
-            this.colSoDu.DefaultCellStyle = dataGridViewCellStyle2;
-            this.colSoDu.HeaderText = "Số dư";
-            this.colSoDu.Name = "colSoDu";
-            this.colSoDu.ReadOnly = true;
-            // 
             // StatisticsForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
@@ -871,6 +872,7 @@
             this.Name = "StatisticsForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Thống kê";
+            this.Load += new System.EventHandler(this.StatisticsForm_Load);
             this.panelHeader.ResumeLayout(false);
             this.panelHeader.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxHeaderIcon)).EndInit();
@@ -894,10 +896,10 @@
             this.tableLayoutCharts.ResumeLayout(false);
             this.panelChartBar.ResumeLayout(false);
             this.panelChartBar.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.chartBar)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chartTransactions)).EndInit();
             this.panelChartDonut.ResumeLayout(false);
             this.panelChartDonut.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.chartDonut)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chartAccountTypes)).EndInit();
             this.panelTopAccounts.ResumeLayout(false);
             this.panelTopAccounts.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvTopAccounts)).EndInit();
@@ -929,28 +931,28 @@
         private System.Windows.Forms.Panel panelKpi1Icon;
         private System.Windows.Forms.Label labelKpi1Icon;
         private System.Windows.Forms.Label labelKpi1Title;
-        private System.Windows.Forms.Label labelKpi1Value;
+        private System.Windows.Forms.Label lblTotalAccounts;
         private System.Windows.Forms.Label labelKpi1Sub;
 
         private System.Windows.Forms.Panel panelKpi2;
         private System.Windows.Forms.Panel panelKpi2Icon;
         private System.Windows.Forms.Label labelKpi2Icon;
         private System.Windows.Forms.Label labelKpi2Title;
-        private System.Windows.Forms.Label labelKpi2Value;
+        private System.Windows.Forms.Label lblTotalBalance;
         private System.Windows.Forms.Label labelKpi2Sub;
 
         private System.Windows.Forms.Panel panelKpi3;
         private System.Windows.Forms.Panel panelKpi3Icon;
         private System.Windows.Forms.Label labelKpi3Icon;
         private System.Windows.Forms.Label labelKpi3Title;
-        private System.Windows.Forms.Label labelKpi3Value;
+        private System.Windows.Forms.Label lblTotalTransactions;
         private System.Windows.Forms.Label labelKpi3Sub;
 
         private System.Windows.Forms.Panel panelKpi4;
         private System.Windows.Forms.Panel panelKpi4Icon;
         private System.Windows.Forms.Label labelKpi4Icon;
         private System.Windows.Forms.Label labelKpi4Title;
-        private System.Windows.Forms.Label labelKpi4Value;
+        private System.Windows.Forms.Label lblTotalCustomers;
         private System.Windows.Forms.Label labelKpi4Sub;
 
         private System.Windows.Forms.Panel panelCharts;
@@ -958,11 +960,11 @@
 
         private System.Windows.Forms.Panel panelChartBar;
         private System.Windows.Forms.Label labelChartBarTitle;
-        private System.Windows.Forms.DataVisualization.Charting.Chart chartBar;
+        private System.Windows.Forms.DataVisualization.Charting.Chart chartTransactions;
 
         private System.Windows.Forms.Panel panelChartDonut;
         private System.Windows.Forms.Label labelChartDonutTitle;
-        private System.Windows.Forms.DataVisualization.Charting.Chart chartDonut;
+        private System.Windows.Forms.DataVisualization.Charting.Chart chartAccountTypes;
         private System.Windows.Forms.Label labelDonutCenter1;
         private System.Windows.Forms.Label labelDonutCenter2;
 

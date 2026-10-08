@@ -1,68 +1,91 @@
-using System;
+﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
 namespace BankAccountManagement.Forms
 {
+    [ToolboxItem(true)]
     public class RoundedPanel : Panel
     {
-        public int BorderRadius { get; set; } = 30;
+        private int _borderRadius = 16;
+        private int _borderSize = 1;
+        private Color _borderColor = Color.FromArgb(226, 232, 240);   
+        private Color _fillColor = Color.White;
 
-        // Thêm thuộc tính Đổi màu viền (Mặc định là trong suốt)
-        private Color _borderColor = Color.Transparent;
+        [Category("Appearance")]
+        public int BorderRadius
+        {
+            get => _borderRadius;
+            set { _borderRadius = value; Invalidate(); }
+        }
+
+        [Category("Appearance")]
+        public int BorderSize
+        {
+            get => _borderSize;
+            set { _borderSize = value; Invalidate(); }
+        }
+
+        [Category("Appearance")]
         public Color BorderColor
         {
-            get { return _borderColor; }
-            set
-            {
-                _borderColor = value;
-                this.Invalidate(); // Lệnh này giúp Form lập tức vẽ lại màu mới khi bạn chọn ở Properties
-            }
+            get => _borderColor;
+            set { _borderColor = value; Invalidate(); }
+        }
+
+        [Category("Appearance")]
+        public Color FillColor
+        {
+            get => _fillColor;
+            set { _fillColor = value; this.BackColor = value; Invalidate(); }
         }
 
         public RoundedPanel()
         {
             this.DoubleBuffered = true;
+            this.BackColor = _fillColor;
         }
 
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
             e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
-            // Hình cắt viền (To bằng 100% kích thước)
-            RectangleF rectRegion = new RectangleF(0, 0, this.Width, this.Height);
 
-            // Hình để vẽ viền (Thụt vào 1 pixel ở cạnh phải và cạnh dưới để không bị lẹm)
-            RectangleF rectBorder = new RectangleF(0, 0, this.Width - 1, this.Height - 1);
-            if (BorderRadius > 0)
+            if (_borderRadius > 0)
             {
-                // 1. Gọt các góc
-                using (GraphicsPath pathRegion = GetRoundedPath(rectRegion, BorderRadius))
+                using (GraphicsPath path = new GraphicsPath())
                 {
-                    this.Region = new Region(pathRegion);
-                }
-                // 2. Vẽ cái nét viền màu thụt vào 1 tí
-                using (GraphicsPath pathBorder = GetRoundedPath(rectBorder, BorderRadius))
-                using (Pen pen = new Pen(BorderColor, 1))
-                {
-                    e.Graphics.DrawPath(pen, pathBorder);
+                    int radius = _borderRadius;
+                    path.AddArc(0, 0, radius, radius, 180, 90);
+                    path.AddArc(Width - radius - 1, 0, radius, radius, 270, 90);
+                    path.AddArc(Width - radius - 1, Height - radius - 1, radius, radius, 0, 90);
+                    path.AddArc(0, Height - radius - 1, radius, radius, 90, 90);
+                    path.CloseFigure();
+                    
+                    this.Region = new Region(path);
+
+                    if (_borderSize > 0)
+                    {
+                        using (Pen pen = new Pen(_borderColor, _borderSize))
+                        {
+                            e.Graphics.DrawPath(pen, path);
+                        }
+                    }
                 }
             }
-        }
-
-        private GraphicsPath GetRoundedPath(RectangleF rect, int radius)
-        {
-            GraphicsPath path = new GraphicsPath();
-            float curveSize = radius * 2F;
-
-            path.StartFigure();
-            path.AddArc(rect.X, rect.Y, curveSize, curveSize, 180, 90);
-            path.AddArc(rect.Right - curveSize, rect.Y, curveSize, curveSize, 270, 90);
-            path.AddArc(rect.Right - curveSize, rect.Bottom - curveSize, curveSize, curveSize, 0, 90);
-            path.AddArc(rect.X, rect.Bottom - curveSize, curveSize, curveSize, 90, 90);
-            path.CloseFigure();
-            return path;
+            else
+            {
+                this.Region = new Region(new Rectangle(0, 0, this.Width, this.Height));
+                if (_borderSize > 0)
+                {
+                    using (Pen pen = new Pen(_borderColor, _borderSize))
+                    {
+                        e.Graphics.DrawRectangle(pen, 0, 0, this.Width - 1, this.Height - 1);
+                    }
+                }
+            }
         }
     }
 }

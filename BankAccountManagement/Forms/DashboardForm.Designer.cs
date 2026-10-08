@@ -4,10 +4,17 @@
     {
         private System.ComponentModel.IContainer components = null;
 
-        protected override void Dispose(bool disposing)
+                protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
+            {
                 components.Dispose();
+            }
+            if (disposing)
+            {
+                if (chart1 != null) { chart1.Dispose(); }
+                if (chart2 != null) { chart2.Dispose(); }
+            }
             base.Dispose(disposing);
         }
 
@@ -15,12 +22,12 @@
 
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea4 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend4 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series4 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DashboardForm));
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.label1 = new System.Windows.Forms.Label();
@@ -81,7 +88,7 @@
             // 
             this.lblAccent.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
             this.lblAccent.Location = new System.Drawing.Point(27, 48);
-            this.lblAccent.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.lblAccent.Margin = new System.Windows.Forms.Padding(2);
             this.lblAccent.Name = "lblAccent";
             this.lblAccent.Size = new System.Drawing.Size(22, 2);
             this.lblAccent.TabIndex = 1;
@@ -110,35 +117,43 @@
             this.pnlCharts.Controls.Add(this.chart1, 0, 0);
             this.pnlCharts.Controls.Add(this.chart2, 1, 0);
             this.pnlCharts.Location = new System.Drawing.Point(20, 211);
-            this.pnlCharts.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.pnlCharts.Margin = new System.Windows.Forms.Padding(2);
             this.pnlCharts.Name = "pnlCharts";
             this.pnlCharts.RowCount = 1;
             this.pnlCharts.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.pnlCharts.Size = new System.Drawing.Size(986, 361);
+            this.pnlCharts.Size = new System.Drawing.Size(1176, 518);
             this.pnlCharts.TabIndex = 4;
             // 
             // chart1
             // 
             this.chart1.BorderlineColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
             this.chart1.BorderlineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Solid;
-            chartArea3.BackColor = System.Drawing.Color.White;
-            chartArea3.Name = "ChartArea1";
-            this.chart1.ChartAreas.Add(chartArea3);
+            chartArea1.AxisX.MajorGrid.Enabled = false;
+            chartArea1.AxisX.MajorGrid.LineColor = System.Drawing.Color.Transparent;
+            chartArea1.AxisX2.MajorGrid.Enabled = false;
+            chartArea1.AxisX2.MajorGrid.LineColor = System.Drawing.Color.Transparent;
+            chartArea1.AxisY.MajorGrid.Enabled = false;
+            chartArea1.AxisY.MajorGrid.LineColor = System.Drawing.Color.Transparent;
+            chartArea1.AxisY2.MajorGrid.Enabled = false;
+            chartArea1.AxisY2.MajorGrid.LineColor = System.Drawing.Color.Transparent;
+            chartArea1.BackColor = System.Drawing.Color.White;
+            chartArea1.Name = "ChartArea1";
+            this.chart1.ChartAreas.Add(chartArea1);
             this.chart1.Dock = System.Windows.Forms.DockStyle.Fill;
-            legend3.BackColor = System.Drawing.Color.White;
-            legend3.Docking = System.Windows.Forms.DataVisualization.Charting.Docking.Top;
-            legend3.Font = new System.Drawing.Font("Segoe UI", 9.5F);
-            legend3.IsTextAutoFit = false;
-            legend3.Name = "Legend1";
-            this.chart1.Legends.Add(legend3);
+            legend1.BackColor = System.Drawing.Color.White;
+            legend1.Docking = System.Windows.Forms.DataVisualization.Charting.Docking.Top;
+            legend1.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            legend1.IsTextAutoFit = false;
+            legend1.Name = "Legend1";
+            this.chart1.Legends.Add(legend1);
             this.chart1.Location = new System.Drawing.Point(0, 0);
             this.chart1.Margin = new System.Windows.Forms.Padding(0, 0, 10, 0);
             this.chart1.Name = "chart1";
-            series3.ChartArea = "ChartArea1";
-            series3.Legend = "Legend1";
-            series3.Name = "Series1";
-            this.chart1.Series.Add(series3);
-            this.chart1.Size = new System.Drawing.Size(581, 361);
+            series1.ChartArea = "ChartArea1";
+            series1.Legend = "Legend1";
+            series1.Name = "Series1";
+            this.chart1.Series.Add(series1);
+            this.chart1.Size = new System.Drawing.Size(695, 518);
             this.chart1.TabIndex = 5;
             this.chart1.Text = "chart1";
             // 
@@ -146,25 +161,25 @@
             // 
             this.chart2.BorderlineColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
             this.chart2.BorderlineDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Solid;
-            chartArea4.BackColor = System.Drawing.Color.White;
-            chartArea4.Name = "ChartArea1";
-            this.chart2.ChartAreas.Add(chartArea4);
+            chartArea2.BackColor = System.Drawing.Color.White;
+            chartArea2.Name = "ChartArea1";
+            this.chart2.ChartAreas.Add(chartArea2);
             this.chart2.Dock = System.Windows.Forms.DockStyle.Fill;
-            legend4.BackColor = System.Drawing.Color.White;
-            legend4.Docking = System.Windows.Forms.DataVisualization.Charting.Docking.Bottom;
-            legend4.Font = new System.Drawing.Font("Segoe UI", 9.5F);
-            legend4.IsTextAutoFit = false;
-            legend4.Name = "Legend1";
-            this.chart2.Legends.Add(legend4);
-            this.chart2.Location = new System.Drawing.Point(591, 0);
+            legend2.BackColor = System.Drawing.Color.White;
+            legend2.Docking = System.Windows.Forms.DataVisualization.Charting.Docking.Bottom;
+            legend2.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            legend2.IsTextAutoFit = false;
+            legend2.Name = "Legend1";
+            this.chart2.Legends.Add(legend2);
+            this.chart2.Location = new System.Drawing.Point(705, 0);
             this.chart2.Margin = new System.Windows.Forms.Padding(0);
             this.chart2.Name = "chart2";
-            series4.ChartArea = "ChartArea1";
-            series4.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Pie;
-            series4.Legend = "Legend1";
-            series4.Name = "Series1";
-            this.chart2.Series.Add(series4);
-            this.chart2.Size = new System.Drawing.Size(395, 361);
+            series2.ChartArea = "ChartArea1";
+            series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Pie;
+            series2.Legend = "Legend1";
+            series2.Name = "Series1";
+            this.chart2.Series.Add(series2);
+            this.chart2.Size = new System.Drawing.Size(471, 518);
             this.chart2.TabIndex = 6;
             this.chart2.Text = "chart2";
             // 
@@ -183,11 +198,11 @@
             this.pnlCards.Controls.Add(this.roundedPanel3, 2, 0);
             this.pnlCards.Controls.Add(this.roundedPanel4, 3, 0);
             this.pnlCards.Location = new System.Drawing.Point(20, 81);
-            this.pnlCards.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.pnlCards.Margin = new System.Windows.Forms.Padding(2);
             this.pnlCards.Name = "pnlCards";
             this.pnlCards.RowCount = 1;
             this.pnlCards.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.pnlCards.Size = new System.Drawing.Size(986, 117);
+            this.pnlCards.Size = new System.Drawing.Size(1176, 117);
             this.pnlCards.TabIndex = 3;
             // 
             // roundedPanel1
@@ -204,7 +219,7 @@
             this.roundedPanel1.Location = new System.Drawing.Point(0, 0);
             this.roundedPanel1.Margin = new System.Windows.Forms.Padding(0, 0, 10, 0);
             this.roundedPanel1.Name = "roundedPanel1";
-            this.roundedPanel1.Size = new System.Drawing.Size(236, 117);
+            this.roundedPanel1.Size = new System.Drawing.Size(284, 117);
             this.roundedPanel1.TabIndex = 0;
             this.roundedPanel1.Paint += new System.Windows.Forms.PaintEventHandler(this.roundedPanel1_Paint);
             // 
@@ -213,7 +228,7 @@
             this.pictureBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox1.BackColor = System.Drawing.Color.Transparent;
             this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(186, 16);
+            this.pictureBox1.Location = new System.Drawing.Point(234, 16);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(33, 32);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -271,10 +286,10 @@
             this.roundedPanel2.Controls.Add(this.label7);
             this.roundedPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.roundedPanel2.ForeColor = System.Drawing.Color.White;
-            this.roundedPanel2.Location = new System.Drawing.Point(246, 0);
+            this.roundedPanel2.Location = new System.Drawing.Point(294, 0);
             this.roundedPanel2.Margin = new System.Windows.Forms.Padding(0, 0, 10, 0);
             this.roundedPanel2.Name = "roundedPanel2";
-            this.roundedPanel2.Size = new System.Drawing.Size(236, 117);
+            this.roundedPanel2.Size = new System.Drawing.Size(284, 117);
             this.roundedPanel2.TabIndex = 1;
             this.roundedPanel2.Paint += new System.Windows.Forms.PaintEventHandler(this.roundedPanel2_Paint);
             // 
@@ -283,7 +298,7 @@
             this.pictureBox2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox2.BackColor = System.Drawing.Color.Transparent;
             this.pictureBox2.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox2.Image")));
-            this.pictureBox2.Location = new System.Drawing.Point(186, 16);
+            this.pictureBox2.Location = new System.Drawing.Point(234, 16);
             this.pictureBox2.Name = "pictureBox2";
             this.pictureBox2.Size = new System.Drawing.Size(33, 32);
             this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -340,10 +355,10 @@
             this.roundedPanel3.Controls.Add(this.label10);
             this.roundedPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.roundedPanel3.ForeColor = System.Drawing.Color.White;
-            this.roundedPanel3.Location = new System.Drawing.Point(492, 0);
+            this.roundedPanel3.Location = new System.Drawing.Point(588, 0);
             this.roundedPanel3.Margin = new System.Windows.Forms.Padding(0, 0, 10, 0);
             this.roundedPanel3.Name = "roundedPanel3";
-            this.roundedPanel3.Size = new System.Drawing.Size(236, 117);
+            this.roundedPanel3.Size = new System.Drawing.Size(284, 117);
             this.roundedPanel3.TabIndex = 2;
             this.roundedPanel3.Paint += new System.Windows.Forms.PaintEventHandler(this.roundedPanel3_Paint);
             // 
@@ -352,7 +367,7 @@
             this.pictureBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox3.BackColor = System.Drawing.Color.Transparent;
             this.pictureBox3.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox3.Image")));
-            this.pictureBox3.Location = new System.Drawing.Point(186, 16);
+            this.pictureBox3.Location = new System.Drawing.Point(234, 16);
             this.pictureBox3.Name = "pictureBox3";
             this.pictureBox3.Size = new System.Drawing.Size(33, 32);
             this.pictureBox3.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -409,10 +424,10 @@
             this.roundedPanel4.Controls.Add(this.label13);
             this.roundedPanel4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.roundedPanel4.ForeColor = System.Drawing.Color.White;
-            this.roundedPanel4.Location = new System.Drawing.Point(738, 0);
+            this.roundedPanel4.Location = new System.Drawing.Point(882, 0);
             this.roundedPanel4.Margin = new System.Windows.Forms.Padding(0);
             this.roundedPanel4.Name = "roundedPanel4";
-            this.roundedPanel4.Size = new System.Drawing.Size(248, 117);
+            this.roundedPanel4.Size = new System.Drawing.Size(294, 117);
             this.roundedPanel4.TabIndex = 3;
             this.roundedPanel4.Paint += new System.Windows.Forms.PaintEventHandler(this.roundedPanel4_Paint);
             // 
@@ -421,7 +436,7 @@
             this.pictureBox4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.pictureBox4.BackColor = System.Drawing.Color.Transparent;
             this.pictureBox4.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox4.Image")));
-            this.pictureBox4.Location = new System.Drawing.Point(198, 16);
+            this.pictureBox4.Location = new System.Drawing.Point(244, 16);
             this.pictureBox4.Name = "pictureBox4";
             this.pictureBox4.Size = new System.Drawing.Size(33, 32);
             this.pictureBox4.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -472,7 +487,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
-            this.ClientSize = new System.Drawing.Size(1026, 590);
+            this.ClientSize = new System.Drawing.Size(1216, 747);
             this.Controls.Add(this.pnlCharts);
             this.Controls.Add(this.pnlCards);
             this.Controls.Add(this.lblSubtitle);
