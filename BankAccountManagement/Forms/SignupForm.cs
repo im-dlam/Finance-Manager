@@ -1,4 +1,6 @@
-﻿using System;
+﻿using BankAccountManagement.Models;
+using BankAccountManagement.Services;
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
@@ -343,50 +345,44 @@ namespace BankAccountManagement.Forms
         /// </summary>
         private void BtnSignup_Click(object sender, EventArgs e)
         {
-            // Lấy giá trị người dùng nhập (rỗng nếu đang là placeholder)
             string fullName = GetValue(txtFullName);
             string username = GetValue(txtUsername);
             string email = GetValue(txtEmail);
             string password = IsPlaceholder(txtPassword) ? "" : txtPassword.Text;
             string confirm = IsPlaceholder(txtConfirm) ? "" : txtConfirm.Text;
 
-            // ---- Validate từng bước, dừng ngay khi gặp lỗi và focus vào ô sai ----
-
+            // ---------- Validate tại form ----------
             if (string.IsNullOrWhiteSpace(fullName))
-            { ShowError("⚠  Please enter your full name."); txtFullName.Focus(); return; }
+            { ShowError("⚠  Vui lòng nhập họ tên."); txtFullName.Focus(); return; }
 
-            if (string.IsNullOrWhiteSpace(username))
-            { ShowError("⚠  Please choose a username."); txtUsername.Focus(); return; }
-
-            if (username.Length < 4)
-            { ShowError("⚠  Username must be at least 4 characters."); txtUsername.Focus(); return; }
+            if (string.IsNullOrWhiteSpace(username) || username.Length < 4)
+            { ShowError("⚠  Tên đăng nhập phải có ít nhất 4 ký tự."); txtUsername.Focus(); return; }
 
             if (string.IsNullOrWhiteSpace(email) || !IsValidEmail(email))
-            { ShowError("⚠  Please enter a valid email address."); txtEmail.Focus(); return; }
+            { ShowError("⚠  Email không hợp lệ."); txtEmail.Focus(); return; }
 
-            if (string.IsNullOrWhiteSpace(password))
-            { ShowError("⚠  Please enter a password."); txtPassword.Focus(); return; }
-
-            if (password.Length < 6)
-            { ShowError("⚠  Password must be at least 6 characters."); txtPassword.Focus(); return; }
+            if (string.IsNullOrWhiteSpace(password) || password.Length < 6)
+            { ShowError("⚠  Mật khẩu phải có ít nhất 6 ký tự."); txtPassword.Focus(); return; }
 
             if (password != confirm)
-            { ShowError("✖  Passwords do not match."); txtConfirm.SelectAll(); txtConfirm.Focus(); return; }
+            { ShowError("✖  Mật khẩu xác nhận không khớp."); txtConfirm.SelectAll(); txtConfirm.Focus(); return; }
 
             if (!chkTerms.Checked)
-            { ShowError("⚠  You must agree to the Terms of Service."); return; }
+            { ShowError("⚠  Bạn phải đồng ý với Điều khoản dịch vụ."); return; }
 
-            // ---- Vượt qua hết validate ----
+            // ---------- Gọi service (chỉ 4 tham số) ----------
+            AuthResult result = AuthService.Register(fullName, username, email, password);
+
+            if (!result.Success)
+            {
+                ShowError("✖  " + result.Message);
+                return;
+            }
+
             HideError();
-
-            // TODO: Thay MessageBox dưới đây bằng logic lưu tài khoản thật.
-            // Ví dụ: AccountService.Register(fullName, username, email, password);
-            MessageBox.Show(
-                $"Account created successfully! 🎉\n\nWelcome, {fullName}!\nYou can now sign in.",
-                "Bank Management",
+            MessageBox.Show(result.Message, "Bank Management",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-            // Đóng form đăng ký và quay về form Login
             this.Hide();
             new LoginForm().Show();
         }

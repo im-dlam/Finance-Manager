@@ -1,4 +1,6 @@
-﻿using System;
+﻿using BankAccountManagement.Models;
+using BankAccountManagement.Services;
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Runtime.InteropServices;
@@ -285,37 +287,76 @@ namespace BankAccountManagement.Forms
         /// </summary>
         private void BtnLogin_Click(object sender, EventArgs e)
         {
-            // Lấy giá trị thực (trả về rỗng nếu đang là placeholder)
             string user = IsPlaceholder(txtUsername) ? "" : txtUsername.Text.Trim();
             string pass = IsPlaceholder(txtPassword) ? "" : txtPassword.Text;
 
-            // Validate sơ bộ: bắt buộc nhập cả 2 ô
             if (string.IsNullOrWhiteSpace(user) || string.IsNullOrWhiteSpace(pass))
             {
-                ShowError("⚠  Please enter both username and password.");
+                ShowError("⚠  Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.");
                 return;
             }
 
-            // TODO: Thay bằng xác thực thật qua AccountService / DB.
-            // Tài khoản test cứng: admin / 123456
-            if (user == "admin" && pass == "123456")
+            AuthResult result = AuthService.Login(user, pass);
+            if (!result.Success)
             {
-                HideError();
-                MessageBox.Show("Login successful! 🎉", "Bank Management",
-                    MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                // Khi có MainForm thì mở như sau:
-                // this.Hide();
-                // new MainForm().ShowDialog();
-                // this.Close();
-            }
-            else
-            {
-                // Sai tài khoản → hiện lỗi, chọn hết password để user nhập lại nhanh
-                ShowError("✖  Invalid username or password.");
+                ShowError("✖  " + result.Message);
                 txtPassword.SelectAll();
                 txtPassword.Focus();
+                return;
             }
+            CurrentSession.SetUser(result.User); // set user vào session
+
+            HideError();
+            OpenMainForm(result.User);   // open ui main,truyền User
+        }
+
+        /// <summary>
+        /// Mở MainForm sau khi đăng nhập thành công.
+        /// 
+        /// Luồng:
+        /// 1. Ẩn LoginForm (không đóng — để show lại khi Logout).
+        /// 2. Mở MainForm dạng ShowDialog (block).
+        /// 3. Khi MainForm đóng:
+        ///    - DialogResult = Retry (Logout) → hiện lại LoginForm, reset input.
+        ///    - Khác → đóng LoginForm, kết thúc app.
+        /// </summary>
+        private void OpenMainForm(User loggedInUser)
+        {
+            using (var mainForm = new MainForm(loggedInUser))
+            {
+                this.Hide();
+                DialogResult result = mainForm.ShowDialog();
+
+                if (result == DialogResult.Retry)
+                {
+                    // Logout -> quay lại Login
+                    ResetLoginForm();
+                    CurrentSession.Clear();
+                    this.Show();
+                }
+                else
+                { 
+                    this.Close();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Reset input Login về trạng thái ban đầu sau khi Logout.
+        /// </summary>
+        private void ResetLoginForm()
+        {
+            HideError();
+
+            txtUsername.Text = txtUsername.Tag as string ?? "Enter your username";
+            txtUsername.ForeColor = Color.FromArgb(150, 155, 170);
+
+            txtPassword.UseSystemPasswordChar = false;
+            txtPassword.Text = txtPassword.Tag as string ?? "Enter your password";
+            txtPassword.ForeColor = Color.FromArgb(150, 155, 170);
+
+            _passwordVisible = false;
+            btnTogglePass.Text = "👁";
         }
 
         /// <summary>Hiện thông báo lỗi màu đỏ ngay dưới khu vực nhập liệu.</summary>
