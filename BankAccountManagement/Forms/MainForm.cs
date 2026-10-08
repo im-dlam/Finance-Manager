@@ -1,4 +1,4 @@
-using BankAccountManagement.Forms;
+﻿using BankAccountManagement.Forms;
 using BankAccountManagement.Models;
 using BankAccountManagement.Services;
 using System;
@@ -17,9 +17,9 @@ namespace BankAccountManagement
     {
 
         /// <summary>
-        /// Khởi tạo MainForm với user đã đăng nhập.
+        /// Khá»Ÿi táº¡o MainForm vá»›i user Ä‘Ã£ Ä‘Äƒng nháº­p.
         /// </summary>
-        /// <param name="user">User hiện tại (bắt buộc, không được null).</param>
+        /// <param name="user">User hiá»‡n táº¡i (báº¯t buá»™c, khÃ´ng Ä‘Æ°á»£c null).</param>
         public MainForm(User user)
         {
             InitializeComponent();
@@ -28,16 +28,16 @@ namespace BankAccountManagement
         }
 
         /// <summary>
-        /// Hiển thị Form con bên trong pnMain.
-        /// Nếu pnMain đang chứa Form khác, Form cũ sẽ được xóa trước.
+        /// Hiá»ƒn thá»‹ Form con bÃªn trong pnMain.
+        /// Náº¿u pnMain Ä‘ang chá»©a Form khÃ¡c, Form cÅ© sáº½ Ä‘Æ°á»£c xÃ³a trÆ°á»›c.
         /// </summary>
         /// <param name="form">
-        /// Form cần hiển thị bên trong pnMain.
+        /// Form cáº§n hiá»ƒn thá»‹ bÃªn trong pnMain.
         /// </param>
         public void LoadMultiForm(Form form)
         {
-            // Dispose form cũ để giải phóng window handle + delegate
-            // fix lỗi CallbackOnCollectedDelegate khi form cũ bị GC.
+            // Dispose form cÅ© Ä‘á»ƒ giáº£i phÃ³ng window handle + delegate
+            // fix lá»—i CallbackOnCollectedDelegate khi form cÅ© bá»‹ GC.
             if (pnMain.Controls.Count > 0)
             {
                 var oldForms = new System.Collections.Generic.List<Control>();
@@ -49,7 +49,7 @@ namespace BankAccountManagement
                 foreach (var ctrl in oldForms)
                 {
                     try { ctrl.Dispose(); }
-                    catch { /* bỏ qua */ }
+                    catch { /* bá» qua */ }
                 }
             }
 
@@ -63,6 +63,10 @@ namespace BankAccountManagement
             form.Show();
         }
 
+        /// <summary>
+        /// PhÃ¢n quyá»n dá»±a trÃªn vai trÃ² cá»§a ngÆ°á»i dÃ¹ng hiá»‡n táº¡i (Admin/Member).
+        /// Náº¿u lÃ  Member, áº©n cÃ¡c menu khÃ´ng Ä‘Æ°á»£c phÃ©p truy cáº­p (vÃ­ dá»¥: Quáº£n lÃ½ khÃ¡ch hÃ ng).
+        /// </summary>
         private void ApplyRolePermissions()
         {
             Console.WriteLine($"CurrentSession.IsAdmin: {CurrentSession.IsAdmin}");
@@ -70,41 +74,38 @@ namespace BankAccountManagement
             if (CurrentSession.IsAdmin)
                 return;
 
-            // Member – ẩn menu quản trị
-            //btnCustomers.Visible = false;
-            //btnBanks.Visible = false;
-            //btnStatistic.Visible = false;
-            //btnSettings.Visible = false;
+            // Member â€“ áº©n menu quáº£n trá»‹ khÃ¡ch hÃ ng
+            // btnCustomers.Visible = false;
         }
 
         private void btnDashboards_Click(object sender, EventArgs e)
         {
-            LoadMultiForm(new DashboardForm()); // Hiển thị Form DashboardForm bên trong pnMain
+            LoadMultiForm(new DashboardForm()); // Hiá»ƒn thá»‹ Form DashboardForm bÃªn trong pnMain
         }
 
         private void btnAccounts_Click(object sender, EventArgs e)
         {
-            LoadMultiForm(new AccountForm()); // Hiển thị Form AccountForm bên trong pnMain
+            LoadMultiForm(new AccountForm()); // Hiá»ƒn thá»‹ Form AccountForm bÃªn trong pnMain
         }
 
         private void btnTransactions_Click(object sender, EventArgs e)
         {
-            LoadMultiForm(new TransactionForm()); // Hiển thị Form TransactionForm bên trong pnMain
+            LoadMultiForm(new TransactionForm()); // Hiá»ƒn thá»‹ Form TransactionForm bÃªn trong pnMain
         }
 
         private void btnCustomers_Click(object sender, EventArgs e)
         {
-            LoadMultiForm(new CustomerForm()); // Hiển thị Form CustomerForm bên trong pnMain
+            LoadMultiForm(new CustomerForm()); // Hiá»ƒn thá»‹ Form CustomerForm bÃªn trong pnMain
         }
 
         private void btnBanks_Click(object sender, EventArgs e)
         {
-            LoadMultiForm(new BankForm()); // Hiển thị Form BankForm bên trong pnMain
+            LoadMultiForm(new BankForm()); // Hiá»ƒn thá»‹ Form BankForm bÃªn trong pnMain
         }
 
         private void btnStatistic_Click(object sender, EventArgs e)
         {
-            LoadMultiForm(new StatisticsForm()); // Hiển thị Form StatisticForm bên trong pnMain
+            LoadMultiForm(new StatisticsForm()); // Hiá»ƒn thá»‹ Form StatisticForm bÃªn trong pnMain
         }
 
         private void btnSettings_Click(object sender, EventArgs e)
@@ -116,10 +117,10 @@ namespace BankAccountManagement
         {
         }
         /// <summary>
-        /// Dọn dẹp form con trong pnMain TRƯỚC KHI MainForm đóng.
+        /// Dá»n dáº¹p form con trong pnMain TRÆ¯á»šC KHI MainForm Ä‘Ã³ng.
         /// 
-        /// Không làm bước này → form con vẫn giữ delegate WndProc 
-        /// → khi form bị GC sẽ gây lỗi CallbackOnCollectedDelegate.
+        /// KhÃ´ng lÃ m bÆ°á»›c nÃ y â†’ form con váº«n giá»¯ delegate WndProc 
+        /// â†’ khi form bá»‹ GC sáº½ gÃ¢y lá»—i CallbackOnCollectedDelegate.
         /// </summary>
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
@@ -128,8 +129,8 @@ namespace BankAccountManagement
         }
 
         /// <summary>
-        /// Dispose tất cả form con đang nhúng trong pnMain.
-        /// Gọi từ OnFormClosed để đảm bảo giải phóng sạch trước khi app thoát.
+        /// Dispose táº¥t cáº£ form con Ä‘ang nhÃºng trong pnMain.
+        /// Gá»i tá»« OnFormClosed Ä‘á»ƒ Ä‘áº£m báº£o giáº£i phÃ³ng sáº¡ch trÆ°á»›c khi app thoÃ¡t.
         /// </summary>
         private void DisposeChildForms()
         {
@@ -139,7 +140,7 @@ namespace BankAccountManagement
             if (pnMain.Controls.Count == 0)
                 return;
 
-            // Copy ra mảng trước khi Clear để tránh lỗi collection bị modify khi duyệt
+            // Copy ra máº£ng trÆ°á»›c khi Clear Ä‘á»ƒ trÃ¡nh lá»—i collection bá»‹ modify khi duyá»‡t
             var children = new System.Collections.Generic.List<Control>();
             foreach (Control c in pnMain.Controls)
                 children.Add(c);
@@ -149,8 +150,9 @@ namespace BankAccountManagement
             foreach (var ctrl in children)
             {
                 try { ctrl.Dispose(); }
-                catch { /* bỏ qua nếu đã dispose */ }
+                catch { /* bá» qua náº¿u Ä‘Ã£ dispose */ }
             }
         }
     }
 }
+
