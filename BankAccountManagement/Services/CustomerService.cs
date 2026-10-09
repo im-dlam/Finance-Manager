@@ -19,7 +19,7 @@ namespace BankAccountManagement.Services
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             {
                 conn.Open();
-                string getStatusSql = "SELECT TrangThai FROM KhachHang WHERE MaKH = @MaKH";
+                string getStatusSql = "SELECT TrangThai FROM dbo.ThongTinKhachHang WHERE MaKH = @MaKH";
                 string currentStatus = "Active";
                 using (SqlCommand cmdGet = new SqlCommand(getStatusSql, conn))
                 {
@@ -30,7 +30,7 @@ namespace BankAccountManagement.Services
 
                 string newStatus = (currentStatus == "Active") ? "Locked" : "Active";
 
-                string updateSql = "UPDATE KhachHang SET TrangThai = @NewStatus WHERE MaKH = @MaKH";
+                string updateSql = "UPDATE dbo.ThongTinKhachHang SET TrangThai = @NewStatus WHERE MaKH = @MaKH";
                 using (SqlCommand cmdUpdate = new SqlCommand(updateSql, conn))
                 {
                     cmdUpdate.Parameters.AddWithValue("@NewStatus", newStatus);
@@ -46,7 +46,7 @@ namespace BankAccountManagement.Services
             DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             {
-                string sql = "SELECT MaKH, HoTen, CMND_CCCD, NgaySinh, GioiTinh, SoDienThoai, Email, DiaChi, TrangThai FROM KhachHang ORDER BY MaKH ASC";
+                string sql = "SELECT MaKH, HoTen, CMND_CCCD, NgaySinh, GioiTinh, SoDienThoai, Email, DiaChi, TrangThai FROM dbo.ThongTinKhachHang ORDER BY MaKH ASC";
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
                     SqlDataAdapter adapter = new SqlDataAdapter(cmd);
@@ -63,7 +63,7 @@ namespace BankAccountManagement.Services
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             {
                 string sql = @"SELECT MaKH, HoTen, CMND_CCCD, NgaySinh, GioiTinh, SoDienThoai, Email, DiaChi, TrangThai 
-                               FROM KhachHang 
+                               FROM dbo.ThongTinKhachHang 
                                WHERE (MaKH LIKE @Keyword OR HoTen LIKE @Keyword OR SoDienThoai LIKE @Keyword OR CMND_CCCD LIKE @Keyword)
                                ORDER BY MaKH ASC";
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
@@ -82,7 +82,7 @@ namespace BankAccountManagement.Services
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             {
                 conn.Open();
-                string sql = @"INSERT INTO KhachHang (MaKH, HoTen, CMND_CCCD, NgaySinh, GioiTinh, SoDienThoai, Email, DiaChi, TrangThai, NgayTao) 
+                string sql = @"INSERT INTO dbo.ThongTinKhachHang (MaKH, HoTen, CMND_CCCD, NgaySinh, GioiTinh, SoDienThoai, Email, DiaChi, TrangThai, NgayTao) 
                                VALUES (@MaKH, @HoTen, @CMND, @NgaySinh, @GioiTinh, @SDT, @Email, @DiaChi, 'Active', GETDATE())";
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
@@ -106,7 +106,7 @@ namespace BankAccountManagement.Services
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             {
                 conn.Open();
-                string sql = @"UPDATE KhachHang 
+                string sql = @"UPDATE dbo.ThongTinKhachHang 
                                SET HoTen = @HoTen, CMND_CCCD = @CMND, NgaySinh = @NgaySinh, GioiTinh = @GioiTinh, 
                                    SoDienThoai = @SDT, Email = @Email, DiaChi = @DiaChi 
                                WHERE MaKH = @MaKH";
@@ -133,7 +133,7 @@ namespace BankAccountManagement.Services
             {
                 conn.Open();
                 // Thực hiện Xóa cứng (Hard Delete) khỏi database để giải phóng Mã KH
-                string sql = "DELETE FROM KhachHang WHERE MaKH = @MaKH";
+                string sql = "DELETE FROM dbo.ThongTinKhachHang WHERE MaKH = @MaKH";
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("@MaKH", maKH);
@@ -150,9 +150,9 @@ namespace BankAccountManagement.Services
             {
                 string sql = @"
                     SELECT 
-                        (SELECT COUNT(*) FROM KhachHang) AS TongKhachHang,
-                        (SELECT COUNT(*) FROM KhachHang WHERE TrangThai = 'Active') AS DangHoatDong,
-                        (SELECT COUNT(*) FROM KhachHang WHERE MONTH(NgayTao) = MONTH(GETDATE()) AND YEAR(NgayTao) = YEAR(GETDATE())) AS MoiTrongThang,
+                        (SELECT COUNT(*) FROM dbo.ThongTinKhachHang) AS TongKhachHang,
+                        (SELECT COUNT(*) FROM dbo.ThongTinKhachHang WHERE TrangThai = 'Active') AS DangHoatDong,
+                        (SELECT COUNT(*) FROM dbo.ThongTinKhachHang WHERE MONTH(NgayTao) = MONTH(GETDATE()) AND YEAR(NgayTao) = YEAR(GETDATE())) AS MoiTrongThang,
                         (SELECT COUNT(*) FROM TaiKhoan) AS TaiKhoanDaMo
                 ";
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
