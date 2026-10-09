@@ -75,7 +75,10 @@ namespace BankAccountManagement
                 return;
 
             // Member – ẩn menu quản trị khách hàng
-            // btnCustomers.Visible = false;
+            btnCustomers.Visible = false;
+            btnCustomers.Height = 0;
+            btnBanks.Top -= 46;
+            btnStatistic.Top -= 46;
         }
 
         private void btnDashboards_Click(object sender, EventArgs e)
@@ -164,3 +167,4 @@ namespace BankAccountManagement
         }
     }
 }
+
