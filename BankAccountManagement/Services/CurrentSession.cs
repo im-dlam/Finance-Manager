@@ -3,64 +3,47 @@ using System;
 
 namespace BankAccountManagement.Services
 {
-    /// <summary>
-    /// Lưu thông tin user đang đăng nhập trong suốt vòng đời ứng dụng.
-    /// Dùng static để mọi service/form truy cập được mà không cần truyền tham số.
-    /// 
-    /// Vòng đời:
-    /// - Set 1 lần khi LoginForm login thành công.
-    /// - Đọc từ bất kỳ đâu (service, form, helper).
-    /// - Clear khi Logout.
-    /// </summary>
     public static class CurrentSession
     {
-        /// <summary>User hiện tại – null nếu chưa đăng nhập.</summary>
         public static User User { get; private set; }
 
-        /// <summary>True nếu đã đăng nhập.</summary>
         public static bool IsLoggedIn => User != null;
-
-        /// <summary>True nếu user hiện tại là Admin.</summary>
-        public static bool IsAdmin => User != null && string.Equals(User.Quyen, "Admin", StringComparison.OrdinalIgnoreCase);
-
-        /// <summary>True nếu user hiện tại là Member.</summary>
+        public static bool IsAdmin => User?.IsAdmin == true;
         public static bool IsMember => User != null && !IsAdmin;
 
-        /// <summary>Mã người dùng hiện tại (0 nếu chưa login).</summary>
         public static int MaNguoiDung => User?.MaNguoiDung ?? 0;
-
-        /// <summary>Mã khách hàng liên kết (null nếu Admin hoặc chưa link).</summary>
-        public static string MaKH => User?.MaKH;
-
-        /// <summary>Tên đăng nhập hiện tại.</summary>
         public static string TenDangNhap => User?.TenDangNhap;
+        public static string MaKH => User?.MaKH;
+        public static string HoTen => User?.HoTen;
+        public static string Email => User?.Email;
 
-        /// <summary>
-        /// Gán user sau khi login thành công.
-        /// Chỉ cho phép set 1 lần – tránh code vô tình ghi đè.
-        /// </summary>
+        /// <summary>True nếu user đã có hồ sơ KH (đã nhập ở CustomerInfoForm).</summary>
+        public static bool HasCustomerInfo =>
+            User != null && !string.IsNullOrWhiteSpace(User.MaKH);
+
+        /// <summary>True nếu user cần nhập hồ sơ (Member + chưa có MaKH).</summary>
+        public static bool NeedsCustomerInfo =>
+            User != null && !User.IsAdmin && !HasCustomerInfo;
+
         public static void SetUser(User user)
         {
-            if (user == null)
-                throw new ArgumentNullException(nameof(user));
-
+            if (user == null) throw new ArgumentNullException(nameof(user));
             User = user;
+            System.Diagnostics.Debug.WriteLine(
+                $"[Session] SetUser: {user.TenDangNhap} | " +
+                $"Quyen={user.Quyen} | MaKH={user.MaKH ?? "NULL"}");
         }
 
-        /// <summary>
-        /// Xóa session khi logout.
-        /// Gọi trong LoginForm.ResetLoginForm() hoặc MainForm.btnLogout_Click().
-        /// </summary>
         public static void Clear()
         {
+            System.Diagnostics.Debug.WriteLine($"[Session] Clear {User?.TenDangNhap}");
             User = null;
         }
 
         public static void RequireAdmin()
         {
-            if (!IsAdmin)
-                throw new UnauthorizedAccessException(
-                    "Chỉ quản trị viên mới được thực hiện thao tác này.");
+            if (!IsAdmin) throw new UnauthorizedAccessException(
+                "Chỉ Admin mới được thực hiện.");
         }
     }
 }

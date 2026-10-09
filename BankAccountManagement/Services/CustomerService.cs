@@ -163,5 +163,127 @@ namespace BankAccountManagement.Services
             }
             return dt;
         }
+
+        // ============================================================
+        //  LƯU HỒ SƠ KHÁCH HÀNG (dùng cho CustomerInfoForm)
+        //  
+        //  Luồng:
+        //  1. Validate session (đã login, chưa có MaKH).
+        //  2. Kiểm tra trùng CCCD.
+        //  3. Sinh MaKH: "KH" + 6 chữ số.
+        //  4. INSERT vào ThongTinKhachHang.
+        //  5. UPDATE NguoiDung.MaKH để link.
+        //  6. Cập nhật CurrentSession.User.MaKH.
+        // ============================================================
+        public static AuthResult SaveCustomerInfo(
+            string hoTen,
+            string cccd,
+            DateTime ngaySinh,
+            string gioiTinh,
+            string sdt,
+            string email,
+            string diaChi)
+        {
+            // ---------- Validate session ----------
+            if (!CurrentSession.IsLoggedIn)
+                return AuthResult.Fail("Bạn chưa đăng nhập.");
+
+            if (CurrentSession.HasCustomerInfo)
+                return AuthResult.Fail("Bạn đã có hồ sơ khách hàng rồi.");
+
+            DatabaseConfig config = DatabaseConfigManager.Load();
+
+            try
+            {
+                using (var conn = DatabaseService.CreateConnection(config))
+                {
+                    conn.Open();
+                    using (var tran = conn.BeginTransaction())
+                    {
+                        try
+                        {
+                            // ---------- 1. Kiểm tra trùng CCCD ----------
+                            using (var cmd = new SqlCommand(
+                                "SELECT 1 FROM dbo.ThongTinKhachHang WHERE CMND_CCCD = @C",
+                                conn, tran))
+                            {
+                                cmd.Parameters.AddWithValue("@C", cccd);
+                                if (cmd.ExecuteScalar() != null)
+                                    return AuthResult.Fail("CMND/CCCD đã được đăng ký.");
+                            }
+
+                            // ---------- 2. Sinh MaKH mới ----------
+                            string maKH;
+                            using (var cmd = new SqlCommand(@"
+                        SELECT ISNULL(MAX(CAST(SUBSTRING(MaKH, 3, 10) AS INT)), 0) + 1
+                        FROM   dbo.ThongTinKhachHang
+                        WHERE  MaKH LIKE 'KH%'", conn, tran))
+                            {
+                                int next = (int)cmd.ExecuteScalar();
+                                maKH = "KH" + next.ToString("D6");
+                            }
+
+                            // ---------- 3. INSERT ThongTinKhachHang ----------
+                            using (var cmd = new SqlCommand(@"
+                        INSERT INTO dbo.ThongTinKhachHang
+                            (MaKH, HoTen, CMND_CCCD, NgaySinh, GioiTinh,
+                             SoDienThoai, Email, DiaChi, TrangThai)
+                        VALUES
+                            (@MaKH, @HoTen, @CCCD, @NgaySinh, @GioiTinh,
+                             @SDT, @Email, @DiaChi, N'Active')", conn, tran))
+                            {
+                                cmd.Parameters.AddWithValue("@MaKH", maKH);
+                                cmd.Parameters.AddWithValue("@HoTen", hoTen);
+                                cmd.Parameters.AddWithValue("@CCCD", cccd);
+                                cmd.Parameters.AddWithValue("@NgaySinh", ngaySinh);
+                                cmd.Parameters.AddWithValue("@GioiTinh", (object)gioiTinh ?? DBNull.Value);
+                                cmd.Parameters.AddWithValue("@SDT", (object)sdt ?? DBNull.Value);
+                                cmd.Parameters.AddWithValue("@Email", (object)email ?? DBNull.Value);
+                                cmd.Parameters.AddWithValue("@DiaChi", (object)diaChi ?? DBNull.Value);
+                                cmd.ExecuteNonQuery();
+                            }
+
+                            // ---------- 4. UPDATE NguoiDung.MaKH để link ----------
+                            using (var cmd = new SqlCommand(@"
+                        UPDATE dbo.NguoiDung
+                        SET    MaKH = @MaKH
+                        WHERE  MaNguoiDung = @MaNguoiDung", conn, tran))
+                            {
+                                cmd.Parameters.AddWithValue("@MaKH", maKH);
+                                cmd.Parameters.AddWithValue("@MaNguoiDung", CurrentSession.MaNguoiDung);
+
+                                int rows = cmd.ExecuteNonQuery();
+                                if (rows == 0)
+                                    throw new Exception("Không thể link tài khoản với khách hàng.");
+                            }
+
+                            tran.Commit();
+
+                            // ---------- 5. Cập nhật session ----------
+                            // MaKH là string trong schema hiện tại
+                            CurrentSession.User.MaKH = maKH;
+                            CurrentSession.User.HoTen = hoTen;
+                            CurrentSession.User.Email = email;
+
+                            return AuthResult.Ok(
+                                $"Lưu hồ sơ thành công! Mã khách hàng của bạn: {maKH}");
+                        }
+                        catch
+                        {
+                            tran.Rollback();
+                            throw;
+                        }
+                    }
+                }
+            }
+            catch (SqlException ex)
+            {
+                return AuthResult.Fail("Lỗi cơ sở dữ liệu: " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return AuthResult.Fail("Lỗi hệ thống: " + ex.Message);
+            }
+        }
     }
 }

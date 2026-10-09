@@ -85,7 +85,15 @@ namespace BankAccountManagement
 
         private void btnAccounts_Click(object sender, EventArgs e)
         {
-            LoadMultiForm(new AccountForm()); // Hiển thị Form AccountForm bên trong pnMain
+            if (!CurrentSession.HasCustomerInfo)
+            {
+                LoadMultiForm(new CustomerInfoForm());
+                return;
+            }
+            
+            
+             LoadMultiForm(new AccountForm());
+            
         }
 
         private void btnTransactions_Click(object sender, EventArgs e)

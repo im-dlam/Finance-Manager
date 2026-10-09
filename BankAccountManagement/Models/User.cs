@@ -11,7 +11,6 @@ namespace BankAccountManagement.Models
         public int MaNguoiDung { get; set; }
         public string TenDangNhap { get; set; }
 
-        /// <summary>Quyền: 'Admin' hoặc 'Member'.</summary>
         public string Quyen { get; set; }
 
         /// <summary>Mã KH liên kết – NULL nếu chưa link với KhachHang.</summary>
