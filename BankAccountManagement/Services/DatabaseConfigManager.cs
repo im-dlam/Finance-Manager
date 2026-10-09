@@ -34,7 +34,23 @@ namespace BankAccountManagement.Services
 
             if (!File.Exists(ConfigFilePath))
             {
-                return config;
+                try
+                {
+                    string sourceConfigPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, @"..\..\Config\database.ini");
+                    if (File.Exists(sourceConfigPath))
+                    {
+                        Directory.CreateDirectory(ConfigDirectory);
+                        File.Copy(sourceConfigPath, ConfigFilePath, true);
+                    }
+                    else
+                    {
+                        return config;
+                    }
+                }
+                catch
+                {
+                    return config;
+                }
             }
 
             string[] lines = File.ReadAllLines(
