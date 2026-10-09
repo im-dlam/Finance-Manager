@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Data;
 using System.Data.SqlClient;
 using BankAccountManagement.Models;
@@ -14,13 +14,39 @@ namespace BankAccountManagement.Services
             return DatabaseService.BuildConnectionString(config);
         }
 
+        public bool ToggleCustomerStatus(string maKH)
+        {
+            using (SqlConnection conn = new SqlConnection(GetConnectionString()))
+            {
+                conn.Open();
+                string getStatusSql = "SELECT TrangThai FROM KhachHang WHERE MaKH = @MaKH";
+                string currentStatus = "Active";
+                using (SqlCommand cmdGet = new SqlCommand(getStatusSql, conn))
+                {
+                    cmdGet.Parameters.AddWithValue("@MaKH", maKH);
+                    object result = cmdGet.ExecuteScalar();
+                    if (result != null) currentStatus = result.ToString();
+                }
+
+                string newStatus = (currentStatus == "Active") ? "Locked" : "Active";
+
+                string updateSql = "UPDATE KhachHang SET TrangThai = @NewStatus WHERE MaKH = @MaKH";
+                using (SqlCommand cmdUpdate = new SqlCommand(updateSql, conn))
+                {
+                    cmdUpdate.Parameters.AddWithValue("@NewStatus", newStatus);
+                    cmdUpdate.Parameters.AddWithValue("@MaKH", maKH);
+                    return cmdUpdate.ExecuteNonQuery() > 0;
+                }
+            }
+        }
+
         // 1. Lấy toàn bộ danh sách khách hàng
         public DataTable GetAllCustomers()
         {
             DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             {
-                string sql = "SELECT MaKH, HoTen, CMND_CCCD, NgaySinh, GioiTinh, SoDienThoai, Email, DiaChi, TrangThai FROM KhachHang WHERE TrangThai = 'Active' ORDER BY MaKH ASC";
+                string sql = "SELECT MaKH, HoTen, CMND_CCCD, NgaySinh, GioiTinh, SoDienThoai, Email, DiaChi, TrangThai FROM KhachHang ORDER BY MaKH ASC";
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
                     SqlDataAdapter adapter = new SqlDataAdapter(cmd);
@@ -38,7 +64,7 @@ namespace BankAccountManagement.Services
             {
                 string sql = @"SELECT MaKH, HoTen, CMND_CCCD, NgaySinh, GioiTinh, SoDienThoai, Email, DiaChi, TrangThai 
                                FROM KhachHang 
-                               WHERE TrangThai = 'Active' AND (MaKH LIKE @Keyword OR HoTen LIKE @Keyword OR SoDienThoai LIKE @Keyword OR CMND_CCCD LIKE @Keyword)
+                               WHERE (MaKH LIKE @Keyword OR HoTen LIKE @Keyword OR SoDienThoai LIKE @Keyword OR CMND_CCCD LIKE @Keyword)
                                ORDER BY MaKH ASC";
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {

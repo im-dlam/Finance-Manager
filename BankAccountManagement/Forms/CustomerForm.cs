@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Data;
 using System.Data.SqlClient;
 using System.Windows.Forms;
@@ -27,8 +27,25 @@ namespace BankAccountManagement.Forms
             dgvCustomers.CellClick += DgvCustomers_CellClick;
         }
 
-        private void CustomerForm_Load(object sender, EventArgs e)
-        {
+        private void CustomerForm_Load(object sender, EventArgs e) { 
+    bool isAdmin = BankAccountManagement.Services.CurrentSession.IsAdmin; 
+    if (isAdmin) { 
+        DataGridViewTextBoxColumn colTrangThai = new DataGridViewTextBoxColumn(); 
+        colTrangThai.Name = "colTrangThai"; 
+        colTrangThai.DataPropertyName = "TrangThai"; 
+        colTrangThai.HeaderText = "Trạng Thái"; 
+        colTrangThai.Width = 100; 
+        dgvCustomers.Columns.Add(colTrangThai); 
+
+        DataGridViewButtonColumn btnLockColumn = new DataGridViewButtonColumn(); 
+        btnLockColumn.Name = "colLockUnlock"; 
+        btnLockColumn.HeaderText = "Thao tác"; 
+        btnLockColumn.Text = "Khóa/Mở"; 
+        btnLockColumn.UseColumnTextForButtonValue = true; 
+        btnLockColumn.Width = 100; 
+        btnLockColumn.FlatStyle = FlatStyle.Flat; 
+        dgvCustomers.Columns.Add(btnLockColumn); 
+    }
             // Vừa vào thì khóa các ô nhập liệu lại
             SetControlState(false);
             // Load dữ liệu lên grid
@@ -120,10 +137,22 @@ namespace BankAccountManagement.Forms
         }
 
         // Sự kiện click vào 1 dòng trong DataGridView
-        private void DgvCustomers_CellClick(object sender, DataGridViewCellEventArgs e)
-        {
-            if (e.RowIndex >= 0)
-            {
+        private void DgvCustomers_CellClick(object sender, DataGridViewCellEventArgs e) { 
+    if (e.RowIndex >= 0) { 
+        if (dgvCustomers.Columns[e.ColumnIndex].Name == "colLockUnlock") { 
+            string maKH = dgvCustomers.Rows[e.RowIndex].Cells["colMaKH"].Value.ToString(); 
+            string hoTen = dgvCustomers.Rows[e.RowIndex].Cells["colHoTen"].Value.ToString(); 
+            if (MessageBox.Show($"Bạn có chắc chắn muốn Khóa/Mở khách hàng '{hoTen}' không?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) { 
+                try { 
+                    _customerService.ToggleCustomerStatus(maKH); 
+                    MessageBox.Show("Cập nhật trạng thái thành công!", "Thông báo"); 
+                    LoadData(); 
+                } catch (Exception ex) { 
+                    MessageBox.Show("Lỗi: " + ex.Message); 
+                } 
+            } 
+            return; 
+        }
                 DataGridViewRow row = dgvCustomers.Rows[e.RowIndex];
                 txtMaKH.Text = row.Cells["colMaKH"].Value?.ToString();
                 txtHoTen.Text = row.Cells["colHoTen"].Value?.ToString();
@@ -174,7 +203,6 @@ namespace BankAccountManagement.Forms
             SetControlState(true);
             txtMaKH.Focus();
         }
-
 
         // Nút Sửa
         private void BtnEdit_Click(object sender, EventArgs e)
@@ -284,5 +312,4 @@ namespace BankAccountManagement.Forms
             }
         }
     }
-
 }
