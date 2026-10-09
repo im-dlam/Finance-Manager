@@ -1,4 +1,4 @@
-﻿using BankAccountManagement.Models;
+using BankAccountManagement.Models;
 using BankAccountManagement.Services;
 using System;
 using System.Collections.Generic;
@@ -13,6 +13,7 @@ namespace BankAccountManagement.Forms
 {
     public partial class AccountForm : Form
     {
+        
         private readonly AccountService _AccountService = new AccountService();
         private bool _isAddNew = false;
 
@@ -71,6 +72,10 @@ namespace BankAccountManagement.Forms
 
         private void AccountForm_Load(object sender, EventArgs e)
         {
+            Console.WriteLine($"CurrentSession.IsAdmin: {CurrentSession.IsAdmin}");
+
+            if (CurrentSession.IsAdmin)
+                return;
             try
             {
                 LoadComboBoxData();
@@ -89,11 +94,28 @@ namespace BankAccountManagement.Forms
         // ══════════════════════════════════════════
         private void LoadComboBoxData()
         {
-            DataTable dtKH = GetDataTable(
-                "SELECT MaKH, HoTen FROM KhachHang WHERE TrangThai = 'Active' ORDER BY HoTen");
+            DataTable dtKH;
+            if (CurrentSession.IsMember && !string.IsNullOrEmpty(CurrentSession.MaKH))
+            {
+                // Member: Chỉ tải duy nhất thông tin của chính mình
+                dtKH = GetDataTable(
+                    $"SELECT MaKH, HoTen FROM KhachHang WHERE MaKH = '{CurrentSession.MaKH.Replace("'", "''")}'");
+            }
+            else
+            {
+                // Admin: Tải toàn bộ khách hàng Active
+                dtKH = GetDataTable(
+                    "SELECT MaKH, HoTen FROM KhachHang WHERE TrangThai = 'Active' ORDER BY HoTen");
+            }
+
             cboCustomer.DataSource = dtKH;
             cboCustomer.DisplayMember = "HoTen";
             cboCustomer.ValueMember = "MaKH";
+
+            if (CurrentSession.IsMember && !string.IsNullOrEmpty(CurrentSession.MaKH))
+            {
+                cboCustomer.SelectedValue = CurrentSession.MaKH;
+            }
 
             DataTable dtNH = GetDataTable(
                 "SELECT MaNganHang, TenNganHang FROM NganHang ORDER BY TenNganHang");
@@ -120,7 +142,18 @@ namespace BankAccountManagement.Forms
         {
             try
             {
-                _allAccounts = _AccountService.GetActiveTaiKhoan() ?? new List<TaiKhoan>();
+                if (CurrentSession.IsMember && !string.IsNullOrEmpty(CurrentSession.MaKH))
+                {
+                    // Member: Chỉ lấy danh sách tài khoản của chính mình
+                    _allAccounts = _AccountService.GetActiveTaiKhoan()?
+                        .Where(tk => string.Equals(tk.MaKH, CurrentSession.MaKH, StringComparison.OrdinalIgnoreCase))
+                        .ToList() ?? new List<TaiKhoan>();
+                }
+                else
+                {
+                    // Admin: Lấy toàn bộ tài khoản trong hệ thống
+                    _allAccounts = _AccountService.GetActiveTaiKhoan() ?? new List<TaiKhoan>();
+                }
 
                 dgvAccounts.AutoGenerateColumns = false;
 
@@ -235,9 +268,9 @@ namespace BankAccountManagement.Forms
         // ══════════════════════════════════════════
         private void SetControlState(bool isEditing)
         {
-            // Chỉ mở khi THÊM MỚI
+            // Chỉ mở khi THÊM MỚI (nếu là Member thì KHÔNG cho đổi khách hàng khác)
             txtAccountNumber.Enabled = isEditing && _isAddNew;
-            cboCustomer.Enabled = isEditing && _isAddNew;
+            cboCustomer.Enabled = isEditing && _isAddNew && !CurrentSession.IsMember;
             txtBalance.Enabled = isEditing && _isAddNew;
 
             // Mở khi THÊM MỚI hoặc CHỈNH SỬA
@@ -276,14 +309,23 @@ namespace BankAccountManagement.Forms
         {
             txtAccountNumber.Clear();
             txtBalance.Clear();
-            if (cboCustomer.Items.Count > 0) cboCustomer.SelectedIndex = 0;
+
+            if (CurrentSession.IsMember && !string.IsNullOrEmpty(CurrentSession.MaKH))
+            {
+                cboCustomer.SelectedValue = CurrentSession.MaKH;
+            }
+            else if (cboCustomer.Items.Count > 0)
+            {
+                cboCustomer.SelectedIndex = 0;
+            }
+
             if (cboBank.Items.Count > 0) cboBank.SelectedIndex = 0;
             if (cboCurrency.Items.Count > 0) cboCurrency.SelectedIndex = 0;
             if (cboStatus.Items.Count > 0) cboStatus.SelectedIndex = 0;
             dtpOpenDate.Value = DateTime.Now;
 
             // Reset giá trị gốc
-            _currentMaKH = "";
+            _currentMaKH = (CurrentSession.IsMember && !string.IsNullOrEmpty(CurrentSession.MaKH)) ? CurrentSession.MaKH : "";
             _currentSoDuHienTai = 0;
             _currentSoDuBanDau = 0;
         }
@@ -391,7 +433,16 @@ namespace BankAccountManagement.Forms
             _currentSoDuBanDau = _currentSoDuHienTai; // fallback nếu không có cột riêng
             txtAccountNumber.Text = row.Cells["colAccountNumber"].Value?.ToString();
             txtBalance.Text = _currentSoDuHienTai.ToString();
-            cboCustomer.SelectedValue = row.Cells["colCustomer"].Value;
+
+            if (CurrentSession.IsMember && !string.IsNullOrEmpty(CurrentSession.MaKH))
+            {
+                cboCustomer.SelectedValue = CurrentSession.MaKH;
+            }
+            else
+            {
+                cboCustomer.SelectedValue = row.Cells["colCustomer"].Value;
+            }
+
             cboBank.SelectedValue = row.Cells["colBank"].Value;
             var currencyValue = row.Cells["colCurrency"].Value;
 
@@ -402,7 +453,6 @@ namespace BankAccountManagement.Forms
             else
             {
                 cboCurrency.SelectedIndex = -1; // Xóa lựa chọn nếu dữ liệu null
-                                                // cboCurrency.SelectedValue = "VND"; // Hoặc gán một giá trị mặc định tùy logic của bạn
             }
 
             if (row.Cells["colOpenDate"].Value != null)
@@ -440,10 +490,14 @@ namespace BankAccountManagement.Forms
                     return;
                 }
 
+                string maKH = (CurrentSession.IsMember && !string.IsNullOrEmpty(CurrentSession.MaKH))
+                    ? CurrentSession.MaKH
+                    : cboCustomer.SelectedValue?.ToString();
+
                 tk = new TaiKhoan
                 {
                     SoTaiKhoan = txtAccountNumber.Text.Trim(),
-                    MaKH = cboCustomer.SelectedValue?.ToString(),
+                    MaKH = maKH,
                     MaNganHang = cboBank.SelectedValue?.ToString(),
                     MaLoaiTien = cboCurrency.SelectedValue?.ToString(),
                     SoDuBanDau = soDuMoi,
