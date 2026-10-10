@@ -21,16 +21,40 @@ namespace BankAccountManagement.Forms
 
         private void DashboardForm_Load(object sender, EventArgs e)
         {
-            LoadSummaryData();
-            LoadBarChart();
-            LoadPieChart();
+            // Đặt tên biến thống nhất là maKH luôn cho gọn
+            string maKH = null;
+
+            if (CurrentSession.IsMember)
+            {
+                // 1. Ẩn card "Tổng Khách Hàng" (roundedPanel2) đi theo yêu cầu nhóm trưởng
+                if (roundedPanel2 != null) roundedPanel2.Visible = false;
+
+                // 2. Lấy MaKH của tài khoản đang đăng nhập
+                maKH = CurrentSession.MaKH;
+            }
+            else if (CurrentSession.IsAdmin)
+            {
+                // Admin giữ nguyên hiển thị và không lọc
+                if (roundedPanel2 != null) roundedPanel2.Visible = true;
+                maKH = null;
+            }
+
+            // Truyền maKH vào các hàm load dữ liệu
+            LoadSummaryData(maKH);
+            LoadBarChart(maKH);
+            LoadPieChart(maKH);
+
+            //LoadSummaryData();
+            //LoadBarChart();
+            //LoadPieChart();
         }
 
-        private void LoadSummaryData()
+        private void LoadSummaryData(string maKH = null)
         {
             try
             {
-                DataTable dt = _dashboardService.GetDashboardSummary();
+                // Truyền maKH xuống service
+                DataTable dt = _dashboardService.GetDashboardSummary(maKH);
                 if (dt != null && dt.Rows.Count > 0)
                 {
                     label3.Text = dt.Rows[0]["TongTaiKhoan"].ToString();
@@ -45,11 +69,11 @@ namespace BankAccountManagement.Forms
             }
         }
 
-        private void LoadBarChart()
+        private void LoadBarChart(string maKH = null)
         {
             try
             {
-                DataTable dt = _dashboardService.GetAccountByMonth();
+                DataTable dt = _dashboardService.GetAccountByMonth(maKH);
                 
                 chart1.Series.Clear();
                 chart1.Titles.Clear();
@@ -100,11 +124,11 @@ namespace BankAccountManagement.Forms
             }
         }
 
-        private void LoadPieChart()
+        private void LoadPieChart(string maKH = null)
         {
             try
             {
-                DataTable dt = _dashboardService.GetAccountByBank();
+                DataTable dt = _dashboardService.GetAccountByBank(maKH);
                 
                 chart2.Series.Clear();
                 chart2.Titles.Clear();
