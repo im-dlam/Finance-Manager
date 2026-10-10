@@ -1,4 +1,4 @@
-﻿using BankAccountManagement.Models;
+using BankAccountManagement.Models;
 using BankAccountManagement.Services;
 using System;
 using System.Collections.Generic;
@@ -23,40 +23,86 @@ namespace BankAccountManagement
 
             dataGridViewTransactions.AutoGenerateColumns = false;
 
-            if (dataGridViewTransactions.Columns.Count >= 7)
-            {
+            if (dataGridViewTransactions.Columns.Contains("dataGridViewTextBoxColumn1"))
                 dataGridViewTransactions.Columns["dataGridViewTextBoxColumn1"].DataPropertyName = "NgayGiaoDich";
+            if (dataGridViewTransactions.Columns.Contains("dataGridViewTextBoxColumn2"))
                 dataGridViewTransactions.Columns["dataGridViewTextBoxColumn2"].DataPropertyName = "NoiDung";
+            if (dataGridViewTransactions.Columns.Contains("dataGridViewTextBoxColumn3"))
                 dataGridViewTransactions.Columns["dataGridViewTextBoxColumn3"].DataPropertyName = "SoTaiKhoan";
-                dataGridViewTransactions.Columns["dataGridViewTextBoxColumn4"].DataPropertyName = "Loai";
 
-                if (!dataGridViewTransactions.Columns.Contains("colTienGoc"))
-                {
-                    DataGridViewTextBoxColumn colGoc =
-                        new DataGridViewTextBoxColumn();
-
-                    colGoc.Name = "colTienGoc";
-                    colGoc.HeaderText = "Tiền gốc";
-                    colGoc.DataPropertyName = "SoTienGoc";
-
-                    dataGridViewTransactions.Columns.Insert(4, colGoc);
-
-                    DataGridViewTextBoxColumn colLoai =
-                        new DataGridViewTextBoxColumn();
-
-                    colLoai.Name = "colLoaiTien";
-                    colLoai.HeaderText = "Loại tiền";
-                    colLoai.DataPropertyName = "LoaiTien";
-
-                    dataGridViewTransactions.Columns.Insert(5, colLoai);
-                }
-
-                dataGridViewTransactions.Columns["dataGridViewTextBoxColumn5"].DataPropertyName = "SoTien";
-                dataGridViewTransactions.Columns["dataGridViewTextBoxColumn5"].HeaderText = "Quy đổi (VND)";
-
-                dataGridViewTransactions.Columns["dataGridViewTextBoxColumn7"].DataPropertyName = "ThaoTac";
-                dataGridViewTransactions.Columns["dataGridViewTextBoxColumn6"].DataPropertyName = "TrangThai";
+            // 4. Cột Loại tiền: USD hay là VNĐ
+            if (dataGridViewTransactions.Columns.Contains("dataGridViewTextBoxColumn4"))
+            {
+                dataGridViewTransactions.Columns["dataGridViewTextBoxColumn4"].DataPropertyName = "LoaiTien";
+                dataGridViewTransactions.Columns["dataGridViewTextBoxColumn4"].HeaderText = "LOẠI TIỀN";
             }
+
+            // 5. Cột Số tiền đổi tên thành Số tiền gốc
+            if (dataGridViewTransactions.Columns.Contains("dataGridViewTextBoxColumn5"))
+            {
+                dataGridViewTransactions.Columns["dataGridViewTextBoxColumn5"].DataPropertyName = "SoTienGoc";
+                dataGridViewTransactions.Columns["dataGridViewTextBoxColumn5"].HeaderText = "SỐ TIỀN GỐC";
+                dataGridViewTransactions.Columns["dataGridViewTextBoxColumn5"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+            }
+
+            // 6. Cột sau số tiền gốc: Số tiền quy đổi (VND)
+            if (!dataGridViewTransactions.Columns.Contains("colSoTienQuyDoi"))
+            {
+                DataGridViewTextBoxColumn colQuyDoi = new DataGridViewTextBoxColumn
+                {
+                    Name = "colSoTienQuyDoi",
+                    HeaderText = "SỐ TIỀN QUY ĐỔI (VND)",
+                    DataPropertyName = "SoTien",
+                    ReadOnly = true,
+                    MinimumWidth = 8
+                };
+                colQuyDoi.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                colQuyDoi.DefaultCellStyle.Format = "N0";
+
+                int idxGoc = dataGridViewTransactions.Columns["dataGridViewTextBoxColumn5"].Index;
+                dataGridViewTransactions.Columns.Insert(idxGoc + 1, colQuyDoi);
+            }
+
+            // 7. Cột Thao tác: là cái loại [giao dịch] bây giờ (Nạp tiền, Rút tiền, Chuyển khoản...)
+            if (dataGridViewTransactions.Columns.Contains("dataGridViewTextBoxColumn7"))
+            {
+                dataGridViewTransactions.Columns["dataGridViewTextBoxColumn7"].DataPropertyName = "ThaoTac";
+                dataGridViewTransactions.Columns["dataGridViewTextBoxColumn7"].HeaderText = "THAO TÁC";
+            }
+
+            // 8. Cột Trạng thái
+            if (dataGridViewTransactions.Columns.Contains("dataGridViewTextBoxColumn6"))
+            {
+                dataGridViewTransactions.Columns["dataGridViewTextBoxColumn6"].DataPropertyName = "TrangThai";
+                dataGridViewTransactions.Columns["dataGridViewTextBoxColumn6"].HeaderText = "TRẠNG THÁI";
+            }
+
+            // Định dạng hiển thị tiền tệ thông minh
+            dataGridViewTransactions.CellFormatting += (s, e) =>
+            {
+                if (e.RowIndex < 0 || e.Value == null) return;
+
+                if (dataGridViewTransactions.Columns[e.ColumnIndex].Name == "dataGridViewTextBoxColumn5")
+                {
+                    if (decimal.TryParse(e.Value.ToString(), out decimal num))
+                    {
+                        var row = dataGridViewTransactions.Rows[e.RowIndex];
+                        string loaiTien = row.Cells["dataGridViewTextBoxColumn4"].Value?.ToString() ?? "VND";
+                        e.Value = (loaiTien == "VND") ? num.ToString("N0") : num.ToString("N2");
+                        e.FormattingApplied = true;
+                    }
+                }
+                else if (dataGridViewTransactions.Columns[e.ColumnIndex].Name == "colSoTienQuyDoi")
+                {
+                    if (decimal.TryParse(e.Value.ToString(), out decimal num))
+                    {
+                        e.Value = num.ToString("N0");
+                        e.FormattingApplied = true;
+                    }
+                }
+            };
+
+            dataGridViewTransactions.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 
             if (this.buttonSearch != null)
                 this.buttonSearch.Click += buttonSearch_Click;
@@ -136,9 +182,14 @@ namespace BankAccountManagement
 
                 dataGridViewTransactions.DataSource = dt;
 
-                if (dataGridViewTransactions.Columns["SoTien"] != null)
+                if (dataGridViewTransactions.Columns["colSoTienQuyDoi"] != null)
                 {
-                    dataGridViewTransactions.Columns["SoTien"].DefaultCellStyle.Format = "N0";
+                    dataGridViewTransactions.Columns["colSoTienQuyDoi"].DefaultCellStyle.Format = "N0";
+                    dataGridViewTransactions.Columns["colSoTienQuyDoi"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                }
+                if (dataGridViewTransactions.Columns["dataGridViewTextBoxColumn5"] != null)
+                {
+                    dataGridViewTransactions.Columns["dataGridViewTextBoxColumn5"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
                 }
                 
                 // Căn chỉnh giao diện Grid

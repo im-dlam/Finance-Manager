@@ -1,4 +1,4 @@
-﻿using BankAccountManagement.Models;
+using BankAccountManagement.Models;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -51,12 +51,12 @@ namespace BankAccountManagement.Services
                         G.NgayGiaoDich, 
                         G.NoiDung, 
                         G.SoTaiKhoan, 
-                        L.TenLoaiGD AS Loai, 
+                        ISNULL(G.LoaiTien, 'VND') AS LoaiTien, 
+                        ISNULL(G.SoTienGoc, G.SoTien) AS SoTienGoc, 
                         G.SoTien, 
-                        G.SoTienGoc, 
-                        G.MaLoaiTien, 
-                        L.PhanLoai,
-                        N'Chi tiết' AS ThaoTac, 
+                        L.TenLoaiGD AS Loai, 
+                        L.TenLoaiGD AS ThaoTac, 
+                        L.PhanLoai, 
                         G.TrangThai 
                     FROM dbo.GiaoDich G
                     INNER JOIN dbo.LoaiGiaoDich L ON G.MaLoaiGD = L.MaLoaiGD
@@ -93,17 +93,20 @@ namespace BankAccountManagement.Services
                     conn.Open();
 
                     using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
                         if (reader.Read())
                         {
+                            string maLT = reader["MaLoaiTien"].ToString();
+                            decimal rate = Convert.ToDecimal(reader["QuyDoi"]);
+                            if (maLT.Equals("USD", StringComparison.OrdinalIgnoreCase) && rate <= 1m)
+                                rate = 25400m;
+
                             return new CurrencyInfo
                             {
-                                MaLoaiTien = reader["MaLoaiTien"].ToString(),
+                                MaLoaiTien = maLT,
                                 TenLoaiTien = reader["TenLoaiTien"].ToString(),
-                                QuyDoi = Convert.ToDecimal(reader["QuyDoi"])
+                                QuyDoi = rate
                             };
                         }
-                    }
                 }
             }
             return null;
@@ -122,12 +125,12 @@ namespace BankAccountManagement.Services
                         G.NgayGiaoDich, 
                         G.NoiDung, 
                         G.SoTaiKhoan, 
-                        L.TenLoaiGD AS Loai, 
+                        ISNULL(G.LoaiTien, 'VND') AS LoaiTien, 
+                        ISNULL(G.SoTienGoc, G.SoTien) AS SoTienGoc, 
                         G.SoTien, 
-                        G.SoTienGoc, 
-                        G.MaLoaiTien, 
-                        L.PhanLoai,
-                        N'Chi tiết' AS ThaoTac, 
+                        L.TenLoaiGD AS Loai, 
+                        L.TenLoaiGD AS ThaoTac, 
+                        L.PhanLoai, 
                         G.TrangThai 
                     FROM dbo.GiaoDich G
                     INNER JOIN dbo.LoaiGiaoDich L ON G.MaLoaiGD = L.MaLoaiGD
@@ -177,14 +180,29 @@ namespace BankAccountManagement.Services
                 {
                     try
                     {
-                        // 4.1. INSERT GiaoDich
-                        const string sqlInsert = @"
-                            INSERT INTO dbo.GiaoDich 
-                                (MaGiaoDich, SoTaiKhoan, MaLoaiGD, SoTien, SoTienGoc, 
-                                 MaLoaiTien, NgayGiaoDich, NoiDung, TrangThai)
-                            VALUES 
-                                (@MaGD, @SoTaiKhoan, @MaLoai, @SoTienVND, @SoTienGoc, 
-                                 @LoaiTien, @Ngay, @NoiDung, @TrangThai)";
+                        // 4.1. INSERT GiaoDich - hỗ trợ linh hoạt cả schema LoaiTien và MaLoaiTien
+                        bool hasLoaiTien = false;
+                        bool hasMaLoaiTien = false;
+                        using (SqlCommand chk = new SqlCommand(
+                            "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'GiaoDich' AND COLUMN_NAME IN ('MaLoaiTien', 'LoaiTien')", conn, transaction))
+                        {
+                            using (var rdr = chk.ExecuteReader())
+                            {
+                                while (rdr.Read())
+                                {
+                                    string col = rdr.GetString(0);
+                                    if (col.Equals("MaLoaiTien", StringComparison.OrdinalIgnoreCase)) hasMaLoaiTien = true;
+                                    if (col.Equals("LoaiTien", StringComparison.OrdinalIgnoreCase)) hasLoaiTien = true;
+                                }
+                            }
+                        }
+
+                        string cols = "MaGiaoDich, SoTaiKhoan, MaLoaiGD, SoTien, SoTienGoc, NgayGiaoDich, NoiDung, TrangThai";
+                        string vals = "@MaGD, @SoTaiKhoan, @MaLoai, @SoTienVND, @SoTienGoc, @Ngay, @NoiDung, @TrangThai";
+                        if (hasLoaiTien) { cols += ", LoaiTien"; vals += ", @LoaiTien"; }
+                        if (hasMaLoaiTien) { cols += ", MaLoaiTien"; vals += ", @LoaiTien"; }
+
+                        string sqlInsert = $"INSERT INTO dbo.GiaoDich ({cols}) VALUES ({vals})";
 
                         using (SqlCommand cmd = new SqlCommand(sqlInsert, conn, transaction))
                         {
@@ -210,9 +228,28 @@ namespace BankAccountManagement.Services
                             phanLoai = cmd.ExecuteScalar()?.ToString() ?? "";
                         }
 
-                        // 4.3. Cập nhật số dư nếu giao dịch thành công
+                        // 4.3. Cập nhật số dư nếu giao dịch thành công (quy đổi về đúng đơn vị tiền của tài khoản)
                         if (trangThai == "Success" || trangThai == "Hoàn tất")
                         {
+                            decimal accRate = 1m;
+                            const string sqlGetAccRate = @"
+                                SELECT ISNULL(LT.QuyDoi, 1)
+                                FROM dbo.TaiKhoan TK
+                                INNER JOIN dbo.LoaiTien LT ON TK.MaLoaiTien = LT.MaLoaiTien
+                                WHERE TK.SoTaiKhoan = @SoTaiKhoan";
+                            using (SqlCommand cmdRate = new SqlCommand(sqlGetAccRate, conn, transaction))
+                            {
+                                cmdRate.Parameters.AddWithValue("@SoTaiKhoan", soTaiKhoan);
+                                object rateObj = cmdRate.ExecuteScalar();
+                                if (rateObj != null && rateObj != DBNull.Value)
+                                {
+                                    accRate = Convert.ToDecimal(rateObj);
+                                    if (accRate <= 0) accRate = 1m;
+                                }
+                            }
+
+                            decimal amountInAccCurrency = Math.Round(soTienVND / accRate, 2);
+
                             string sqlUpdate = "";
                             if (phanLoai == "INCOME")
                                 sqlUpdate = @"UPDATE dbo.TaiKhoan 
@@ -227,7 +264,7 @@ namespace BankAccountManagement.Services
                             {
                                 using (SqlCommand cmdUpdate = new SqlCommand(sqlUpdate, conn, transaction))
                                 {
-                                    cmdUpdate.Parameters.AddWithValue("@SoTien", soTienVND);
+                                    cmdUpdate.Parameters.AddWithValue("@SoTien", amountInAccCurrency);
                                     cmdUpdate.Parameters.AddWithValue("@SoTaiKhoan", soTaiKhoan);
                                     cmdUpdate.ExecuteNonQuery();
                                 }
@@ -396,11 +433,16 @@ namespace BankAccountManagement.Services
                     {
                         while (reader.Read())
                         {
+                            string maLT = reader["MaLoaiTien"].ToString();
+                            decimal rate = Convert.ToDecimal(reader["QuyDoi"]);
+                            if (maLT.Equals("USD", StringComparison.OrdinalIgnoreCase) && rate <= 1m)
+                                rate = 25400m;
+
                             currencies.Add(new CurrencyInfo
                             {
-                                MaLoaiTien = reader["MaLoaiTien"].ToString(),
+                                MaLoaiTien = maLT,
                                 TenLoaiTien = reader["TenLoaiTien"].ToString(),
-                                QuyDoi = Convert.ToDecimal(reader["QuyDoi"])
+                                QuyDoi = rate
                             });
                         }
                     }

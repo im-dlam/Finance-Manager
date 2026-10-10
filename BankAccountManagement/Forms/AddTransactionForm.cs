@@ -1,4 +1,4 @@
-﻿using BankAccountManagement.Models;
+using BankAccountManagement.Models;
 using BankAccountManagement.Services;
 using System;
 using System.Collections.Generic;
@@ -254,6 +254,11 @@ namespace BankAccountManagement
                         $"Số dư hiện tại: {bal:N2} {currency.MaLoaiTien}";
 
                     lblSoDu.Tag = bal;
+
+                    if (cboLoaiTien.DataSource != null)
+                    {
+                        cboLoaiTien.SelectedValue = currency.MaLoaiTien;
+                    }
                 }
             }
         }
@@ -263,7 +268,7 @@ namespace BankAccountManagement
             decimal soTienGoc;
 
             if (!decimal.TryParse(
-                txtSoTien.Text.Replace(",", ""),
+                txtSoTien.Text.Replace(",", "").Replace(".", ""),
                 out soTienGoc))
             {
                 lblQuyDoi.Text = "Quy đổi: 0 VND";
@@ -281,8 +286,8 @@ namespace BankAccountManagement
                 return;
             }
 
-            decimal soTienVND =
-                soTienGoc * selectedCurrency.QuyDoi;
+            decimal rate = (selectedCurrency.MaLoaiTien.Equals("USD", StringComparison.OrdinalIgnoreCase) && selectedCurrency.QuyDoi <= 1m) ? 25400m : (selectedCurrency.QuyDoi > 0 ? selectedCurrency.QuyDoi : 1m);
+            decimal soTienVND = soTienGoc * rate;
 
             lblQuyDoi.Text =
                 $"Quy đổi: {soTienVND:N0} VND";
@@ -319,8 +324,8 @@ namespace BankAccountManagement
 
                 string loaiTien = selectedCurrency.MaLoaiTien;
 
-                decimal soTienVND =
-                    soTienGoc * selectedCurrency.QuyDoi;
+                decimal rate = (selectedCurrency.MaLoaiTien.Equals("USD", StringComparison.OrdinalIgnoreCase) && selectedCurrency.QuyDoi <= 1m) ? 25400m : (selectedCurrency.QuyDoi > 0 ? selectedCurrency.QuyDoi : 1m);
+                decimal soTienVND = soTienGoc * rate;
 
                 // Kiem tra so du (Expense / Rút tiền)
                 // Lấy thông tin loại GD là Thu hay Chi
