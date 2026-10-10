@@ -13,7 +13,8 @@ namespace BankAccountManagement
     public partial class TransactionForm : Form
     {
         private TransactionService _transactionService;
-
+        private const string SearchPlaceholder = "Nội dung, tài khoản, mã giao dịch...";
+        private bool _isSearchPlaceholder = true;
         public TransactionForm()
         {
             InitializeComponent();
@@ -298,6 +299,40 @@ namespace BankAccountManagement
             LoadComboBoxes();
             LoadData();
             LoadStatistics();
+        }
+        private void InitSearchPlaceholder()
+        {
+            textSearch.ForeColor = Color.FromArgb(148, 163, 184);
+            textSearch.Text = SearchPlaceholder;
+            _isSearchPlaceholder = true;
+
+            textSearch.GotFocus += (s, e) =>
+            {
+                if (_isSearchPlaceholder)
+                {
+                    textSearch.Text = string.Empty;
+                    textSearch.ForeColor = Color.FromArgb(15, 23, 42);
+                    _isSearchPlaceholder = false;
+                }
+            };
+
+            textSearch.LostFocus += (s, e) =>
+            {
+                if (string.IsNullOrWhiteSpace(textSearch.Text))
+                {
+                    textSearch.Text = SearchPlaceholder;
+                    textSearch.ForeColor = Color.FromArgb(148, 163, 184);
+                    _isSearchPlaceholder = true;
+                }
+            };
+        }
+
+        // ✅ THÊM METHOD: Lấy từ khóa thực (đã loại placeholder)
+        private string GetSearchKeyword()
+        {
+            return _isSearchPlaceholder
+                ? string.Empty
+                : textSearch.Text.Trim();
         }
     }
 }

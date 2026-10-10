@@ -303,7 +303,7 @@ namespace BankAccountManagement
                 int maLoai = Convert.ToInt32(cboLoaiGD.SelectedValue);
                 decimal soTienGoc = 0;
                 
-                if (!decimal.TryParse(txtSoTien.Text.Replace(",", ""), out soTienGoc) || soTienGoc <= 0)
+                if (!decimal.TryParse(txtSoTien.Text.Replace(",", "").Replace(".", ""), out soTienGoc) || soTienGoc <= 0)
                 {
                     MessageBox.Show("Số tiền gốc không hợp lệ!"); return;
                 }
@@ -327,17 +327,26 @@ namespace BankAccountManagement
                 bool isExpense = false;
                 DataRowView drv = cboLoaiGD.SelectedItem as DataRowView; // Need to know if Income or Expense
                 // Or just use the combo ThaoTac / TenLoaiGD to guess, but safer to query DB or just rely on ThaoTac
+                // Kiểm tra null cboThaoTac
+                if (cboThaoTac.SelectedItem == null)
+                {
+                    MessageBox.Show("Vui lòng chọn thao tác!"); return;
+                }
                 string thaoTac = cboThaoTac.SelectedItem.ToString();
                 if (thaoTac == "Rút tiền" || thaoTac == "Chuyển khoản" || thaoTac == "Thanh toán") {
                     isExpense = true;
                 }
                 
-                if (isExpense)
+                                if (isExpense)
                 {
                     decimal currentBal = lblSoDu.Tag != null ? (decimal)lblSoDu.Tag : 0m;
-                    if (soTienVND > currentBal)
+                    // Lấy loại tiền của tài khoản để quy đổi số dư hiện tại ra VND
+                    BankAccountManagement.Models.CurrencyInfo accCurrency = _transactionService.GetAccountCurrency(tk);
+                    decimal currentBalVND = currentBal * (accCurrency != null ? accCurrency.QuyDoi : 1m);
+
+                    if (soTienVND > currentBalVND)
                     {
-                        MessageBox.Show("Số tiền vượt quá số dư hiện tại trong tài khoản!", "Lỗi số dư", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show("Số tiền quy đổi vượt quá số dư hiện tại trong tài khoản!", "Lỗi số dư", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         return;
                     }
                 }
@@ -392,3 +401,5 @@ namespace BankAccountManagement
         }
     }
 }
+
+
