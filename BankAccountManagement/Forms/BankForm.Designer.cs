@@ -15,9 +15,9 @@
 
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
             this.pnlHeader = new System.Windows.Forms.Panel();
             this.pnlHeaderBorder = new System.Windows.Forms.Panel();
             this.label2 = new System.Windows.Forms.Label();
@@ -51,6 +51,8 @@
             this.TNH = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CN = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.SC = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.backgroundWorker2 = new System.ComponentModel.BackgroundWorker();
             this.pnlHeader.SuspendLayout();
             this.pnlFormCard.SuspendLayout();
             this.pnlFormContent.SuspendLayout();
@@ -87,7 +89,7 @@
             this.label2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.label2.Location = new System.Drawing.Point(35, 18);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(343, 41);
+            this.label2.Size = new System.Drawing.Size(275, 32);
             this.label2.TabIndex = 1;
             this.label2.Text = "QUẢN LÝ NGÂN HÀNG";
             // 
@@ -149,7 +151,7 @@
             this.lblFormTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.lblFormTitle.Location = new System.Drawing.Point(42, 20);
             this.lblFormTitle.Name = "lblFormTitle";
-            this.lblFormTitle.Size = new System.Drawing.Size(229, 30);
+            this.lblFormTitle.Size = new System.Drawing.Size(191, 25);
             this.lblFormTitle.TabIndex = 1;
             this.lblFormTitle.Text = "Thông tin ngân hàng";
             // 
@@ -169,7 +171,7 @@
             this.label4.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.label4.Location = new System.Drawing.Point(30, 82);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(143, 21);
+            this.label4.Size = new System.Drawing.Size(117, 17);
             this.label4.TabIndex = 3;
             this.label4.Text = "Mã ngân hàng (*)";
             // 
@@ -179,7 +181,7 @@
             this.txtBankCode.Font = new System.Drawing.Font("Segoe UI", 10.5F);
             this.txtBankCode.Location = new System.Drawing.Point(30, 104);
             this.txtBankCode.Name = "txtBankCode";
-            this.txtBankCode.Size = new System.Drawing.Size(355, 31);
+            this.txtBankCode.Size = new System.Drawing.Size(355, 26);
             this.txtBankCode.TabIndex = 4;
             // 
             // label6
@@ -190,7 +192,7 @@
             this.label6.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.label6.Location = new System.Drawing.Point(30, 148);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(146, 21);
+            this.label6.Size = new System.Drawing.Size(120, 17);
             this.label6.TabIndex = 5;
             this.label6.Text = "Tên ngân hàng (*)";
             // 
@@ -200,7 +202,7 @@
             this.txtBankName.Font = new System.Drawing.Font("Segoe UI", 10.5F);
             this.txtBankName.Location = new System.Drawing.Point(30, 170);
             this.txtBankName.Name = "txtBankName";
-            this.txtBankName.Size = new System.Drawing.Size(355, 31);
+            this.txtBankName.Size = new System.Drawing.Size(355, 26);
             this.txtBankName.TabIndex = 6;
             // 
             // label5
@@ -211,7 +213,7 @@
             this.label5.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.label5.Location = new System.Drawing.Point(30, 214);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(88, 21);
+            this.label5.Size = new System.Drawing.Size(71, 17);
             this.label5.TabIndex = 7;
             this.label5.Text = "Chi nhánh";
             // 
@@ -221,7 +223,7 @@
             this.txtBranch.Font = new System.Drawing.Font("Segoe UI", 10.5F);
             this.txtBranch.Location = new System.Drawing.Point(30, 236);
             this.txtBranch.Name = "txtBranch";
-            this.txtBranch.Size = new System.Drawing.Size(355, 31);
+            this.txtBranch.Size = new System.Drawing.Size(355, 26);
             this.txtBranch.TabIndex = 8;
             // 
             // label7
@@ -232,7 +234,7 @@
             this.label7.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.label7.Location = new System.Drawing.Point(30, 280);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(90, 21);
+            this.label7.Size = new System.Drawing.Size(72, 17);
             this.label7.TabIndex = 9;
             this.label7.Text = "Swift code";
             // 
@@ -242,7 +244,7 @@
             this.txtSwiftCode.Font = new System.Drawing.Font("Segoe UI", 10.5F);
             this.txtSwiftCode.Location = new System.Drawing.Point(30, 302);
             this.txtSwiftCode.Name = "txtSwiftCode";
-            this.txtSwiftCode.Size = new System.Drawing.Size(355, 31);
+            this.txtSwiftCode.Size = new System.Drawing.Size(355, 26);
             this.txtSwiftCode.TabIndex = 10;
             // 
             // pnlFormDivider2
@@ -334,7 +336,7 @@
             this.lblListTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.lblListTitle.Location = new System.Drawing.Point(42, 20);
             this.lblListTitle.Name = "lblListTitle";
-            this.lblListTitle.Size = new System.Drawing.Size(235, 30);
+            this.lblListTitle.Size = new System.Drawing.Size(196, 25);
             this.lblListTitle.TabIndex = 1;
             this.lblListTitle.Text = "Danh sách ngân hàng";
             // 
@@ -346,7 +348,7 @@
             this.lblListCount.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(163)))), ((int)(((byte)(74)))));
             this.lblListCount.Location = new System.Drawing.Point(540, 28);
             this.lblListCount.Name = "lblListCount";
-            this.lblListCount.Size = new System.Drawing.Size(110, 23);
+            this.lblListCount.Size = new System.Drawing.Size(91, 19);
             this.lblListCount.TabIndex = 2;
             this.lblListCount.Text = "0 ngân hàng";
             this.lblListCount.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -383,8 +385,8 @@
             this.dgvBank.AllowUserToAddRows = false;
             this.dgvBank.AllowUserToDeleteRows = false;
             this.dgvBank.AllowUserToResizeRows = false;
-            dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
-            this.dgvBank.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
+            this.dgvBank.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle4;
             this.dgvBank.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
@@ -393,15 +395,15 @@
             this.dgvBank.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.dgvBank.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleHorizontal;
             this.dgvBank.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(65)))), ((int)(((byte)(85)))));
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Segoe UI", 10F);
-            dataGridViewCellStyle2.ForeColor = System.Drawing.Color.White;
-            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding(8, 0, 8, 0);
-            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(65)))), ((int)(((byte)(85)))));
-            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.Color.White;
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
-            this.dgvBank.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(65)))), ((int)(((byte)(85)))));
+            dataGridViewCellStyle5.Font = new System.Drawing.Font("Segoe UI", 10F);
+            dataGridViewCellStyle5.ForeColor = System.Drawing.Color.White;
+            dataGridViewCellStyle5.Padding = new System.Windows.Forms.Padding(8, 0, 8, 0);
+            dataGridViewCellStyle5.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(65)))), ((int)(((byte)(85)))));
+            dataGridViewCellStyle5.SelectionForeColor = System.Drawing.Color.White;
+            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvBank.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle5;
             this.dgvBank.ColumnHeadersHeight = 46;
             this.dgvBank.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.dgvBank.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -410,15 +412,15 @@
             this.TNH,
             this.CN,
             this.SC});
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle3.BackColor = System.Drawing.Color.White;
-            dataGridViewCellStyle3.Font = new System.Drawing.Font("Segoe UI", 10F);
-            dataGridViewCellStyle3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(65)))), ((int)(((byte)(85)))));
-            dataGridViewCellStyle3.Padding = new System.Windows.Forms.Padding(8, 0, 8, 0);
-            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(219)))), ((int)(((byte)(234)))), ((int)(((byte)(254)))));
-            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(58)))), ((int)(((byte)(138)))));
-            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dgvBank.DefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle6.BackColor = System.Drawing.Color.White;
+            dataGridViewCellStyle6.Font = new System.Drawing.Font("Segoe UI", 10F);
+            dataGridViewCellStyle6.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(65)))), ((int)(((byte)(85)))));
+            dataGridViewCellStyle6.Padding = new System.Windows.Forms.Padding(8, 0, 8, 0);
+            dataGridViewCellStyle6.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(219)))), ((int)(((byte)(234)))), ((int)(((byte)(254)))));
+            dataGridViewCellStyle6.SelectionForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(58)))), ((int)(((byte)(138)))));
+            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgvBank.DefaultCellStyle = dataGridViewCellStyle6;
             this.dgvBank.EnableHeadersVisualStyles = false;
             this.dgvBank.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
             this.dgvBank.Location = new System.Drawing.Point(30, 95);
@@ -474,7 +476,7 @@
             // 
             // BankForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 23F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
             this.ClientSize = new System.Drawing.Size(1323, 780);
@@ -497,6 +499,7 @@
             this.pnlListCard.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvBank)).EndInit();
             this.ResumeLayout(false);
+
         }
 
         #endregion
@@ -536,5 +539,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn TNH;
         private System.Windows.Forms.DataGridViewTextBoxColumn CN;
         private System.Windows.Forms.DataGridViewTextBoxColumn SC;
+        private System.ComponentModel.BackgroundWorker backgroundWorker1;
+        private System.ComponentModel.BackgroundWorker backgroundWorker2;
     }
 }

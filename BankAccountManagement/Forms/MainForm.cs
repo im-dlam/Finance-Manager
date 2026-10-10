@@ -1,4 +1,4 @@
-using BankAccountManagement.Forms;
+﻿using BankAccountManagement.Forms;
 using BankAccountManagement.Models;
 using BankAccountManagement.Services;
 using System;
@@ -63,6 +63,10 @@ namespace BankAccountManagement
             form.Show();
         }
 
+        /// <summary>
+        /// Phân quyền dựa trên vai trò của người dùng hiện tại (Admin/Member).
+        /// Nếu là Member, ẩn các menu không được phép truy cập (ví dụ: Quản lý khách hàng).
+        /// </summary>
         private void ApplyRolePermissions()
         {
             Console.WriteLine($"CurrentSession.IsAdmin: {CurrentSession.IsAdmin}");
@@ -70,11 +74,11 @@ namespace BankAccountManagement
             if (CurrentSession.IsAdmin)
                 return;
 
-            // Member – ẩn menu quản trị
-            //btnCustomers.Visible = false;
-            //btnBanks.Visible = false;
-            //btnStatistic.Visible = false;
-            //btnSettings.Visible = false;
+            // Member – ẩn menu quản trị khách hàng
+            btnCustomers.Visible = false;
+            btnCustomers.Height = 0;
+            btnBanks.Top -= 46;
+            btnStatistic.Top -= 46;
         }
 
         private void btnDashboards_Click(object sender, EventArgs e)
@@ -84,7 +88,15 @@ namespace BankAccountManagement
 
         private void btnAccounts_Click(object sender, EventArgs e)
         {
-            LoadMultiForm(new AccountForm()); // Hiển thị Form AccountForm bên trong pnMain
+            if (!CurrentSession.HasCustomerInfo)
+            {
+                LoadMultiForm(new CustomerInfoForm());
+                return;
+            }
+            
+            
+             LoadMultiForm(new AccountForm());
+            
         }
 
         private void btnTransactions_Click(object sender, EventArgs e)
@@ -115,11 +127,12 @@ namespace BankAccountManagement
         private void pnMain_Paint(object sender, PaintEventArgs e)
         {
         }
+        
         /// <summary>
         /// Dọn dẹp form con trong pnMain TRƯỚC KHI MainForm đóng.
         /// 
-        /// Không làm bước này → form con vẫn giữ delegate WndProc 
-        /// → khi form bị GC sẽ gây lỗi CallbackOnCollectedDelegate.
+        /// Không làm bước này -> form con vẫn giữ delegate WndProc 
+        /// -> khi form bị GC sẽ gây lỗi CallbackOnCollectedDelegate.
         /// </summary>
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
@@ -154,3 +167,4 @@ namespace BankAccountManagement
         }
     }
 }
+

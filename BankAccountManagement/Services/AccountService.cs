@@ -1,6 +1,7 @@
 ﻿using BankAccountManagement.Models;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 
 namespace BankAccountManagement.Services
@@ -9,150 +10,72 @@ namespace BankAccountManagement.Services
     {
         private readonly string _connectionString;
 
+        private const string SelectAccounts = @"
+            SELECT SoTaiKhoan, MaKH, MaNganHang, MaLoaiTien,
+                   SoDuBanDau, SoDuHienTai, NgayMo, TrangThai
+            FROM TaiKhoan";
+
         public AccountService()
         {
             DatabaseConfig config = DatabaseConfigManager.Load();
             _connectionString = DatabaseService.BuildConnectionString(config);
         }
 
-        // ─────────────────────────────────────────
-        // 1. Lấy tất cả tài khoản Active
-        // ─────────────────────────────────────────
+        /// <summary>Lấy các tài khoản đang hoạt động.</summary>
         public List<TaiKhoan> GetActiveTaiKhoan()
         {
-            var result = new List<TaiKhoan>();
-            const string sql = @"
-                SELECT SoTaiKhoan, MaKH, MaNganHang, MaLoaiTien,
-                       SoDuBanDau, SoDuHienTai, NgayMo, TrangThai
-                FROM   TaiKhoan
-                WHERE  TrangThai = 'Active'
-                ORDER  BY NgayMo DESC";
-
-            try
-            {
-                using (var conn = new SqlConnection(_connectionString))
-                {
-                    conn.Open();
-                    using (var cmd = new SqlCommand(sql, conn))
-                    using (var reader = cmd.ExecuteReader())
-                        while (reader.Read())
-                            result.Add(MapReader(reader));
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Lỗi lấy danh sách tài khoản: " + ex.Message, ex);
-            }
-
-            return result;
+            return QueryAccounts(
+                SelectAccounts + " WHERE TrangThai = 'Active' ORDER BY NgayMo DESC",
+                null,
+                "Lỗi lấy danh sách tài khoản");
         }
 
-        // ─────────────────────────────────────────
-        // 2. Tìm kiếm theo Số tài khoản (SQL LIKE)
-        // ─────────────────────────────────────────
+        /// <summary>Tìm tài khoản Active theo một phần số tài khoản.</summary>
         public List<TaiKhoan> SearchTaiKhoan(string keyword)
         {
-            var result = new List<TaiKhoan>();
-            const string sql = @"
-                SELECT SoTaiKhoan, MaKH, MaNganHang, MaLoaiTien,
-                       SoDuBanDau, SoDuHienTai, NgayMo, TrangThai
-                FROM   TaiKhoan
-                WHERE  TrangThai = 'Active'
-                  AND  SoTaiKhoan LIKE @Keyword
-                ORDER  BY NgayMo DESC";
+            if (string.IsNullOrWhiteSpace(keyword))
+                return GetActiveTaiKhoan();
 
-            try
-            {
-                using (var conn = new SqlConnection(_connectionString))
-                {
-                    conn.Open();
-                    using (var cmd = new SqlCommand(sql, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@Keyword", $"%{keyword}%");
-                        using (var reader = cmd.ExecuteReader())
-                            while (reader.Read())
-                                result.Add(MapReader(reader));
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Lỗi tìm kiếm tài khoản: " + ex.Message, ex);
-            }
-
-            return result;
+            return QueryAccounts(
+                SelectAccounts + @"
+                    WHERE TrangThai = 'Active'
+                      AND SoTaiKhoan LIKE @Keyword
+                    ORDER BY NgayMo DESC",
+                parameters => parameters.AddWithValue("@Keyword", "%" + keyword.Trim() + "%"),
+                "Lỗi tìm kiếm tài khoản");
         }
 
-        // ─────────────────────────────────────────
-        // 3. Lấy 1 tài khoản theo Số tài khoản
-        // ─────────────────────────────────────────
+        /// <summary>Lấy tài khoản theo số tài khoản, trả về null nếu không có.</summary>
         public TaiKhoan GetBySoTaiKhoan(string soTaiKhoan)
         {
-            const string sql = @"
-                SELECT SoTaiKhoan, MaKH, MaNganHang, MaLoaiTien,
-                       SoDuBanDau, SoDuHienTai, NgayMo, TrangThai
-                FROM   TaiKhoan
-                WHERE  SoTaiKhoan = @SoTaiKhoan";
+            string accountNumber = RequiredText(soTaiKhoan, "Số tài khoản", nameof(soTaiKhoan));
+            List<TaiKhoan> accounts = QueryAccounts(
+                SelectAccounts + " WHERE SoTaiKhoan = @SoTaiKhoan",
+                parameters => parameters.AddWithValue("@SoTaiKhoan", accountNumber),
+                "Lỗi lấy tài khoản");
 
-            try
-            {
-                using (var conn = new SqlConnection(_connectionString))
-                {
-                    conn.Open();
-                    using (var cmd = new SqlCommand(sql, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@SoTaiKhoan", soTaiKhoan);
-                        using (var reader = cmd.ExecuteReader())
-                            return reader.Read() ? MapReader(reader) : null;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Lỗi lấy tài khoản: " + ex.Message, ex);
-            }
+            return accounts.Count > 0 ? accounts[0] : null;
         }
 
-        // ─────────────────────────────────────────
-        // 4. Lấy danh sách theo Mã khách hàng
-        // ─────────────────────────────────────────
+        /// <summary>Lấy mọi tài khoản của khách hàng, gồm cả tài khoản đã đóng.</summary>
         public List<TaiKhoan> GetByMaKH(string maKH)
         {
-            var result = new List<TaiKhoan>();
-            const string sql = @"
-                SELECT SoTaiKhoan, MaKH, MaNganHang, MaLoaiTien,
-                       SoDuBanDau, SoDuHienTai, NgayMo, TrangThai
-                FROM   TaiKhoan
-                WHERE  MaKH = @MaKH
-                ORDER  BY NgayMo DESC";
-
-            try
-            {
-                using (var conn = new SqlConnection(_connectionString))
-                {
-                    conn.Open();
-                    using (var cmd = new SqlCommand(sql, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@MaKH", maKH);
-                        using (var reader = cmd.ExecuteReader())
-                            while (reader.Read())
-                                result.Add(MapReader(reader));
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Lỗi lấy tài khoản theo KH: " + ex.Message, ex);
-            }
-
-            return result;
+            string customerCode = RequiredText(maKH, "Mã khách hàng", nameof(maKH));
+            return QueryAccounts(
+                SelectAccounts + " WHERE MaKH = @MaKH ORDER BY NgayMo DESC",
+                parameters => parameters.AddWithValue("@MaKH", customerCode),
+                "Lỗi lấy tài khoản theo khách hàng");
         }
 
-        // ─────────────────────────────────────────
-        // 5. Thêm mới tài khoản
-        // ─────────────────────────────────────────
+        /// <summary>
+        /// Mở tài khoản Active; số dư hiện tại ban đầu bằng số dư ban đầu.
+        /// </summary>
         public bool AddTaiKhoan(TaiKhoan tk)
         {
+            ValidateAccount(tk);
+            if (tk.SoDuBanDau < 0)
+                throw new ArgumentException("Số dư ban đầu không được âm.", nameof(tk));
+
             const string sql = @"
                 INSERT INTO TaiKhoan
                     (SoTaiKhoan, MaKH, MaNganHang, MaLoaiTien,
@@ -161,98 +84,146 @@ namespace BankAccountManagement.Services
                     (@SoTaiKhoan, @MaKH, @MaNganHang, @MaLoaiTien,
                      @SoDuBanDau, @SoDuBanDau, @NgayMo, 'Active')";
 
-            try
+            return ExecuteChange(sql, parameters =>
             {
-                using (var conn = new SqlConnection(_connectionString))
-                {
-                    conn.Open();
-                    using (var cmd = new SqlCommand(sql, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@SoTaiKhoan", tk.SoTaiKhoan);
-                        cmd.Parameters.AddWithValue("@MaKH", tk.MaKH);
-                        cmd.Parameters.AddWithValue("@MaNganHang", tk.MaNganHang);
-                        cmd.Parameters.AddWithValue("@MaLoaiTien", (object)tk.MaLoaiTien ?? DBNull.Value);
-                        cmd.Parameters.AddWithValue("@SoDuBanDau", tk.SoDuBanDau);
-                        cmd.Parameters.AddWithValue("@NgayMo",
-                            tk.NgayMo == DateTime.MinValue ? DateTime.Now : tk.NgayMo);
-
-                        return cmd.ExecuteNonQuery() > 0;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Lỗi thêm tài khoản: " + ex.Message, ex);
-            }
+                AddAccountParameters(parameters, tk);
+                parameters.AddWithValue("@SoDuBanDau", tk.SoDuBanDau);
+                parameters.AddWithValue("@NgayMo",
+                    tk.NgayMo == DateTime.MinValue ? DateTime.Now : tk.NgayMo);
+            }, "Lỗi thêm tài khoản");
         }
 
-        // ─────────────────────────────────────────
-        // 6. Cập nhật tài khoản
-        // ─────────────────────────────────────────
+        /// <summary>Cập nhật thông tin tài khoản; không ghi đè các cột số dư.</summary>
         public bool UpdateTaiKhoan(TaiKhoan tk)
         {
+            ValidateAccount(tk);
+            string status = NormalizeStatus(tk.TrangThai);
+            if (tk.NgayMo == DateTime.MinValue)
+                throw new ArgumentException("Ngày mở tài khoản không hợp lệ.", nameof(tk));
+
             const string sql = @"
                 UPDATE TaiKhoan
-                SET    MaKH       = @MaKH,
-                       MaNganHang = @MaNganHang,
-                       MaLoaiTien = @MaLoaiTien,
-                       TrangThai  = @TrangThai
-                WHERE  SoTaiKhoan = @SoTaiKhoan";
+                SET MaKH = @MaKH,
+                    MaNganHang = @MaNganHang,
+                    MaLoaiTien = @MaLoaiTien,
+                    NgayMo = @NgayMo,
+                    TrangThai = @TrangThai
+                WHERE SoTaiKhoan = @SoTaiKhoan";
 
-            try
+            return ExecuteChange(sql, parameters =>
             {
-                using (var conn = new SqlConnection(_connectionString))
-                {
-                    conn.Open();
-                    using (var cmd = new SqlCommand(sql, conn))
-                    {
-                        cmd.Parameters.AddWithValue("@SoTaiKhoan", tk.SoTaiKhoan);
-                        cmd.Parameters.AddWithValue("@MaKH", tk.MaKH);
-                        cmd.Parameters.AddWithValue("@MaNganHang", tk.MaNganHang);
-                        cmd.Parameters.AddWithValue("@MaLoaiTien", (object)tk.MaLoaiTien ?? DBNull.Value);
-                        cmd.Parameters.AddWithValue("@TrangThai", tk.TrangThai);
-
-                        return cmd.ExecuteNonQuery() > 0;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Lỗi cập nhật tài khoản: " + ex.Message, ex);
-            }
+                AddAccountParameters(parameters, tk);
+                parameters.AddWithValue("@NgayMo", tk.NgayMo);
+                parameters.AddWithValue("@TrangThai", status);
+            }, "Lỗi cập nhật tài khoản");
         }
 
-        // ─────────────────────────────────────────
-        // 7. Đóng tài khoản (xóa mềm)
-        // ─────────────────────────────────────────
+        /// <summary>Đóng tài khoản bằng cách đổi trạng thái, không xóa bản ghi.</summary>
         public bool CloseTaiKhoan(string soTaiKhoan)
         {
+            string accountNumber = RequiredText(soTaiKhoan, "Số tài khoản", nameof(soTaiKhoan));
             const string sql = @"
                 UPDATE TaiKhoan
-                SET    TrangThai = 'Closed'
-                WHERE  SoTaiKhoan = @SoTaiKhoan";
+                SET TrangThai = 'Closed'
+                WHERE SoTaiKhoan = @SoTaiKhoan";
 
+            return ExecuteChange(sql,
+                parameters => parameters.AddWithValue("@SoTaiKhoan", accountNumber),
+                "Lỗi đóng tài khoản");
+        }
+
+        private List<TaiKhoan> QueryAccounts(
+            string sql,
+            Action<SqlParameterCollection> configureParameters,
+            string errorMessage)
+        {
             try
             {
-                using (var conn = new SqlConnection(_connectionString))
+                var accounts = new List<TaiKhoan>();
+                using (var connection = new SqlConnection(_connectionString))
+                using (var command = new SqlCommand(sql, connection))
                 {
-                    conn.Open();
-                    using (var cmd = new SqlCommand(sql, conn))
+                    if (configureParameters != null)
+                        configureParameters(command.Parameters);
+
+                    connection.Open();
+                    using (var reader = command.ExecuteReader())
                     {
-                        cmd.Parameters.AddWithValue("@SoTaiKhoan", soTaiKhoan);
-                        return cmd.ExecuteNonQuery() > 0;
+                        while (reader.Read())
+                            accounts.Add(MapReader(reader));
                     }
                 }
+
+                return accounts;
             }
-            catch (Exception ex)
+            catch (SqlException ex)
             {
-                throw new Exception("Lỗi đóng tài khoản: " + ex.Message, ex);
+                throw new InvalidOperationException(errorMessage + ": " + ex.Message, ex);
             }
         }
 
-        // ─────────────────────────────────────────
-        // HELPER: Map SqlDataReader → TaiKhoan
-        // ─────────────────────────────────────────
+        private bool ExecuteChange(
+            string sql,
+            Action<SqlParameterCollection> configureParameters,
+            string errorMessage)
+        {
+            try
+            {
+                using (var connection = new SqlConnection(_connectionString))
+                using (var command = new SqlCommand(sql, connection))
+                {
+                    configureParameters(command.Parameters);
+                    connection.Open();
+                    return command.ExecuteNonQuery() > 0;
+                }
+            }
+            catch (SqlException ex)
+            {
+                throw new InvalidOperationException(errorMessage + ": " + ex.Message, ex);
+            }
+        }
+
+        private static void AddAccountParameters(SqlParameterCollection parameters, TaiKhoan tk)
+        {
+            parameters.AddWithValue("@SoTaiKhoan", tk.SoTaiKhoan.Trim());
+            parameters.AddWithValue("@MaKH", tk.MaKH.Trim());
+            parameters.AddWithValue("@MaNganHang", tk.MaNganHang.Trim());
+
+            if (string.IsNullOrWhiteSpace(tk.MaLoaiTien))
+                parameters.Add("@MaLoaiTien", SqlDbType.VarChar).Value = DBNull.Value;
+            else
+                parameters.AddWithValue("@MaLoaiTien", tk.MaLoaiTien.Trim());
+        }
+
+        private static void ValidateAccount(TaiKhoan tk)
+        {
+            if (tk == null)
+                throw new ArgumentNullException(nameof(tk));
+
+            RequiredText(tk.SoTaiKhoan, "Số tài khoản", nameof(tk.SoTaiKhoan));
+            RequiredText(tk.MaKH, "Mã khách hàng", nameof(tk.MaKH));
+            RequiredText(tk.MaNganHang, "Mã ngân hàng", nameof(tk.MaNganHang));
+        }
+
+        private static string RequiredText(string value, string label, string parameterName)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                throw new ArgumentException(label + " không được để trống.", parameterName);
+
+            return value.Trim();
+        }
+
+        private static string NormalizeStatus(string value)
+        {
+            string status = RequiredText(value, "Trạng thái", nameof(value));
+            if (string.Equals(status, "Active", StringComparison.OrdinalIgnoreCase))
+                return "Active";
+            if (string.Equals(status, "Closed", StringComparison.OrdinalIgnoreCase))
+                return "Closed";
+
+            throw new ArgumentException("Trạng thái phải là Active hoặc Closed.", nameof(value));
+        }
+
         private static TaiKhoan MapReader(SqlDataReader reader)
         {
             return new TaiKhoan
@@ -260,7 +231,8 @@ namespace BankAccountManagement.Services
                 SoTaiKhoan = reader["SoTaiKhoan"].ToString(),
                 MaKH = reader["MaKH"].ToString(),
                 MaNganHang = reader["MaNganHang"].ToString(),
-                MaLoaiTien = reader["MaLoaiTien"] as string,
+                MaLoaiTien = reader["MaLoaiTien"] == DBNull.Value
+                    ? null : reader["MaLoaiTien"].ToString(),
                 SoDuBanDau = Convert.ToDecimal(reader["SoDuBanDau"]),
                 SoDuHienTai = Convert.ToDecimal(reader["SoDuHienTai"]),
                 NgayMo = Convert.ToDateTime(reader["NgayMo"]),

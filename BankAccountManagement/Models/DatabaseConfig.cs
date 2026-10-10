@@ -1,4 +1,4 @@
-namespace BankAccountManagement.Models
+﻿namespace BankAccountManagement.Models
 {
     public class DatabaseConfig
     {
