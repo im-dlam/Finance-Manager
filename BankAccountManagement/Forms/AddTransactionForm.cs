@@ -26,6 +26,7 @@ namespace BankAccountManagement
         // Them label so du va quy doi
         private Label lblSoDu;
         private Label lblQuyDoi;
+        private bool _isSyncing = false;
 
         public AddTransactionForm(List<CurrencyInfo> currencies)
         {
@@ -116,6 +117,7 @@ namespace BankAccountManagement
             cboLoaiGD.Location = new Point(inputX, startY);
             cboLoaiGD.Width = inputWidth;
             cboLoaiGD.Font = new Font("Segoe UI", 10);
+            cboLoaiGD.SelectedIndexChanged += (s, e) => { OnLoaiGDChanged(); };
             this.Controls.Add(cboLoaiGD);
 
             // Loại Tiền
@@ -157,12 +159,13 @@ namespace BankAccountManagement
             startY += 40;
             AddLabel("Thao tác:", labelX, startY);
             cboThaoTac = new ComboBox();
-            cboThaoTac.Items.AddRange(new string[] { "Chuyển khoản", "Thanh toán", "Rút tiền", "Nạp tiền" });
+            cboThaoTac.Items.AddRange(new string[] { "Nạp tiền", "Rút tiền", "Chuyển khoản", "Thanh toán" });
             cboThaoTac.DropDownStyle = ComboBoxStyle.DropDownList;
             cboThaoTac.Location = new Point(inputX, startY);
             cboThaoTac.Width = inputWidth;
             cboThaoTac.Font = new Font("Segoe UI", 10);
             cboThaoTac.SelectedIndex = 0;
+            cboThaoTac.SelectedIndexChanged += (s, e) => { OnThaoTacChanged(); };
             this.Controls.Add(cboThaoTac);
 
             // Buttons
@@ -222,6 +225,9 @@ namespace BankAccountManagement
                 cboLoaiTien.DataSource = _currencies;
                 cboLoaiTien.DisplayMember = "TenLoaiTien";
                 cboLoaiTien.ValueMember = "MaLoaiTien";
+
+                // Khởi tạo đồng bộ ban đầu theo Thao tác
+                OnThaoTacChanged();
             }
             catch (Exception ex)
             {
@@ -233,9 +239,81 @@ namespace BankAccountManagement
             }
         }
 
+        private void OnThaoTacChanged()
+        {
+            if (_isSyncing) return;
+            _isSyncing = true;
+            try
+            {
+                string thaoTac = cboThaoTac.SelectedItem?.ToString() ?? "";
+                bool isDeposit = thaoTac.Equals("Nạp tiền", StringComparison.OrdinalIgnoreCase);
+
+                // Khi nạp tiền: KHÔNG CẦN SET / HIỂN THỊ SỐ DƯ
+                if (isDeposit)
+                {
+                    lblSoDu.Visible = false;
+                }
+                else
+                {
+                    lblSoDu.Visible = true;
+                    UpdateBalance();
+                }
+
+                // Đồng bộ sang cboLoaiGD
+                string target = isDeposit ? "Nạp tiền" : (thaoTac == "Rút tiền" ? "Rút tiền" : "Chuyển khoản");
+                for (int i = 0; i < cboLoaiGD.Items.Count; i++)
+                {
+                    if (cboLoaiGD.Items[i] is DataRowView row)
+                    {
+                        if (row["TenLoaiGD"].ToString().Equals(target, StringComparison.OrdinalIgnoreCase))
+                        {
+                            cboLoaiGD.SelectedIndex = i;
+                            break;
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                _isSyncing = false;
+            }
+        }
+
+        private void OnLoaiGDChanged()
+        {
+            if (_isSyncing) return;
+            _isSyncing = true;
+            try
+            {
+                if (cboLoaiGD.SelectedItem is DataRowView row)
+                {
+                    string tenLoai = row["TenLoaiGD"]?.ToString() ?? "";
+                    bool isDeposit = tenLoai.Equals("Nạp tiền", StringComparison.OrdinalIgnoreCase);
+
+                    if (isDeposit)
+                    {
+                        lblSoDu.Visible = false;
+                        if (cboThaoTac.SelectedItem?.ToString() != "Nạp tiền")
+                            cboThaoTac.SelectedItem = "Nạp tiền";
+                    }
+                    else
+                    {
+                        lblSoDu.Visible = true;
+                        UpdateBalance();
+                        string target = (tenLoai.Equals("Rút tiền", StringComparison.OrdinalIgnoreCase)) ? "Rút tiền" : "Chuyển khoản";
+                        if (cboThaoTac.SelectedItem?.ToString() != target)
+                            cboThaoTac.SelectedItem = target;
+                    }
+                }
+            }
+            finally
+            {
+                _isSyncing = false;
+            }
+        }
 
         /// <summary>
-        /// fix: Update the balance currency when the selected account changes.
+        /// Update the balance currency when the selected account changes.
         /// </summary>
         private void UpdateBalance()
         {
@@ -259,6 +337,16 @@ namespace BankAccountManagement
                     {
                         cboLoaiTien.SelectedValue = currency.MaLoaiTien;
                     }
+                }
+
+                string thaoTac = cboThaoTac?.SelectedItem?.ToString() ?? "";
+                if (thaoTac.Equals("Nạp tiền", StringComparison.OrdinalIgnoreCase))
+                {
+                    lblSoDu.Visible = false;
+                }
+                else
+                {
+                    lblSoDu.Visible = true;
                 }
             }
         }
@@ -305,7 +393,6 @@ namespace BankAccountManagement
                 }
                 
                 string tk = cboTaiKhoan.SelectedValue.ToString();
-                int maLoai = Convert.ToInt32(cboLoaiGD.SelectedValue);
                 decimal soTienGoc = 0;
                 
                 if (!decimal.TryParse(txtSoTien.Text.Replace(",", "").Replace(".", ""), out soTienGoc) || soTienGoc <= 0)
@@ -327,27 +414,48 @@ namespace BankAccountManagement
                 decimal rate = (selectedCurrency.MaLoaiTien.Equals("USD", StringComparison.OrdinalIgnoreCase) && selectedCurrency.QuyDoi <= 1m) ? 25400m : (selectedCurrency.QuyDoi > 0 ? selectedCurrency.QuyDoi : 1m);
                 decimal soTienVND = soTienGoc * rate;
 
-                // Kiem tra so du (Expense / Rút tiền)
-                // Lấy thông tin loại GD là Thu hay Chi
-                bool isExpense = false;
-                DataRowView drv = cboLoaiGD.SelectedItem as DataRowView; // Need to know if Income or Expense
-                // Or just use the combo ThaoTac / TenLoaiGD to guess, but safer to query DB or just rely on ThaoTac
-                // Kiểm tra null cboThaoTac
+                // Kiểm tra thao tác
                 if (cboThaoTac.SelectedItem == null)
                 {
                     MessageBox.Show("Vui lòng chọn thao tác!"); return;
                 }
                 string thaoTac = cboThaoTac.SelectedItem.ToString();
-                if (thaoTac == "Rút tiền" || thaoTac == "Chuyển khoản" || thaoTac == "Thanh toán") {
-                    isExpense = true;
+                bool isDeposit = thaoTac.Equals("Nạp tiền", StringComparison.OrdinalIgnoreCase);
+
+                // Lấy đúng mã loại giao dịch (MaLoaiGD) tương ứng với thao tác
+                int maLoai = 0;
+                if (isDeposit)
+                {
+                    maLoai = _transactionService.GetTransactionTypeIdByName("Nạp tiền");
                 }
-                
-                                if (isExpense)
+                else if (thaoTac.Equals("Rút tiền", StringComparison.OrdinalIgnoreCase))
+                {
+                    maLoai = _transactionService.GetTransactionTypeIdByName("Rút tiền");
+                }
+                else
+                {
+                    maLoai = _transactionService.GetTransactionTypeIdByName("Chuyển khoản");
+                }
+
+                if (maLoai <= 0 && cboLoaiGD.SelectedValue != null)
+                {
+                    maLoai = Convert.ToInt32(cboLoaiGD.SelectedValue);
+                }
+
+                // ============================================================
+                //  KIỂM TRA SỐ DƯ:
+                //  - Khi chọn NẠP TIỀN: Tuyệt đối KHÔNG xét số dư (bỏ qua).
+                //  - Khi RÚT TIỀN / CHUYỂN KHOẢN / THANH TOÁN: Mới xét số dư.
+                // ============================================================
+                if (!isDeposit)
                 {
                     decimal currentBal = lblSoDu.Tag != null ? (decimal)lblSoDu.Tag : 0m;
-                    // Lấy loại tiền của tài khoản để quy đổi số dư hiện tại ra VND
                     BankAccountManagement.Models.CurrencyInfo accCurrency = _transactionService.GetAccountCurrency(tk);
-                    decimal currentBalVND = currentBal * (accCurrency != null ? accCurrency.QuyDoi : 1m);
+                    decimal accRate = accCurrency != null ? accCurrency.QuyDoi : 1m;
+                    if (accCurrency != null && accCurrency.MaLoaiTien.Equals("USD", StringComparison.OrdinalIgnoreCase) && accRate <= 1m)
+                        accRate = 25400m;
+
+                    decimal currentBalVND = currentBal * accRate;
 
                     if (soTienVND > currentBalVND)
                     {
@@ -357,7 +465,6 @@ namespace BankAccountManagement
                 }
 
                 string maGD = "GD" + DateTime.Now.ToString("yyyyMMddHHmmss");
-                //string hardcodedTrangThai = "Hoàn tất";
                 string hardcodedTrangThai = "Success";
 
                 bool success = _transactionService.AddTransaction(

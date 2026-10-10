@@ -225,7 +225,14 @@ namespace BankAccountManagement.Services
                         using (SqlCommand cmd = new SqlCommand(getLoaiSql, conn, transaction))
                         {
                             cmd.Parameters.AddWithValue("@MaLoai", maLoaiGD);
-                            phanLoai = cmd.ExecuteScalar()?.ToString() ?? "";
+                            object plObj = cmd.ExecuteScalar();
+                            phanLoai = plObj != null ? plObj.ToString() : "";
+                        }
+
+                        if (string.IsNullOrEmpty(phanLoai))
+                        {
+                            if (maLoaiGD == 1 || maLoaiGD == 4) phanLoai = "INCOME";
+                            else phanLoai = "EXPENSE";
                         }
 
                         // 4.3. Cập nhật số dư nếu giao dịch thành công (quy đổi về đúng đơn vị tiền của tài khoản)
@@ -233,18 +240,23 @@ namespace BankAccountManagement.Services
                         {
                             decimal accRate = 1m;
                             const string sqlGetAccRate = @"
-                                SELECT ISNULL(LT.QuyDoi, 1)
+                                SELECT ISNULL(LT.QuyDoi, 1), TK.MaLoaiTien
                                 FROM dbo.TaiKhoan TK
                                 INNER JOIN dbo.LoaiTien LT ON TK.MaLoaiTien = LT.MaLoaiTien
                                 WHERE TK.SoTaiKhoan = @SoTaiKhoan";
                             using (SqlCommand cmdRate = new SqlCommand(sqlGetAccRate, conn, transaction))
                             {
                                 cmdRate.Parameters.AddWithValue("@SoTaiKhoan", soTaiKhoan);
-                                object rateObj = cmdRate.ExecuteScalar();
-                                if (rateObj != null && rateObj != DBNull.Value)
+                                using (var rdr = cmdRate.ExecuteReader())
                                 {
-                                    accRate = Convert.ToDecimal(rateObj);
-                                    if (accRate <= 0) accRate = 1m;
+                                    if (rdr.Read())
+                                    {
+                                        accRate = Convert.ToDecimal(rdr[0]);
+                                        string maLT = rdr[1]?.ToString() ?? "";
+                                        if (maLT.Equals("USD", StringComparison.OrdinalIgnoreCase) && accRate <= 1m)
+                                            accRate = 25400m;
+                                        if (accRate <= 0) accRate = 1m;
+                                    }
                                 }
                             }
 
@@ -379,8 +391,9 @@ namespace BankAccountManagement.Services
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             {
                 const string sql = @"
-                    SELECT MaLoaiGD, TenLoaiGD 
+                    SELECT MIN(MaLoaiGD) AS MaLoaiGD, TenLoaiGD 
                     FROM   dbo.LoaiGiaoDich 
+                    GROUP  BY TenLoaiGD
                     ORDER  BY TenLoaiGD";
 
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
@@ -390,6 +403,26 @@ namespace BankAccountManagement.Services
                 }
             }
             return dt;
+        }
+
+        // ============================================================
+        //  7.1. LẤY MÃ LOẠI GIAO DỊCH THEO TÊN
+        // ============================================================
+        public int GetTransactionTypeIdByName(string typeName)
+        {
+            using (SqlConnection conn = new SqlConnection(GetConnectionString()))
+            {
+                const string sql = "SELECT TOP 1 MaLoaiGD FROM dbo.LoaiGiaoDich WHERE TenLoaiGD = @Name ORDER BY MaLoaiGD";
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@Name", typeName);
+                    conn.Open();
+                    object res = cmd.ExecuteScalar();
+                    if (res != null && res != DBNull.Value)
+                        return Convert.ToInt32(res);
+                }
+            }
+            return 1;
         }
 
         // ============================================================

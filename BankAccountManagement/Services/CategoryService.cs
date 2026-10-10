@@ -1,4 +1,4 @@
-﻿using BankAccountManagement.Models;
+using BankAccountManagement.Models;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 
@@ -55,8 +55,9 @@ namespace BankAccountManagement.Services
         // ============================================================
         public List<(string Ma, string Ten)> GetLoaiGiaoDich()
             => QueryPairs(@"
-                SELECT CAST(MaLoaiGD AS VARCHAR(10)), TenLoaiGD 
+                SELECT MIN(CAST(MaLoaiGD AS VARCHAR(10))), TenLoaiGD 
                 FROM   dbo.LoaiGiaoDich 
+                GROUP  BY TenLoaiGD
                 ORDER  BY TenLoaiGD");
 
         // ============================================================
