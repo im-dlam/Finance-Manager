@@ -120,9 +120,11 @@
     <Compile Include="Models\Statistics\TopAccountStatistic.cs" />
     <Compile Include="Models\Statistics\TransactionStatistic.cs" />
     <Compile Include="Models\TaiKhoan.cs" />
+    <Compile Include="Models\User.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\CategoryService.cs" />
+    <Compile Include="Services\CurrentSession.cs" />
     <Compile Include="Services\DashboardService.cs" />
     <Compile Include="Services\DatabaseConfigManager.cs" />
     <Compile Include="Services\CustomerService.cs" />
