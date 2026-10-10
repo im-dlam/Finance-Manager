@@ -15,28 +15,30 @@ namespace BankAccountManagement.Services
             return conn;
         }
 
-        // ==========================================================
-        //  ĐĂNG NHẬP — chỉ 1 bảng, không JOIN
-        // ==========================================================
         public static AuthResult Login(string username, string password)
         {
             if (string.IsNullOrWhiteSpace(username))
                 return AuthResult.Fail("Vui lòng nhập tên đăng nhập.");
-
             if (string.IsNullOrWhiteSpace(password))
                 return AuthResult.Fail("Vui lòng nhập mật khẩu.");
 
+            // ⭐ JOIN để biết chắc hồ sơ KH có tồn tại thật không
             const string sql = @"
-                SELECT  MaNguoiDung,
-                        TenDangNhap,
-                        MaKH,
-                        HoTen,
-                        Email,
-                        TrangThai,
-                        Quyen
-                FROM    NguoiDung
-                WHERE   TenDangNhap = @TenDangNhap
-                    AND MatKhau     = @MatKhau";
+        SELECT  nd.MaNguoiDung,
+                nd.TenDangNhap,
+                nd.Quyen,
+                nd.TrangThai,
+                nd.MaKH      AS MaKHLink,       -- link FK trong NguoiDung
+                nd.HoTen,
+                nd.Email,
+                kh.MaKH      AS MaKHReal,       -- ⭐ bản ghi KH thật (NULL nếu chưa có)
+                kh.HoTen     AS HoTenKH,
+                kh.Email     AS EmailKH
+        FROM    dbo.NguoiDung nd
+        LEFT JOIN dbo.ThongTinKhachHang kh 
+               ON kh.MaKH = nd.MaKH
+        WHERE   nd.TenDangNhap = @TenDangNhap
+            AND nd.MatKhau     = @MatKhau";
 
             try
             {
@@ -53,32 +55,44 @@ namespace BankAccountManagement.Services
 
                         string trangThai = reader.GetString(reader.GetOrdinal("TrangThai"));
                         if (trangThai != "Active")
-                            return AuthResult.Fail("Tài khoản đã bị khóa. Vui lòng liên hệ Admin.");
+                            return AuthResult.Fail("Tài khoản đã bị khóa.");
+
+                        // ⭐ Đọc MaKH TỪ BẢNG KH (chỉ set khi thật sự có bản ghi)
+                        string maKHReal = reader.IsDBNull(reader.GetOrdinal("MaKHReal"))
+                                            ? null
+                                            : reader.GetString(reader.GetOrdinal("MaKHReal"));
+
+                        // Ưu tiên dùng HoTen/Email từ bảng KH (mới nhất) nếu có
+                        string hoTen = maKHReal != null && !reader.IsDBNull(reader.GetOrdinal("HoTenKH"))
+                                        ? reader.GetString(reader.GetOrdinal("HoTenKH"))
+                                        : (reader.IsDBNull(reader.GetOrdinal("HoTen"))
+                                            ? null : reader.GetString(reader.GetOrdinal("HoTen")));
+
+                        string email = maKHReal != null && !reader.IsDBNull(reader.GetOrdinal("EmailKH"))
+                                        ? reader.GetString(reader.GetOrdinal("EmailKH"))
+                                        : (reader.IsDBNull(reader.GetOrdinal("Email"))
+                                            ? null : reader.GetString(reader.GetOrdinal("Email")));
 
                         var user = new User
                         {
                             MaNguoiDung = reader.GetInt32(reader.GetOrdinal("MaNguoiDung")),
                             TenDangNhap = reader.GetString(reader.GetOrdinal("TenDangNhap")),
-                            MaKH = reader.IsDBNull(reader.GetOrdinal("MaKH")) ? null : reader.GetString(reader.GetOrdinal("MaKH")),
-                            HoTen = reader.IsDBNull(reader.GetOrdinal("HoTen")) ? null : reader.GetString(reader.GetOrdinal("HoTen")),
-                            Email = reader.IsDBNull(reader.GetOrdinal("Email")) ? null : reader.GetString(reader.GetOrdinal("Email")),
+                            Quyen = reader.GetString(reader.GetOrdinal("Quyen")),
                             TrangThai = trangThai,
-                            Quyen = reader.GetString(reader.GetOrdinal("Quyen"))
+
+                            MaKH = maKHReal,   // ⭐ CHỈ set khi bản ghi KH tồn tại thật
+                            HoTen = hoTen,
+                            Email = email
                         };
 
                         UpdateLastLogin(user.MaNguoiDung);
-                        return AuthResult.Ok(user, $"Xin chào {user.HoTen ?? user.TenDangNhap}!");
+
+                        return AuthResult.Ok(user, $"Xin chào {user.TenDangNhap}!");
                     }
                 }
             }
-            catch (SqlException ex)
-            {
-                return AuthResult.Fail("Không kết nối được cơ sở dữ liệu: " + ex.Message);
-            }
-            catch (Exception ex)
-            {
-                return AuthResult.Fail("Lỗi hệ thống: " + ex.Message);
-            }
+            catch (SqlException ex) { return AuthResult.Fail("Lỗi DB: " + ex.Message); }
+            catch (Exception ex) { return AuthResult.Fail("Lỗi: " + ex.Message); }
         }
 
         private static void UpdateLastLogin(int maNguoiDung)

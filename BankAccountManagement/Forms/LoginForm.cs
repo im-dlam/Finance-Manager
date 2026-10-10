@@ -305,7 +305,7 @@ namespace BankAccountManagement.Forms
                 return;
             }
             CurrentSession.SetUser(result.User); // set user vào session
-
+            Console.WriteLine($"[Login] User '{CurrentSession.User.MaNguoiDung}' logged in successfully.");
             HideError();
             OpenMainForm(result.User);   // open ui main,truyền User
         }

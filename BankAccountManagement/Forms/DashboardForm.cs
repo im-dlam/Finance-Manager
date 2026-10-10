@@ -21,21 +21,99 @@ namespace BankAccountManagement.Forms
 
         private void DashboardForm_Load(object sender, EventArgs e)
         {
-            // Đặt tên biến thống nhất là maKH luôn cho gọn
             string maKH = null;
 
             if (CurrentSession.IsMember)
             {
-                // 1. Ẩn card "Tổng Khách Hàng" (roundedPanel2) đi theo yêu cầu nhóm trưởng
-                if (roundedPanel2 != null) roundedPanel2.Visible = false;
+                // 1. Đổi tiêu đề phụ khi là User
+                if (lblSubtitle != null)
+                {
+                    lblSubtitle.Text = "Tổng quan quản lý tài khoản";
+                }
 
-                // 2. Lấy MaKH của tài khoản đang đăng nhập
+                // 2. Chia đều 3 panel (bỏ Tổng khách hàng - roundedPanel2) kể cả khi phóng to
+                if (pnlCards != null)
+                {
+                    pnlCards.SuspendLayout();
+                    pnlCards.Controls.Clear();
+                    pnlCards.ColumnCount = 3;
+                    pnlCards.ColumnStyles.Clear();
+                    pnlCards.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33333F));
+                    pnlCards.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33333F));
+                    pnlCards.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 33.33334F));
+
+                    if (roundedPanel2 != null) roundedPanel2.Visible = false;
+
+                    if (roundedPanel1 != null)
+                    {
+                        roundedPanel1.Visible = true;
+                        roundedPanel1.Margin = new Padding(0, 0, 10, 0);
+                        pnlCards.Controls.Add(roundedPanel1, 0, 0);
+                    }
+                    if (roundedPanel3 != null)
+                    {
+                        roundedPanel3.Visible = true;
+                        roundedPanel3.Margin = new Padding(0, 0, 10, 0);
+                        pnlCards.Controls.Add(roundedPanel3, 1, 0);
+                    }
+                    if (roundedPanel4 != null)
+                    {
+                        roundedPanel4.Visible = true;
+                        roundedPanel4.Margin = new Padding(0);
+                        pnlCards.Controls.Add(roundedPanel4, 2, 0);
+                    }
+                    pnlCards.ResumeLayout();
+                }
+
+                // 3. Lấy MaKH của tài khoản đang đăng nhập
                 maKH = CurrentSession.MaKH;
             }
-            else if (CurrentSession.IsAdmin)
+            else
             {
-                // Admin giữ nguyên hiển thị và không lọc
-                if (roundedPanel2 != null) roundedPanel2.Visible = true;
+                // Admin: Giữ nguyên 4 panel và tiêu đề gốc
+                if (lblSubtitle != null)
+                {
+                    lblSubtitle.Text = "Tổng quan hệ thống quản lý tài khoản ngân hàng";
+                }
+
+                if (pnlCards != null)
+                {
+                    pnlCards.SuspendLayout();
+                    pnlCards.Controls.Clear();
+                    pnlCards.ColumnCount = 4;
+                    pnlCards.ColumnStyles.Clear();
+                    pnlCards.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+                    pnlCards.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+                    pnlCards.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+                    pnlCards.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 25F));
+
+                    if (roundedPanel1 != null)
+                    {
+                        roundedPanel1.Visible = true;
+                        roundedPanel1.Margin = new Padding(0, 0, 10, 0);
+                        pnlCards.Controls.Add(roundedPanel1, 0, 0);
+                    }
+                    if (roundedPanel2 != null)
+                    {
+                        roundedPanel2.Visible = true;
+                        roundedPanel2.Margin = new Padding(0, 0, 10, 0);
+                        pnlCards.Controls.Add(roundedPanel2, 1, 0);
+                    }
+                    if (roundedPanel3 != null)
+                    {
+                        roundedPanel3.Visible = true;
+                        roundedPanel3.Margin = new Padding(0, 0, 10, 0);
+                        pnlCards.Controls.Add(roundedPanel3, 2, 0);
+                    }
+                    if (roundedPanel4 != null)
+                    {
+                        roundedPanel4.Visible = true;
+                        roundedPanel4.Margin = new Padding(0);
+                        pnlCards.Controls.Add(roundedPanel4, 3, 0);
+                    }
+                    pnlCards.ResumeLayout();
+                }
+
                 maKH = null;
             }
 
@@ -43,10 +121,6 @@ namespace BankAccountManagement.Forms
             LoadSummaryData(maKH);
             LoadBarChart(maKH);
             LoadPieChart(maKH);
-
-            //LoadSummaryData();
-            //LoadBarChart();
-            //LoadPieChart();
         }
 
         private void LoadSummaryData(string maKH = null)
@@ -57,10 +131,10 @@ namespace BankAccountManagement.Forms
                 DataTable dt = _dashboardService.GetDashboardSummary(maKH);
                 if (dt != null && dt.Rows.Count > 0)
                 {
-                    label3.Text = dt.Rows[0]["TongTaiKhoan"].ToString();
-                    label7.Text = dt.Rows[0]["TongKhachHang"].ToString();
-                    label10.Text = dt.Rows[0]["TongNganHang"].ToString();
-                    label13.Text = dt.Rows[0]["TongGiaoDich"].ToString();
+                    label3.Text = dt.Rows[0]["TongTaiKhoan"] != DBNull.Value ? Convert.ToInt64(dt.Rows[0]["TongTaiKhoan"]).ToString("N0") : "0";
+                    label7.Text = dt.Rows[0]["TongKhachHang"] != DBNull.Value ? Convert.ToInt64(dt.Rows[0]["TongKhachHang"]).ToString("N0") : "0";
+                    label10.Text = dt.Rows[0]["TongNganHang"] != DBNull.Value ? Convert.ToInt64(dt.Rows[0]["TongNganHang"]).ToString("N0") : "0";
+                    label13.Text = dt.Rows[0]["TongGiaoDich"] != DBNull.Value ? Convert.ToInt64(dt.Rows[0]["TongGiaoDich"]).ToString("N0") : "0";
                 }
             }
             catch (Exception ex)
