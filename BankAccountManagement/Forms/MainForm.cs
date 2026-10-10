@@ -75,7 +75,10 @@ namespace BankAccountManagement
                 return;
 
             // Member – ẩn menu quản trị khách hàng
-            // btnCustomers.Visible = false;
+            btnCustomers.Visible = false;
+            btnCustomers.Height = 0;
+            btnBanks.Top -= 46;
+            btnStatistic.Top -= 46;
         }
 
         private void btnDashboards_Click(object sender, EventArgs e)
@@ -85,7 +88,15 @@ namespace BankAccountManagement
 
         private void btnAccounts_Click(object sender, EventArgs e)
         {
-            LoadMultiForm(new AccountForm()); // Hiển thị Form AccountForm bên trong pnMain
+            if (!CurrentSession.HasCustomerInfo)
+            {
+                LoadMultiForm(new CustomerInfoForm());
+                return;
+            }
+            
+            
+             LoadMultiForm(new AccountForm());
+            
         }
 
         private void btnTransactions_Click(object sender, EventArgs e)
@@ -156,3 +167,4 @@ namespace BankAccountManagement
         }
     }
 }
+

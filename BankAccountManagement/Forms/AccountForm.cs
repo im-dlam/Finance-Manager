@@ -11,22 +11,28 @@ using System.Windows.Forms;
 
 namespace BankAccountManagement.Forms
 {
+    /// <summary>
+    /// Form quản lý tài khoản ngân hàng.
+    /// 
+    /// Phân quyền:
+    /// - Admin: thấy TẤT CẢ tài khoản, được thêm/sửa/đóng.
+    /// - Member: CHỈ thấy tài khoản của chính mình, chỉ xem.
+    /// </summary>
     public partial class AccountForm : Form
     {
         private readonly AccountService _AccountService = new AccountService();
         private bool _isAddNew = false;
 
-        // ✅ Lưu lại giá trị gốc khi chọn dòng → tránh mất data khi field bị disabled
+        // ⭐ MaKH là string theo schema hiện tại (VARCHAR "KH000001")
         private string _currentMaKH = "";
         private decimal _currentSoDuHienTai = 0;
         private decimal _currentSoDuBanDau = 0;
 
-        // ✅ Danh sách gốc để lọc tìm kiếm trong bộ nhớ
         private List<TaiKhoan> _allAccounts = new List<TaiKhoan>();
 
-        // ══════════════════════════════════════════
-        // KẾT NỐI DB
-        // ══════════════════════════════════════════
+        // ==========================================================
+        //  KẾT NỐI DB
+        // ==========================================================
         private string GetConnectionString()
         {
             DatabaseConfig config = DatabaseConfigManager.Load();
@@ -50,9 +56,9 @@ namespace BankAccountManagement.Forms
             return dt;
         }
 
-        // ══════════════════════════════════════════
-        // KHỞI TẠO
-        // ══════════════════════════════════════════
+        // ==========================================================
+        //  KHỞI TẠO
+        // ==========================================================
         public AccountForm()
         {
             InitializeComponent();
@@ -64,7 +70,6 @@ namespace BankAccountManagement.Forms
             btnClear.Click += btnClear_Click;
             btnSearch.Click += btnSearch_Click;
 
-            // ✅ Tìm kiếm khi gõ và khi nhấn Enter
             txtSearch.TextChanged += txtSearch_TextChanged;
             txtSearch.KeyDown += txtSearch_KeyDown;
         }
@@ -75,6 +80,7 @@ namespace BankAccountManagement.Forms
             {
                 LoadComboBoxData();
                 LoadData();
+                ApplyRolePermissions();
                 SetControlState(false);
             }
             catch (Exception ex)
@@ -84,25 +90,47 @@ namespace BankAccountManagement.Forms
             }
         }
 
-        // ══════════════════════════════════════════
-        // ĐỔ DỮ LIỆU COMBOBOX
-        // ══════════════════════════════════════════
+        /// <summary>
+        /// Phân quyền UI: Member không được thêm/sửa/đóng tài khoản.
+        /// </summary>
+        private void ApplyRolePermissions()
+        {
+            if (CurrentSession.IsAdmin) return;
+
+            // Member — chỉ xem
+            btnAdd.Visible = false;
+            btnEdit.Visible = false;
+            btnDelete.Visible = false;
+        }
+
+        // ==========================================================
+        //  ĐỔ DỮ LIỆU COMBOBOX
+        // ==========================================================
         private void LoadComboBoxData()
         {
-            DataTable dtKH = GetDataTable(
-                "SELECT MaKH, HoTen FROM KhachHang WHERE TrangThai = 'Active' ORDER BY HoTen");
+            // ⭐ Bảng mới: ThongTinKhachHang
+            DataTable dtKH = GetDataTable(@"
+                SELECT MaKH, HoTen 
+                FROM   dbo.ThongTinKhachHang 
+                WHERE  TrangThai = N'Active' 
+                ORDER  BY HoTen");
+
             cboCustomer.DataSource = dtKH;
             cboCustomer.DisplayMember = "HoTen";
             cboCustomer.ValueMember = "MaKH";
 
-            DataTable dtNH = GetDataTable(
-                "SELECT MaNganHang, TenNganHang FROM NganHang ORDER BY TenNganHang");
+            DataTable dtNH = GetDataTable(@"
+                SELECT MaNganHang, TenNganHang 
+                FROM   dbo.NganHang 
+                ORDER  BY TenNganHang");
             cboBank.DataSource = dtNH;
             cboBank.DisplayMember = "TenNganHang";
             cboBank.ValueMember = "MaNganHang";
 
-            DataTable dtLT = GetDataTable(
-                "SELECT MaLoaiTien, TenLoaiTien FROM LoaiTien ORDER BY TenLoaiTien");
+            DataTable dtLT = GetDataTable(@"
+                SELECT MaLoaiTien, TenLoaiTien 
+                FROM   dbo.LoaiTien 
+                ORDER  BY TenLoaiTien");
             cboCurrency.DataSource = dtLT;
             cboCurrency.DisplayMember = "TenLoaiTien";
             cboCurrency.ValueMember = "MaLoaiTien";
@@ -113,14 +141,26 @@ namespace BankAccountManagement.Forms
             cboStatus.SelectedIndex = 0;
         }
 
-        // ══════════════════════════════════════════
-        // TẢI DANH SÁCH TÀI KHOẢN
-        // ══════════════════════════════════════════
+        // ==========================================================
+        //  TẢI DANH SÁCH TÀI KHOẢN
+        // ==========================================================
         private void LoadData(string keyword = "")
         {
             try
             {
-                _allAccounts = _AccountService.GetActiveTaiKhoan() ?? new List<TaiKhoan>();
+                var all = _AccountService.GetActiveTaiKhoan() ?? new List<TaiKhoan>();
+
+                // ⭐ Phân quyền: Admin thấy hết, Member chỉ của mình
+                if (!CurrentSession.IsAdmin)
+                {
+                    string myMaKH = CurrentSession.MaKH;
+                    all = all.Where(tk =>
+                        !string.IsNullOrEmpty(myMaKH) &&
+                        string.Equals(tk.MaKH, myMaKH, StringComparison.OrdinalIgnoreCase)
+                    ).ToList();
+                }
+
+                _allAccounts = all;
 
                 dgvAccounts.AutoGenerateColumns = false;
 
@@ -144,9 +184,9 @@ namespace BankAccountManagement.Forms
             }
         }
 
-        // ══════════════════════════════════════════
-        // TÌM KIẾM / LỌC
-        // ══════════════════════════════════════════
+        // ==========================================================
+        //  TÌM KIẾM / LỌC
+        // ==========================================================
         private void ApplyFilter(string keyword)
         {
             string key = Normalize(keyword);
@@ -158,7 +198,6 @@ namespace BankAccountManagement.Forms
             }
             else
             {
-                // Tra tên từ mã → tìm được theo tên KH / tên ngân hàng / tên loại tiền
                 var tenKH = BuildLookup(cboCustomer.DataSource as DataTable, "MaKH", "HoTen");
                 var tenNH = BuildLookup(cboBank.DataSource as DataTable, "MaNganHang", "TenNganHang");
                 var tenLT = BuildLookup(cboCurrency.DataSource as DataTable, "MaLoaiTien", "TenLoaiTien");
@@ -175,7 +214,7 @@ namespace BankAccountManagement.Forms
                 ).ToList();
             }
 
-            dgvAccounts.DataSource = null;      // reset để grid luôn refresh
+            dgvAccounts.DataSource = null;
             dgvAccounts.DataSource = ketQua;
 
             lblListCount.Text = (key.Length > 0 && ketQua.Count == 0)
@@ -203,7 +242,6 @@ namespace BankAccountManagement.Forms
         private static bool Match(string source, string normalizedKey)
             => !string.IsNullOrEmpty(source) && Normalize(source).Contains(normalizedKey);
 
-        // Bỏ dấu tiếng Việt + chữ thường → gõ "nguyen" vẫn ra "Nguyễn"
         private static string Normalize(string text)
         {
             if (string.IsNullOrWhiteSpace(text)) return "";
@@ -225,28 +263,39 @@ namespace BankAccountManagement.Forms
         {
             if (e.KeyCode == Keys.Enter)
             {
-                e.SuppressKeyPress = true;   // tắt tiếng "bíp"
+                e.SuppressKeyPress = true;
                 ApplyFilter(txtSearch.Text);
             }
         }
 
-        // ══════════════════════════════════════════
-        // TRẠNG THÁI CONTROLS
-        // ══════════════════════════════════════════
+        // ==========================================================
+        //  TRẠNG THÁI CONTROLS
+        // ==========================================================
         private void SetControlState(bool isEditing)
         {
-            // Chỉ mở khi THÊM MỚI
+            // ⭐ Member không được vào chế độ edit
+            if (!CurrentSession.IsAdmin)
+            {
+                txtAccountNumber.Enabled = false;
+                cboCustomer.Enabled = false;
+                txtBalance.Enabled = false;
+                cboBank.Enabled = false;
+                cboCurrency.Enabled = false;
+                dtpOpenDate.Enabled = false;
+                cboStatus.Enabled = false;
+                return;
+            }
+
             txtAccountNumber.Enabled = isEditing && _isAddNew;
             cboCustomer.Enabled = isEditing && _isAddNew;
             txtBalance.Enabled = isEditing && _isAddNew;
 
-            // Mở khi THÊM MỚI hoặc CHỈNH SỬA
             cboBank.Enabled = isEditing;
             cboCurrency.Enabled = isEditing;
             dtpOpenDate.Enabled = isEditing;
             cboStatus.Enabled = isEditing;
 
-            if (isEditing && _isAddNew)        // ── Đang THÊM MỚI
+            if (isEditing && _isAddNew)
             {
                 btnAdd.Text = "💾 Lưu tài khoản";
                 btnAdd.Enabled = true;
@@ -254,7 +303,7 @@ namespace BankAccountManagement.Forms
                 btnEdit.Enabled = true;
                 btnDelete.Enabled = false;
             }
-            else if (isEditing && !_isAddNew)  // ── Đang CHỈNH SỬA
+            else if (isEditing && !_isAddNew)
             {
                 btnAdd.Text = "💾 Lưu thay đổi";
                 btnAdd.Enabled = true;
@@ -262,7 +311,7 @@ namespace BankAccountManagement.Forms
                 btnEdit.Enabled = true;
                 btnDelete.Enabled = false;
             }
-            else                               // ── Chế độ XEM
+            else
             {
                 btnAdd.Text = "+ Thêm tài khoản mới";
                 btnAdd.Enabled = true;
@@ -282,15 +331,14 @@ namespace BankAccountManagement.Forms
             if (cboStatus.Items.Count > 0) cboStatus.SelectedIndex = 0;
             dtpOpenDate.Value = DateTime.Now;
 
-            // Reset giá trị gốc
             _currentMaKH = "";
             _currentSoDuHienTai = 0;
             _currentSoDuBanDau = 0;
         }
 
-        // ══════════════════════════════════════════
-        // SỰ KIỆN BUTTONS
-        // ══════════════════════════════════════════
+        // ==========================================================
+        //  SỰ KIỆN BUTTONS
+        // ==========================================================
         private void btnAdd_Click(object sender, EventArgs e)
         {
             if (btnAdd.Text.Contains("Thêm"))
@@ -312,7 +360,7 @@ namespace BankAccountManagement.Forms
             {
                 _isAddNew = false;
                 ClearInputs();
-                LoadData(txtSearch.Text);   // ✅ Giữ kết quả tìm kiếm
+                LoadData(txtSearch.Text);
                 SetControlState(false);
                 return;
             }
@@ -348,7 +396,7 @@ namespace BankAccountManagement.Forms
                     {
                         MessageBox.Show("Đóng tài khoản thành công!", "Thông báo",
                             MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        LoadData(txtSearch.Text);   // ✅ Giữ kết quả tìm kiếm
+                        LoadData(txtSearch.Text);
                         ClearInputs();
                         SetControlState(false);
                     }
@@ -366,7 +414,7 @@ namespace BankAccountManagement.Forms
 
         private void btnClear_Click(object sender, EventArgs e)
         {
-            txtSearch.TextChanged -= txtSearch_TextChanged;  // tránh lọc thừa khi xóa ô tìm
+            txtSearch.TextChanged -= txtSearch_TextChanged;
             txtSearch.Clear();
             txtSearch.TextChanged += txtSearch_TextChanged;
 
@@ -376,34 +424,28 @@ namespace BankAccountManagement.Forms
             SetControlState(false);
         }
 
-        // ══════════════════════════════════════════
-        // CLICK VÀO DÒNG DATAGRIDVIEW
-        // ══════════════════════════════════════════
+        // ==========================================================
+        //  CLICK VÀO DÒNG DATAGRIDVIEW
+        // ==========================================================
         private void dgvAccounts_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0 || dgvAccounts.CurrentRow == null) return;
 
             DataGridViewRow row = dgvAccounts.CurrentRow;
 
-            // ✅ Lưu lại giá trị gốc trước khi gán lên form
             _currentMaKH = row.Cells["colCustomer"].Value?.ToString() ?? "";
             _currentSoDuHienTai = Convert.ToDecimal(row.Cells["colBalance"].Value ?? 0);
-            _currentSoDuBanDau = _currentSoDuHienTai; // fallback nếu không có cột riêng
+            _currentSoDuBanDau = _currentSoDuHienTai;
             txtAccountNumber.Text = row.Cells["colAccountNumber"].Value?.ToString();
             txtBalance.Text = _currentSoDuHienTai.ToString();
             cboCustomer.SelectedValue = row.Cells["colCustomer"].Value;
             cboBank.SelectedValue = row.Cells["colBank"].Value;
-            var currencyValue = row.Cells["colCurrency"].Value;
 
+            var currencyValue = row.Cells["colCurrency"].Value;
             if (currencyValue != null && currencyValue != DBNull.Value)
-            {
                 cboCurrency.SelectedValue = currencyValue;
-            }
             else
-            {
-                cboCurrency.SelectedIndex = -1; // Xóa lựa chọn nếu dữ liệu null
-                                                // cboCurrency.SelectedValue = "VND"; // Hoặc gán một giá trị mặc định tùy logic của bạn
-            }
+                cboCurrency.SelectedIndex = -1;
 
             if (row.Cells["colOpenDate"].Value != null)
                 dtpOpenDate.Value = Convert.ToDateTime(row.Cells["colOpenDate"].Value);
@@ -414,9 +456,9 @@ namespace BankAccountManagement.Forms
             SetControlState(false);
         }
 
-        // ══════════════════════════════════════════
-        // LƯU (THÊM MỚI / CẬP NHẬT)
-        // ══════════════════════════════════════════
+        // ==========================================================
+        //  LƯU
+        // ==========================================================
         private void ThucHienLuu()
         {
             if (string.IsNullOrWhiteSpace(txtAccountNumber.Text))
@@ -431,7 +473,6 @@ namespace BankAccountManagement.Forms
 
             if (_isAddNew)
             {
-                // ── THÊM MỚI: validate và lấy số dư từ form
                 if (!decimal.TryParse(txtBalance.Text, out decimal soDuMoi) || soDuMoi < 0)
                 {
                     MessageBox.Show("Số dư ban đầu không hợp lệ!", "Lỗi nhập liệu",
@@ -454,15 +495,14 @@ namespace BankAccountManagement.Forms
             }
             else
             {
-                // ── CHỈNH SỬA: dùng giá trị gốc cho các field bị disabled
                 tk = new TaiKhoan
                 {
                     SoTaiKhoan = txtAccountNumber.Text.Trim(),
-                    MaKH = _currentMaKH,               // ✅ Dùng giá trị gốc
+                    MaKH = _currentMaKH,
                     MaNganHang = cboBank.SelectedValue?.ToString(),
                     MaLoaiTien = cboCurrency.SelectedValue?.ToString(),
-                    SoDuBanDau = _currentSoDuBanDau,         // ✅ Giữ nguyên số dư ban đầu
-                    SoDuHienTai = _currentSoDuHienTai,        // ✅ Giữ nguyên số dư hiện tại
+                    SoDuBanDau = _currentSoDuBanDau,
+                    SoDuHienTai = _currentSoDuHienTai,
                     NgayMo = dtpOpenDate.Value,
                     TrangThai = cboStatus.Text
                 };
@@ -479,7 +519,7 @@ namespace BankAccountManagement.Forms
                     string msg = _isAddNew ? "Thêm tài khoản thành công!" : "Cập nhật thành công!";
                     MessageBox.Show(msg, "Thông báo",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    LoadData(txtSearch.Text);   // ✅ Giữ kết quả tìm kiếm
+                    LoadData(txtSearch.Text);
                     ClearInputs();
                     _isAddNew = false;
                     SetControlState(false);
