@@ -21,16 +21,6 @@ namespace BankAccountManagement.Forms
 
         private void DashboardForm_Load(object sender, EventArgs e)
         {
-            // 1. Kiểm tra phiên đăng nhập
-            if (!CurrentSession.IsLoggedIn)
-            {
-                MessageBox.Show("Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                //this.Close();
-                return;
-            }
-
-            // 2. Phân quyền giao diện dựa vào CurrentSession
-            string displayName = CurrentSession.User.HoTen ?? CurrentSession.User.TenDangNhap;
             LoadSummaryData();
             LoadBarChart();
             LoadPieChart();

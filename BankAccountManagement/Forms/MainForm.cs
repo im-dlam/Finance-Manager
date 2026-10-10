@@ -1,4 +1,6 @@
 using BankAccountManagement.Forms;
+using BankAccountManagement.Models;
+using BankAccountManagement.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,10 +15,16 @@ namespace BankAccountManagement
 {
     public partial class MainForm : Form
     {
-        public MainForm()
+
+        /// <summary>
+        /// Khởi tạo MainForm với user đã đăng nhập.
+        /// </summary>
+        /// <param name="user">User hiện tại (bắt buộc, không được null).</param>
+        public MainForm(User user)
         {
             InitializeComponent();
             LoadMultiForm(new DashboardForm());
+            ApplyRolePermissions();
         }
 
         /// <summary>
@@ -28,18 +36,45 @@ namespace BankAccountManagement
         /// </param>
         public void LoadMultiForm(Form form)
         {
-            if (this.pnMain.Controls.Count > 0) // Kiểm tra nếu pnMain đang chứa Form khác
+            // Dispose form cũ để giải phóng window handle + delegate
+            // fix lỗi CallbackOnCollectedDelegate khi form cũ bị GC.
+            if (pnMain.Controls.Count > 0)
             {
-                this.pnMain.Controls.RemoveAt(0); // xoa Form cu
+                var oldForms = new System.Collections.Generic.List<Control>();
+                foreach (Control c in pnMain.Controls)
+                    oldForms.Add(c);
+
+                pnMain.Controls.Clear();
+
+                foreach (var ctrl in oldForms)
+                {
+                    try { ctrl.Dispose(); }
+                    catch { /* bỏ qua */ }
+                }
             }
 
             form.TopLevel = false;
+            form.FormBorderStyle = FormBorderStyle.None;
             form.Dock = DockStyle.Fill;
 
-            this.pnMain.Controls.Add(form);
-            this.pnMain.Tag = form;
+            pnMain.Controls.Add(form);
+            pnMain.Tag = form;
 
             form.Show();
+        }
+
+        private void ApplyRolePermissions()
+        {
+            Console.WriteLine($"CurrentSession.IsAdmin: {CurrentSession.IsAdmin}");
+
+            if (CurrentSession.IsAdmin)
+                return;
+
+            // Member – ẩn menu quản trị
+            //btnCustomers.Visible = false;
+            //btnBanks.Visible = false;
+            //btnStatistic.Visible = false;
+            //btnSettings.Visible = false;
         }
 
         private void btnDashboards_Click(object sender, EventArgs e)
@@ -79,6 +114,43 @@ namespace BankAccountManagement
 
         private void pnMain_Paint(object sender, PaintEventArgs e)
         {
+        }
+        /// <summary>
+        /// Dọn dẹp form con trong pnMain TRƯỚC KHI MainForm đóng.
+        /// 
+        /// Không làm bước này → form con vẫn giữ delegate WndProc 
+        /// → khi form bị GC sẽ gây lỗi CallbackOnCollectedDelegate.
+        /// </summary>
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            DisposeChildForms();
+            base.OnFormClosed(e);
+        }
+
+        /// <summary>
+        /// Dispose tất cả form con đang nhúng trong pnMain.
+        /// Gọi từ OnFormClosed để đảm bảo giải phóng sạch trước khi app thoát.
+        /// </summary>
+        private void DisposeChildForms()
+        {
+            if (pnMain == null || pnMain.IsDisposed)
+                return;
+
+            if (pnMain.Controls.Count == 0)
+                return;
+
+            // Copy ra mảng trước khi Clear để tránh lỗi collection bị modify khi duyệt
+            var children = new System.Collections.Generic.List<Control>();
+            foreach (Control c in pnMain.Controls)
+                children.Add(c);
+
+            pnMain.Controls.Clear();
+
+            foreach (var ctrl in children)
+            {
+                try { ctrl.Dispose(); }
+                catch { /* bỏ qua nếu đã dispose */ }
+            }
         }
     }
 }
