@@ -14,9 +14,9 @@
 
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
             this.pnlToolbar = new System.Windows.Forms.Panel();
             this.pnlToolbarLeft = new System.Windows.Forms.Panel();
             this.btnSearch = new BankAccountManagement.Forms.RoundedButton();
@@ -27,7 +27,6 @@
             this.flpToolbarRight = new System.Windows.Forms.FlowLayoutPanel();
             this.btnRefresh = new BankAccountManagement.Forms.RoundedButton();
             this.btnEdit = new BankAccountManagement.Forms.RoundedButton();
-            this.btnAdd = new BankAccountManagement.Forms.RoundedButton();
             this.btnDelete = new BankAccountManagement.Forms.RoundedButton();
             this.pnlStats = new System.Windows.Forms.Panel();
             this.tlpStats = new System.Windows.Forms.TableLayoutPanel();
@@ -187,7 +186,7 @@
             this.txtSearch.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.txtSearch.Location = new System.Drawing.Point(42, 11);
             this.txtSearch.Name = "txtSearch";
-            this.txtSearch.Size = new System.Drawing.Size(250, 18);
+            this.txtSearch.Size = new System.Drawing.Size(288, 18);
             this.txtSearch.TabIndex = 1;
             // 
             // lblSearchIcon
@@ -217,7 +216,6 @@
             this.flpToolbarRight.BackColor = System.Drawing.Color.White;
             this.flpToolbarRight.Controls.Add(this.btnRefresh);
             this.flpToolbarRight.Controls.Add(this.btnEdit);
-            this.flpToolbarRight.Controls.Add(this.btnAdd);
             this.flpToolbarRight.Controls.Add(this.btnDelete);
             this.flpToolbarRight.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flpToolbarRight.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
@@ -274,28 +272,28 @@
             this.btnEdit.TextColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(65)))), ((int)(((byte)(85)))));
             this.btnEdit.UseVisualStyleBackColor = false;
             // 
-            // btnAdd
+            // btnDelete
             // 
-            this.btnAdd.BackColor = System.Drawing.Color.Transparent;
-            this.btnAdd.BorderRadius = 10;
-            this.btnAdd.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnAdd.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnAdd.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
-            this.btnAdd.ForeColor = System.Drawing.Color.White;
-            this.btnAdd.HoverBorder = System.Drawing.Color.Transparent;
-            this.btnAdd.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(5)))), ((int)(((byte)(150)))), ((int)(((byte)(105)))));
-            this.btnAdd.Location = new System.Drawing.Point(182, 20);
-            this.btnAdd.Margin = new System.Windows.Forms.Padding(8, 0, 0, 0);
-            this.btnAdd.Name = "btnAdd";
-            this.btnAdd.NormalBorder = System.Drawing.Color.Transparent;
-            this.btnAdd.NormalColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
-            this.btnAdd.PressedBorder = System.Drawing.Color.Transparent;
-            this.btnAdd.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(4)))), ((int)(((byte)(120)))), ((int)(((byte)(87)))));
-            this.btnAdd.Size = new System.Drawing.Size(178, 40);
-            this.btnAdd.TabIndex = 0;
-            this.btnAdd.Text = "+  Thêm khách hàng";
-            this.btnAdd.TextColor = System.Drawing.Color.White;
-            this.btnAdd.UseVisualStyleBackColor = false;
+            this.btnDelete.BackColor = System.Drawing.Color.Transparent;
+            this.btnDelete.BorderRadius = 10;
+            this.btnDelete.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnDelete.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnDelete.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
+            this.btnDelete.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(38)))), ((int)(((byte)(38)))));
+            this.btnDelete.HoverBorder = System.Drawing.Color.Transparent;
+            this.btnDelete.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(254)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
+            this.btnDelete.Location = new System.Drawing.Point(260, 20);
+            this.btnDelete.Margin = new System.Windows.Forms.Padding(8, 0, 0, 0);
+            this.btnDelete.Name = "btnDelete";
+            this.btnDelete.NormalBorder = System.Drawing.Color.Transparent;
+            this.btnDelete.NormalColor = System.Drawing.Color.FromArgb(((int)(((byte)(254)))), ((int)(((byte)(242)))), ((int)(((byte)(242)))));
+            this.btnDelete.PressedBorder = System.Drawing.Color.Transparent;
+            this.btnDelete.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(254)))), ((int)(((byte)(202)))), ((int)(((byte)(202)))));
+            this.btnDelete.Size = new System.Drawing.Size(100, 40);
+            this.btnDelete.TabIndex = 2;
+            this.btnDelete.Text = "Xóa";
+            this.btnDelete.TextColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(38)))), ((int)(((byte)(38)))));
+            this.btnDelete.UseVisualStyleBackColor = false;
             // 
             // btnDelete
             // 
@@ -644,10 +642,10 @@
             // splitMain.Panel2
             // 
             this.splitMain.Panel2.Controls.Add(this.pnlDetailCard);
-            this.splitMain.Panel2.Padding = new System.Windows.Forms.Padding(8, 8, 16, 16);
-            this.splitMain.Panel2MinSize = 320;
+            this.splitMain.Panel2.Padding = new System.Windows.Forms.Padding(8, 16, 24, 20);
+            this.splitMain.Panel2MinSize = 380;
             this.splitMain.Size = new System.Drawing.Size(1440, 624);
-            this.splitMain.SplitterDistance = 940;
+            this.splitMain.SplitterDistance = 900;
             this.splitMain.SplitterWidth = 6;
             this.splitMain.TabIndex = 2;
             // 
@@ -663,7 +661,8 @@
             this.pnlGridCard.FillColor = System.Drawing.Color.White;
             this.pnlGridCard.Location = new System.Drawing.Point(24, 16);
             this.pnlGridCard.Name = "pnlGridCard";
-            this.pnlGridCard.Size = new System.Drawing.Size(908, 588);
+            this.pnlGridCard.Padding = new System.Windows.Forms.Padding(2);
+            this.pnlGridCard.Size = new System.Drawing.Size(868, 588);
             this.pnlGridCard.TabIndex = 0;
             // 
             // dgvCustomers
@@ -671,22 +670,22 @@
             this.dgvCustomers.AllowUserToAddRows = false;
             this.dgvCustomers.AllowUserToDeleteRows = false;
             this.dgvCustomers.AllowUserToResizeRows = false;
-            dataGridViewCellStyle1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(252)))), ((int)(((byte)(253)))), ((int)(((byte)(255)))));
-            this.dgvCustomers.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(252)))), ((int)(((byte)(253)))), ((int)(((byte)(255)))));
+            this.dgvCustomers.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle4;
             this.dgvCustomers.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dgvCustomers.BackgroundColor = System.Drawing.Color.White;
             this.dgvCustomers.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.dgvCustomers.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleHorizontal;
             this.dgvCustomers.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
-            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Segoe UI", 9F);
-            dataGridViewCellStyle2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
-            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding(12, 0, 0, 0);
-            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
-            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
-            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dgvCustomers.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle5.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
+            dataGridViewCellStyle5.Font = new System.Drawing.Font("Segoe UI", 9F);
+            dataGridViewCellStyle5.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
+            dataGridViewCellStyle5.Padding = new System.Windows.Forms.Padding(12, 0, 0, 0);
+            dataGridViewCellStyle5.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
+            dataGridViewCellStyle5.SelectionForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
+            dataGridViewCellStyle5.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgvCustomers.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle5;
             this.dgvCustomers.ColumnHeadersHeight = 46;
             this.dgvCustomers.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.dgvCustomers.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
@@ -698,19 +697,19 @@
             this.colSDT,
             this.colEmail,
             this.colDiaChi});
-            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
-            dataGridViewCellStyle3.BackColor = System.Drawing.Color.White;
-            dataGridViewCellStyle3.Font = new System.Drawing.Font("Segoe UI", 9F);
-            dataGridViewCellStyle3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
-            dataGridViewCellStyle3.Padding = new System.Windows.Forms.Padding(12, 0, 0, 0);
-            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(239)))), ((int)(((byte)(246)))), ((int)(((byte)(255)))));
-            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(64)))), ((int)(((byte)(175)))));
-            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
-            this.dgvCustomers.DefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle6.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle6.BackColor = System.Drawing.Color.White;
+            dataGridViewCellStyle6.Font = new System.Drawing.Font("Segoe UI", 9F);
+            dataGridViewCellStyle6.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
+            dataGridViewCellStyle6.Padding = new System.Windows.Forms.Padding(12, 0, 0, 0);
+            dataGridViewCellStyle6.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(239)))), ((int)(((byte)(246)))), ((int)(((byte)(255)))));
+            dataGridViewCellStyle6.SelectionForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(64)))), ((int)(((byte)(175)))));
+            dataGridViewCellStyle6.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
+            this.dgvCustomers.DefaultCellStyle = dataGridViewCellStyle6;
             this.dgvCustomers.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvCustomers.EnableHeadersVisualStyles = false;
             this.dgvCustomers.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
-            this.dgvCustomers.Location = new System.Drawing.Point(0, 56);
+            this.dgvCustomers.Location = new System.Drawing.Point(2, 66);
             this.dgvCustomers.MultiSelect = false;
             this.dgvCustomers.Name = "dgvCustomers";
             this.dgvCustomers.ReadOnly = true;
@@ -718,7 +717,7 @@
             this.dgvCustomers.RowHeadersWidth = 62;
             this.dgvCustomers.RowTemplate.Height = 46;
             this.dgvCustomers.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvCustomers.Size = new System.Drawing.Size(908, 532);
+            this.dgvCustomers.Size = new System.Drawing.Size(864, 520);
             this.dgvCustomers.TabIndex = 1;
             // 
             // colMaKH
@@ -799,9 +798,9 @@
             this.pnlGridHeader.Controls.Add(this.lblRecordCount);
             this.pnlGridHeader.Controls.Add(this.lblGridTitle);
             this.pnlGridHeader.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlGridHeader.Location = new System.Drawing.Point(0, 0);
+            this.pnlGridHeader.Location = new System.Drawing.Point(2, 2);
             this.pnlGridHeader.Name = "pnlGridHeader";
-            this.pnlGridHeader.Size = new System.Drawing.Size(908, 56);
+            this.pnlGridHeader.Size = new System.Drawing.Size(864, 64);
             this.pnlGridHeader.TabIndex = 0;
             // 
             // lblRecordCount
@@ -809,7 +808,7 @@
             this.lblRecordCount.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lblRecordCount.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.lblRecordCount.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
-            this.lblRecordCount.Location = new System.Drawing.Point(658, 20);
+            this.lblRecordCount.Location = new System.Drawing.Point(614, 24);
             this.lblRecordCount.Name = "lblRecordCount";
             this.lblRecordCount.Size = new System.Drawing.Size(230, 19);
             this.lblRecordCount.TabIndex = 1;
@@ -838,10 +837,10 @@
             this.pnlDetailCard.Controls.Add(this.pnlDetailBanner);
             this.pnlDetailCard.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlDetailCard.FillColor = System.Drawing.Color.White;
-            this.pnlDetailCard.Location = new System.Drawing.Point(8, 8);
+            this.pnlDetailCard.Location = new System.Drawing.Point(8, 16);
             this.pnlDetailCard.Name = "pnlDetailCard";
-            this.pnlDetailCard.Padding = new System.Windows.Forms.Padding(18, 18, 6, 18);
-            this.pnlDetailCard.Size = new System.Drawing.Size(470, 600);
+            this.pnlDetailCard.Padding = new System.Windows.Forms.Padding(2);
+            this.pnlDetailCard.Size = new System.Drawing.Size(502, 588);
             this.pnlDetailCard.TabIndex = 0;
             // 
             // pnlDetailScroll
@@ -850,9 +849,10 @@
             this.pnlDetailScroll.BackColor = System.Drawing.Color.White;
             this.pnlDetailScroll.Controls.Add(this.tlpDetail);
             this.pnlDetailScroll.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlDetailScroll.Location = new System.Drawing.Point(18, 94);
+            this.pnlDetailScroll.Location = new System.Drawing.Point(2, 78);
             this.pnlDetailScroll.Name = "pnlDetailScroll";
-            this.pnlDetailScroll.Size = new System.Drawing.Size(446, 438);
+            this.pnlDetailScroll.Padding = new System.Windows.Forms.Padding(20, 8, 20, 8);
+            this.pnlDetailScroll.Size = new System.Drawing.Size(498, 434);
             this.pnlDetailScroll.TabIndex = 1;
             // 
             // tlpDetail
@@ -878,7 +878,7 @@
             this.tlpDetail.Controls.Add(this.lblDiaChi, 0, 21);
             this.tlpDetail.Controls.Add(this.txtDiaChi, 0, 22);
             this.tlpDetail.Dock = System.Windows.Forms.DockStyle.Top;
-            this.tlpDetail.Location = new System.Drawing.Point(0, 0);
+            this.tlpDetail.Location = new System.Drawing.Point(20, 8);
             this.tlpDetail.Name = "tlpDetail";
             this.tlpDetail.RowCount = 23;
             this.tlpDetail.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 16F));
@@ -903,8 +903,8 @@
             this.tlpDetail.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
             this.tlpDetail.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 6F));
             this.tlpDetail.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 16F));
-            this.tlpDetail.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 72F));
-            this.tlpDetail.Size = new System.Drawing.Size(429, 452);
+            this.tlpDetail.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 76F));
+            this.tlpDetail.Size = new System.Drawing.Size(441, 456);
             this.tlpDetail.TabIndex = 0;
             // 
             // lblMaKH
@@ -915,7 +915,7 @@
             this.lblMaKH.Location = new System.Drawing.Point(0, 0);
             this.lblMaKH.Margin = new System.Windows.Forms.Padding(0);
             this.lblMaKH.Name = "lblMaKH";
-            this.lblMaKH.Size = new System.Drawing.Size(429, 16);
+            this.lblMaKH.Size = new System.Drawing.Size(441, 16);
             this.lblMaKH.TabIndex = 0;
             this.lblMaKH.Text = "MÃ KHÁCH HÀNG";
             // 
@@ -929,7 +929,7 @@
             this.txtMaKH.Margin = new System.Windows.Forms.Padding(0);
             this.txtMaKH.Name = "txtMaKH";
             this.txtMaKH.ReadOnly = true;
-            this.txtMaKH.Size = new System.Drawing.Size(429, 25);
+            this.txtMaKH.Size = new System.Drawing.Size(441, 25);
             this.txtMaKH.TabIndex = 1;
             this.txtMaKH.Text = " ";
             // 
@@ -941,7 +941,7 @@
             this.lblHoTen.Location = new System.Drawing.Point(0, 52);
             this.lblHoTen.Margin = new System.Windows.Forms.Padding(0);
             this.lblHoTen.Name = "lblHoTen";
-            this.lblHoTen.Size = new System.Drawing.Size(429, 16);
+            this.lblHoTen.Size = new System.Drawing.Size(441, 16);
             this.lblHoTen.TabIndex = 2;
             this.lblHoTen.Text = "HỌ VÀ TÊN";
             // 
@@ -953,7 +953,7 @@
             this.txtHoTen.Location = new System.Drawing.Point(0, 68);
             this.txtHoTen.Margin = new System.Windows.Forms.Padding(0);
             this.txtHoTen.Name = "txtHoTen";
-            this.txtHoTen.Size = new System.Drawing.Size(429, 25);
+            this.txtHoTen.Size = new System.Drawing.Size(441, 25);
             this.txtHoTen.TabIndex = 3;
             // 
             // lblCMND
@@ -964,7 +964,7 @@
             this.lblCMND.Location = new System.Drawing.Point(0, 104);
             this.lblCMND.Margin = new System.Windows.Forms.Padding(0);
             this.lblCMND.Name = "lblCMND";
-            this.lblCMND.Size = new System.Drawing.Size(429, 16);
+            this.lblCMND.Size = new System.Drawing.Size(441, 16);
             this.lblCMND.TabIndex = 4;
             this.lblCMND.Text = "CMND / CCCD";
             // 
@@ -976,7 +976,7 @@
             this.txtCMND.Location = new System.Drawing.Point(0, 120);
             this.txtCMND.Margin = new System.Windows.Forms.Padding(0);
             this.txtCMND.Name = "txtCMND";
-            this.txtCMND.Size = new System.Drawing.Size(429, 25);
+            this.txtCMND.Size = new System.Drawing.Size(441, 25);
             this.txtCMND.TabIndex = 5;
             // 
             // lblNgaySinh
@@ -987,7 +987,7 @@
             this.lblNgaySinh.Location = new System.Drawing.Point(0, 156);
             this.lblNgaySinh.Margin = new System.Windows.Forms.Padding(0);
             this.lblNgaySinh.Name = "lblNgaySinh";
-            this.lblNgaySinh.Size = new System.Drawing.Size(429, 16);
+            this.lblNgaySinh.Size = new System.Drawing.Size(441, 16);
             this.lblNgaySinh.TabIndex = 6;
             this.lblNgaySinh.Text = "NGÀY SINH";
             // 
@@ -1000,7 +1000,7 @@
             this.dtpNgaySinh.Location = new System.Drawing.Point(0, 172);
             this.dtpNgaySinh.Margin = new System.Windows.Forms.Padding(0);
             this.dtpNgaySinh.Name = "dtpNgaySinh";
-            this.dtpNgaySinh.Size = new System.Drawing.Size(429, 25);
+            this.dtpNgaySinh.Size = new System.Drawing.Size(441, 25);
             this.dtpNgaySinh.TabIndex = 7;
             // 
             // lblGioiTinh
@@ -1011,7 +1011,7 @@
             this.lblGioiTinh.Location = new System.Drawing.Point(0, 208);
             this.lblGioiTinh.Margin = new System.Windows.Forms.Padding(0);
             this.lblGioiTinh.Name = "lblGioiTinh";
-            this.lblGioiTinh.Size = new System.Drawing.Size(429, 16);
+            this.lblGioiTinh.Size = new System.Drawing.Size(441, 16);
             this.lblGioiTinh.TabIndex = 8;
             this.lblGioiTinh.Text = "GIỚI TÍNH";
             // 
@@ -1028,7 +1028,7 @@
             this.cboGioiTinh.Location = new System.Drawing.Point(0, 224);
             this.cboGioiTinh.Margin = new System.Windows.Forms.Padding(0);
             this.cboGioiTinh.Name = "cboGioiTinh";
-            this.cboGioiTinh.Size = new System.Drawing.Size(429, 25);
+            this.cboGioiTinh.Size = new System.Drawing.Size(441, 25);
             this.cboGioiTinh.TabIndex = 9;
             // 
             // lblSDT
@@ -1039,7 +1039,7 @@
             this.lblSDT.Location = new System.Drawing.Point(0, 260);
             this.lblSDT.Margin = new System.Windows.Forms.Padding(0);
             this.lblSDT.Name = "lblSDT";
-            this.lblSDT.Size = new System.Drawing.Size(429, 16);
+            this.lblSDT.Size = new System.Drawing.Size(441, 16);
             this.lblSDT.TabIndex = 10;
             this.lblSDT.Text = "SỐ ĐIỆN THOẠI";
             // 
@@ -1051,7 +1051,7 @@
             this.txtSDT.Location = new System.Drawing.Point(0, 276);
             this.txtSDT.Margin = new System.Windows.Forms.Padding(0);
             this.txtSDT.Name = "txtSDT";
-            this.txtSDT.Size = new System.Drawing.Size(429, 25);
+            this.txtSDT.Size = new System.Drawing.Size(441, 25);
             this.txtSDT.TabIndex = 11;
             // 
             // lblEmail
@@ -1062,7 +1062,7 @@
             this.lblEmail.Location = new System.Drawing.Point(0, 312);
             this.lblEmail.Margin = new System.Windows.Forms.Padding(0);
             this.lblEmail.Name = "lblEmail";
-            this.lblEmail.Size = new System.Drawing.Size(429, 16);
+            this.lblEmail.Size = new System.Drawing.Size(441, 16);
             this.lblEmail.TabIndex = 12;
             this.lblEmail.Text = "EMAIL";
             // 
@@ -1074,7 +1074,7 @@
             this.txtEmail.Location = new System.Drawing.Point(0, 328);
             this.txtEmail.Margin = new System.Windows.Forms.Padding(0);
             this.txtEmail.Name = "txtEmail";
-            this.txtEmail.Size = new System.Drawing.Size(429, 25);
+            this.txtEmail.Size = new System.Drawing.Size(441, 25);
             this.txtEmail.TabIndex = 13;
             // 
             // lblDiaChi
@@ -1085,7 +1085,7 @@
             this.lblDiaChi.Location = new System.Drawing.Point(0, 364);
             this.lblDiaChi.Margin = new System.Windows.Forms.Padding(0);
             this.lblDiaChi.Name = "lblDiaChi";
-            this.lblDiaChi.Size = new System.Drawing.Size(429, 16);
+            this.lblDiaChi.Size = new System.Drawing.Size(441, 16);
             this.lblDiaChi.TabIndex = 14;
             this.lblDiaChi.Text = "ĐỊA CHỈ";
             // 
@@ -1099,7 +1099,7 @@
             this.txtDiaChi.Multiline = true;
             this.txtDiaChi.Name = "txtDiaChi";
             this.txtDiaChi.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtDiaChi.Size = new System.Drawing.Size(429, 72);
+            this.txtDiaChi.Size = new System.Drawing.Size(441, 76);
             this.txtDiaChi.TabIndex = 15;
             // 
             // tlpDetailActions
@@ -1111,12 +1111,12 @@
             this.tlpDetailActions.Controls.Add(this.btnCancel, 0, 0);
             this.tlpDetailActions.Controls.Add(this.btnSave, 1, 0);
             this.tlpDetailActions.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.tlpDetailActions.Location = new System.Drawing.Point(18, 532);
+            this.tlpDetailActions.Location = new System.Drawing.Point(2, 512);
             this.tlpDetailActions.Name = "tlpDetailActions";
             this.tlpDetailActions.Padding = new System.Windows.Forms.Padding(20, 0, 20, 18);
             this.tlpDetailActions.RowCount = 1;
             this.tlpDetailActions.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlpDetailActions.Size = new System.Drawing.Size(446, 50);
+            this.tlpDetailActions.Size = new System.Drawing.Size(498, 74);
             this.tlpDetailActions.TabIndex = 2;
             // 
             // btnCancel
@@ -1134,10 +1134,10 @@
             this.btnCancel.Margin = new System.Windows.Forms.Padding(0, 0, 6, 0);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.NormalBorder = System.Drawing.Color.Transparent;
-            this.btnCancel.NormalColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
+            this.btnCancel.NormalColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
             this.btnCancel.PressedBorder = System.Drawing.Color.Transparent;
-            this.btnCancel.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(29)))), ((int)(((byte)(78)))), ((int)(((byte)(216)))));
-            this.btnCancel.Size = new System.Drawing.Size(197, 32);
+            this.btnCancel.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(213)))), ((int)(((byte)(225)))));
+            this.btnCancel.Size = new System.Drawing.Size(223, 56);
             this.btnCancel.TabIndex = 0;
             this.btnCancel.Text = "Hủy bỏ";
             this.btnCancel.TextColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
@@ -1153,15 +1153,15 @@
             this.btnSave.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
             this.btnSave.ForeColor = System.Drawing.Color.White;
             this.btnSave.HoverBorder = System.Drawing.Color.Transparent;
-            this.btnSave.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(59)))), ((int)(((byte)(130)))), ((int)(((byte)(246)))));
-            this.btnSave.Location = new System.Drawing.Point(227, 0);
-            this.btnSave.Margin = new System.Windows.Forms.Padding(4, 0, 0, 0);
+            this.btnSave.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(5)))), ((int)(((byte)(150)))), ((int)(((byte)(105)))));
+            this.btnSave.Location = new System.Drawing.Point(255, 0);
+            this.btnSave.Margin = new System.Windows.Forms.Padding(6, 0, 0, 0);
             this.btnSave.Name = "btnSave";
             this.btnSave.NormalBorder = System.Drawing.Color.Transparent;
             this.btnSave.NormalColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
             this.btnSave.PressedBorder = System.Drawing.Color.Transparent;
-            this.btnSave.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(29)))), ((int)(((byte)(78)))), ((int)(((byte)(216)))));
-            this.btnSave.Size = new System.Drawing.Size(199, 32);
+            this.btnSave.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(59)))), ((int)(((byte)(130)))), ((int)(((byte)(246)))));
+            this.btnSave.Size = new System.Drawing.Size(223, 56);
             this.btnSave.TabIndex = 1;
             this.btnSave.Text = "Lưu lại";
             this.btnSave.TextColor = System.Drawing.Color.White;
@@ -1177,10 +1177,10 @@
             this.pnlDetailBanner.Controls.Add(this.lblDetailTitle);
             this.pnlDetailBanner.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlDetailBanner.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
-            this.pnlDetailBanner.Location = new System.Drawing.Point(18, 18);
+            this.pnlDetailBanner.Location = new System.Drawing.Point(2, 2);
             this.pnlDetailBanner.Name = "pnlDetailBanner";
             this.pnlDetailBanner.Padding = new System.Windows.Forms.Padding(20, 14, 20, 14);
-            this.pnlDetailBanner.Size = new System.Drawing.Size(446, 76);
+            this.pnlDetailBanner.Size = new System.Drawing.Size(498, 76);
             this.pnlDetailBanner.TabIndex = 0;
             // 
             // lblDetailSubtitle
@@ -1188,9 +1188,9 @@
             this.lblDetailSubtitle.Dock = System.Windows.Forms.DockStyle.Top;
             this.lblDetailSubtitle.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.lblDetailSubtitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
-            this.lblDetailSubtitle.Location = new System.Drawing.Point(20, 54);
+            this.lblDetailSubtitle.Location = new System.Drawing.Point(20, 40);
             this.lblDetailSubtitle.Name = "lblDetailSubtitle";
-            this.lblDetailSubtitle.Size = new System.Drawing.Size(406, 16);
+            this.lblDetailSubtitle.Size = new System.Drawing.Size(458, 16);
             this.lblDetailSubtitle.TabIndex = 1;
             this.lblDetailSubtitle.Text = "Chọn một khách hàng để xem chi tiết";
             // 
@@ -1201,8 +1201,7 @@
             this.lblDetailTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.lblDetailTitle.Location = new System.Drawing.Point(20, 14);
             this.lblDetailTitle.Name = "lblDetailTitle";
-            this.lblDetailTitle.Padding = new System.Windows.Forms.Padding(0, 0, 12, 8);
-            this.lblDetailTitle.Size = new System.Drawing.Size(406, 40);
+            this.lblDetailTitle.Size = new System.Drawing.Size(458, 26);
             this.lblDetailTitle.TabIndex = 0;
             this.lblDetailTitle.Text = "Thông tin khách hàng";
             // 
@@ -1269,7 +1268,6 @@
         private RoundedButton btnRefresh;
         private RoundedButton btnDelete;
         private RoundedButton btnEdit;
-        private RoundedButton btnAdd;
 
         private System.Windows.Forms.Panel pnlStats;
         private System.Windows.Forms.TableLayoutPanel tlpStats;

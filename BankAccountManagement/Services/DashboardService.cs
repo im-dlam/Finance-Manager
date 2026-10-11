@@ -1,4 +1,3 @@
-using System;
 using System.Data;
 using System.Data.SqlClient;
 
@@ -52,16 +51,14 @@ namespace BankAccountManagement.Services
                         {giaoDichSql} AS TongGiaoDich";
 
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
+                using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
                 {
                     if (!string.IsNullOrEmpty(maKH))
                     {
                         cmd.Parameters.AddWithValue("@MaKH", maKH);
                     }
 
-                    using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
-                    {
-                        adapter.Fill(dt);
-                    }
+                    adapter.Fill(dt);
                 }
             }
             return dt;
@@ -86,16 +83,14 @@ namespace BankAccountManagement.Services
                     ORDER BY MONTH(NgayMo)";
 
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
+                using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
                 {
                     if (!string.IsNullOrEmpty(maKH))
                     {
                         cmd.Parameters.AddWithValue("@MaKH", maKH);
                     }
 
-                    using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
-                    {
-                        adapter.Fill(dt);
-                    }
+                     adapter.Fill(dt);
                 }
             }
             return dt;
@@ -121,16 +116,14 @@ namespace BankAccountManagement.Services
                     ORDER BY SoLuong DESC";
 
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
+                using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
                 {
                     if (!string.IsNullOrEmpty(maKH))
                     {
                         cmd.Parameters.AddWithValue("@MaKH", maKH);
                     }
 
-                    using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
-                    {
-                        adapter.Fill(dt);
-                    }
+                     adapter.Fill(dt);
                 }
             }
             return dt;

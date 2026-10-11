@@ -19,7 +19,6 @@ namespace BankAccountManagement.Forms
             this.Load += CustomerForm_Load;
             btnSearch.Click += BtnSearch_Click;
             btnRefresh.Click += BtnRefresh_Click;
-            btnAdd.Click += BtnAdd_Click;
             btnEdit.Click += BtnEdit_Click;
             btnDelete.Click += BtnDelete_Click;
             btnSave.Click += BtnSave_Click;
@@ -169,7 +168,6 @@ namespace BankAccountManagement.Forms
             txtEmail.Enabled = editing;
             txtDiaChi.Enabled = editing;
 
-            btnAdd.Enabled = !editing;
             btnEdit.Enabled = !editing;
             btnDelete.Enabled = !editing;
             btnSave.Enabled = editing;
@@ -407,16 +405,6 @@ namespace BankAccountManagement.Forms
             SetControlState(false);
         }
 
-        private void BtnAdd_Click(object sender, EventArgs e)
-        {
-            isAddNew = true;
-            ClearInputs();
-            SetControlState(true);
-            if (!isAdmin) txtMaKH.Focus();
-            else txtHoTen.Focus();
-        }
-
-        // Nút Sửa
         private void BtnEdit_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(txtHoTen.Text))
@@ -509,6 +497,7 @@ namespace BankAccountManagement.Forms
                 DgvCustomers_CellClick(dgvCustomers, new DataGridViewCellEventArgs(0, dgvCustomers.CurrentRow.Index));
             }
         }
+
     }
 }
 
