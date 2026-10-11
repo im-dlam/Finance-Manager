@@ -102,7 +102,9 @@ namespace BankAccountManagement.Services
                     using (SqlDataReader reader = await command.ExecuteReaderAsync())
                     {
                         if (!await reader.ReadAsync())
+                        {
                             return new StatisticSummary();
+                        }
 
                         return new StatisticSummary
                         {
@@ -236,9 +238,13 @@ namespace BankAccountManagement.Services
                     ) AS STT,
 
                     TK.SoTaiKhoan,
+
                     KH.HoTen,
+
                     TK.SoDuHienTai,
+
                     TK.SoDuHienTai * LT.QuyDoi AS SoDuVND,
+
                     LT.TenLoaiTien AS LoaiTien
 
                 FROM TaiKhoan TK
