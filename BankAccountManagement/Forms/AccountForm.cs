@@ -116,7 +116,6 @@ namespace BankAccountManagement.Forms
 
         private bool CanManageAccounts => CurrentSession.IsAdmin ||
             (CurrentSession.IsMember && !string.IsNullOrWhiteSpace(CurrentSession.MaKH));
-
         // ==========================================================
         //  ĐỔ DỮ LIỆU COMBOBOX
         // ==========================================================
@@ -273,6 +272,7 @@ namespace BankAccountManagement.Forms
                 {
                     string myMaKH = CurrentSession.MaKH;
                     all = all.Where(tk =>
+                        !string.IsNullOrEmpty(myMaKH) &&
                         string.Equals(tk.MaKH, myMaKH, StringComparison.OrdinalIgnoreCase)
                     ).ToList();
                 }
@@ -641,7 +641,6 @@ namespace BankAccountManagement.Forms
                     : account.MaKH);
 
             cboBank.SelectedValue = row.Cells["colBank"].Value;
-
             var currencyValue = row.Cells["colCurrency"].Value;
             if (currencyValue != null && currencyValue != DBNull.Value)
                 cboCurrency.SelectedValue = currencyValue;
