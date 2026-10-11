@@ -204,6 +204,7 @@ namespace BankAccountManagement.Forms
             MessageBox.Show(result.Message, "Bank Management",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
 
+            // Báo cho MainForm biết đã save xong :))
             SaveSuccess?.Invoke(this, EventArgs.Empty);
             this.DialogResult = DialogResult.OK;
             this.Close();

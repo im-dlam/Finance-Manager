@@ -7,46 +7,47 @@ namespace BankAccountManagement.Services
 {
     public class CustomerService
     {
-        // Hàm lấy chuỗi kết nối Database từ cấu hình chung
         private string GetConnectionString()
         {
             DatabaseConfig config = DatabaseConfigManager.Load();
             return DatabaseService.BuildConnectionString(config);
         }
 
-        public bool ToggleCustomerStatus(string maKH)
+        public bool ToggleUserStatus(string maNguoiDung)
         {
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             {
                 conn.Open();
-                string getStatusSql = "SELECT TrangThai FROM KhachHang WHERE MaKH = @MaKH";
+                string getStatusSql = "SELECT TrangThai FROM dbo.NguoiDung WHERE MaNguoiDung = @Ma";
                 string currentStatus = "Active";
                 using (SqlCommand cmdGet = new SqlCommand(getStatusSql, conn))
                 {
-                    cmdGet.Parameters.AddWithValue("@MaKH", maKH);
+                    cmdGet.Parameters.AddWithValue("@Ma", maNguoiDung);
                     object result = cmdGet.ExecuteScalar();
                     if (result != null) currentStatus = result.ToString();
                 }
 
                 string newStatus = (currentStatus == "Active") ? "Locked" : "Active";
 
-                string updateSql = "UPDATE KhachHang SET TrangThai = @NewStatus WHERE MaKH = @MaKH";
+                string updateSql = "UPDATE dbo.NguoiDung SET TrangThai = @NewStatus WHERE MaNguoiDung = @Ma";
                 using (SqlCommand cmdUpdate = new SqlCommand(updateSql, conn))
                 {
                     cmdUpdate.Parameters.AddWithValue("@NewStatus", newStatus);
-                    cmdUpdate.Parameters.AddWithValue("@MaKH", maKH);
+                    cmdUpdate.Parameters.AddWithValue("@Ma", maNguoiDung);
                     return cmdUpdate.ExecuteNonQuery() > 0;
                 }
             }
         }
 
-        // 1. Lấy toàn bộ danh sách khách hàng
-        public DataTable GetAllCustomers()
+        public DataTable GetAllData(bool isAdmin)
         {
             DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             {
-                string sql = "SELECT MaKH, HoTen, CMND_CCCD, NgaySinh, GioiTinh, SoDienThoai, Email, DiaChi, TrangThai FROM KhachHang ORDER BY MaKH ASC";
+                string sql = isAdmin 
+                    ? "SELECT MaNguoiDung, TenDangNhap, HoTen, Quyen, Email, TrangThai, NgayTao FROM dbo.NguoiDung ORDER BY MaNguoiDung ASC"
+                    : "SELECT MaKH, HoTen, CMND_CCCD, NgaySinh, GioiTinh, SoDienThoai, Email, DiaChi, TrangThai FROM dbo.ThongTinKhachHang ORDER BY MaKH ASC";
+                
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
                     SqlDataAdapter adapter = new SqlDataAdapter(cmd);
@@ -56,16 +57,21 @@ namespace BankAccountManagement.Services
             return dt;
         }
 
-        // 2. Tìm kiếm khách hàng theo Tên, SĐT, hoặc CMND
-        public DataTable SearchCustomers(string keyword)
+        public DataTable SearchData(string keyword, bool isAdmin)
         {
             DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             {
-                string sql = @"SELECT MaKH, HoTen, CMND_CCCD, NgaySinh, GioiTinh, SoDienThoai, Email, DiaChi, TrangThai 
-                               FROM KhachHang 
-                               WHERE (MaKH LIKE @Keyword OR HoTen LIKE @Keyword OR SoDienThoai LIKE @Keyword OR CMND_CCCD LIKE @Keyword)
-                               ORDER BY MaKH ASC";
+                string sql = isAdmin 
+                    ? @"SELECT MaNguoiDung, TenDangNhap, HoTen, Quyen, Email, TrangThai, NgayTao 
+                        FROM dbo.NguoiDung 
+                        WHERE (TenDangNhap LIKE @Keyword OR HoTen LIKE @Keyword OR Email LIKE @Keyword)
+                        ORDER BY MaNguoiDung ASC"
+                    : @"SELECT MaKH, HoTen, CMND_CCCD, NgaySinh, GioiTinh, SoDienThoai, Email, DiaChi, TrangThai 
+                        FROM dbo.ThongTinKhachHang 
+                        WHERE (MaKH LIKE @Keyword OR HoTen LIKE @Keyword OR SoDienThoai LIKE @Keyword OR CMND_CCCD LIKE @Keyword)
+                        ORDER BY MaKH ASC";
+                
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("@Keyword", "%" + keyword + "%");
@@ -76,20 +82,71 @@ namespace BankAccountManagement.Services
             return dt;
         }
 
-        // 3. Thêm mới khách hàng
+        public bool AddAdminUser(string tenDangNhap, string hoTen, string quyen, string email)
+        {
+            using (SqlConnection conn = new SqlConnection(GetConnectionString()))
+            {
+                conn.Open();
+                string sql = @"INSERT INTO dbo.NguoiDung (TenDangNhap, MatKhau, HoTen, Quyen, Email, TrangThai, NgayTao) 
+                               VALUES (@TenDangNhap, '123456', @HoTen, @Quyen, @Email, 'Active', GETDATE())";
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@TenDangNhap", tenDangNhap);
+                    cmd.Parameters.AddWithValue("@HoTen", hoTen);
+                    cmd.Parameters.AddWithValue("@Quyen", quyen);
+                    cmd.Parameters.AddWithValue("@Email", email);
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+            }
+        }
+
+        public bool UpdateAdminUser(string maND, string tenDangNhap, string hoTen, string quyen, string email)
+        {
+            using (SqlConnection conn = new SqlConnection(GetConnectionString()))
+            {
+                conn.Open();
+                string sql = @"UPDATE dbo.NguoiDung 
+                               SET TenDangNhap = @TenDangNhap, HoTen = @HoTen, Quyen = @Quyen, Email = @Email 
+                               WHERE MaNguoiDung = @MaND";
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@MaND", maND);
+                    cmd.Parameters.AddWithValue("@TenDangNhap", tenDangNhap);
+                    cmd.Parameters.AddWithValue("@HoTen", hoTen);
+                    cmd.Parameters.AddWithValue("@Quyen", quyen);
+                    cmd.Parameters.AddWithValue("@Email", email);
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+            }
+        }
+
+        public bool DeleteAdminUser(string maND)
+        {
+            using (SqlConnection conn = new SqlConnection(GetConnectionString()))
+            {
+                conn.Open();
+                string sql = "DELETE FROM dbo.NguoiDung WHERE MaNguoiDung = @MaND";
+                using (SqlCommand cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@MaND", maND);
+                    return cmd.ExecuteNonQuery() > 0;
+                }
+            }
+        }
+
         public bool AddCustomer(string maKH, string hoTen, string cmnd, DateTime ngaySinh, string gioiTinh, string sdt, string email, string diaChi)
         {
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             {
                 conn.Open();
-                string sql = @"INSERT INTO KhachHang (MaKH, HoTen, CMND_CCCD, NgaySinh, GioiTinh, SoDienThoai, Email, DiaChi, TrangThai, NgayTao) 
+                string sql = @"INSERT INTO dbo.ThongTinKhachHang (MaKH, HoTen, CMND_CCCD, NgaySinh, GioiTinh, SoDienThoai, Email, DiaChi, TrangThai, NgayTao) 
                                VALUES (@MaKH, @HoTen, @CMND, @NgaySinh, @GioiTinh, @SDT, @Email, @DiaChi, 'Active', GETDATE())";
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("@MaKH", maKH);
                     cmd.Parameters.AddWithValue("@HoTen", hoTen);
                     cmd.Parameters.AddWithValue("@CMND", cmnd);
-                    cmd.Parameters.AddWithValue("@NgaySinh", ngaySinh.Date); // Chỉ lấy phần ngày
+                    cmd.Parameters.AddWithValue("@NgaySinh", ngaySinh.Date);
                     cmd.Parameters.AddWithValue("@GioiTinh", gioiTinh);
                     cmd.Parameters.AddWithValue("@SDT", sdt);
                     cmd.Parameters.AddWithValue("@Email", email);
@@ -100,13 +157,12 @@ namespace BankAccountManagement.Services
             }
         }
 
-        // 4. Cập nhật thông tin khách hàng
         public bool UpdateCustomer(string maKH, string hoTen, string cmnd, DateTime ngaySinh, string gioiTinh, string sdt, string email, string diaChi)
         {
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             {
                 conn.Open();
-                string sql = @"UPDATE KhachHang 
+                string sql = @"UPDATE dbo.ThongTinKhachHang 
                                SET HoTen = @HoTen, CMND_CCCD = @CMND, NgaySinh = @NgaySinh, GioiTinh = @GioiTinh, 
                                    SoDienThoai = @SDT, Email = @Email, DiaChi = @DiaChi 
                                WHERE MaKH = @MaKH";
@@ -126,14 +182,12 @@ namespace BankAccountManagement.Services
             }
         }
 
-        // 5. Xóa khách hàng (Chỉ nên chuyển trạng thái thành Inactive để không bị lỗi lịch sử giao dịch)
         public bool DeleteCustomer(string maKH)
         {
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             {
                 conn.Open();
-                // Thực hiện Xóa cứng (Hard Delete) khỏi database để giải phóng Mã KH
-                string sql = "DELETE FROM KhachHang WHERE MaKH = @MaKH";
+                string sql = "DELETE FROM dbo.ThongTinKhachHang WHERE MaKH = @MaKH";
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("@MaKH", maKH);
@@ -142,17 +196,22 @@ namespace BankAccountManagement.Services
             }
         }
 
-        // 6. Lấy thống kê số liệu cho 4 thẻ (Cards) trên cùng
-        public DataTable GetCustomerStatistics()
+        public DataTable GetCustomerStatistics(bool isAdmin)
         {
             DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             {
-                string sql = @"
+                string sql = isAdmin ? @"
                     SELECT 
-                        (SELECT COUNT(*) FROM KhachHang) AS TongKhachHang,
-                        (SELECT COUNT(*) FROM KhachHang WHERE TrangThai = 'Active') AS DangHoatDong,
-                        (SELECT COUNT(*) FROM KhachHang WHERE MONTH(NgayTao) = MONTH(GETDATE()) AND YEAR(NgayTao) = YEAR(GETDATE())) AS MoiTrongThang,
+                        (SELECT COUNT(*) FROM dbo.NguoiDung) AS TongKhachHang,
+                        (SELECT COUNT(*) FROM dbo.NguoiDung WHERE TrangThai = 'Active') AS DangHoatDong,
+                        (SELECT COUNT(*) FROM dbo.NguoiDung WHERE MONTH(NgayTao) = MONTH(GETDATE()) AND YEAR(NgayTao) = YEAR(GETDATE())) AS MoiTrongThang,
+                        (SELECT COUNT(*) FROM TaiKhoan) AS TaiKhoanDaMo
+                " : @"
+                    SELECT 
+                        (SELECT COUNT(*) FROM dbo.ThongTinKhachHang) AS TongKhachHang,
+                        (SELECT COUNT(*) FROM dbo.ThongTinKhachHang WHERE TrangThai = 'Active') AS DangHoatDong,
+                        (SELECT COUNT(*) FROM dbo.ThongTinKhachHang WHERE MONTH(NgayTao) = MONTH(GETDATE()) AND YEAR(NgayTao) = YEAR(GETDATE())) AS MoiTrongThang,
                         (SELECT COUNT(*) FROM TaiKhoan) AS TaiKhoanDaMo
                 ";
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
@@ -163,18 +222,7 @@ namespace BankAccountManagement.Services
             }
             return dt;
         }
-
-        // ============================================================
-        //  LƯU HỒ SƠ KHÁCH HÀNG (dùng cho CustomerInfoForm)
-        //  
-        //  Luồng:
-        //  1. Validate session (đã login, chưa có MaKH).
-        //  2. Kiểm tra trùng CCCD.
-        //  3. Sinh MaKH: "KH" + 6 chữ số.
-        //  4. INSERT vào ThongTinKhachHang.
-        //  5. UPDATE NguoiDung.MaKH để link.
-        //  6. Cập nhật CurrentSession.User.MaKH.
-        // ============================================================
+    
         public static AuthResult SaveCustomerInfo(
             string hoTen,
             string cccd,
@@ -264,6 +312,7 @@ namespace BankAccountManagement.Services
                             CurrentSession.User.MaKH = maKH;
                             CurrentSession.User.HoTen = hoTen;
                             CurrentSession.User.Email = email;
+                            CurrentSession.MarkCustomerInfoCompleted(maKH, hoTen, email);
 
                             return AuthResult.Ok(
                                 $"Lưu hồ sơ thành công! Mã khách hàng của bạn: {maKH}");
@@ -285,5 +334,6 @@ namespace BankAccountManagement.Services
                 return AuthResult.Fail("Lỗi hệ thống: " + ex.Message);
             }
         }
+    
     }
 }

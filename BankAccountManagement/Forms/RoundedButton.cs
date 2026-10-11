@@ -7,6 +7,7 @@ using System.Windows.Forms;
 namespace BankAccountManagement.Forms
 {
     [ToolboxItem(true)]
+    [DefaultProperty("Text")]
     public class RoundedButton : Button
     {
         private int _borderRadius = 8;
@@ -19,84 +20,157 @@ namespace BankAccountManagement.Forms
         private Color _pressedBorder = Color.Transparent;
         private Color _textColor = Color.White;
 
-        private bool isHovered = false;
-        private bool isPressed = false;
+        private bool _isHovered;
+        private bool _isPressed;
+
+        [Category("Appearance"), DefaultValue(8)]
+        public int BorderRadius
+        {
+            get => _borderRadius;
+            set { int v = Math.Max(0, value); if (_borderRadius == v) return; _borderRadius = v; UpdateRegion(); Invalidate(); }
+        }
+
+        [Category("Appearance"), DefaultValue(0)]
+        public int BorderSize
+        {
+            get => _borderSize;
+            set { _borderSize = Math.Max(0, value); Invalidate(); }
+        }
+
+        [Category("Appearance")] public Color NormalColor { get => _normalColor; set { _normalColor = value; Invalidate(); } }
+        [Category("Appearance")] public Color HoverColor { get => _hoverColor; set { _hoverColor = value; Invalidate(); } }
+        [Category("Appearance")] public Color PressedColor { get => _pressedColor; set { _pressedColor = value; Invalidate(); } }
+        [Category("Appearance")] public Color NormalBorder { get => _normalBorder; set { _normalBorder = value; Invalidate(); } }
+        [Category("Appearance")] public Color HoverBorder { get => _hoverBorder; set { _hoverBorder = value; Invalidate(); } }
+        [Category("Appearance")] public Color PressedBorder { get => _pressedBorder; set { _pressedBorder = value; Invalidate(); } }
 
         [Category("Appearance")]
-        public int BorderRadius { get => _borderRadius; set { _borderRadius = value; Invalidate(); } }
-        
-        [Category("Appearance")]
-        public int BorderSize { get => _borderSize; set { _borderSize = value; Invalidate(); } }
-
-        [Category("Appearance")]
-        public Color NormalColor { get => _normalColor; set { _normalColor = value; Invalidate(); } }
-        
-        [Category("Appearance")]
-        public Color HoverColor { get => _hoverColor; set { _hoverColor = value; Invalidate(); } }
-        
-        [Category("Appearance")]
-        public Color PressedColor { get => _pressedColor; set { _pressedColor = value; Invalidate(); } }
-
-        [Category("Appearance")]
-        public Color NormalBorder { get => _normalBorder; set { _normalBorder = value; Invalidate(); } }
-        
-        [Category("Appearance")]
-        public Color HoverBorder { get => _hoverBorder; set { _hoverBorder = value; Invalidate(); } }
-        
-        [Category("Appearance")]
-        public Color PressedBorder { get => _pressedBorder; set { _pressedBorder = value; Invalidate(); } }
-
-        [Category("Appearance")]
-        public Color TextColor { get => _textColor; set { _textColor = value; this.ForeColor = value; Invalidate(); } }
+        public Color TextColor
+        {
+            get => _textColor;
+            set { _textColor = value; ForeColor = value; Invalidate(); }
+        }
 
         public RoundedButton()
         {
-            this.FlatStyle = FlatStyle.Flat;
-            this.FlatAppearance.BorderSize = 0;
-            this.BackColor = NormalColor;
-            this.ForeColor = TextColor;
-            this.Cursor = Cursors.Hand;
+            SetStyle(ControlStyles.AllPaintingInWmPaint |
+                     ControlStyles.UserPaint |
+                     ControlStyles.OptimizedDoubleBuffer |
+                     ControlStyles.ResizeRedraw |
+                     ControlStyles.SupportsTransparentBackColor, true);
+
+            BackColor = Color.Transparent;
+            FlatStyle = FlatStyle.Flat;
+            FlatAppearance.BorderSize = 0;                              // ✅ Ẩn border native
+            // FlatAppearance.BorderColor = Color.Transparent; // Throws NotSupportedException             // ✅ Màu border trong suốt
+            UseVisualStyleBackColor = false;
+            Cursor = Cursors.Hand;
         }
 
-        protected override void OnMouseEnter(EventArgs e) { isHovered = true; Invalidate(); base.OnMouseEnter(e); }
-        protected override void OnMouseLeave(EventArgs e) { isHovered = false; isPressed = false; Invalidate(); base.OnMouseLeave(e); }
-        protected override void OnMouseDown(MouseEventArgs mevent) { isPressed = true; Invalidate(); base.OnMouseDown(mevent); }
-        protected override void OnMouseUp(MouseEventArgs mevent) { isPressed = false; Invalidate(); base.OnMouseUp(mevent); }
+        protected override void OnHandleCreated(EventArgs e) { base.OnHandleCreated(e); UpdateRegion(); }
+        protected override void OnSizeChanged(EventArgs e) { base.OnSizeChanged(e); UpdateRegion(); }
+
+        private void UpdateRegion()
+        {
+            if (Width <= 0 || Height <= 0) return;
+            if (_borderRadius <= 0) { Region = null; return; }
+
+            using (var path = GetRoundedPath(new RectangleF(0, 0, Width, Height), _borderRadius))
+            {
+                var old = Region;
+                Region = new Region(path);
+                old?.Dispose();
+            }
+        }
+
+        protected override void OnMouseEnter(EventArgs e) { _isHovered = true; Invalidate(); base.OnMouseEnter(e); }
+        protected override void OnMouseLeave(EventArgs e) { _isHovered = false; _isPressed = false; Invalidate(); base.OnMouseLeave(e); }
+        protected override void OnMouseDown(MouseEventArgs e) { if (e.Button == MouseButtons.Left) _isPressed = true; Invalidate(); base.OnMouseDown(e); }
+        protected override void OnMouseUp(MouseEventArgs e) { _isPressed = false; Invalidate(); base.OnMouseUp(e); }
+        protected override void OnEnabledChanged(EventArgs e) { Invalidate(); base.OnEnabledChanged(e); }
 
         protected override void OnPaint(PaintEventArgs pevent)
         {
-            pevent.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            var g = pevent.Graphics;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
 
-            Color currentColor = isPressed ? PressedColor : (isHovered ? HoverColor : NormalColor);
-            Color currentBorder = isPressed ? PressedBorder : (isHovered ? HoverBorder : NormalBorder);
-
-            using (GraphicsPath path = new GraphicsPath())
+            Color fill, border, text;
+            if (!Enabled)
             {
-                int r = _borderRadius > 0 ? _borderRadius : 1;
-                path.AddArc(0, 0, r, r, 180, 90);
-                path.AddArc(Width - r - 1, 0, r, r, 270, 90);
-                path.AddArc(Width - r - 1, Height - r - 1, r, r, 0, 90);
-                path.AddArc(0, Height - r - 1, r, r, 90, 90);
-                path.CloseFigure();
+                fill = Color.FromArgb(226, 232, 240);
+                border = Color.Transparent;
+                text = Color.FromArgb(148, 163, 184);
+            }
+            else if (_isPressed) { fill = _pressedColor; border = _pressedBorder; text = _textColor; }
+            else if (_isHovered) { fill = _hoverColor; border = _hoverBorder; text = _textColor; }
+            else { fill = _normalColor; border = _normalBorder; text = _textColor; }
 
-                this.Region = new Region(path);
+            if (fill.A == 0) fill = Color.White;
 
-                using (SolidBrush brush = new SolidBrush(currentColor))
+            if (_borderRadius > 0)
+            {
+                using (var path = GetRoundedPath(new RectangleF(0, 0, Width, Height), _borderRadius))
                 {
-                    pevent.Graphics.FillPath(brush, path);
-                }
+                    using (var brush = new SolidBrush(fill))
+                        g.FillPath(brush, path);
 
-                if (_borderSize > 0)
-                {
-                    using (Pen pen = new Pen(currentBorder, _borderSize))
+                    // ✅ CHỈ VẼ VIỀN khi BorderSize > 0 VÀ màu viền có alpha > 0
+                    if (_borderSize > 0 && border.A > 0)
                     {
-                        pevent.Graphics.DrawPath(pen, path);
+                        // Thu nhỏ path để viền không bị cắt
+                        using (var pathBorder = GetRoundedPath(
+                            new RectangleF(_borderSize / 2f, _borderSize / 2f,
+                                           Width - _borderSize, Height - _borderSize),
+                            _borderRadius))
+                        using (var pen = new Pen(border, _borderSize))
+                        {
+                            g.DrawPath(pen, pathBorder);
+                        }
                     }
                 }
             }
+            else
+            {
+                using (var brush = new SolidBrush(fill))
+                    g.FillRectangle(brush, 0, 0, Width, Height);
 
-            // Draw text manually
-            TextRenderer.DrawText(pevent.Graphics, this.Text, this.Font, this.ClientRectangle, this.TextColor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+                if (_borderSize > 0 && border.A > 0)
+                {
+                    using (var pen = new Pen(border, _borderSize))
+                        g.DrawRectangle(pen, 0, 0, Width - 1, Height - 1);
+                }
+            }
+
+            TextRenderer.DrawText(g, Text, Font,
+                new Rectangle(0, 0, Width, Height), text,
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
+        }
+
+        private GraphicsPath GetRoundedPath(RectangleF rect, int radius)
+        {
+            var path = new GraphicsPath();
+            if (radius <= 0 || rect.Width <= 0 || rect.Height <= 0)
+            {
+                path.AddRectangle(rect);
+                return path;
+            }
+            float d = Math.Min(radius * 2f, Math.Min(rect.Width, rect.Height));
+            if (d < 1f) d = 1f;
+
+            path.StartFigure();
+            path.AddArc(rect.X, rect.Y, d, d, 180, 90);
+            path.AddArc(rect.Right - d, rect.Y, d, d, 270, 90);
+            path.AddArc(rect.Right - d, rect.Bottom - d, d, d, 0, 90);
+            path.AddArc(rect.X, rect.Bottom - d, d, d, 90, 90);
+            path.CloseFigure();
+            return path;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing) Region?.Dispose();
+            base.Dispose(disposing);
         }
     }
 }

@@ -27,6 +27,8 @@
             this.btnSearch = new System.Windows.Forms.Button();
             this.pnlFormCard = new System.Windows.Forms.Panel();
             this.pnlFormContent = new System.Windows.Forms.Panel();
+            this.label1 = new System.Windows.Forms.Label();
+            this.cboCustomerCode = new System.Windows.Forms.ComboBox();
             this.lblFormAccent = new System.Windows.Forms.Panel();
             this.lblFormTitle = new System.Windows.Forms.Label();
             this.pnlFormDivider1 = new System.Windows.Forms.Panel();
@@ -56,6 +58,7 @@
             this.pnlListDivider = new System.Windows.Forms.Panel();
             this.dgvAccounts = new System.Windows.Forms.DataGridView();
             this.colAccountNumber = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colCustomerCode = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colCustomer = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colBank = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colCurrency = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -81,7 +84,7 @@
             this.pnlHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlHeader.Location = new System.Drawing.Point(0, 0);
             this.pnlHeader.Name = "pnlHeader";
-            this.pnlHeader.Size = new System.Drawing.Size(1200, 90);
+            this.pnlHeader.Size = new System.Drawing.Size(1336, 90);
             this.pnlHeader.TabIndex = 0;
             // 
             // pnlHeaderBorder
@@ -90,7 +93,7 @@
             this.pnlHeaderBorder.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.pnlHeaderBorder.Location = new System.Drawing.Point(0, 89);
             this.pnlHeaderBorder.Name = "pnlHeaderBorder";
-            this.pnlHeaderBorder.Size = new System.Drawing.Size(1200, 1);
+            this.pnlHeaderBorder.Size = new System.Drawing.Size(1336, 1);
             this.pnlHeaderBorder.TabIndex = 99;
             // 
             // lblTitle
@@ -100,7 +103,7 @@
             this.lblTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.lblTitle.Location = new System.Drawing.Point(35, 20);
             this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Size = new System.Drawing.Size(415, 32);
+            this.lblTitle.Size = new System.Drawing.Size(516, 41);
             this.lblTitle.TabIndex = 0;
             this.lblTitle.Text = "QUẢN LÝ TÀI KHOẢN NGÂN HÀNG";
             // 
@@ -111,9 +114,10 @@
             this.lblSubtitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
             this.lblSubtitle.Location = new System.Drawing.Point(37, 60);
             this.lblSubtitle.Name = "lblSubtitle";
-            this.lblSubtitle.Size = new System.Drawing.Size(340, 17);
+            this.lblSubtitle.Size = new System.Drawing.Size(403, 21);
             this.lblSubtitle.TabIndex = 1;
             this.lblSubtitle.Text = "Theo dõi và quản lý tài khoản ngân hàng của khách hàng";
+            this.lblSubtitle.Click += new System.EventHandler(this.lblSubtitle_Click);
             // 
             // lblSearch
             // 
@@ -121,9 +125,9 @@
             this.lblSearch.AutoSize = true;
             this.lblSearch.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.lblSearch.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
-            this.lblSearch.Location = new System.Drawing.Point(689, 32);
+            this.lblSearch.Location = new System.Drawing.Point(825, 32);
             this.lblSearch.Name = "lblSearch";
-            this.lblSearch.Size = new System.Drawing.Size(75, 19);
+            this.lblSearch.Size = new System.Drawing.Size(91, 23);
             this.lblSearch.TabIndex = 2;
             this.lblSearch.Text = "Tìm kiếm:";
             // 
@@ -132,9 +136,9 @@
             this.txtSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.txtSearch.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.txtSearch.Font = new System.Drawing.Font("Segoe UI", 10.5F);
-            this.txtSearch.Location = new System.Drawing.Point(770, 30);
+            this.txtSearch.Location = new System.Drawing.Point(906, 30);
             this.txtSearch.Name = "txtSearch";
-            this.txtSearch.Size = new System.Drawing.Size(250, 26);
+            this.txtSearch.Size = new System.Drawing.Size(250, 31);
             this.txtSearch.TabIndex = 3;
             // 
             // btnSearch
@@ -147,7 +151,7 @@
             this.btnSearch.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSearch.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.btnSearch.ForeColor = System.Drawing.Color.White;
-            this.btnSearch.Location = new System.Drawing.Point(1060, 29);
+            this.btnSearch.Location = new System.Drawing.Point(1196, 29);
             this.btnSearch.Name = "btnSearch";
             this.btnSearch.Size = new System.Drawing.Size(100, 33);
             this.btnSearch.TabIndex = 4;
@@ -169,6 +173,8 @@
             // pnlFormContent
             // 
             this.pnlFormContent.BackColor = System.Drawing.Color.White;
+            this.pnlFormContent.Controls.Add(this.label1);
+            this.pnlFormContent.Controls.Add(this.cboCustomerCode);
             this.pnlFormContent.Controls.Add(this.lblFormAccent);
             this.pnlFormContent.Controls.Add(this.lblFormTitle);
             this.pnlFormContent.Controls.Add(this.pnlFormDivider1);
@@ -196,6 +202,26 @@
             this.pnlFormContent.Size = new System.Drawing.Size(380, 700);
             this.pnlFormContent.TabIndex = 0;
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.BackColor = System.Drawing.Color.White;
+            this.label1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
+            this.label1.Location = new System.Drawing.Point(30, 146);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(138, 20);
+            this.label1.TabIndex = 23;
+            this.label1.Text = "Mã Khách Hàng(*)";
+            // 
+            // cboCustomerCode
+            // 
+            this.cboCustomerCode.FormattingEnabled = true;
+            this.cboCustomerCode.Location = new System.Drawing.Point(35, 164);
+            this.cboCustomerCode.Name = "cboCustomerCode";
+            this.cboCustomerCode.Size = new System.Drawing.Size(316, 31);
+            this.cboCustomerCode.TabIndex = 22;
+            // 
             // lblFormAccent
             // 
             this.lblFormAccent.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
@@ -211,7 +237,7 @@
             this.lblFormTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.lblFormTitle.Location = new System.Drawing.Point(42, 20);
             this.lblFormTitle.Name = "lblFormTitle";
-            this.lblFormTitle.Size = new System.Drawing.Size(180, 25);
+            this.lblFormTitle.Size = new System.Drawing.Size(215, 30);
             this.lblFormTitle.TabIndex = 1;
             this.lblFormTitle.Text = "Thông tin tài khoản";
             // 
@@ -228,9 +254,9 @@
             this.lblAccountNumber.AutoSize = true;
             this.lblAccountNumber.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
             this.lblAccountNumber.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
-            this.lblAccountNumber.Location = new System.Drawing.Point(30, 80);
+            this.lblAccountNumber.Location = new System.Drawing.Point(30, 96);
             this.lblAccountNumber.Name = "lblAccountNumber";
-            this.lblAccountNumber.Size = new System.Drawing.Size(105, 17);
+            this.lblAccountNumber.Size = new System.Drawing.Size(128, 21);
             this.lblAccountNumber.TabIndex = 3;
             this.lblAccountNumber.Text = "Số tài khoản (*)";
             // 
@@ -238,9 +264,9 @@
             // 
             this.txtAccountNumber.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.txtAccountNumber.Font = new System.Drawing.Font("Segoe UI", 10.5F);
-            this.txtAccountNumber.Location = new System.Drawing.Point(30, 100);
+            this.txtAccountNumber.Location = new System.Drawing.Point(33, 108);
             this.txtAccountNumber.Name = "txtAccountNumber";
-            this.txtAccountNumber.Size = new System.Drawing.Size(320, 26);
+            this.txtAccountNumber.Size = new System.Drawing.Size(320, 31);
             this.txtAccountNumber.TabIndex = 4;
             // 
             // lblCustomer
@@ -248,9 +274,9 @@
             this.lblCustomer.AutoSize = true;
             this.lblCustomer.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
             this.lblCustomer.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
-            this.lblCustomer.Location = new System.Drawing.Point(30, 138);
+            this.lblCustomer.Location = new System.Drawing.Point(35, 210);
             this.lblCustomer.Name = "lblCustomer";
-            this.lblCustomer.Size = new System.Drawing.Size(100, 17);
+            this.lblCustomer.Size = new System.Drawing.Size(123, 21);
             this.lblCustomer.TabIndex = 5;
             this.lblCustomer.Text = "Khách hàng (*)";
             // 
@@ -258,9 +284,9 @@
             // 
             this.cboCustomer.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboCustomer.Font = new System.Drawing.Font("Segoe UI", 10.5F);
-            this.cboCustomer.Location = new System.Drawing.Point(30, 158);
+            this.cboCustomer.Location = new System.Drawing.Point(33, 225);
             this.cboCustomer.Name = "cboCustomer";
-            this.cboCustomer.Size = new System.Drawing.Size(320, 27);
+            this.cboCustomer.Size = new System.Drawing.Size(320, 31);
             this.cboCustomer.TabIndex = 6;
             // 
             // lblBank
@@ -268,9 +294,9 @@
             this.lblBank.AutoSize = true;
             this.lblBank.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
             this.lblBank.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
-            this.lblBank.Location = new System.Drawing.Point(30, 196);
+            this.lblBank.Location = new System.Drawing.Point(26, 269);
             this.lblBank.Name = "lblBank";
-            this.lblBank.Size = new System.Drawing.Size(96, 17);
+            this.lblBank.Size = new System.Drawing.Size(118, 21);
             this.lblBank.TabIndex = 7;
             this.lblBank.Text = "Ngân hàng (*)";
             // 
@@ -278,9 +304,9 @@
             // 
             this.cboBank.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboBank.Font = new System.Drawing.Font("Segoe UI", 10.5F);
-            this.cboBank.Location = new System.Drawing.Point(30, 216);
+            this.cboBank.Location = new System.Drawing.Point(33, 282);
             this.cboBank.Name = "cboBank";
-            this.cboBank.Size = new System.Drawing.Size(320, 27);
+            this.cboBank.Size = new System.Drawing.Size(320, 31);
             this.cboBank.TabIndex = 8;
             // 
             // lblCurrency
@@ -288,9 +314,9 @@
             this.lblCurrency.AutoSize = true;
             this.lblCurrency.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
             this.lblCurrency.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
-            this.lblCurrency.Location = new System.Drawing.Point(30, 254);
+            this.lblCurrency.Location = new System.Drawing.Point(30, 326);
             this.lblCurrency.Name = "lblCurrency";
-            this.lblCurrency.Size = new System.Drawing.Size(62, 17);
+            this.lblCurrency.Size = new System.Drawing.Size(76, 21);
             this.lblCurrency.TabIndex = 9;
             this.lblCurrency.Text = "Loại tiền";
             // 
@@ -298,9 +324,9 @@
             // 
             this.cboCurrency.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboCurrency.Font = new System.Drawing.Font("Segoe UI", 10.5F);
-            this.cboCurrency.Location = new System.Drawing.Point(30, 274);
+            this.cboCurrency.Location = new System.Drawing.Point(33, 339);
             this.cboCurrency.Name = "cboCurrency";
-            this.cboCurrency.Size = new System.Drawing.Size(320, 27);
+            this.cboCurrency.Size = new System.Drawing.Size(320, 31);
             this.cboCurrency.TabIndex = 10;
             // 
             // lblBalance
@@ -308,9 +334,9 @@
             this.lblBalance.AutoSize = true;
             this.lblBalance.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
             this.lblBalance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
-            this.lblBalance.Location = new System.Drawing.Point(30, 312);
+            this.lblBalance.Location = new System.Drawing.Point(30, 373);
             this.lblBalance.Name = "lblBalance";
-            this.lblBalance.Size = new System.Drawing.Size(98, 17);
+            this.lblBalance.Size = new System.Drawing.Size(120, 21);
             this.lblBalance.TabIndex = 11;
             this.lblBalance.Text = "Số dư ban đầu";
             // 
@@ -318,9 +344,9 @@
             // 
             this.txtBalance.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.txtBalance.Font = new System.Drawing.Font("Segoe UI", 10.5F);
-            this.txtBalance.Location = new System.Drawing.Point(30, 332);
+            this.txtBalance.Location = new System.Drawing.Point(33, 388);
             this.txtBalance.Name = "txtBalance";
-            this.txtBalance.Size = new System.Drawing.Size(320, 26);
+            this.txtBalance.Size = new System.Drawing.Size(320, 31);
             this.txtBalance.TabIndex = 12;
             // 
             // lblStatus
@@ -328,9 +354,9 @@
             this.lblStatus.AutoSize = true;
             this.lblStatus.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
             this.lblStatus.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
-            this.lblStatus.Location = new System.Drawing.Point(30, 370);
+            this.lblStatus.Location = new System.Drawing.Point(30, 422);
             this.lblStatus.Name = "lblStatus";
-            this.lblStatus.Size = new System.Drawing.Size(71, 17);
+            this.lblStatus.Size = new System.Drawing.Size(87, 21);
             this.lblStatus.TabIndex = 13;
             this.lblStatus.Text = "Trạng thái";
             // 
@@ -338,9 +364,9 @@
             // 
             this.cboStatus.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboStatus.Font = new System.Drawing.Font("Segoe UI", 10.5F);
-            this.cboStatus.Location = new System.Drawing.Point(30, 390);
+            this.cboStatus.Location = new System.Drawing.Point(33, 435);
             this.cboStatus.Name = "cboStatus";
-            this.cboStatus.Size = new System.Drawing.Size(320, 27);
+            this.cboStatus.Size = new System.Drawing.Size(320, 31);
             this.cboStatus.TabIndex = 14;
             // 
             // lblOpenDate
@@ -348,9 +374,9 @@
             this.lblOpenDate.AutoSize = true;
             this.lblOpenDate.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
             this.lblOpenDate.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
-            this.lblOpenDate.Location = new System.Drawing.Point(30, 428);
+            this.lblOpenDate.Location = new System.Drawing.Point(30, 478);
             this.lblOpenDate.Name = "lblOpenDate";
-            this.lblOpenDate.Size = new System.Drawing.Size(64, 17);
+            this.lblOpenDate.Size = new System.Drawing.Size(80, 21);
             this.lblOpenDate.TabIndex = 15;
             this.lblOpenDate.Text = "Ngày mở";
             // 
@@ -358,9 +384,9 @@
             // 
             this.dtpOpenDate.Font = new System.Drawing.Font("Segoe UI", 10.5F);
             this.dtpOpenDate.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.dtpOpenDate.Location = new System.Drawing.Point(30, 448);
+            this.dtpOpenDate.Location = new System.Drawing.Point(33, 495);
             this.dtpOpenDate.Name = "dtpOpenDate";
-            this.dtpOpenDate.Size = new System.Drawing.Size(320, 26);
+            this.dtpOpenDate.Size = new System.Drawing.Size(320, 31);
             this.dtpOpenDate.TabIndex = 16;
             // 
             // pnlFormDivider2
@@ -380,7 +406,7 @@
             this.btnAdd.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnAdd.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Bold);
             this.btnAdd.ForeColor = System.Drawing.Color.White;
-            this.btnAdd.Location = new System.Drawing.Point(30, 510);
+            this.btnAdd.Location = new System.Drawing.Point(30, 532);
             this.btnAdd.Name = "btnAdd";
             this.btnAdd.Size = new System.Drawing.Size(320, 42);
             this.btnAdd.TabIndex = 18;
@@ -396,7 +422,7 @@
             this.btnEdit.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnEdit.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.btnEdit.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
-            this.btnEdit.Location = new System.Drawing.Point(30, 562);
+            this.btnEdit.Location = new System.Drawing.Point(30, 580);
             this.btnEdit.Name = "btnEdit";
             this.btnEdit.Size = new System.Drawing.Size(150, 38);
             this.btnEdit.TabIndex = 19;
@@ -412,7 +438,7 @@
             this.btnDelete.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnDelete.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.btnDelete.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(38)))), ((int)(((byte)(38)))));
-            this.btnDelete.Location = new System.Drawing.Point(200, 562);
+            this.btnDelete.Location = new System.Drawing.Point(200, 580);
             this.btnDelete.Name = "btnDelete";
             this.btnDelete.Size = new System.Drawing.Size(150, 38);
             this.btnDelete.TabIndex = 20;
@@ -428,7 +454,7 @@
             this.btnClear.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnClear.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.btnClear.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(65)))), ((int)(((byte)(85)))));
-            this.btnClear.Location = new System.Drawing.Point(30, 610);
+            this.btnClear.Location = new System.Drawing.Point(30, 641);
             this.btnClear.Name = "btnClear";
             this.btnClear.Size = new System.Drawing.Size(320, 38);
             this.btnClear.TabIndex = 21;
@@ -448,7 +474,7 @@
             this.pnlListCard.Controls.Add(this.dgvAccounts);
             this.pnlListCard.Location = new System.Drawing.Point(450, 115);
             this.pnlListCard.Name = "pnlListCard";
-            this.pnlListCard.Size = new System.Drawing.Size(725, 720);
+            this.pnlListCard.Size = new System.Drawing.Size(861, 720);
             this.pnlListCard.TabIndex = 2;
             // 
             // lblListAccent
@@ -466,7 +492,7 @@
             this.lblListTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.lblListTitle.Location = new System.Drawing.Point(42, 20);
             this.lblListTitle.Name = "lblListTitle";
-            this.lblListTitle.Size = new System.Drawing.Size(185, 25);
+            this.lblListTitle.Size = new System.Drawing.Size(221, 30);
             this.lblListTitle.TabIndex = 1;
             this.lblListTitle.Text = "Danh sách tài khoản";
             // 
@@ -476,9 +502,9 @@
             this.lblListCount.AutoSize = true;
             this.lblListCount.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.lblListCount.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(163)))), ((int)(((byte)(74)))));
-            this.lblListCount.Location = new System.Drawing.Point(590, 26);
+            this.lblListCount.Location = new System.Drawing.Point(726, 26);
             this.lblListCount.Name = "lblListCount";
-            this.lblListCount.Size = new System.Drawing.Size(83, 19);
+            this.lblListCount.Size = new System.Drawing.Size(100, 23);
             this.lblListCount.TabIndex = 2;
             this.lblListCount.Text = "0 tài khoản";
             this.lblListCount.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -490,7 +516,7 @@
             this.pnlListDivider.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
             this.pnlListDivider.Location = new System.Drawing.Point(30, 60);
             this.pnlListDivider.Name = "pnlListDivider";
-            this.pnlListDivider.Size = new System.Drawing.Size(665, 1);
+            this.pnlListDivider.Size = new System.Drawing.Size(801, 1);
             this.pnlListDivider.TabIndex = 3;
             // 
             // dgvAccounts
@@ -521,6 +547,7 @@
             this.dgvAccounts.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
             this.dgvAccounts.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.colAccountNumber,
+            this.colCustomerCode,
             this.colCustomer,
             this.colBank,
             this.colCurrency,
@@ -538,27 +565,37 @@
             this.dgvAccounts.DefaultCellStyle = dataGridViewCellStyle3;
             this.dgvAccounts.EnableHeadersVisualStyles = false;
             this.dgvAccounts.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
-            this.dgvAccounts.Location = new System.Drawing.Point(30, 80);
+            this.dgvAccounts.Location = new System.Drawing.Point(25, 69);
             this.dgvAccounts.MultiSelect = false;
             this.dgvAccounts.Name = "dgvAccounts";
             this.dgvAccounts.ReadOnly = true;
             this.dgvAccounts.RowHeadersVisible = false;
+            this.dgvAccounts.RowHeadersWidth = 51;
             this.dgvAccounts.RowTemplate.Height = 40;
             this.dgvAccounts.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvAccounts.Size = new System.Drawing.Size(665, 610);
+            this.dgvAccounts.Size = new System.Drawing.Size(821, 610);
             this.dgvAccounts.TabIndex = 4;
             // 
             // colAccountNumber
             // 
             this.colAccountNumber.FillWeight = 110F;
             this.colAccountNumber.HeaderText = "Số tài khoản";
+            this.colAccountNumber.MinimumWidth = 6;
             this.colAccountNumber.Name = "colAccountNumber";
             this.colAccountNumber.ReadOnly = true;
+            // 
+            // colCustomerCode
+            // 
+            this.colCustomerCode.HeaderText = "Mã khách hàng";
+            this.colCustomerCode.MinimumWidth = 6;
+            this.colCustomerCode.Name = "colCustomerCode";
+            this.colCustomerCode.ReadOnly = true;
             // 
             // colCustomer
             // 
             this.colCustomer.FillWeight = 130F;
             this.colCustomer.HeaderText = "Khách hàng";
+            this.colCustomer.MinimumWidth = 6;
             this.colCustomer.Name = "colCustomer";
             this.colCustomer.ReadOnly = true;
             // 
@@ -566,6 +603,7 @@
             // 
             this.colBank.FillWeight = 110F;
             this.colBank.HeaderText = "Ngân hàng";
+            this.colBank.MinimumWidth = 6;
             this.colBank.Name = "colBank";
             this.colBank.ReadOnly = true;
             // 
@@ -573,12 +611,14 @@
             // 
             this.colCurrency.FillWeight = 70F;
             this.colCurrency.HeaderText = "Loại tiền";
+            this.colCurrency.MinimumWidth = 6;
             this.colCurrency.Name = "colCurrency";
             this.colCurrency.ReadOnly = true;
             // 
             // colBalance
             // 
             this.colBalance.HeaderText = "Số dư";
+            this.colBalance.MinimumWidth = 6;
             this.colBalance.Name = "colBalance";
             this.colBalance.ReadOnly = true;
             // 
@@ -586,6 +626,7 @@
             // 
             this.colOpenDate.FillWeight = 80F;
             this.colOpenDate.HeaderText = "Ngày mở";
+            this.colOpenDate.MinimumWidth = 6;
             this.colOpenDate.Name = "colOpenDate";
             this.colOpenDate.ReadOnly = true;
             // 
@@ -593,15 +634,16 @@
             // 
             this.colStatus.FillWeight = 80F;
             this.colStatus.HeaderText = "Trạng thái";
+            this.colStatus.MinimumWidth = 6;
             this.colStatus.Name = "colStatus";
             this.colStatus.ReadOnly = true;
             // 
             // AccountForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 23F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
-            this.ClientSize = new System.Drawing.Size(1200, 860);
+            this.ClientSize = new System.Drawing.Size(1336, 860);
             this.Controls.Add(this.pnlListCard);
             this.Controls.Add(this.pnlFormCard);
             this.Controls.Add(this.pnlHeader);
@@ -664,7 +706,10 @@
         private System.Windows.Forms.Label lblListCount;
         private System.Windows.Forms.Panel pnlListDivider;
         private System.Windows.Forms.DataGridView dgvAccounts;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.ComboBox cboCustomerCode;
         private System.Windows.Forms.DataGridViewTextBoxColumn colAccountNumber;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colCustomerCode;
         private System.Windows.Forms.DataGridViewTextBoxColumn colCustomer;
         private System.Windows.Forms.DataGridViewTextBoxColumn colBank;
         private System.Windows.Forms.DataGridViewTextBoxColumn colCurrency;
