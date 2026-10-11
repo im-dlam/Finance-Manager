@@ -312,6 +312,7 @@ namespace BankAccountManagement.Services
                             CurrentSession.User.MaKH = maKH;
                             CurrentSession.User.HoTen = hoTen;
                             CurrentSession.User.Email = email;
+                            CurrentSession.MarkCustomerInfoCompleted(maKH, hoTen, email);
 
                             return AuthResult.Ok(
                                 $"Lưu hồ sơ thành công! Mã khách hàng của bạn: {maKH}");
