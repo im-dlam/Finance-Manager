@@ -1,4 +1,4 @@
-namespace BankAccountManagement.Forms
+﻿namespace BankAccountManagement.Forms
 {
     partial class CustomerForm
     {
@@ -283,6 +283,29 @@ namespace BankAccountManagement.Forms
             this.btnDelete.HoverBorder = System.Drawing.Color.Transparent;
             this.btnDelete.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(254)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
             this.btnDelete.Location = new System.Drawing.Point(260, 20);
+            this.btnDelete.Margin = new System.Windows.Forms.Padding(8, 0, 0, 0);
+            this.btnDelete.Name = "btnDelete";
+            this.btnDelete.NormalBorder = System.Drawing.Color.Transparent;
+            this.btnDelete.NormalColor = System.Drawing.Color.FromArgb(((int)(((byte)(254)))), ((int)(((byte)(242)))), ((int)(((byte)(242)))));
+            this.btnDelete.PressedBorder = System.Drawing.Color.Transparent;
+            this.btnDelete.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(254)))), ((int)(((byte)(202)))), ((int)(((byte)(202)))));
+            this.btnDelete.Size = new System.Drawing.Size(100, 40);
+            this.btnDelete.TabIndex = 2;
+            this.btnDelete.Text = "Xóa";
+            this.btnDelete.TextColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(38)))), ((int)(((byte)(38)))));
+            this.btnDelete.UseVisualStyleBackColor = false;
+            // 
+            // btnDelete
+            // 
+            this.btnDelete.BackColor = System.Drawing.Color.Transparent;
+            this.btnDelete.BorderRadius = 10;
+            this.btnDelete.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnDelete.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnDelete.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
+            this.btnDelete.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(38)))), ((int)(((byte)(38)))));
+            this.btnDelete.HoverBorder = System.Drawing.Color.Transparent;
+            this.btnDelete.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(254)))), ((int)(((byte)(226)))), ((int)(((byte)(226)))));
+            this.btnDelete.Location = new System.Drawing.Point(74, 20);
             this.btnDelete.Margin = new System.Windows.Forms.Padding(8, 0, 0, 0);
             this.btnDelete.Name = "btnDelete";
             this.btnDelete.NormalBorder = System.Drawing.Color.Transparent;

@@ -279,6 +279,18 @@ namespace BankAccountManagement.Forms
 
                 _allAccounts = all;
 
+                // ⭐ Phân quyền: Admin thấy hết, Member chỉ của mình
+                if (!CurrentSession.IsAdmin)
+                {
+                    string myMaKH = CurrentSession.MaKH;
+                    all = all.Where(tk =>
+                        !string.IsNullOrEmpty(myMaKH) &&
+                        string.Equals(tk.MaKH, myMaKH, StringComparison.OrdinalIgnoreCase)
+                    ).ToList();
+                }
+
+                _allAccounts = all;
+
                 dgvAccounts.AutoGenerateColumns = false;
 
                 if (dgvAccounts.Columns.Count > 0)
@@ -641,6 +653,7 @@ namespace BankAccountManagement.Forms
                     : account.MaKH);
 
             cboBank.SelectedValue = row.Cells["colBank"].Value;
+
             var currencyValue = row.Cells["colCurrency"].Value;
             if (currencyValue != null && currencyValue != DBNull.Value)
                 cboCurrency.SelectedValue = currencyValue;
