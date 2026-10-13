@@ -34,25 +34,21 @@ namespace BankAccountManagement
         /// <param name="form">
         /// Form cần hiển thị bên trong pnMain.
         /// </param>
+        // <summary>
+        /// Hiển thị Form con bên trong pnMain.
+        /// Dispose form cũ trước khi thêm form mới.
+        /// 
+        /// ⚠ Dùng try/catch để tránh crash nếu Dispose lỗi
+        /// và đảm bảo không gây CallbackOnCollectedDelegate.
+        /// </summary>
         public void LoadMultiForm(Form form)
         {
-            // Dispose form cũ để giải phóng window handle + delegate
-            // fix lỗi CallbackOnCollectedDelegate khi form cũ bị GC.
-            if (pnMain.Controls.Count > 0)
-            {
-                var oldForms = new System.Collections.Generic.List<Control>();
-                foreach (Control c in pnMain.Controls)
-                    oldForms.Add(c);
+            if (form == null) return;
 
-                pnMain.Controls.Clear();
+            // ⭐ Gộp: dispose TẤT CẢ form cũ trong pnMain
+            DisposeCurrentForm();
 
-                foreach (var ctrl in oldForms)
-                {
-                    try { ctrl.Dispose(); }
-                    catch { /* bỏ qua */ }
-                }
-            }
-
+            // Setup form mới
             form.TopLevel = false;
             form.FormBorderStyle = FormBorderStyle.None;
             form.Dock = DockStyle.Fill;
@@ -61,6 +57,37 @@ namespace BankAccountManagement
             pnMain.Tag = form;
 
             form.Show();
+        }
+
+        /// <summary>
+        /// Dispose form hiện tại trong pnMain (nếu có).
+        /// An toàn với try/catch — không throw ra ngoài.
+        /// </summary>
+        private void DisposeCurrentForm()
+        {
+            if (pnMain.Controls.Count == 0) return;
+
+            // Copy ra list trước khi Clear (tránh modify collection khi đang duyệt)
+            var oldControls = new System.Collections.Generic.List<Control>();
+            foreach (Control c in pnMain.Controls)
+                oldControls.Add(c);
+
+            pnMain.Controls.Clear();
+
+            foreach (var ctrl in oldControls)
+            {
+                if (ctrl.IsDisposed) continue;
+
+                try
+                {
+                    ctrl.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        $"[LoadMultiForm] Dispose error: {ex.Message}");
+                }
+            }
         }
 
         /// <summary>
@@ -88,20 +115,14 @@ namespace BankAccountManagement
 
         private void btnAccounts_Click(object sender, EventArgs e)
         {
-            if (!CurrentSession.HasCustomerInfo)
-            {
-                LoadMultiForm(new CustomerInfoForm());
-                return;
-            }
-            
-            
-             LoadMultiForm(new AccountForm());
-            
+            OpenFormWithCustomerCheck(() => new AccountForm()); // Hiển thị Form AccountForm bên trong pnMain
+
         }
 
         private void btnTransactions_Click(object sender, EventArgs e)
         {
-            LoadMultiForm(new TransactionForm()); // Hiển thị Form TransactionForm bên trong pnMain
+            //LoadMultiForm(new TransactionForm()); // Hiển thị Form TransactionForm bên trong pnMain
+            OpenFormWithCustomerCheck(() => new TransactionForm());
         }
 
         private void btnCustomers_Click(object sender, EventArgs e)
@@ -164,6 +185,34 @@ namespace BankAccountManagement
                 try { ctrl.Dispose(); }
                 catch { /* bỏ qua nếu đã dispose */ }
             }
+        }
+
+        private void OpenFormWithCustomerCheck(Func<Form> formFactory)
+        {
+            if (CurrentSession.IsAdmin)
+            {
+                LoadMultiForm(formFactory());
+                return;
+            }
+
+            if (CurrentSession.HasCustomerInfo)
+            {
+                LoadMultiForm(formFactory());
+                return;
+            }
+
+            var infoForm = new CustomerInfoForm();
+
+            // Khi user save thành công → tự mở form đích
+            infoForm.SaveSuccess += (s, args) =>
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    "[MainForm] SaveSuccess → mở form đích");
+
+                LoadMultiForm(formFactory());
+            };
+
+            LoadMultiForm(infoForm);
         }
     }
 }

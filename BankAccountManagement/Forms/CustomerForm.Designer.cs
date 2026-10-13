@@ -812,7 +812,7 @@
             this.lblRecordCount.Name = "lblRecordCount";
             this.lblRecordCount.Size = new System.Drawing.Size(230, 19);
             this.lblRecordCount.TabIndex = 1;
-            this.lblRecordCount.Text = "0 bản ghi";
+            this.lblRecordCount.Text = "0 khách hàng";
             this.lblRecordCount.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // lblGridTitle
