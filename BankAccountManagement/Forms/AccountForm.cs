@@ -83,11 +83,18 @@ namespace BankAccountManagement.Forms
 
         private void AccountForm_Load(object sender, EventArgs e)
         {
-            lblSubtitle.Text = CurrentSession.IsAdmin
-                ? "Theo dõi và quản lý tài khoản ngân hàng của khách hàng"
-                : "Quản lý tài khoản ngân hàng của bạn";
-
-            Console.WriteLine($"CurrentSession.IsAdmin: {CurrentSession.IsAdmin}");
+            if (CurrentSession.IsAdmin)
+            {
+                lblSubtitle.Text = "Theo dõi và quản lý tài khoản ngân hàng của khách hàng";
+            }
+            else if (!string.IsNullOrWhiteSpace(CurrentSession.MaKH))
+            {
+                lblSubtitle.Text = "Quản lý tài khoản ngân hàng của bạn";
+            }
+            else
+            {
+                lblSubtitle.Text = "Bạn chưa hoàn tất hồ sơ khách hàng. Vui lòng cập nhật thông tin cá nhân.";
+            }
 
             try
             {
@@ -121,15 +128,21 @@ namespace BankAccountManagement.Forms
         // ==========================================================
         private void LoadComboBoxData()
         {
-            if (!CanManageAccounts)
-                throw new UnauthorizedAccessException("Phiên đăng nhập không có mã khách hàng hoặc quyền hợp lệ.");
-
             DataTable dtKH;
             if (!CurrentSession.IsAdmin)
             {
-                // Member: Chỉ tải duy nhất thông tin của chính mình
-                dtKH = GetDataTable(
-                    $"SELECT MaKH, HoTen FROM dbo.ThongTinKhachHang WHERE MaKH = '{CurrentSession.MaKH.Replace("'", "''")}'");
+                if (!string.IsNullOrWhiteSpace(CurrentSession.MaKH))
+                {
+                    // Member: Chỉ tải duy nhất thông tin của chính mình
+                    dtKH = GetDataTable(
+                        $"SELECT MaKH, HoTen FROM dbo.ThongTinKhachHang WHERE MaKH = '{CurrentSession.MaKH.Replace("'", "''")}'");
+                }
+                else
+                {
+                    dtKH = new DataTable();
+                    dtKH.Columns.Add("MaKH", typeof(string));
+                    dtKH.Columns.Add("HoTen", typeof(string));
+                }
             }
             else
             {
@@ -266,18 +279,6 @@ namespace BankAccountManagement.Forms
             try
             {
                 var all = _AccountService.GetActiveTaiKhoan() ?? new List<TaiKhoan>();
-
-                // ⭐ Phân quyền: Admin thấy hết, Member chỉ của mình
-                if (!CurrentSession.IsAdmin)
-                {
-                    string myMaKH = CurrentSession.MaKH;
-                    all = all.Where(tk =>
-                        !string.IsNullOrEmpty(myMaKH) &&
-                        string.Equals(tk.MaKH, myMaKH, StringComparison.OrdinalIgnoreCase)
-                    ).ToList();
-                }
-
-                _allAccounts = all;
 
                 // ⭐ Phân quyền: Admin thấy hết, Member chỉ của mình
                 if (!CurrentSession.IsAdmin)

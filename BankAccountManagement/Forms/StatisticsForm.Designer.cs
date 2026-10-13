@@ -1,4 +1,4 @@
-﻿namespace BankAccountManagement.Forms
+namespace BankAccountManagement.Forms
 {
     partial class StatisticsForm
     {
@@ -615,7 +615,7 @@
             this.labelChartBarTitle.Name = "labelChartBarTitle";
             this.labelChartBarTitle.Size = new System.Drawing.Size(152, 20);
             this.labelChartBarTitle.TabIndex = 0;
-            this.labelChartBarTitle.Text = "Giao dịch theo tháng";
+            this.labelChartBarTitle.Text = "Giao dịch theo quý";
             // 
             // panelChartDonut
             // 

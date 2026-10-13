@@ -1,4 +1,4 @@
-﻿using BankAccountManagement.Models;
+using BankAccountManagement.Models;
 using BankAccountManagement.Services;
 using System;
 using System.Collections.Generic;
@@ -29,6 +29,7 @@ namespace BankAccountManagement.Forms
         {
             try
             {
+                ApplyRolePermissions();
                 LoadData();
                 SetControlState(false);
             }
@@ -36,6 +37,22 @@ namespace BankAccountManagement.Forms
             {
                 MessageBox.Show("Lỗi khởi động: " + ex.Message, "Lỗi",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void ApplyRolePermissions()
+        {
+            if (!CurrentSession.IsAdmin)
+            {
+                btnAdd.Visible = true;
+                btnEdit.Visible = false;
+                btnDelete.Visible = true;
+            }
+            else
+            {
+                btnAdd.Visible = true;
+                btnEdit.Visible = true;
+                btnDelete.Visible = true;
             }
         }
 
@@ -85,19 +102,51 @@ namespace BankAccountManagement.Forms
                 : System.Drawing.Color.FromArgb(240, 240, 240);
 
             // Các ô còn lại
-            txtBankName.Enabled = isEditing;
-            txtBranch.Enabled = isEditing;
-            txtSwiftCode.Enabled = isEditing;
+            txtBankName.ReadOnly = !isEditing;
+            txtBankName.BackColor = isEditing
+                ? System.Drawing.Color.White
+                : System.Drawing.Color.FromArgb(240, 240, 240);
+
+            txtBranch.ReadOnly = !isEditing;
+            txtBranch.BackColor = isEditing
+                ? System.Drawing.Color.White
+                : System.Drawing.Color.FromArgb(240, 240, 240);
+
+            txtSwiftCode.ReadOnly = !isEditing;
+            txtSwiftCode.BackColor = isEditing
+                ? System.Drawing.Color.White
+                : System.Drawing.Color.FromArgb(240, 240, 240);
 
             // Nút Thêm toggle
+            btnAdd.Visible = true;
             btnAdd.Text = isEditing && _isAddNew
                 ? "💾 Lưu ngân hàng"
-                : "+ Thêm ngân hàng";
+                : "+  Thêm ngân hàng";
 
-            // Nút Sửa toggle
-            btnEdit.Text = isEditing && !_isAddNew
-                ? "💾 Lưu chỉnh sửa"
-                : "✎  Sửa ngân hàng";
+            if (CurrentSession.IsAdmin)
+            {
+                // Nút Sửa toggle (Chỉ hiển thị cho Admin)
+                btnEdit.Visible = true;
+                btnEdit.Location = new System.Drawing.Point(30, 434);
+                btnEdit.Size = new System.Drawing.Size(172, 42);
+                btnEdit.Text = isEditing && !_isAddNew
+                    ? "💾 Lưu chỉnh sửa"
+                    : "✎  Sửa ngân hàng";
+
+                // Nút Xóa
+                btnDelete.Visible = true;
+                btnDelete.Location = new System.Drawing.Point(213, 434);
+                btnDelete.Size = new System.Drawing.Size(172, 42);
+            }
+            else
+            {
+                // Khi là User: chỉ có Thêm và Xóa, ẩn nút Sửa hoàn toàn
+                btnEdit.Visible = false;
+
+                btnDelete.Visible = true;
+                btnDelete.Location = new System.Drawing.Point(30, 434);
+                btnDelete.Size = new System.Drawing.Size(355, 42);
+            }
 
             // Khóa nút khi đang nhập
             btnDelete.Enabled = !isEditing;

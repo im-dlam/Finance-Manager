@@ -1,4 +1,4 @@
-﻿using BankAccountManagement.Models;
+using BankAccountManagement.Models;
 using BankAccountManagement.Services;
 using System;
 using System.Collections.Generic;
@@ -37,6 +37,8 @@ namespace BankAccountManagement
                     colGoc.Name = "colTienGoc";
                     colGoc.HeaderText = "Tiền gốc";
                     colGoc.DataPropertyName = "SoTienGoc";
+                    colGoc.Width = 110;
+                    colGoc.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
 
                     dataGridViewTransactions.Columns.Insert(4, colGoc);
 
@@ -46,15 +48,21 @@ namespace BankAccountManagement
                     colLoai.Name = "colLoaiTien";
                     colLoai.HeaderText = "Loại tiền";
                     colLoai.DataPropertyName = "LoaiTien";
+                    colLoai.Width = 85;
+                    colLoai.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
                     dataGridViewTransactions.Columns.Insert(5, colLoai);
                 }
 
                 dataGridViewTransactions.Columns["dataGridViewTextBoxColumn5"].DataPropertyName = "SoTien";
                 dataGridViewTransactions.Columns["dataGridViewTextBoxColumn5"].HeaderText = "Quy đổi (VND)";
+                dataGridViewTransactions.Columns["dataGridViewTextBoxColumn5"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
 
                 dataGridViewTransactions.Columns["dataGridViewTextBoxColumn7"].DataPropertyName = "ThaoTac";
+                dataGridViewTransactions.Columns["dataGridViewTextBoxColumn7"].HeaderText = "Thao tác";
                 dataGridViewTransactions.Columns["dataGridViewTextBoxColumn6"].DataPropertyName = "TrangThai";
+
+                dataGridViewTransactions.CellFormatting += dataGridViewTransactions_CellFormatting;
             }
 
             if (this.buttonSearch != null)
@@ -90,6 +98,9 @@ namespace BankAccountManagement
                 comboAccount.DataSource = dtAccounts;
                 comboAccount.DisplayMember = "HienThi";
                 comboAccount.ValueMember = "SoTaiKhoan";
+                comboAccount.DropDownStyle = ComboBoxStyle.DropDown;
+                comboAccount.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+                comboAccount.AutoCompleteSource = AutoCompleteSource.ListItems;
                 comboAccount.SelectedIndex = 0;
 
 
@@ -119,12 +130,29 @@ namespace BankAccountManagement
             }
         }
 
+        private string GetFilterAccount()
+        {
+            if (comboAccount.SelectedIndex > 0)
+                return comboAccount.SelectedValue?.ToString() ?? "Tất cả";
+
+            string text = comboAccount.Text.Trim();
+            if (string.IsNullOrEmpty(text) || text == "Tất cả")
+                return "Tất cả";
+
+            if (text.Contains(" - "))
+            {
+                string[] parts = text.Split(new string[] { " - " }, StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length > 1) return parts[1].Trim();
+            }
+            return text;
+        }
+
         private void LoadData()
         {
             try
             {
                 string kw = textSearch.Text.Trim();
-                string tk = comboAccount.SelectedIndex <= 0 ? "Tất cả" : comboAccount.SelectedValue?.ToString();
+                string tk = GetFilterAccount();
                 string loai = comboType.SelectedIndex <= 0 ? "Tất cả" : comboType.SelectedValue?.ToString();
 
                 DataTable dt;
@@ -143,7 +171,7 @@ namespace BankAccountManagement
                 // Căn chỉnh giao diện Grid
                 foreach (DataGridViewColumn col in dataGridViewTransactions.Columns)
                 {
-                    if (col.Name == "PhanLoai") col.Visible = false;
+                    if (col.Name == "PhanLoai" || col.Name == "MaLoaiTien") col.Visible = false;
                 }
             }
             catch (Exception ex)
@@ -157,7 +185,7 @@ namespace BankAccountManagement
             try
             {
                 string kw = textSearch.Text.Trim();
-                string tk = comboAccount.SelectedIndex <= 0 ? "Tất cả" : comboAccount.SelectedValue?.ToString();
+                string tk = GetFilterAccount();
                 string loai = comboType.SelectedIndex <= 0 ? "Tất cả" : comboType.SelectedValue?.ToString();
 
                 DataTable dtStats = _transactionService.GetTransactionStatistics(kw, tk, loai);
@@ -194,6 +222,41 @@ namespace BankAccountManagement
             
             LoadData();
             LoadStatistics();
+        }
+
+        private void dataGridViewTransactions_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.Value == null) return;
+
+            string colName = dataGridViewTransactions.Columns[e.ColumnIndex].Name;
+
+            // Định dạng tiền gốc (USD hiển thị 2 chữ số thập phân, VND hiển thị N0)
+            if (colName == "colTienGoc" && decimal.TryParse(e.Value.ToString(), out decimal tienGoc))
+            {
+                var row = dataGridViewTransactions.Rows[e.RowIndex];
+                string loaiTien = row.Cells["colLoaiTien"].Value?.ToString() ?? "VND";
+                if (loaiTien.Equals("USD", StringComparison.OrdinalIgnoreCase))
+                {
+                    e.Value = tienGoc.ToString("N2");
+                }
+                else
+                {
+                    e.Value = tienGoc.ToString("N0");
+                }
+                e.FormattingApplied = true;
+            }
+            // Định dạng số tiền quy đổi (VND)
+            else if (colName == "dataGridViewTextBoxColumn5" && decimal.TryParse(e.Value.ToString(), out decimal quyDoi))
+            {
+                e.Value = quyDoi.ToString("N0");
+                e.FormattingApplied = true;
+            }
+            // Đảm bảo cột Loại tiền luôn hiển thị rõ VND / USD nếu null hoặc rỗng
+            else if (colName == "colLoaiTien" && (e.Value == null || string.IsNullOrWhiteSpace(e.Value.ToString())))
+            {
+                e.Value = "VND";
+                e.FormattingApplied = true;
+            }
         }
 
         private void dataGridViewTransactions_CellContentClick(object sender, DataGridViewCellEventArgs e)
@@ -283,9 +346,9 @@ namespace BankAccountManagement
 
                     if (result == DialogResult.OK)
                     {
-                        
                         LoadData();      
                         LoadStatistics();
+                        TransactionService.NotifyTransactionChanged();
                     }
                 }
                 overlay.Close();

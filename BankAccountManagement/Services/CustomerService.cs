@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data;
 using System.Data.SqlClient;
 using BankAccountManagement.Models;
@@ -289,6 +289,26 @@ namespace BankAccountManagement.Services
                                 cmd.Parameters.AddWithValue("@Email", (object)email ?? DBNull.Value);
                                 cmd.Parameters.AddWithValue("@DiaChi", (object)diaChi ?? DBNull.Value);
                                 cmd.ExecuteNonQuery();
+                            }
+
+                            // ---------- 3.1. INSERT dbo.KhachHang (đảm bảo đồng bộ FK với TaiKhoan) ----------
+                            using (var cmdKh = new SqlCommand(@"
+                        INSERT INTO dbo.KhachHang
+                            (MaKH, HoTen, CMND_CCCD, NgaySinh, GioiTinh,
+                             SoDienThoai, Email, DiaChi, TrangThai, NgayTao)
+                        VALUES
+                            (@MaKH, @HoTen, @CCCD, @NgaySinh, @GioiTinh,
+                             @SDT, @Email, @DiaChi, N'Active', GETDATE())", conn, tran))
+                            {
+                                cmdKh.Parameters.AddWithValue("@MaKH", maKH);
+                                cmdKh.Parameters.AddWithValue("@HoTen", hoTen);
+                                cmdKh.Parameters.AddWithValue("@CCCD", cccd);
+                                cmdKh.Parameters.AddWithValue("@NgaySinh", ngaySinh);
+                                cmdKh.Parameters.AddWithValue("@GioiTinh", (object)gioiTinh ?? DBNull.Value);
+                                cmdKh.Parameters.AddWithValue("@SDT", (object)sdt ?? DBNull.Value);
+                                cmdKh.Parameters.AddWithValue("@Email", (object)email ?? DBNull.Value);
+                                cmdKh.Parameters.AddWithValue("@DiaChi", (object)diaChi ?? DBNull.Value);
+                                cmdKh.ExecuteNonQuery();
                             }
 
                             // ---------- 4. UPDATE NguoiDung.MaKH để link ----------
