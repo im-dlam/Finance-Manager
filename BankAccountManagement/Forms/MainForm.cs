@@ -1,4 +1,4 @@
-﻿using BankAccountManagement.Forms;
+using BankAccountManagement.Forms;
 using BankAccountManagement.Models;
 using BankAccountManagement.Services;
 using System;
@@ -80,6 +80,14 @@ namespace BankAccountManagement
 
                 try
                 {
+                    if (ctrl is StatisticsForm sf)
+                    {
+                        sf.CleanupResources();
+                    }
+                    if (ctrl is Form f)
+                    {
+                        f.Close();
+                    }
                     ctrl.Dispose();
                 }
                 catch (Exception ex)
