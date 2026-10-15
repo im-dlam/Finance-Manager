@@ -1,4 +1,4 @@
-namespace BankAccountManagement.Forms
+﻿namespace BankAccountManagement.Forms
 {
     partial class StatisticsForm
     {
