@@ -1,4 +1,4 @@
-﻿using BankAccountManagement.Models;
+using BankAccountManagement.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -16,24 +16,47 @@ namespace BankAccountManagement.Services
         }
 
         // ─────────────────────────────────────────
-        // 1. Lấy tất cả ngân hàng
+        // 1. Lấy tất cả ngân hàng (Admin: tất cả; User: chỉ ngân hàng đang có tài khoản)
         // ─────────────────────────────────────────
         public List<NganHang> GetAllNganHang()
         {
             var result = new List<NganHang>();
-            const string sql = @"
-                SELECT MaNganHang, TenNganHang, ChiNhanh, SwiftCode
-                FROM   NganHang
-                ORDER  BY TenNganHang";
+            string sql;
+            if (CurrentSession.IsAdmin || string.IsNullOrWhiteSpace(CurrentSession.MaKH))
+            {
+                sql = @"
+                    SELECT MaNganHang, TenNganHang, ChiNhanh, SwiftCode
+                    FROM   dbo.NganHang
+                    ORDER  BY TenNganHang";
+            }
+            else
+            {
+                sql = @"
+                    SELECT DISTINCT NH.MaNganHang, NH.TenNganHang, NH.ChiNhanh, NH.SwiftCode
+                    FROM   dbo.NganHang NH
+                    INNER JOIN dbo.TaiKhoan TK ON NH.MaNganHang = TK.MaNganHang
+                    WHERE  TK.MaKH = @MaKH
+                    ORDER  BY NH.TenNganHang";
+            }
+
             try
             {
                 using (var conn = new SqlConnection(_connectionString))
                 {
                     conn.Open();
                     using (var cmd = new SqlCommand(sql, conn))
-                    using (var reader = cmd.ExecuteReader())
-                        while (reader.Read())
-                            result.Add(MapReader(reader));
+                    {
+                        if (!CurrentSession.IsAdmin && !string.IsNullOrWhiteSpace(CurrentSession.MaKH))
+                        {
+                            cmd.Parameters.AddWithValue("@MaKH", CurrentSession.MaKH);
+                        }
+
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                                result.Add(MapReader(reader));
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -44,19 +67,37 @@ namespace BankAccountManagement.Services
         }
 
         // ─────────────────────────────────────────
-        // 2. Tìm kiếm ngân hàng
+        // 2. Tìm kiếm ngân hàng (có phân quyền)
         // ─────────────────────────────────────────
         public List<NganHang> SearchNganHang(string keyword)
         {
             var result = new List<NganHang>();
-            const string sql = @"
-                SELECT MaNganHang, TenNganHang, ChiNhanh, SwiftCode
-                FROM   NganHang
-                WHERE  MaNganHang  LIKE @Keyword
-                   OR  TenNganHang LIKE @Keyword
-                   OR  ChiNhanh    LIKE @Keyword
-                   OR  SwiftCode   LIKE @Keyword
-                ORDER  BY TenNganHang";
+            string sql;
+            if (CurrentSession.IsAdmin || string.IsNullOrWhiteSpace(CurrentSession.MaKH))
+            {
+                sql = @"
+                    SELECT MaNganHang, TenNganHang, ChiNhanh, SwiftCode
+                    FROM   dbo.NganHang
+                    WHERE  (MaNganHang  LIKE @Keyword
+                       OR  TenNganHang LIKE @Keyword
+                       OR  ChiNhanh    LIKE @Keyword
+                       OR  SwiftCode   LIKE @Keyword)
+                    ORDER  BY TenNganHang";
+            }
+            else
+            {
+                sql = @"
+                    SELECT DISTINCT NH.MaNganHang, NH.TenNganHang, NH.ChiNhanh, NH.SwiftCode
+                    FROM   dbo.NganHang NH
+                    INNER JOIN dbo.TaiKhoan TK ON NH.MaNganHang = TK.MaNganHang
+                    WHERE  TK.MaKH = @MaKH
+                      AND  (NH.MaNganHang  LIKE @Keyword
+                       OR  NH.TenNganHang LIKE @Keyword
+                       OR  NH.ChiNhanh    LIKE @Keyword
+                       OR  NH.SwiftCode   LIKE @Keyword)
+                    ORDER  BY NH.TenNganHang";
+            }
+
             try
             {
                 using (var conn = new SqlConnection(_connectionString))
@@ -65,9 +106,16 @@ namespace BankAccountManagement.Services
                     using (var cmd = new SqlCommand(sql, conn))
                     {
                         cmd.Parameters.AddWithValue("@Keyword", $"%{keyword}%");
+                        if (!CurrentSession.IsAdmin && !string.IsNullOrWhiteSpace(CurrentSession.MaKH))
+                        {
+                            cmd.Parameters.AddWithValue("@MaKH", CurrentSession.MaKH);
+                        }
+
                         using (var reader = cmd.ExecuteReader())
+                        {
                             while (reader.Read())
                                 result.Add(MapReader(reader));
+                        }
                     }
                 }
             }
