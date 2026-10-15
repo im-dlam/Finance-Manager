@@ -55,36 +55,58 @@ namespace BankAccountManagement.Forms
             // ⭐ Tự động đồng bộ ngầm định kỳ mỗi 3 giây
             _autoRefreshTimer = new System.Windows.Forms.Timer();
             _autoRefreshTimer.Interval = 3000;
-            _autoRefreshTimer.Tick += async (s, e) =>
-            {
-                if (this.Visible && !this.Disposing && !this.IsDisposed)
-                {
-                    await RefreshAllStatsAsync(false);
-                }
+            _autoRefreshTimer.Tick += AutoRefreshTimer_Tick;
+            _autoRefreshTimer.Start();
+        }
+
+        private async void AutoRefreshTimer_Tick(object sender, EventArgs e)
+        {
+            if (this.IsDisposed || this.Disposing || !this.Visible || !this.IsHandleCreated) return;
+            await RefreshAllStatsAsync(false);
+        }
             };
             _autoRefreshTimer.Start();
         }
 
         private void OnTransactionChangedHandler()
         {
-            if (!this.IsDisposed && this.IsHandleCreated)
+            if (this.IsDisposed || this.Disposing || !this.IsHandleCreated) return;
+
+            try
             {
                 this.BeginInvoke((Action)(async () =>
                 {
-                    await RefreshAllStatsAsync(false);
+                    if (!this.IsDisposed && !this.Disposing && this.IsHandleCreated)
+                    {
+                        await RefreshAllStatsAsync(false);
+                    }
                 }));
             }
+            catch { }
+        }
+
+        /// <summary>
+        /// Dọn dẹp an toàn các timer và event handler khi form bị dispose hoặc close.
+        /// </summary>
+        public void CleanupResources()
+        {
+            try
+            {
+                TransactionService.OnTransactionChanged -= OnTransactionChangedHandler;
+                if (_autoRefreshTimer != null)
+                {
+                    _autoRefreshTimer.Stop();
+                    _autoRefreshTimer.Tick -= AutoRefreshTimer_Tick;
+                    _autoRefreshTimer.Dispose();
+                    _autoRefreshTimer = null;
+                }
+            }
+            catch { }
         }
 
         protected override void OnFormClosed(FormClosedEventArgs e)
         {
-            TransactionService.OnTransactionChanged -= OnTransactionChangedHandler;
-            if (_autoRefreshTimer != null)
-            {
-                _autoRefreshTimer.Stop();
-                _autoRefreshTimer.Dispose();
-                _autoRefreshTimer = null;
-            }
+            CleanupResources();
             base.OnFormClosed(e);
         }
 
@@ -93,13 +115,15 @@ namespace BankAccountManagement.Forms
         /// </summary>
         public async Task RefreshAllStatsAsync(bool updateDatePickers = false)
         {
-            if (_isRefreshing) return;
+            if (this.IsDisposed || this.Disposing || _isRefreshing) return;
             _isRefreshing = true;
 
             try
             {
                 if (updateDatePickers)
                 {
+                    if (this.IsDisposed || this.Disposing || dateFrom == null || dateTo == null) return;
+
                     int currentYear = DateTime.Now.Year;
                     int currentQuarter = (DateTime.Now.Month - 1) / 3 + 1;
                     int currentStartMonth = (currentQuarter - 1) * 3 + 1;
@@ -109,15 +133,23 @@ namespace BankAccountManagement.Forms
                     dateTo.Value = DateTime.Today;
                 }
 
+                if (this.IsDisposed || this.Disposing || dateFrom == null || dateTo == null) return;
                 DateTime fromDate = dateFrom.Value.Date;
                 DateTime toDate = dateTo.Value.Date;
 
                 await LoadSummaryAsync(fromDate, toDate);
-                await LoadTransactionChartAsync();
-                await LoadAccountTypeChartAsync();
-                await LoadTopAccountsAsync();
+                if (this.IsDisposed || this.Disposing) return;
 
-                if (labelUpdatedAt != null)
+                await LoadTransactionChartAsync();
+                if (this.IsDisposed || this.Disposing) return;
+
+                await LoadAccountTypeChartAsync();
+                if (this.IsDisposed || this.Disposing) return;
+
+                await LoadTopAccountsAsync();
+                if (this.IsDisposed || this.Disposing) return;
+
+                if (labelUpdatedAt != null && !labelUpdatedAt.IsDisposed)
                 {
                     labelUpdatedAt.Text = $"Cập nhật lúc: {DateTime.Now:HH:mm:ss dd/MM/yyyy}";
                 }
@@ -166,6 +198,9 @@ namespace BankAccountManagement.Forms
         /// </summary>
         private async Task LoadTransactionChartAsync()
         {
+            if (this.IsDisposed || this.Disposing || chartTransactions == null || chartTransactions.IsDisposed) return;
+            if (dateTo == null || dateTo.IsDisposed) return;
+
             DateTime refDate = dateTo.Value.Date;
             int year = refDate.Year;
             int quarter = (refDate.Month - 1) / 3 + 1;
@@ -177,10 +212,17 @@ namespace BankAccountManagement.Forms
             List<TransactionStatistic> data =
                 await _statisticService.GetTransactionsByMonthAsync(quarterStart, quarterEnd);
 
+            // ⭐ CRITICAL CHECK AFTER AWAIT: If form or chart was disposed while query was running in background!
+            if (this.IsDisposed || this.Disposing || chartTransactions == null || chartTransactions.IsDisposed) return;
+            if (chartTransactions.Series == null || chartTransactions.Titles == null) return;
+
             chartTransactions.Series.Clear();
             chartTransactions.Titles.Clear();
 
-            labelChartBarTitle.Text = $"Giao dịch theo quý (Quý {quarter}/{year})";
+            if (labelChartBarTitle != null && !labelChartBarTitle.IsDisposed)
+            {
+                labelChartBarTitle.Text = $"Giao dịch theo quý (Quý {quarter}/{year})";
+            }
 
             Series series = new Series("Giao dịch")
             {
@@ -191,10 +233,12 @@ namespace BankAccountManagement.Forms
 
             for (int m = startMonth; m < startMonth + 3; m++)
             {
-                var item = data.FirstOrDefault(x => x.Year == year && x.Month == m);
+                var item = data?.FirstOrDefault(x => x.Year == year && x.Month == m);
                 int count = item != null ? item.TransactionCount : 0;
                 series.Points.AddXY($"T{m}/{year}", count);
             }
+
+            if (this.IsDisposed || chartTransactions.IsDisposed || chartTransactions.Series == null) return;
 
             chartTransactions.Series.Add(series);
             chartTransactions.Invalidate();
@@ -209,19 +253,29 @@ namespace BankAccountManagement.Forms
         /// <returns></returns>
         private async Task LoadSummaryAsync(DateTime fromDate, DateTime toDate)
         {
-            StatisticSummary summary  = await _statisticService.GetSummaryAsync(fromDate,toDate);
+            if (this.IsDisposed || this.Disposing) return;
 
-            lblTotalAccounts.Text = summary.TotalAccounts.ToString("N0");
+            StatisticSummary summary = await _statisticService.GetSummaryAsync(fromDate, toDate);
 
-            lblTotalBalance.Text = summary.TotalBalance.ToString("N0");
+            if (this.IsDisposed || this.Disposing || summary == null) return;
 
-            lblTotalTransactions.Text = summary.TotalTransactions.ToString("N0");
+            if (lblTotalAccounts != null && !lblTotalAccounts.IsDisposed)
+                lblTotalAccounts.Text = summary.TotalAccounts.ToString("N0");
 
-            lblTotalCustomers.Text = summary.TotalCustomers.ToString("N0");
+            if (lblTotalBalance != null && !lblTotalBalance.IsDisposed)
+                lblTotalBalance.Text = summary.TotalBalance.ToString("N0");
+
+            if (lblTotalTransactions != null && !lblTotalTransactions.IsDisposed)
+                lblTotalTransactions.Text = summary.TotalTransactions.ToString("N0");
+
+            if (lblTotalCustomers != null && !lblTotalCustomers.IsDisposed)
+                lblTotalCustomers.Text = summary.TotalCustomers.ToString("N0");
         }
 
         private async void buttonViewStats_Click(object sender, EventArgs e)
         {
+            if (this.IsDisposed || this.Disposing) return;
+
             DateTime fromDate = dateFrom.Value.Date;
             DateTime toDate = dateTo.Value.Date;
 
@@ -241,6 +295,7 @@ namespace BankAccountManagement.Forms
 
         private async void ButtonRefresh_Click(object sender, EventArgs e)
         {
+            if (this.IsDisposed || this.Disposing) return;
             await RefreshAllStatsAsync(true);
         }
 
@@ -300,15 +355,20 @@ namespace BankAccountManagement.Forms
         /// <returns></returns>
         private async Task LoadAccountTypeChartAsync()
         {
+            if (this.IsDisposed || this.Disposing || chartAccountTypes == null || chartAccountTypes.IsDisposed) return;
+
             List<AccountTypeStatistic> data =
                 await _statisticService
                     .GetAccountTypesAsync();
+
+            if (this.IsDisposed || this.Disposing || chartAccountTypes == null || chartAccountTypes.IsDisposed) return;
+            if (chartAccountTypes.Series == null || chartAccountTypes.Titles == null) return;
 
             chartAccountTypes.Series.Clear();
             chartAccountTypes.Titles.Clear();
 
             // ⭐ Chỉ hiển thị các loại tiền thực tế có tài khoản (AccountCount > 0)
-            data = data.Where(item => item.AccountCount > 0).ToList();
+            data = data?.Where(item => item.AccountCount > 0).ToList() ?? new List<AccountTypeStatistic>();
 
             if (data.Count == 0)
             {
@@ -326,14 +386,14 @@ namespace BankAccountManagement.Forms
 
                 chartAccountTypes.Titles.Add(title);
 
-                if (labelDonutCenter1 != null)
+                if (labelDonutCenter1 != null && !labelDonutCenter1.IsDisposed)
                     labelDonutCenter1.Text = "0";
 
                 return;
             }
 
             int totalAccounts = data.Sum(x => x.AccountCount);
-            if (labelDonutCenter1 != null)
+            if (labelDonutCenter1 != null && !labelDonutCenter1.IsDisposed)
                 labelDonutCenter1.Text = totalAccounts.ToString();
 
             Series series = new Series("Loại tiền")
@@ -359,6 +419,8 @@ namespace BankAccountManagement.Forms
                 series.Points.Add(point);
             }
 
+            if (this.IsDisposed || chartAccountTypes.IsDisposed || chartAccountTypes.Series == null) return;
+
             chartAccountTypes.Series.Add(series);
             chartAccountTypes.Invalidate();
             chartAccountTypes.Update();
@@ -370,13 +432,17 @@ namespace BankAccountManagement.Forms
         /// <returns></returns>
         private async Task LoadTopAccountsAsync()
         {
+            if (this.IsDisposed || this.Disposing || dgvTopAccounts == null || dgvTopAccounts.IsDisposed) return;
+
             List<TopAccountStatistic> data =
                 await _statisticService
                     .GetTopAccountsAsync(10);
 
+            if (this.IsDisposed || this.Disposing || dgvTopAccounts == null || dgvTopAccounts.IsDisposed) return;
+
             dgvTopAccounts.DataSource = null;
 
-            if (data.Count == 0)
+            if (data == null || data.Count == 0)
             {
                 dgvTopAccounts.Rows.Clear();
 
