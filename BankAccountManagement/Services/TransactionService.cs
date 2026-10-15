@@ -43,13 +43,17 @@ namespace BankAccountManagement.Services
         private static string GetUserFilter(string tableAlias = "TK")
         {
             if (CurrentSession.IsAdmin) return "";
-            return $" AND {tableAlias}.MaKH = @MaKH";
+            return $" AND ({tableAlias}.MaKH = @MaKH OR {tableAlias}.MaKH IN (SELECT MaKH FROM dbo.NguoiDung WHERE MaNguoiDung = @MaND OR TenDangNhap = @UserLogin))";
         }
 
         private static void AddUserParam(SqlCommand cmd)
         {
             if (!CurrentSession.IsAdmin)
+            {
                 cmd.Parameters.AddWithValue("@MaKH", CurrentSession.MaKH ?? "");
+                cmd.Parameters.AddWithValue("@MaND", CurrentSession.MaNguoiDung);
+                cmd.Parameters.AddWithValue("@UserLogin", CurrentSession.TenDangNhap ?? "");
+            }
         }
 
         // ============================================================
@@ -71,7 +75,7 @@ namespace BankAccountManagement.Services
                             ELSE L.TenLoaiGD 
                         END AS Loai, 
                         G.SoTien, 
-                        G.SoTienGoc, 
+                        ISNULL(G.SoTienGoc, G.SoTien) AS SoTienGoc, 
                         ISNULL(NULLIF(G.LoaiTien, ''), ISNULL(NULLIF(G.MaLoaiTien, ''), 'VND')) AS LoaiTien, 
                         ISNULL(NULLIF(G.MaLoaiTien, ''), ISNULL(NULLIF(G.LoaiTien, ''), 'VND')) AS MaLoaiTien, 
                         L.PhanLoai,
@@ -115,11 +119,17 @@ namespace BankAccountManagement.Services
                     {
                         if (reader.Read())
                         {
+                            string code = reader["MaLoaiTien"].ToString();
+                            decimal qd = Convert.ToDecimal(reader["QuyDoi"]);
+                            if (code.Equals("USD", StringComparison.OrdinalIgnoreCase) && qd <= 1)
+                            {
+                                qd = 25400m;
+                            }
                             return new CurrencyInfo
                             {
-                                MaLoaiTien = reader["MaLoaiTien"].ToString(),
+                                MaLoaiTien = code,
                                 TenLoaiTien = reader["TenLoaiTien"].ToString(),
-                                QuyDoi = Convert.ToDecimal(reader["QuyDoi"])
+                                QuyDoi = qd
                             };
                         }
                     }
@@ -147,7 +157,7 @@ namespace BankAccountManagement.Services
                             ELSE L.TenLoaiGD 
                         END AS Loai, 
                         G.SoTien, 
-                        G.SoTienGoc, 
+                        ISNULL(G.SoTienGoc, G.SoTien) AS SoTienGoc, 
                         ISNULL(NULLIF(G.LoaiTien, ''), ISNULL(NULLIF(G.MaLoaiTien, ''), 'VND')) AS LoaiTien, 
                         ISNULL(NULLIF(G.MaLoaiTien, ''), ISNULL(NULLIF(G.LoaiTien, ''), 'VND')) AS MaLoaiTien, 
                         L.PhanLoai,
@@ -237,21 +247,71 @@ namespace BankAccountManagement.Services
                         // 4.3. Cập nhật số dư nếu giao dịch thành công
                         if (trangThai == "Success" || trangThai == "Hoàn tất")
                         {
+                            string curAccount = "VND";
+                            decimal qdAccount = 1m;
+                            const string sqlCur = @"SELECT LT.MaLoaiTien, LT.QuyDoi 
+                                                    FROM dbo.TaiKhoan TK 
+                                                    INNER JOIN dbo.LoaiTien LT ON TK.MaLoaiTien = LT.MaLoaiTien 
+                                                    WHERE TK.SoTaiKhoan = @STK";
+                            using (SqlCommand cmdCur = new SqlCommand(sqlCur, conn, transaction))
+                            {
+                                cmdCur.Parameters.AddWithValue("@STK", soTaiKhoan);
+                                using (SqlDataReader rCur = cmdCur.ExecuteReader())
+                                {
+                                    if (rCur.Read())
+                                    {
+                                        curAccount = rCur["MaLoaiTien"]?.ToString() ?? "VND";
+                                        qdAccount = Convert.ToDecimal(rCur["QuyDoi"]);
+                                        if (curAccount.Equals("USD", StringComparison.OrdinalIgnoreCase) && qdAccount <= 1)
+                                            qdAccount = 25400m;
+                                    }
+                                }
+                            }
+
+                            decimal amountAdjust = (curAccount == "VND")
+                                ? soTienVND
+                                : (curAccount.Equals(loaiTien, StringComparison.OrdinalIgnoreCase)
+                                    ? soTienGoc
+                                    : (soTienVND / (qdAccount > 0 ? qdAccount : 1m)));
+
                             string sqlUpdate = "";
                             if (phanLoai == "INCOME")
                                 sqlUpdate = @"UPDATE dbo.TaiKhoan 
                                               SET SoDuHienTai = SoDuHienTai + @SoTien 
                                               WHERE SoTaiKhoan = @SoTaiKhoan";
                             else if (phanLoai == "EXPENSE")
+                            {
+                                // Đối với User: Mọi giao dịch chi/rút tiền tuyệt đối không được vượt quá số dư tài khoản
+                                const string sqlCheckBal = @"
+                                    SELECT SoDuHienTai 
+                                    FROM dbo.TaiKhoan WITH (UPDLOCK) 
+                                    WHERE SoTaiKhoan = @SoTaiKhoan";
+                                decimal curBal = 0m;
+                                using (SqlCommand cmdCheckBal = new SqlCommand(sqlCheckBal, conn, transaction))
+                                {
+                                    cmdCheckBal.Parameters.AddWithValue("@SoTaiKhoan", soTaiKhoan);
+                                    object objBal = cmdCheckBal.ExecuteScalar();
+                                    if (objBal != null && objBal != DBNull.Value)
+                                    {
+                                        curBal = Convert.ToDecimal(objBal);
+                                    }
+                                }
+
+                                if (!CurrentSession.IsAdmin && curBal < amountAdjust)
+                                {
+                                    throw new Exception($"Số dư tài khoản ({curBal:N0} {curAccount}) không đủ để thực hiện giao dịch ({amountAdjust:N0} {curAccount})!");
+                                }
+
                                 sqlUpdate = @"UPDATE dbo.TaiKhoan 
                                               SET SoDuHienTai = SoDuHienTai - @SoTien 
                                               WHERE SoTaiKhoan = @SoTaiKhoan";
+                            }
 
                             if (!string.IsNullOrEmpty(sqlUpdate))
                             {
                                 using (SqlCommand cmdUpdate = new SqlCommand(sqlUpdate, conn, transaction))
                                 {
-                                    cmdUpdate.Parameters.AddWithValue("@SoTien", soTienVND);
+                                    cmdUpdate.Parameters.AddWithValue("@SoTien", amountAdjust);
                                     cmdUpdate.Parameters.AddWithValue("@SoTaiKhoan", soTaiKhoan);
                                     cmdUpdate.ExecuteNonQuery();
                                 }
@@ -306,6 +366,8 @@ namespace BankAccountManagement.Services
                                     soDuGui = Convert.ToDecimal(r["SoDuHienTai"]);
                                     curGui = r["MaLoaiTien"].ToString();
                                     quyDoiGui = Convert.ToDecimal(r["QuyDoi"]);
+                                    if (curGui.Equals("USD", StringComparison.OrdinalIgnoreCase) && quyDoiGui <= 1)
+                                        quyDoiGui = 25400m;
                                 }
                                 else
                                 {
@@ -315,7 +377,11 @@ namespace BankAccountManagement.Services
                         }
 
                         // Trừ tiền tài khoản gửi
-                        decimal amountDeductSender = (curGui == "VND") ? soTienVND : (soTienVND / (quyDoiGui > 0 ? quyDoiGui : 1));
+                        decimal amountDeductSender = (curGui == "VND") 
+                            ? soTienVND 
+                            : (curGui.Equals(loaiTien, StringComparison.OrdinalIgnoreCase) 
+                                ? soTienGoc 
+                                : (soTienVND / (quyDoiGui > 0 ? quyDoiGui : 1)));
                         if (!CurrentSession.IsAdmin && soDuGui < amountDeductSender)
                         {
                             throw new Exception($"Số dư tài khoản chuyển ({soDuGui:N0} {curGui}) không đủ để thực hiện giao dịch!");
@@ -376,13 +442,19 @@ namespace BankAccountManagement.Services
                                     recipientExists = true;
                                     curNhan = r["MaLoaiTien"].ToString();
                                     quyDoiNhan = Convert.ToDecimal(r["QuyDoi"]);
+                                    if (curNhan.Equals("USD", StringComparison.OrdinalIgnoreCase) && quyDoiNhan <= 1)
+                                        quyDoiNhan = 25400m;
                                 }
                             }
                         }
 
                         if (recipientExists)
                         {
-                            decimal amountCreditRecipient = (curNhan == "VND") ? soTienVND : (soTienVND / (quyDoiNhan > 0 ? quyDoiNhan : 1));
+                            decimal amountCreditRecipient = (curNhan == "VND") 
+                                ? soTienVND 
+                                : (curNhan.Equals(loaiTien, StringComparison.OrdinalIgnoreCase) 
+                                    ? soTienGoc 
+                                    : (soTienVND / (quyDoiNhan > 0 ? quyDoiNhan : 1)));
                             const string sqlCreditRecipient = @"
                                 UPDATE dbo.TaiKhoan 
                                 SET SoDuHienTai = SoDuHienTai + @Amount 
@@ -398,7 +470,9 @@ namespace BankAccountManagement.Services
                             string maGD_Nhan = maGD + "2";
                             if (maGD_Nhan.Length > 30) maGD_Nhan = maGD_Nhan.Substring(0, 30);
 
-                            decimal soTienGocNhan = (curNhan == "VND") ? soTienVND : amountCreditRecipient;
+                            decimal soTienGocNhan = (curNhan.Equals(loaiTien, StringComparison.OrdinalIgnoreCase))
+                                ? soTienGoc
+                                : ((curNhan == "VND") ? soTienVND : amountCreditRecipient);
                             const string sqlInsertRecipient = @"
                                 INSERT INTO dbo.GiaoDich 
                                     (MaGiaoDich, SoTaiKhoan, MaLoaiGD, SoTien, SoTienGoc, 
@@ -443,10 +517,7 @@ namespace BankAccountManagement.Services
             DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             {
-                // ⭐ Mệnh đề filter theo user — dùng chung cho cả 3 subquery
-                string userFilter = CurrentSession.IsAdmin
-                    ? ""
-                    : " AND TK.MaKH = @MaKH";
+                string userFilter = GetUserFilter();
 
                 string sql = $@"
                     SELECT 
@@ -485,8 +556,7 @@ namespace BankAccountManagement.Services
                     cmd.Parameters.AddWithValue("@Tk", string.IsNullOrEmpty(soTaiKhoan) ? "Tất cả" : soTaiKhoan);
                     cmd.Parameters.AddWithValue("@Loai", string.IsNullOrEmpty(tenLoai) ? "Tất cả" : tenLoai);
 
-                    if (!CurrentSession.IsAdmin)
-                        cmd.Parameters.AddWithValue("@MaKH", CurrentSession.MaKH ?? "");
+                    AddUserParam(cmd);
 
                     using (SqlDataAdapter adapter = new SqlDataAdapter(cmd))
                         adapter.Fill(dt);
@@ -508,7 +578,7 @@ namespace BankAccountManagement.Services
                            (NH.TenNganHang + ' - ' + TK.SoTaiKhoan) AS HienThi
                     FROM   dbo.TaiKhoan TK
                     INNER JOIN dbo.NganHang NH ON TK.MaNganHang = NH.MaNganHang
-                    WHERE  1 = 1" + GetUserFilter() + @"
+                    WHERE  (TK.TrangThai = 'Active' OR TK.TrangThai = N'Hoạt động')" + GetUserFilter() + @"
                     ORDER BY NH.TenNganHang";
 
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
@@ -584,11 +654,17 @@ namespace BankAccountManagement.Services
                     {
                         while (reader.Read())
                         {
+                            string code = reader["MaLoaiTien"].ToString();
+                            decimal qd = Convert.ToDecimal(reader["QuyDoi"]);
+                            if (code.Equals("USD", StringComparison.OrdinalIgnoreCase) && qd <= 1)
+                            {
+                                qd = 25400m;
+                            }
                             currencies.Add(new CurrencyInfo
                             {
-                                MaLoaiTien = reader["MaLoaiTien"].ToString(),
+                                MaLoaiTien = code,
                                 TenLoaiTien = reader["TenLoaiTien"].ToString(),
-                                QuyDoi = Convert.ToDecimal(reader["QuyDoi"])
+                                QuyDoi = qd
                             });
                         }
                     }
@@ -672,11 +748,14 @@ namespace BankAccountManagement.Services
                     FROM dbo.TaiKhoan TK
                     INNER JOIN dbo.NganHang NH ON TK.MaNganHang = NH.MaNganHang
                     INNER JOIN dbo.LoaiTien LT ON TK.MaLoaiTien = LT.MaLoaiTien
-                    WHERE TK.TrangThai = 'Active' AND TK.MaKH = @MaKH
+                    WHERE (TK.TrangThai = 'Active' OR TK.TrangThai = N'Hoạt động') 
+                      AND (TK.MaKH = @MaKH OR TK.MaKH IN (SELECT MaKH FROM dbo.NguoiDung WHERE MaNguoiDung = @MaND OR TenDangNhap = @UserLogin))
                     ORDER BY NH.TenNganHang";
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
                     cmd.Parameters.AddWithValue("@MaKH", maKH ?? "");
+                    cmd.Parameters.AddWithValue("@MaND", CurrentSession.MaNguoiDung);
+                    cmd.Parameters.AddWithValue("@UserLogin", CurrentSession.TenDangNhap ?? "");
                     using (SqlDataAdapter da = new SqlDataAdapter(cmd))
                         da.Fill(dt);
                 }
@@ -714,22 +793,20 @@ namespace BankAccountManagement.Services
         {
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             {
-                string userFilter = CurrentSession.IsAdmin ? "" : " AND TK.MaKH = @MaKH";
                 string sql = @"
                     SELECT ISNULL(SUM(
                         CASE 
-                            WHEN LT.TenLoaiTien = N'VND' THEN TK.SoDuHienTai 
-                            ELSE TK.SoDuHienTai * LT.QuyDoi 
+                            WHEN LT.MaLoaiTien = 'VND' THEN TK.SoDuHienTai 
+                            ELSE TK.SoDuHienTai * ISNULL(NULLIF(LT.QuyDoi, 1), 25400) 
                         END
                     ), 0)
                     FROM dbo.TaiKhoan TK
                     INNER JOIN dbo.LoaiTien LT ON TK.MaLoaiTien = LT.MaLoaiTien
-                    WHERE TK.TrangThai = 'Active'" + userFilter;
+                    WHERE (TK.TrangThai = 'Active' OR TK.TrangThai = N'Hoạt động')" + GetUserFilter();
 
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
-                    if (!CurrentSession.IsAdmin)
-                        cmd.Parameters.AddWithValue("@MaKH", maKH ?? CurrentSession.MaKH ?? "");
+                    AddUserParam(cmd);
 
                     conn.Open();
                     object result = cmd.ExecuteScalar();

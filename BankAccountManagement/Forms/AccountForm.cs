@@ -1,4 +1,4 @@
-﻿using BankAccountManagement.Models;
+using BankAccountManagement.Models;
 using BankAccountManagement.Services;
 using System;
 using System.Collections.Generic;
@@ -113,18 +113,17 @@ namespace BankAccountManagement.Forms
         }
 
         /// <summary>
-        /// Admin và Member hợp lệ đều được quản lý tài khoản theo phạm vi của mình.
+        /// Admin được thêm/sửa/đóng tài khoản.
+        /// Member chỉ xem tài khoản duy nhất của mình (quy tắc 1 người dùng = 1 tài khoản ngân hàng).
         /// </summary>
         private void ApplyRolePermissions()
         {
-            bool canManage = CanManageAccounts;
-            btnAdd.Visible = canManage;
-            btnEdit.Visible = canManage;
-            btnDelete.Visible = canManage;
+            btnAdd.Visible = CurrentSession.IsAdmin;
+            btnEdit.Visible = CurrentSession.IsAdmin;
+            btnDelete.Visible = CurrentSession.IsAdmin;
         }
 
-        private bool CanManageAccounts => CurrentSession.IsAdmin ||
-            (CurrentSession.IsMember && !string.IsNullOrWhiteSpace(CurrentSession.MaKH));
+        private bool CanManageAccounts => CurrentSession.IsAdmin;
         // ==========================================================
         //  ĐỔ DỮ LIỆU COMBOBOX
         // ==========================================================

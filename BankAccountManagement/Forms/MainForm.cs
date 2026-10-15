@@ -300,7 +300,14 @@ namespace BankAccountManagement
 
         private void btnShop_Click(object sender, EventArgs e)
         {
-            LoadMultiForm(new ShopForm()); // Hiển thị Form ShopForm bên trong pnMain
+            if (CurrentSession.IsAdmin)
+            {
+                LoadMultiForm(new ShopAdminForm()); // Giao diện quản lý sản phẩm Admin
+            }
+            else
+            {
+                OpenFormWithCustomerCheck(() => new ShopUserForm()); // Giao diện mua sắm Khách hàng
+            }
         }
 
         private void btnBorrowing_Click(object sender, EventArgs e)
