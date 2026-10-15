@@ -1,4 +1,4 @@
-using BankAccountManagement.Models;
+﻿using BankAccountManagement.Models;
 using BankAccountManagement.Models.Statistics;
 using BankAccountManagement.Services;
 
@@ -20,7 +20,7 @@ namespace BankAccountManagement.Forms
         /// <summary>
         /// khai báo một trường riêng tư _statisticService kiểu StatisticService để quản lý các chức năng thống kê.
         /// </summary>
-        private readonly StatisticService _statisticService; 
+        private readonly StatisticService _statisticService;
         private System.Windows.Forms.Timer _autoRefreshTimer;
         private bool _isRefreshing = false;
 
