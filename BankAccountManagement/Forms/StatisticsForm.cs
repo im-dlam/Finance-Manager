@@ -20,7 +20,7 @@ namespace BankAccountManagement.Forms
         /// <summary>
         /// khai báo một trường riêng tư _statisticService kiểu StatisticService để quản lý các chức năng thống kê.
         /// </summary>
-        private readonly StatisticService _statisticService; 
+        private readonly StatisticService _statisticService;
         private System.Windows.Forms.Timer _autoRefreshTimer;
         private bool _isRefreshing = false;
 
@@ -63,9 +63,6 @@ namespace BankAccountManagement.Forms
         {
             if (this.IsDisposed || this.Disposing || !this.Visible || !this.IsHandleCreated) return;
             await RefreshAllStatsAsync(false);
-        }
-            };
-            _autoRefreshTimer.Start();
         }
 
         private void OnTransactionChangedHandler()

@@ -222,6 +222,27 @@ namespace BankAccountManagement
 
             LoadMultiForm(infoForm);
         }
+
+        private void btnCreditCard_Click(object sender, EventArgs e)
+        {
+            LoadMultiForm(new CreditCardForm()); // Hiển thị Form CreditCardForm bên trong pnMain
+
+        }
+
+        private void btnShop_Click(object sender, EventArgs e)
+        {
+            LoadMultiForm(new ShopForm()); // Hiển thị Form ShopForm bên trong pnMain
+        }
+
+        private void btnBorrowing_Click(object sender, EventArgs e)
+        {
+            LoadMultiForm(new BorrowingForm()); // Hiển thị Form BorrowingForm bên trong pnMain
+        }
+
+        private void btnSaveMoney_Click(object sender, EventArgs e)
+        {
+            LoadMultiForm(new SaveMoneyForm()); // Hiển thị Form SaveMoneyForm bên trong pnMain
+        }
     }
 }
 
