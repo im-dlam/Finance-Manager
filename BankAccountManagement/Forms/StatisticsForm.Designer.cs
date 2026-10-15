@@ -4,14 +4,15 @@ namespace BankAccountManagement.Forms
     {
         private System.ComponentModel.IContainer components = null;
 
-                protected override void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
             if (disposing)
             {
+                CleanupResources();
+                if (components != null)
+                {
+                    components.Dispose();
+                }
                 if (chartTransactions != null) { chartTransactions.Dispose(); }
                 if (chartAccountTypes != null) { chartAccountTypes.Dispose(); }
             }
