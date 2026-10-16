@@ -65,6 +65,7 @@ namespace BankAccountManagement.Forms
             this.btnTabAll = new BankAccountManagement.Forms.RoundedButton();
             this.lblSavingsPanelTitle = new System.Windows.Forms.Label();
             this.pnlTopBanner = new BankAccountManagement.Forms.RoundedPanel();
+            this.tblMetricsLayout = new System.Windows.Forms.TableLayoutPanel();
             this.pnlMetric4 = new BankAccountManagement.Forms.RoundedPanel();
             this.lblMetric4Value = new System.Windows.Forms.Label();
             this.lblMetric4Title = new System.Windows.Forms.Label();
@@ -94,6 +95,7 @@ namespace BankAccountManagement.Forms
             this.pnlSavingsFilterBar.SuspendLayout();
             this.pnlSavingsSearch.SuspendLayout();
             this.pnlTopBanner.SuspendLayout();
+            this.tblMetricsLayout.SuspendLayout();
             this.pnlMetric4.SuspendLayout();
             this.pnlMetric3.SuspendLayout();
             this.pnlMetric2.SuspendLayout();
@@ -180,11 +182,11 @@ namespace BankAccountManagement.Forms
             this.pnlCustomerDetailBox.Controls.Add(this.pnlCustAvatar);
             this.pnlCustomerDetailBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlCustomerDetailBox.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
-            this.pnlCustomerDetailBox.Location = new System.Drawing.Point(14, 252);
-            this.pnlCustomerDetailBox.Margin = new System.Windows.Forms.Padding(0, 10, 0, 0);
+            this.pnlCustomerDetailBox.Location = new System.Drawing.Point(14, 210);
+            this.pnlCustomerDetailBox.Margin = new System.Windows.Forms.Padding(0, 6, 0, 0);
             this.pnlCustomerDetailBox.Name = "pnlCustomerDetailBox";
-            this.pnlCustomerDetailBox.Padding = new System.Windows.Forms.Padding(12);
-            this.pnlCustomerDetailBox.Size = new System.Drawing.Size(320, 332);
+            this.pnlCustomerDetailBox.Padding = new System.Windows.Forms.Padding(12, 10, 12, 10);
+            this.pnlCustomerDetailBox.Size = new System.Drawing.Size(320, 374);
             this.pnlCustomerDetailBox.TabIndex = 3;
             // 
             // btnClearCustomerFilter
@@ -195,12 +197,12 @@ namespace BankAccountManagement.Forms
             this.btnClearCustomerFilter.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.btnClearCustomerFilter.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.btnClearCustomerFilter.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
-            this.btnClearCustomerFilter.Location = new System.Drawing.Point(12, 290);
+            this.btnClearCustomerFilter.Location = new System.Drawing.Point(12, 336);
             this.btnClearCustomerFilter.Name = "btnClearCustomerFilter";
             this.btnClearCustomerFilter.NormalBorder = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(213)))), ((int)(((byte)(225)))));
             this.btnClearCustomerFilter.NormalColor = System.Drawing.Color.White;
             this.btnClearCustomerFilter.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
-            this.btnClearCustomerFilter.Size = new System.Drawing.Size(296, 30);
+            this.btnClearCustomerFilter.Size = new System.Drawing.Size(296, 28);
             this.btnClearCustomerFilter.TabIndex = 16;
             this.btnClearCustomerFilter.Text = "🔄 Xem tất cả khách hàng";
             this.btnClearCustomerFilter.TextColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
@@ -213,12 +215,12 @@ namespace BankAccountManagement.Forms
             this.btnFilterCustomerSavings.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.btnFilterCustomerSavings.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.btnFilterCustomerSavings.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(29)))), ((int)(((byte)(78)))), ((int)(((byte)(216)))));
-            this.btnFilterCustomerSavings.Location = new System.Drawing.Point(12, 256);
+            this.btnFilterCustomerSavings.Location = new System.Drawing.Point(12, 302);
             this.btnFilterCustomerSavings.Margin = new System.Windows.Forms.Padding(0, 0, 0, 4);
             this.btnFilterCustomerSavings.Name = "btnFilterCustomerSavings";
             this.btnFilterCustomerSavings.NormalColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
             this.btnFilterCustomerSavings.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(64)))), ((int)(((byte)(175)))));
-            this.btnFilterCustomerSavings.Size = new System.Drawing.Size(296, 34);
+            this.btnFilterCustomerSavings.Size = new System.Drawing.Size(296, 32);
             this.btnFilterCustomerSavings.TabIndex = 15;
             this.btnFilterCustomerSavings.Text = "🔍 Xem sổ của khách này";
             this.btnFilterCustomerSavings.TextColor = System.Drawing.Color.White;
@@ -228,9 +230,9 @@ namespace BankAccountManagement.Forms
             this.lblCustSavingsCount.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lblCustSavingsCount.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Bold);
             this.lblCustSavingsCount.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
-            this.lblCustSavingsCount.Location = new System.Drawing.Point(150, 218);
+            this.lblCustSavingsCount.Location = new System.Drawing.Point(140, 168);
             this.lblCustSavingsCount.Name = "lblCustSavingsCount";
-            this.lblCustSavingsCount.Size = new System.Drawing.Size(158, 16);
+            this.lblCustSavingsCount.Size = new System.Drawing.Size(168, 16);
             this.lblCustSavingsCount.TabIndex = 14;
             this.lblCustSavingsCount.Text = "0 đang gửi / 0 tất toán";
             this.lblCustSavingsCount.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -240,20 +242,20 @@ namespace BankAccountManagement.Forms
             this.lblCustSavingsCountTitle.AutoSize = true;
             this.lblCustSavingsCountTitle.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.lblCustSavingsCountTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
-            this.lblCustSavingsCountTitle.Location = new System.Drawing.Point(12, 218);
+            this.lblCustSavingsCountTitle.Location = new System.Drawing.Point(12, 168);
             this.lblCustSavingsCountTitle.Name = "lblCustSavingsCountTitle";
             this.lblCustSavingsCountTitle.Size = new System.Drawing.Size(84, 15);
             this.lblCustSavingsCountTitle.TabIndex = 13;
-            this.lblCustSavingsCountTitle.Text = "Số lượng TKTK";
+            this.lblCustSavingsCountTitle.Text = "Số sổ TKTK";
             // 
             // lblCustTotalSavings
             // 
             this.lblCustTotalSavings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lblCustTotalSavings.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
             this.lblCustTotalSavings.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(163)))), ((int)(((byte)(74)))));
-            this.lblCustTotalSavings.Location = new System.Drawing.Point(150, 192);
+            this.lblCustTotalSavings.Location = new System.Drawing.Point(140, 146);
             this.lblCustTotalSavings.Name = "lblCustTotalSavings";
-            this.lblCustTotalSavings.Size = new System.Drawing.Size(158, 18);
+            this.lblCustTotalSavings.Size = new System.Drawing.Size(168, 18);
             this.lblCustTotalSavings.TabIndex = 12;
             this.lblCustTotalSavings.Text = "0 đ";
             this.lblCustTotalSavings.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -263,7 +265,7 @@ namespace BankAccountManagement.Forms
             this.lblCustTotalSavingsTitle.AutoSize = true;
             this.lblCustTotalSavingsTitle.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.lblCustTotalSavingsTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
-            this.lblCustTotalSavingsTitle.Location = new System.Drawing.Point(12, 194);
+            this.lblCustTotalSavingsTitle.Location = new System.Drawing.Point(12, 146);
             this.lblCustTotalSavingsTitle.Name = "lblCustTotalSavingsTitle";
             this.lblCustTotalSavingsTitle.Size = new System.Drawing.Size(107, 15);
             this.lblCustTotalSavingsTitle.TabIndex = 11;
@@ -274,9 +276,9 @@ namespace BankAccountManagement.Forms
             this.lblCustBalance.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lblCustBalance.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.lblCustBalance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(58)))), ((int)(((byte)(138)))));
-            this.lblCustBalance.Location = new System.Drawing.Point(150, 168);
+            this.lblCustBalance.Location = new System.Drawing.Point(140, 124);
             this.lblCustBalance.Name = "lblCustBalance";
-            this.lblCustBalance.Size = new System.Drawing.Size(158, 16);
+            this.lblCustBalance.Size = new System.Drawing.Size(168, 16);
             this.lblCustBalance.TabIndex = 10;
             this.lblCustBalance.Text = "0 đ";
             this.lblCustBalance.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -286,20 +288,20 @@ namespace BankAccountManagement.Forms
             this.lblCustBalanceTitle.AutoSize = true;
             this.lblCustBalanceTitle.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.lblCustBalanceTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
-            this.lblCustBalanceTitle.Location = new System.Drawing.Point(12, 168);
+            this.lblCustBalanceTitle.Location = new System.Drawing.Point(12, 124);
             this.lblCustBalanceTitle.Name = "lblCustBalanceTitle";
             this.lblCustBalanceTitle.Size = new System.Drawing.Size(105, 15);
             this.lblCustBalanceTitle.TabIndex = 9;
-            this.lblCustBalanceTitle.Text = "Tổng số dư KH khả";
+            this.lblCustBalanceTitle.Text = "Số dư khả dụng";
             // 
             // lblCustPhone
             // 
             this.lblCustPhone.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lblCustPhone.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Bold);
             this.lblCustPhone.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
-            this.lblCustPhone.Location = new System.Drawing.Point(150, 142);
+            this.lblCustPhone.Location = new System.Drawing.Point(140, 102);
             this.lblCustPhone.Name = "lblCustPhone";
-            this.lblCustPhone.Size = new System.Drawing.Size(158, 16);
+            this.lblCustPhone.Size = new System.Drawing.Size(168, 16);
             this.lblCustPhone.TabIndex = 8;
             this.lblCustPhone.Text = "-";
             this.lblCustPhone.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -309,7 +311,7 @@ namespace BankAccountManagement.Forms
             this.lblCustPhoneTitle.AutoSize = true;
             this.lblCustPhoneTitle.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.lblCustPhoneTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
-            this.lblCustPhoneTitle.Location = new System.Drawing.Point(12, 142);
+            this.lblCustPhoneTitle.Location = new System.Drawing.Point(12, 102);
             this.lblCustPhoneTitle.Name = "lblCustPhoneTitle";
             this.lblCustPhoneTitle.Size = new System.Drawing.Size(76, 15);
             this.lblCustPhoneTitle.TabIndex = 7;
@@ -320,9 +322,9 @@ namespace BankAccountManagement.Forms
             this.lblCustCccd.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lblCustCccd.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Bold);
             this.lblCustCccd.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
-            this.lblCustCccd.Location = new System.Drawing.Point(150, 116);
+            this.lblCustCccd.Location = new System.Drawing.Point(140, 80);
             this.lblCustCccd.Name = "lblCustCccd";
-            this.lblCustCccd.Size = new System.Drawing.Size(158, 16);
+            this.lblCustCccd.Size = new System.Drawing.Size(168, 16);
             this.lblCustCccd.TabIndex = 6;
             this.lblCustCccd.Text = "-";
             this.lblCustCccd.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -332,7 +334,7 @@ namespace BankAccountManagement.Forms
             this.lblCustCccdTitle.AutoSize = true;
             this.lblCustCccdTitle.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.lblCustCccdTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
-            this.lblCustCccdTitle.Location = new System.Drawing.Point(12, 116);
+            this.lblCustCccdTitle.Location = new System.Drawing.Point(12, 80);
             this.lblCustCccdTitle.Name = "lblCustCccdTitle";
             this.lblCustCccdTitle.Size = new System.Drawing.Size(79, 15);
             this.lblCustCccdTitle.TabIndex = 5;
@@ -343,9 +345,9 @@ namespace BankAccountManagement.Forms
             this.lblCustUsername.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lblCustUsername.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Bold);
             this.lblCustUsername.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
-            this.lblCustUsername.Location = new System.Drawing.Point(150, 90);
+            this.lblCustUsername.Location = new System.Drawing.Point(140, 58);
             this.lblCustUsername.Name = "lblCustUsername";
-            this.lblCustUsername.Size = new System.Drawing.Size(158, 16);
+            this.lblCustUsername.Size = new System.Drawing.Size(168, 16);
             this.lblCustUsername.TabIndex = 4;
             this.lblCustUsername.Text = "-";
             this.lblCustUsername.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -355,7 +357,7 @@ namespace BankAccountManagement.Forms
             this.lblCustUsernameTitle.AutoSize = true;
             this.lblCustUsernameTitle.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.lblCustUsernameTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
-            this.lblCustUsernameTitle.Location = new System.Drawing.Point(12, 90);
+            this.lblCustUsernameTitle.Location = new System.Drawing.Point(12, 58);
             this.lblCustUsernameTitle.Name = "lblCustUsernameTitle";
             this.lblCustUsernameTitle.Size = new System.Drawing.Size(86, 15);
             this.lblCustUsernameTitle.TabIndex = 3;
@@ -366,7 +368,7 @@ namespace BankAccountManagement.Forms
             this.lblCustHeaderCode.AutoSize = true;
             this.lblCustHeaderCode.Font = new System.Drawing.Font("Segoe UI", 8.25F);
             this.lblCustHeaderCode.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
-            this.lblCustHeaderCode.Location = new System.Drawing.Point(64, 40);
+            this.lblCustHeaderCode.Location = new System.Drawing.Point(58, 30);
             this.lblCustHeaderCode.Name = "lblCustHeaderCode";
             this.lblCustHeaderCode.Size = new System.Drawing.Size(76, 13);
             this.lblCustHeaderCode.TabIndex = 2;
@@ -375,9 +377,9 @@ namespace BankAccountManagement.Forms
             // lblCustHeaderName
             // 
             this.lblCustHeaderName.AutoSize = true;
-            this.lblCustHeaderName.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Bold);
+            this.lblCustHeaderName.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.lblCustHeaderName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
-            this.lblCustHeaderName.Location = new System.Drawing.Point(64, 18);
+            this.lblCustHeaderName.Location = new System.Drawing.Point(58, 10);
             this.lblCustHeaderName.Name = "lblCustHeaderName";
             this.lblCustHeaderName.Size = new System.Drawing.Size(147, 19);
             this.lblCustHeaderName.TabIndex = 1;
@@ -387,23 +389,23 @@ namespace BankAccountManagement.Forms
             // 
             this.pnlCustAvatar.BackColor = System.Drawing.Color.Transparent;
             this.pnlCustAvatar.BorderColor = System.Drawing.Color.Transparent;
-            this.pnlCustAvatar.BorderRadius = 22;
+            this.pnlCustAvatar.BorderRadius = 20;
             this.pnlCustAvatar.BorderSize = 0;
             this.pnlCustAvatar.Controls.Add(this.lblCustAvatarText);
             this.pnlCustAvatar.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(219)))), ((int)(((byte)(234)))), ((int)(((byte)(254)))));
-            this.pnlCustAvatar.Location = new System.Drawing.Point(12, 14);
+            this.pnlCustAvatar.Location = new System.Drawing.Point(12, 10);
             this.pnlCustAvatar.Name = "pnlCustAvatar";
-            this.pnlCustAvatar.Size = new System.Drawing.Size(44, 44);
+            this.pnlCustAvatar.Size = new System.Drawing.Size(40, 40);
             this.pnlCustAvatar.TabIndex = 0;
             // 
             // lblCustAvatarText
             // 
             this.lblCustAvatarText.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblCustAvatarText.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
+            this.lblCustAvatarText.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
             this.lblCustAvatarText.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(64)))), ((int)(((byte)(175)))));
             this.lblCustAvatarText.Location = new System.Drawing.Point(0, 0);
             this.lblCustAvatarText.Name = "lblCustAvatarText";
-            this.lblCustAvatarText.Size = new System.Drawing.Size(44, 44);
+            this.lblCustAvatarText.Size = new System.Drawing.Size(40, 40);
             this.lblCustAvatarText.TabIndex = 0;
             this.lblCustAvatarText.Text = "KH";
             this.lblCustAvatarText.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -421,7 +423,7 @@ namespace BankAccountManagement.Forms
             this.pnlCustGridWrapper.Margin = new System.Windows.Forms.Padding(0, 8, 0, 8);
             this.pnlCustGridWrapper.Name = "pnlCustGridWrapper";
             this.pnlCustGridWrapper.Padding = new System.Windows.Forms.Padding(1);
-            this.pnlCustGridWrapper.Size = new System.Drawing.Size(320, 170);
+            this.pnlCustGridWrapper.Size = new System.Drawing.Size(320, 120);
             this.pnlCustGridWrapper.TabIndex = 2;
             // 
             // dgvCustomers
@@ -444,9 +446,9 @@ namespace BankAccountManagement.Forms
             this.dgvCustomers.Name = "dgvCustomers";
             this.dgvCustomers.ReadOnly = true;
             this.dgvCustomers.RowHeadersVisible = false;
-            this.dgvCustomers.RowTemplate.Height = 32;
+            this.dgvCustomers.RowTemplate.Height = 30;
             this.dgvCustomers.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvCustomers.Size = new System.Drawing.Size(318, 168);
+            this.dgvCustomers.Size = new System.Drawing.Size(318, 118);
             this.dgvCustomers.TabIndex = 0;
             // 
             // pnlCustSearch
@@ -498,7 +500,7 @@ namespace BankAccountManagement.Forms
             this.lblCustPanelTitle.Name = "lblCustPanelTitle";
             this.lblCustPanelTitle.Size = new System.Drawing.Size(320, 30);
             this.lblCustPanelTitle.TabIndex = 0;
-            this.lblCustPanelTitle.Text = "👤 Cột Thông tin khách hàng";
+            this.lblCustPanelTitle.Text = "Thông tin khách hàng";
             // 
             // pnlRightSavings
             // 
@@ -784,7 +786,7 @@ namespace BankAccountManagement.Forms
             this.lblSavingsPanelTitle.Name = "lblSavingsPanelTitle";
             this.lblSavingsPanelTitle.Size = new System.Drawing.Size(696, 30);
             this.lblSavingsPanelTitle.TabIndex = 0;
-            this.lblSavingsPanelTitle.Text = "📋 Danh sách các tài khoản tiết kiệm";
+            this.lblSavingsPanelTitle.Text = "Danh sách tài khoản tiết kiệm";
             // 
             // pnlTopBanner
             // 
@@ -792,10 +794,7 @@ namespace BankAccountManagement.Forms
             this.pnlTopBanner.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
             this.pnlTopBanner.BorderRadius = 16;
             this.pnlTopBanner.BorderSize = 1;
-            this.pnlTopBanner.Controls.Add(this.pnlMetric4);
-            this.pnlTopBanner.Controls.Add(this.pnlMetric3);
-            this.pnlTopBanner.Controls.Add(this.pnlMetric2);
-            this.pnlTopBanner.Controls.Add(this.pnlMetric1);
+            this.pnlTopBanner.Controls.Add(this.tblMetricsLayout);
             this.pnlTopBanner.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlTopBanner.FillColor = System.Drawing.Color.White;
             this.pnlTopBanner.Location = new System.Drawing.Point(16, 16);
@@ -805,6 +804,25 @@ namespace BankAccountManagement.Forms
             this.pnlTopBanner.Size = new System.Drawing.Size(1088, 90);
             this.pnlTopBanner.TabIndex = 0;
             // 
+            // tblMetricsLayout
+            // 
+            this.tblMetricsLayout.ColumnCount = 4;
+            this.tblMetricsLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tblMetricsLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tblMetricsLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tblMetricsLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25F));
+            this.tblMetricsLayout.Controls.Add(this.pnlMetric1, 0, 0);
+            this.tblMetricsLayout.Controls.Add(this.pnlMetric2, 1, 0);
+            this.tblMetricsLayout.Controls.Add(this.pnlMetric3, 2, 0);
+            this.tblMetricsLayout.Controls.Add(this.pnlMetric4, 3, 0);
+            this.tblMetricsLayout.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tblMetricsLayout.Location = new System.Drawing.Point(12, 12);
+            this.tblMetricsLayout.Name = "tblMetricsLayout";
+            this.tblMetricsLayout.RowCount = 1;
+            this.tblMetricsLayout.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tblMetricsLayout.Size = new System.Drawing.Size(1064, 66);
+            this.tblMetricsLayout.TabIndex = 0;
+            // 
             // pnlMetric4
             // 
             this.pnlMetric4.BackColor = System.Drawing.Color.Transparent;
@@ -813,12 +831,13 @@ namespace BankAccountManagement.Forms
             this.pnlMetric4.BorderSize = 1;
             this.pnlMetric4.Controls.Add(this.lblMetric4Value);
             this.pnlMetric4.Controls.Add(this.lblMetric4Title);
-            this.pnlMetric4.Dock = System.Windows.Forms.DockStyle.Left;
+            this.pnlMetric4.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlMetric4.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(251)))), ((int)(((byte)(235)))));
-            this.pnlMetric4.Location = new System.Drawing.Point(792, 12);
+            this.pnlMetric4.Location = new System.Drawing.Point(798, 0);
+            this.pnlMetric4.Margin = new System.Windows.Forms.Padding(4, 0, 0, 0);
             this.pnlMetric4.Name = "pnlMetric4";
             this.pnlMetric4.Padding = new System.Windows.Forms.Padding(12);
-            this.pnlMetric4.Size = new System.Drawing.Size(260, 66);
+            this.pnlMetric4.Size = new System.Drawing.Size(266, 66);
             this.pnlMetric4.TabIndex = 3;
             // 
             // lblMetric4Value
@@ -851,13 +870,13 @@ namespace BankAccountManagement.Forms
             this.pnlMetric3.BorderSize = 1;
             this.pnlMetric3.Controls.Add(this.lblMetric3Value);
             this.pnlMetric3.Controls.Add(this.lblMetric3Title);
-            this.pnlMetric3.Dock = System.Windows.Forms.DockStyle.Left;
+            this.pnlMetric3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlMetric3.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
-            this.pnlMetric3.Location = new System.Drawing.Point(542, 12);
-            this.pnlMetric3.Margin = new System.Windows.Forms.Padding(12, 0, 12, 0);
+            this.pnlMetric3.Location = new System.Drawing.Point(532, 0);
+            this.pnlMetric3.Margin = new System.Windows.Forms.Padding(4, 0, 8, 0);
             this.pnlMetric3.Name = "pnlMetric3";
             this.pnlMetric3.Padding = new System.Windows.Forms.Padding(12);
-            this.pnlMetric3.Size = new System.Drawing.Size(250, 66);
+            this.pnlMetric3.Size = new System.Drawing.Size(262, 66);
             this.pnlMetric3.TabIndex = 2;
             // 
             // lblMetric3Value
@@ -890,13 +909,13 @@ namespace BankAccountManagement.Forms
             this.pnlMetric2.BorderSize = 1;
             this.pnlMetric2.Controls.Add(this.lblMetric2Value);
             this.pnlMetric2.Controls.Add(this.lblMetric2Title);
-            this.pnlMetric2.Dock = System.Windows.Forms.DockStyle.Left;
+            this.pnlMetric2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlMetric2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(239)))), ((int)(((byte)(246)))), ((int)(((byte)(255)))));
-            this.pnlMetric2.Location = new System.Drawing.Point(292, 12);
-            this.pnlMetric2.Margin = new System.Windows.Forms.Padding(12, 0, 12, 0);
+            this.pnlMetric2.Location = new System.Drawing.Point(266, 0);
+            this.pnlMetric2.Margin = new System.Windows.Forms.Padding(4, 0, 8, 0);
             this.pnlMetric2.Name = "pnlMetric2";
             this.pnlMetric2.Padding = new System.Windows.Forms.Padding(12);
-            this.pnlMetric2.Size = new System.Drawing.Size(250, 66);
+            this.pnlMetric2.Size = new System.Drawing.Size(262, 66);
             this.pnlMetric2.TabIndex = 1;
             // 
             // lblMetric2Value
@@ -929,13 +948,13 @@ namespace BankAccountManagement.Forms
             this.pnlMetric1.BorderSize = 1;
             this.pnlMetric1.Controls.Add(this.lblMetric1Value);
             this.pnlMetric1.Controls.Add(this.lblMetric1Title);
-            this.pnlMetric1.Dock = System.Windows.Forms.DockStyle.Left;
+            this.pnlMetric1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlMetric1.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(236)))), ((int)(((byte)(253)))), ((int)(((byte)(245)))));
-            this.pnlMetric1.Location = new System.Drawing.Point(12, 12);
-            this.pnlMetric1.Margin = new System.Windows.Forms.Padding(0, 0, 12, 0);
+            this.pnlMetric1.Location = new System.Drawing.Point(0, 0);
+            this.pnlMetric1.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
             this.pnlMetric1.Name = "pnlMetric1";
             this.pnlMetric1.Padding = new System.Windows.Forms.Padding(12);
-            this.pnlMetric1.Size = new System.Drawing.Size(280, 66);
+            this.pnlMetric1.Size = new System.Drawing.Size(262, 66);
             this.pnlMetric1.TabIndex = 0;
             // 
             // lblMetric1Value
@@ -990,6 +1009,7 @@ namespace BankAccountManagement.Forms
             this.pnlSavingsSearch.ResumeLayout(false);
             this.pnlSavingsSearch.PerformLayout();
             this.pnlTopBanner.ResumeLayout(false);
+            this.tblMetricsLayout.ResumeLayout(false);
             this.pnlMetric4.ResumeLayout(false);
             this.pnlMetric4.PerformLayout();
             this.pnlMetric3.ResumeLayout(false);
@@ -1006,6 +1026,7 @@ namespace BankAccountManagement.Forms
 
         private System.Windows.Forms.Panel pnlAdminRoot;
         private BankAccountManagement.Forms.RoundedPanel pnlTopBanner;
+        private System.Windows.Forms.TableLayoutPanel tblMetricsLayout;
         private BankAccountManagement.Forms.RoundedPanel pnlMetric1;
         private System.Windows.Forms.Label lblMetric1Title;
         private System.Windows.Forms.Label lblMetric1Value;

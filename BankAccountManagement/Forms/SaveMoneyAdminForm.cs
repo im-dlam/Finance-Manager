@@ -132,7 +132,7 @@ namespace BankAccountManagement.Forms
                 if (_selectedCustomer != null)
                 {
                     _customerFilterMaKH = _selectedCustomer.MaKH;
-                    lblSavingsPanelTitle.Text = $"📋 Sổ tiết kiệm của: {_selectedCustomer.HoTen} ({_selectedCustomer.MaKH})";
+                    lblSavingsPanelTitle.Text = $"Sổ tiết kiệm của: {_selectedCustomer.HoTen} ({_selectedCustomer.MaKH})";
                     await LoadSavingsListAsync();
                 }
             };
@@ -141,7 +141,7 @@ namespace BankAccountManagement.Forms
             btnClearCustomerFilter.Click += async (s, e) =>
             {
                 _customerFilterMaKH = null;
-                lblSavingsPanelTitle.Text = "📋 Danh sách các tài khoản tiết kiệm";
+                lblSavingsPanelTitle.Text = "Danh sách tài khoản tiết kiệm";
                 await LoadSavingsListAsync();
             };
 

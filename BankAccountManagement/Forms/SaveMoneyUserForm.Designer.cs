@@ -118,12 +118,11 @@ namespace BankAccountManagement.Forms
             this.lblStep3BannerText = new System.Windows.Forms.Label();
             this.pnlPhoneTopNav = new System.Windows.Forms.Panel();
             this.btnPhoneRightIcon = new System.Windows.Forms.Button();
+            this.pnlTopNavTitleWrapper = new System.Windows.Forms.Panel();
             this.lblPhoneNavSubtitle = new System.Windows.Forms.Label();
             this.lblPhoneNavTitle = new System.Windows.Forms.Label();
             this.btnPhoneBack = new System.Windows.Forms.Button();
-            this.pnlPhoneStatusBar = new System.Windows.Forms.Panel();
-            this.lblPhoneStatusRight = new System.Windows.Forms.Label();
-            this.lblPhoneTime = new System.Windows.Forms.Label();
+            this.lblBannerDiamond = new System.Windows.Forms.Label();
             this.pnlRoot.SuspendLayout();
             this.tblMainLayout.SuspendLayout();
             this.pnlLeftOverview.SuspendLayout();
@@ -154,7 +153,7 @@ namespace BankAccountManagement.Forms
             this.pnlStep3CheckIcon.SuspendLayout();
             this.pnlStep3Banner.SuspendLayout();
             this.pnlPhoneTopNav.SuspendLayout();
-            this.pnlPhoneStatusBar.SuspendLayout();
+            this.pnlTopNavTitleWrapper.SuspendLayout();
             this.SuspendLayout();
             // 
             // pnlRoot
@@ -171,8 +170,8 @@ namespace BankAccountManagement.Forms
             // tblMainLayout
             // 
             this.tblMainLayout.ColumnCount = 2;
-            this.tblMainLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 60F));
-            this.tblMainLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 40F));
+            this.tblMainLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tblMainLayout.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tblMainLayout.Controls.Add(this.pnlLeftOverview, 0, 0);
             this.tblMainLayout.Controls.Add(this.pnlRightPhone, 1, 0);
             this.tblMainLayout.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -191,7 +190,7 @@ namespace BankAccountManagement.Forms
             this.pnlLeftOverview.Location = new System.Drawing.Point(0, 0);
             this.pnlLeftOverview.Margin = new System.Windows.Forms.Padding(0, 0, 12, 0);
             this.pnlLeftOverview.Name = "pnlLeftOverview";
-            this.pnlLeftOverview.Size = new System.Drawing.Size(640, 688);
+            this.pnlLeftOverview.Size = new System.Drawing.Size(532, 688);
             this.pnlLeftOverview.TabIndex = 0;
             // 
             // pnlHistoryCard
@@ -208,7 +207,7 @@ namespace BankAccountManagement.Forms
             this.pnlHistoryCard.Margin = new System.Windows.Forms.Padding(0, 16, 0, 0);
             this.pnlHistoryCard.Name = "pnlHistoryCard";
             this.pnlHistoryCard.Padding = new System.Windows.Forms.Padding(16);
-            this.pnlHistoryCard.Size = new System.Drawing.Size(640, 524);
+            this.pnlHistoryCard.Size = new System.Drawing.Size(532, 524);
             this.pnlHistoryCard.TabIndex = 1;
             // 
             // pnlGridWrapper
@@ -223,7 +222,7 @@ namespace BankAccountManagement.Forms
             this.pnlGridWrapper.Location = new System.Drawing.Point(16, 46);
             this.pnlGridWrapper.Name = "pnlGridWrapper";
             this.pnlGridWrapper.Padding = new System.Windows.Forms.Padding(1);
-            this.pnlGridWrapper.Size = new System.Drawing.Size(608, 462);
+            this.pnlGridWrapper.Size = new System.Drawing.Size(500, 462);
             this.pnlGridWrapper.TabIndex = 1;
             // 
             // dgvUserSavings
@@ -248,7 +247,7 @@ namespace BankAccountManagement.Forms
             this.dgvUserSavings.RowHeadersVisible = false;
             this.dgvUserSavings.RowTemplate.Height = 36;
             this.dgvUserSavings.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvUserSavings.Size = new System.Drawing.Size(606, 460);
+            this.dgvUserSavings.Size = new System.Drawing.Size(498, 460);
             this.dgvUserSavings.TabIndex = 0;
             // 
             // lblHistoryTitle
@@ -258,7 +257,7 @@ namespace BankAccountManagement.Forms
             this.lblHistoryTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.lblHistoryTitle.Location = new System.Drawing.Point(16, 16);
             this.lblHistoryTitle.Name = "lblHistoryTitle";
-            this.lblHistoryTitle.Size = new System.Drawing.Size(608, 30);
+            this.lblHistoryTitle.Size = new System.Drawing.Size(500, 30);
             this.lblHistoryTitle.TabIndex = 0;
             this.lblHistoryTitle.Text = "📋 Danh sách sổ tiết kiệm của bạn (Bấm để xem chi tiết & tất toán)";
             // 
@@ -276,12 +275,13 @@ namespace BankAccountManagement.Forms
             this.pnlSummaryBanner.Controls.Add(this.lblSumCountTitle);
             this.pnlSummaryBanner.Controls.Add(this.lblSumBalance);
             this.pnlSummaryBanner.Controls.Add(this.lblSumBalanceTitle);
+            this.pnlSummaryBanner.Controls.Add(this.lblBannerDiamond);
             this.pnlSummaryBanner.Controls.Add(this.lblBannerHeader);
             this.pnlSummaryBanner.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlSummaryBanner.FillColor = System.Drawing.Color.White;
             this.pnlSummaryBanner.Location = new System.Drawing.Point(0, 0);
             this.pnlSummaryBanner.Name = "pnlSummaryBanner";
-            this.pnlSummaryBanner.Size = new System.Drawing.Size(640, 164);
+            this.pnlSummaryBanner.Size = new System.Drawing.Size(532, 164);
             this.pnlSummaryBanner.TabIndex = 0;
             // 
             // btnNewSavings
@@ -383,40 +383,51 @@ namespace BankAccountManagement.Forms
             this.lblSumBalanceTitle.TabIndex = 1;
             this.lblSumBalanceTitle.Text = "Tổng tiền đang gửi TKTK";
             // 
+            // lblBannerDiamond
+            // 
+            this.lblBannerDiamond.AutoSize = true;
+            this.lblBannerDiamond.Font = new System.Drawing.Font("Segoe UI Emoji", 13F);
+            this.lblBannerDiamond.Location = new System.Drawing.Point(20, 20);
+            this.lblBannerDiamond.Name = "lblBannerDiamond";
+            this.lblBannerDiamond.Size = new System.Drawing.Size(26, 25);
+            this.lblBannerDiamond.TabIndex = 9;
+            this.lblBannerDiamond.Text = "💎";
+            // 
             // lblBannerHeader
             // 
             this.lblBannerHeader.AutoSize = true;
             this.lblBannerHeader.Font = new System.Drawing.Font("Segoe UI", 13F, System.Drawing.FontStyle.Bold);
             this.lblBannerHeader.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
-            this.lblBannerHeader.Location = new System.Drawing.Point(20, 20);
+            this.lblBannerHeader.Location = new System.Drawing.Point(48, 20);
             this.lblBannerHeader.Name = "lblBannerHeader";
-            this.lblBannerHeader.Size = new System.Drawing.Size(262, 25);
+            this.lblBannerHeader.Size = new System.Drawing.Size(240, 25);
             this.lblBannerHeader.TabIndex = 0;
-            this.lblBannerHeader.Text = "💎 Tiết kiệm thông minh 24/7";
+            this.lblBannerHeader.Text = "Tiết kiệm thông minh 24/7";
             // 
             // pnlRightPhone
             // 
             this.pnlRightPhone.Controls.Add(this.pnlPhoneChassis);
             this.pnlRightPhone.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlRightPhone.Location = new System.Drawing.Point(652, 0);
+            this.pnlRightPhone.Location = new System.Drawing.Point(544, 0);
             this.pnlRightPhone.Margin = new System.Windows.Forms.Padding(0);
             this.pnlRightPhone.Name = "pnlRightPhone";
-            this.pnlRightPhone.Size = new System.Drawing.Size(436, 688);
+            this.pnlRightPhone.Size = new System.Drawing.Size(544, 688);
             this.pnlRightPhone.TabIndex = 1;
             // 
             // pnlPhoneChassis
             // 
-            this.pnlPhoneChassis.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.pnlPhoneChassis.BackColor = System.Drawing.Color.Transparent;
-            this.pnlPhoneChassis.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(213)))), ((int)(((byte)(225)))));
-            this.pnlPhoneChassis.BorderRadius = 32;
-            this.pnlPhoneChassis.BorderSize = 2;
+            this.pnlPhoneChassis.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
+            this.pnlPhoneChassis.BorderRadius = 16;
+            this.pnlPhoneChassis.BorderSize = 1;
             this.pnlPhoneChassis.Controls.Add(this.pnlPhoneScreen);
+            this.pnlPhoneChassis.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlPhoneChassis.FillColor = System.Drawing.Color.White;
-            this.pnlPhoneChassis.Location = new System.Drawing.Point(24, 6);
+            this.pnlPhoneChassis.Location = new System.Drawing.Point(0, 0);
+            this.pnlPhoneChassis.Margin = new System.Windows.Forms.Padding(0);
             this.pnlPhoneChassis.Name = "pnlPhoneChassis";
-            this.pnlPhoneChassis.Padding = new System.Windows.Forms.Padding(10);
-            this.pnlPhoneChassis.Size = new System.Drawing.Size(390, 676);
+            this.pnlPhoneChassis.Padding = new System.Windows.Forms.Padding(16);
+            this.pnlPhoneChassis.Size = new System.Drawing.Size(544, 688);
             this.pnlPhoneChassis.TabIndex = 0;
             // 
             // pnlPhoneScreen
@@ -424,11 +435,10 @@ namespace BankAccountManagement.Forms
             this.pnlPhoneScreen.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
             this.pnlPhoneScreen.Controls.Add(this.pnlStepContainer);
             this.pnlPhoneScreen.Controls.Add(this.pnlPhoneTopNav);
-            this.pnlPhoneScreen.Controls.Add(this.pnlPhoneStatusBar);
             this.pnlPhoneScreen.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlPhoneScreen.Location = new System.Drawing.Point(10, 10);
+            this.pnlPhoneScreen.Location = new System.Drawing.Point(16, 16);
             this.pnlPhoneScreen.Name = "pnlPhoneScreen";
-            this.pnlPhoneScreen.Size = new System.Drawing.Size(370, 656);
+            this.pnlPhoneScreen.Size = new System.Drawing.Size(512, 656);
             this.pnlPhoneScreen.TabIndex = 0;
             // 
             // pnlStepContainer
@@ -437,9 +447,9 @@ namespace BankAccountManagement.Forms
             this.pnlStepContainer.Controls.Add(this.pnlStep2);
             this.pnlStepContainer.Controls.Add(this.pnlStep3);
             this.pnlStepContainer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlStepContainer.Location = new System.Drawing.Point(0, 68);
+            this.pnlStepContainer.Location = new System.Drawing.Point(0, 56);
             this.pnlStepContainer.Name = "pnlStepContainer";
-            this.pnlStepContainer.Size = new System.Drawing.Size(370, 588);
+            this.pnlStepContainer.Size = new System.Drawing.Size(512, 600);
             this.pnlStepContainer.TabIndex = 2;
             // 
             // pnlStep1
@@ -467,13 +477,13 @@ namespace BankAccountManagement.Forms
             this.btnStep1Next.BorderSize = 0;
             this.btnStep1Next.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnStep1Next.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.btnStep1Next.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Bold);
+            this.btnStep1Next.Font = new System.Drawing.Font("Segoe UI", 11.5F, System.Drawing.FontStyle.Bold);
             this.btnStep1Next.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
-            this.btnStep1Next.Location = new System.Drawing.Point(16, 526);
+            this.btnStep1Next.Location = new System.Drawing.Point(16, 522);
             this.btnStep1Next.Name = "btnStep1Next";
             this.btnStep1Next.NormalColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
             this.btnStep1Next.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(2)))), ((int)(((byte)(6)))), ((int)(((byte)(23)))));
-            this.btnStep1Next.Size = new System.Drawing.Size(338, 46);
+            this.btnStep1Next.Size = new System.Drawing.Size(338, 50);
             this.btnStep1Next.TabIndex = 6;
             this.btnStep1Next.Text = "Tiếp tục";
             this.btnStep1Next.TextColor = System.Drawing.Color.White;
@@ -776,13 +786,13 @@ namespace BankAccountManagement.Forms
             this.btnStep2Confirm.BorderSize = 0;
             this.btnStep2Confirm.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnStep2Confirm.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.btnStep2Confirm.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
+            this.btnStep2Confirm.Font = new System.Drawing.Font("Segoe UI", 11.5F, System.Drawing.FontStyle.Bold);
             this.btnStep2Confirm.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(190)))), ((int)(((byte)(18)))), ((int)(((byte)(60)))));
-            this.btnStep2Confirm.Location = new System.Drawing.Point(16, 526);
+            this.btnStep2Confirm.Location = new System.Drawing.Point(16, 522);
             this.btnStep2Confirm.Name = "btnStep2Confirm";
             this.btnStep2Confirm.NormalColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(29)))), ((int)(((byte)(72)))));
             this.btnStep2Confirm.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(159)))), ((int)(((byte)(18)))), ((int)(((byte)(57)))));
-            this.btnStep2Confirm.Size = new System.Drawing.Size(338, 46);
+            this.btnStep2Confirm.Size = new System.Drawing.Size(338, 50);
             this.btnStep2Confirm.TabIndex = 4;
             this.btnStep2Confirm.Text = "Xác nhận & Mở ✨";
             this.btnStep2Confirm.TextColor = System.Drawing.Color.White;
@@ -799,7 +809,9 @@ namespace BankAccountManagement.Forms
             // 
             // lblStep2AgreeText
             // 
-            this.lblStep2AgreeText.Font = new System.Drawing.Font("Segoe UI", 8.25F);
+            this.lblStep2AgreeText.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblStep2AgreeText.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.lblStep2AgreeText.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(65)))), ((int)(((byte)(85)))));
             this.lblStep2AgreeText.Location = new System.Drawing.Point(42, 464);
             this.lblStep2AgreeText.Name = "lblStep2AgreeText";
@@ -884,6 +896,7 @@ namespace BankAccountManagement.Forms
             // 
             // pnlStep2RenewalMethod
             // 
+            this.pnlStep2RenewalMethod.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlStep2RenewalMethod.BackColor = System.Drawing.Color.White;
             this.pnlStep2RenewalMethod.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(213)))), ((int)(((byte)(225)))));
             this.pnlStep2RenewalMethod.BorderRadius = 8;
@@ -949,6 +962,8 @@ namespace BankAccountManagement.Forms
             // 
             // pnlStep2TermBox
             // 
+            this.pnlStep2TermBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlStep2TermBox.BackColor = System.Drawing.Color.White;
             this.pnlStep2TermBox.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(213)))), ((int)(((byte)(225)))));
             this.pnlStep2TermBox.BorderRadius = 8;
@@ -1099,9 +1114,9 @@ namespace BankAccountManagement.Forms
             this.pnlStep3Buttons.Controls.Add(this.btnStep3Close);
             this.pnlStep3Buttons.Controls.Add(this.btnStep3Settle);
             this.pnlStep3Buttons.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlStep3Buttons.Location = new System.Drawing.Point(16, 526);
+            this.pnlStep3Buttons.Location = new System.Drawing.Point(16, 524);
             this.pnlStep3Buttons.Name = "pnlStep3Buttons";
-            this.pnlStep3Buttons.Size = new System.Drawing.Size(338, 46);
+            this.pnlStep3Buttons.Size = new System.Drawing.Size(338, 48);
             this.pnlStep3Buttons.TabIndex = 7;
             // 
             // btnStep3Close
@@ -1110,13 +1125,13 @@ namespace BankAccountManagement.Forms
             this.btnStep3Close.BorderSize = 0;
             this.btnStep3Close.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnStep3Close.Dock = System.Windows.Forms.DockStyle.Right;
-            this.btnStep3Close.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnStep3Close.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Bold);
             this.btnStep3Close.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(190)))), ((int)(((byte)(18)))), ((int)(((byte)(60)))));
             this.btnStep3Close.Location = new System.Drawing.Point(176, 0);
             this.btnStep3Close.Name = "btnStep3Close";
             this.btnStep3Close.NormalColor = System.Drawing.Color.FromArgb(((int)(((byte)(225)))), ((int)(((byte)(29)))), ((int)(((byte)(72)))));
             this.btnStep3Close.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(159)))), ((int)(((byte)(18)))), ((int)(((byte)(57)))));
-            this.btnStep3Close.Size = new System.Drawing.Size(162, 46);
+            this.btnStep3Close.Size = new System.Drawing.Size(162, 48);
             this.btnStep3Close.TabIndex = 1;
             this.btnStep3Close.Text = "Đóng";
             this.btnStep3Close.TextColor = System.Drawing.Color.White;
@@ -1127,14 +1142,14 @@ namespace BankAccountManagement.Forms
             this.btnStep3Settle.BorderSize = 1;
             this.btnStep3Settle.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnStep3Settle.Dock = System.Windows.Forms.DockStyle.Left;
-            this.btnStep3Settle.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnStep3Settle.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Bold);
             this.btnStep3Settle.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
             this.btnStep3Settle.Location = new System.Drawing.Point(0, 0);
             this.btnStep3Settle.Name = "btnStep3Settle";
             this.btnStep3Settle.NormalBorder = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(213)))), ((int)(((byte)(225)))));
             this.btnStep3Settle.NormalColor = System.Drawing.Color.White;
             this.btnStep3Settle.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
-            this.btnStep3Settle.Size = new System.Drawing.Size(162, 46);
+            this.btnStep3Settle.Size = new System.Drawing.Size(162, 48);
             this.btnStep3Settle.TabIndex = 0;
             this.btnStep3Settle.Text = "Tất toán";
             this.btnStep3Settle.TextColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
@@ -1145,14 +1160,14 @@ namespace BankAccountManagement.Forms
             this.btnStep3DownloadReceipt.BorderSize = 0;
             this.btnStep3DownloadReceipt.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnStep3DownloadReceipt.Dock = System.Windows.Forms.DockStyle.Top;
-            this.btnStep3DownloadReceipt.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.btnStep3DownloadReceipt.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Bold);
             this.btnStep3DownloadReceipt.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.btnStep3DownloadReceipt.Location = new System.Drawing.Point(16, 466);
             this.btnStep3DownloadReceipt.Margin = new System.Windows.Forms.Padding(0, 8, 0, 8);
             this.btnStep3DownloadReceipt.Name = "btnStep3DownloadReceipt";
             this.btnStep3DownloadReceipt.NormalColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
             this.btnStep3DownloadReceipt.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(2)))), ((int)(((byte)(6)))), ((int)(((byte)(23)))));
-            this.btnStep3DownloadReceipt.Size = new System.Drawing.Size(338, 42);
+            this.btnStep3DownloadReceipt.Size = new System.Drawing.Size(338, 46);
             this.btnStep3DownloadReceipt.TabIndex = 6;
             this.btnStep3DownloadReceipt.Text = "Tải biên lai";
             this.btnStep3DownloadReceipt.TextColor = System.Drawing.Color.White;
@@ -1474,17 +1489,17 @@ namespace BankAccountManagement.Forms
             this.lblStep3BannerText.TabIndex = 0;
             this.lblStep3BannerText.Text = "3. Chi tiết TKTK";
             // 
+            // 
             // pnlPhoneTopNav
             // 
+            this.pnlPhoneTopNav.Controls.Add(this.pnlTopNavTitleWrapper);
             this.pnlPhoneTopNav.Controls.Add(this.btnPhoneRightIcon);
-            this.pnlPhoneTopNav.Controls.Add(this.lblPhoneNavSubtitle);
-            this.pnlPhoneTopNav.Controls.Add(this.lblPhoneNavTitle);
             this.pnlPhoneTopNav.Controls.Add(this.btnPhoneBack);
             this.pnlPhoneTopNav.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlPhoneTopNav.Location = new System.Drawing.Point(0, 24);
+            this.pnlPhoneTopNav.Location = new System.Drawing.Point(0, 0);
             this.pnlPhoneTopNav.Name = "pnlPhoneTopNav";
-            this.pnlPhoneTopNav.Padding = new System.Windows.Forms.Padding(6, 0, 6, 0);
-            this.pnlPhoneTopNav.Size = new System.Drawing.Size(370, 44);
+            this.pnlPhoneTopNav.Padding = new System.Windows.Forms.Padding(0, 0, 0, 8);
+            this.pnlPhoneTopNav.Size = new System.Drawing.Size(512, 56);
             this.pnlPhoneTopNav.TabIndex = 1;
             // 
             // btnPhoneRightIcon
@@ -1496,34 +1511,12 @@ namespace BankAccountManagement.Forms
             this.btnPhoneRightIcon.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnPhoneRightIcon.Font = new System.Drawing.Font("Segoe UI", 12F);
             this.btnPhoneRightIcon.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
-            this.btnPhoneRightIcon.Location = new System.Drawing.Point(328, 0);
+            this.btnPhoneRightIcon.Location = new System.Drawing.Point(472, 0);
             this.btnPhoneRightIcon.Name = "btnPhoneRightIcon";
-            this.btnPhoneRightIcon.Size = new System.Drawing.Size(36, 44);
+            this.btnPhoneRightIcon.Size = new System.Drawing.Size(40, 48);
             this.btnPhoneRightIcon.TabIndex = 3;
             this.btnPhoneRightIcon.Text = "📄";
             this.btnPhoneRightIcon.UseVisualStyleBackColor = false;
-            // 
-            // lblPhoneNavSubtitle
-            // 
-            this.lblPhoneNavSubtitle.Font = new System.Drawing.Font("Segoe UI", 8F);
-            this.lblPhoneNavSubtitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
-            this.lblPhoneNavSubtitle.Location = new System.Drawing.Point(42, 24);
-            this.lblPhoneNavSubtitle.Name = "lblPhoneNavSubtitle";
-            this.lblPhoneNavSubtitle.Size = new System.Drawing.Size(280, 16);
-            this.lblPhoneNavSubtitle.TabIndex = 2;
-            this.lblPhoneNavSubtitle.Text = "Gửi trực tuyến lãi suất ưu đãi";
-            this.lblPhoneNavSubtitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            // 
-            // lblPhoneNavTitle
-            // 
-            this.lblPhoneNavTitle.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Bold);
-            this.lblPhoneNavTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
-            this.lblPhoneNavTitle.Location = new System.Drawing.Point(42, 4);
-            this.lblPhoneNavTitle.Name = "lblPhoneNavTitle";
-            this.lblPhoneNavTitle.Size = new System.Drawing.Size(280, 20);
-            this.lblPhoneNavTitle.TabIndex = 1;
-            this.lblPhoneNavTitle.Text = "Mở tài khoản tiết kiệm";
-            this.lblPhoneNavTitle.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // btnPhoneBack
             // 
@@ -1532,49 +1525,49 @@ namespace BankAccountManagement.Forms
             this.btnPhoneBack.Dock = System.Windows.Forms.DockStyle.Left;
             this.btnPhoneBack.FlatAppearance.BorderSize = 0;
             this.btnPhoneBack.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnPhoneBack.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
+            this.btnPhoneBack.Font = new System.Drawing.Font("Segoe UI", 13F, System.Drawing.FontStyle.Bold);
             this.btnPhoneBack.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
-            this.btnPhoneBack.Location = new System.Drawing.Point(6, 0);
+            this.btnPhoneBack.Location = new System.Drawing.Point(0, 0);
             this.btnPhoneBack.Name = "btnPhoneBack";
-            this.btnPhoneBack.Size = new System.Drawing.Size(36, 44);
+            this.btnPhoneBack.Size = new System.Drawing.Size(40, 48);
             this.btnPhoneBack.TabIndex = 0;
             this.btnPhoneBack.Text = "←";
             this.btnPhoneBack.UseVisualStyleBackColor = false;
             // 
-            // pnlPhoneStatusBar
+            // pnlTopNavTitleWrapper
             // 
-            this.pnlPhoneStatusBar.Controls.Add(this.lblPhoneStatusRight);
-            this.pnlPhoneStatusBar.Controls.Add(this.lblPhoneTime);
-            this.pnlPhoneStatusBar.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlPhoneStatusBar.Location = new System.Drawing.Point(0, 0);
-            this.pnlPhoneStatusBar.Name = "pnlPhoneStatusBar";
-            this.pnlPhoneStatusBar.Padding = new System.Windows.Forms.Padding(16, 2, 16, 0);
-            this.pnlPhoneStatusBar.Size = new System.Drawing.Size(370, 24);
-            this.pnlPhoneStatusBar.TabIndex = 0;
+            this.pnlTopNavTitleWrapper.Controls.Add(this.lblPhoneNavSubtitle);
+            this.pnlTopNavTitleWrapper.Controls.Add(this.lblPhoneNavTitle);
+            this.pnlTopNavTitleWrapper.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlTopNavTitleWrapper.Location = new System.Drawing.Point(40, 0);
+            this.pnlTopNavTitleWrapper.Name = "pnlTopNavTitleWrapper";
+            this.pnlTopNavTitleWrapper.Padding = new System.Windows.Forms.Padding(8, 2, 8, 0);
+            this.pnlTopNavTitleWrapper.Size = new System.Drawing.Size(432, 48);
+            this.pnlTopNavTitleWrapper.TabIndex = 2;
             // 
-            // lblPhoneStatusRight
+            // lblPhoneNavTitle
             // 
-            this.lblPhoneStatusRight.Dock = System.Windows.Forms.DockStyle.Right;
-            this.lblPhoneStatusRight.Font = new System.Drawing.Font("Segoe UI", 8F);
-            this.lblPhoneStatusRight.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
-            this.lblPhoneStatusRight.Location = new System.Drawing.Point(274, 2);
-            this.lblPhoneStatusRight.Name = "lblPhoneStatusRight";
-            this.lblPhoneStatusRight.Size = new System.Drawing.Size(80, 22);
-            this.lblPhoneStatusRight.TabIndex = 1;
-            this.lblPhoneStatusRight.Text = "📶 🛜 🔋";
-            this.lblPhoneStatusRight.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.lblPhoneNavTitle.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblPhoneNavTitle.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
+            this.lblPhoneNavTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
+            this.lblPhoneNavTitle.Location = new System.Drawing.Point(8, 2);
+            this.lblPhoneNavTitle.Name = "lblPhoneNavTitle";
+            this.lblPhoneNavTitle.Size = new System.Drawing.Size(416, 24);
+            this.lblPhoneNavTitle.TabIndex = 1;
+            this.lblPhoneNavTitle.Text = "Mở tài khoản tiết kiệm";
+            this.lblPhoneNavTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // lblPhoneTime
+            // lblPhoneNavSubtitle
             // 
-            this.lblPhoneTime.Dock = System.Windows.Forms.DockStyle.Left;
-            this.lblPhoneTime.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.lblPhoneTime.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
-            this.lblPhoneTime.Location = new System.Drawing.Point(16, 2);
-            this.lblPhoneTime.Name = "lblPhoneTime";
-            this.lblPhoneTime.Size = new System.Drawing.Size(60, 22);
-            this.lblPhoneTime.TabIndex = 0;
-            this.lblPhoneTime.Text = "21:21";
-            this.lblPhoneTime.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblPhoneNavSubtitle.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lblPhoneNavSubtitle.Font = new System.Drawing.Font("Segoe UI", 8.5F);
+            this.lblPhoneNavSubtitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
+            this.lblPhoneNavSubtitle.Location = new System.Drawing.Point(8, 26);
+            this.lblPhoneNavSubtitle.Name = "lblPhoneNavSubtitle";
+            this.lblPhoneNavSubtitle.Size = new System.Drawing.Size(416, 18);
+            this.lblPhoneNavSubtitle.TabIndex = 2;
+            this.lblPhoneNavSubtitle.Text = "Gửi trực tuyến lãi suất ưu đãi - An toàn & tiện lợi 24/7";
+            this.lblPhoneNavSubtitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // SaveMoneyUserForm
             // 
@@ -1625,7 +1618,7 @@ namespace BankAccountManagement.Forms
             this.pnlStep3Banner.ResumeLayout(false);
             this.pnlStep3Banner.PerformLayout();
             this.pnlPhoneTopNav.ResumeLayout(false);
-            this.pnlPhoneStatusBar.ResumeLayout(false);
+            this.pnlTopNavTitleWrapper.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -1638,9 +1631,8 @@ namespace BankAccountManagement.Forms
         private System.Windows.Forms.Panel pnlRightPhone;
         private BankAccountManagement.Forms.RoundedPanel pnlPhoneChassis;
         private System.Windows.Forms.Panel pnlPhoneScreen;
-        private System.Windows.Forms.Panel pnlPhoneStatusBar;
-        private System.Windows.Forms.Label lblPhoneTime;
-        private System.Windows.Forms.Label lblPhoneStatusRight;
+        private System.Windows.Forms.Panel pnlTopNavTitleWrapper;
+        private System.Windows.Forms.Label lblBannerDiamond;
         private System.Windows.Forms.Panel pnlPhoneTopNav;
         private System.Windows.Forms.Button btnPhoneBack;
         private System.Windows.Forms.Label lblPhoneNavTitle;

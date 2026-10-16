@@ -243,6 +243,22 @@ namespace BankAccountManagement.Forms
                     DisplaySavingsInStep3(selected);
                 }
             };
+
+            // Tự động căn giữa biểu tượng và co dãn các nút ở Bước 3 khi phóng to
+            pnlStep3.Resize += (s, e) =>
+            {
+                pnlStep3CheckIcon.Left = (pnlStep3.ClientSize.Width - pnlStep3CheckIcon.Width) / 2;
+            };
+
+            pnlStep3Buttons.Resize += (s, e) =>
+            {
+                int half = (pnlStep3Buttons.ClientSize.Width - 12) / 2;
+                if (half > 60)
+                {
+                    btnStep3Settle.Width = half;
+                    btnStep3Close.Width = half;
+                }
+            };
         }
 
         private void SetSelectedTerm(int months)
@@ -292,6 +308,13 @@ namespace BankAccountManagement.Forms
                 lblPhoneNavTitle.Text = "Mở Tài Khoản Tiết Kiệm";
                 lblPhoneNavSubtitle.Text = "Bước 3/3: Chi tiết TKTK";
                 btnPhoneBack.Visible = true;
+                pnlStep3CheckIcon.Left = (pnlStep3.ClientSize.Width - pnlStep3CheckIcon.Width) / 2;
+                int half = (pnlStep3Buttons.ClientSize.Width - 12) / 2;
+                if (half > 60)
+                {
+                    btnStep3Settle.Width = half;
+                    btnStep3Close.Width = half;
+                }
             }
         }
 
