@@ -451,39 +451,38 @@ namespace BankAccountManagement.Forms
             this.pnlCustSearch.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(213)))), ((int)(((byte)(225)))));
             this.pnlCustSearch.BorderRadius = 8;
             this.pnlCustSearch.BorderSize = 1;
-            this.pnlCustSearch.Controls.Add(this.txtSearchCustomer);
             this.pnlCustSearch.Controls.Add(this.lblCustSearchIcon);
+            this.pnlCustSearch.Controls.Add(this.txtSearchCustomer);
             this.pnlCustSearch.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlCustSearch.FillColor = System.Drawing.Color.White;
             this.pnlCustSearch.Location = new System.Drawing.Point(14, 44);
             this.pnlCustSearch.Margin = new System.Windows.Forms.Padding(0, 0, 0, 8);
             this.pnlCustSearch.Name = "pnlCustSearch";
-            this.pnlCustSearch.Padding = new System.Windows.Forms.Padding(8, 4, 8, 4);
             this.pnlCustSearch.Size = new System.Drawing.Size(320, 36);
             this.pnlCustSearch.TabIndex = 1;
             // 
-            // txtSearchCustomer
-            // 
-            this.txtSearchCustomer.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.txtSearchCustomer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtSearchCustomer.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.txtSearchCustomer.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
-            this.txtSearchCustomer.Location = new System.Drawing.Point(34, 4);
-            this.txtSearchCustomer.Name = "txtSearchCustomer";
-            this.txtSearchCustomer.Size = new System.Drawing.Size(278, 16);
-            this.txtSearchCustomer.TabIndex = 1;
-            // 
             // lblCustSearchIcon
             // 
-            this.lblCustSearchIcon.Dock = System.Windows.Forms.DockStyle.Left;
-            this.lblCustSearchIcon.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.lblCustSearchIcon.Font = new System.Drawing.Font("Segoe UI Emoji", 10F);
             this.lblCustSearchIcon.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(148)))), ((int)(((byte)(163)))), ((int)(((byte)(184)))));
-            this.lblCustSearchIcon.Location = new System.Drawing.Point(8, 4);
+            this.lblCustSearchIcon.Location = new System.Drawing.Point(8, 8);
             this.lblCustSearchIcon.Name = "lblCustSearchIcon";
-            this.lblCustSearchIcon.Size = new System.Drawing.Size(26, 28);
+            this.lblCustSearchIcon.Size = new System.Drawing.Size(22, 20);
             this.lblCustSearchIcon.TabIndex = 0;
             this.lblCustSearchIcon.Text = "🔍";
-            this.lblCustSearchIcon.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblCustSearchIcon.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // txtSearchCustomer
+            // 
+            this.txtSearchCustomer.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtSearchCustomer.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.txtSearchCustomer.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.txtSearchCustomer.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
+            this.txtSearchCustomer.Location = new System.Drawing.Point(34, 9);
+            this.txtSearchCustomer.Name = "txtSearchCustomer";
+            this.txtSearchCustomer.Size = new System.Drawing.Size(276, 17);
+            this.txtSearchCustomer.TabIndex = 1;
             // 
             // lblCustPanelTitle
             // 
@@ -682,39 +681,38 @@ namespace BankAccountManagement.Forms
             this.pnlSavingsSearch.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(213)))), ((int)(((byte)(225)))));
             this.pnlSavingsSearch.BorderRadius = 8;
             this.pnlSavingsSearch.BorderSize = 1;
-            this.pnlSavingsSearch.Controls.Add(this.txtSearchSavings);
             this.pnlSavingsSearch.Controls.Add(this.lblSavingsSearchIcon);
+            this.pnlSavingsSearch.Controls.Add(this.txtSearchSavings);
             this.pnlSavingsSearch.Dock = System.Windows.Forms.DockStyle.Right;
             this.pnlSavingsSearch.FillColor = System.Drawing.Color.White;
             this.pnlSavingsSearch.Location = new System.Drawing.Point(370, 0);
             this.pnlSavingsSearch.Margin = new System.Windows.Forms.Padding(0, 0, 8, 0);
             this.pnlSavingsSearch.Name = "pnlSavingsSearch";
-            this.pnlSavingsSearch.Padding = new System.Windows.Forms.Padding(8, 4, 8, 4);
             this.pnlSavingsSearch.Size = new System.Drawing.Size(236, 36);
             this.pnlSavingsSearch.TabIndex = 3;
             // 
-            // txtSearchSavings
-            // 
-            this.txtSearchSavings.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.txtSearchSavings.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtSearchSavings.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.txtSearchSavings.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
-            this.txtSearchSavings.Location = new System.Drawing.Point(34, 4);
-            this.txtSearchSavings.Name = "txtSearchSavings";
-            this.txtSearchSavings.Size = new System.Drawing.Size(194, 16);
-            this.txtSearchSavings.TabIndex = 1;
-            // 
             // lblSavingsSearchIcon
             // 
-            this.lblSavingsSearchIcon.Dock = System.Windows.Forms.DockStyle.Left;
-            this.lblSavingsSearchIcon.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.lblSavingsSearchIcon.Font = new System.Drawing.Font("Segoe UI Emoji", 10F);
             this.lblSavingsSearchIcon.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(148)))), ((int)(((byte)(163)))), ((int)(((byte)(184)))));
-            this.lblSavingsSearchIcon.Location = new System.Drawing.Point(8, 4);
+            this.lblSavingsSearchIcon.Location = new System.Drawing.Point(8, 8);
             this.lblSavingsSearchIcon.Name = "lblSavingsSearchIcon";
-            this.lblSavingsSearchIcon.Size = new System.Drawing.Size(26, 28);
+            this.lblSavingsSearchIcon.Size = new System.Drawing.Size(22, 20);
             this.lblSavingsSearchIcon.TabIndex = 0;
             this.lblSavingsSearchIcon.Text = "🔍";
-            this.lblSavingsSearchIcon.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblSavingsSearchIcon.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // txtSearchSavings
+            // 
+            this.txtSearchSavings.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtSearchSavings.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.txtSearchSavings.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.txtSearchSavings.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
+            this.txtSearchSavings.Location = new System.Drawing.Point(34, 9);
+            this.txtSearchSavings.Name = "txtSearchSavings";
+            this.txtSearchSavings.Size = new System.Drawing.Size(192, 17);
+            this.txtSearchSavings.TabIndex = 1;
             // 
             // btnTabSettled
             // 
