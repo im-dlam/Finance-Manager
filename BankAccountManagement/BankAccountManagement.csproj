@@ -136,6 +136,18 @@
     <Compile Include="Forms\SaveMoneyForm.Designer.cs">
       <DependentUpon>SaveMoneyForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\SaveMoneyUserForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\SaveMoneyUserForm.Designer.cs">
+      <DependentUpon>SaveMoneyUserForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\SaveMoneyAdminForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\SaveMoneyAdminForm.Designer.cs">
+      <DependentUpon>SaveMoneyAdminForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\SettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -198,6 +210,7 @@
     </Compile>
     <Compile Include="Models\AuthResult.cs" />
     <Compile Include="Models\BorrowingLoan.cs" />
+    <Compile Include="Models\SoTietKiem.cs" />
     <Compile Include="Models\CartItem.cs" />
     <Compile Include="Models\CreditCardInfo.cs" />
     <Compile Include="Models\CurrencyInfo.cs" />
@@ -225,6 +238,7 @@
     <Compile Include="Services\AccountService.cs" />
     <Compile Include="Services\NganHangService.cs" />
     <Compile Include="Services\ProductService.cs" />
+    <Compile Include="Services\SaveMoneyService.cs" />
     <Compile Include="Services\ShoppingCartService.cs" />
     <Compile Include="Services\ShopService.cs" />
     <Compile Include="Services\StartupService.cs" />

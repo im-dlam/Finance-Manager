@@ -324,7 +324,14 @@ namespace BankAccountManagement
 
         private void btnSaveMoney_Click(object sender, EventArgs e)
         {
-            LoadMultiForm(new SaveMoneyForm()); // Hiển thị Form SaveMoneyForm bên trong pnMain
+            if (CurrentSession.IsAdmin)
+            {
+                LoadMultiForm(new SaveMoneyAdminForm()); // Giao diện quản lý tiết kiệm Admin
+            }
+            else
+            {
+                OpenFormWithCustomerCheck(() => new SaveMoneyUserForm()); // Giao diện gửi tiết kiệm Khách hàng
+            }
         }
     }
 }
