@@ -38,4 +38,38 @@ namespace BankAccountManagement.Models
         public string FormattedTerm => $"{ThoiGianVay} ngày";
         public string FormattedRegisterDate => NgayDangKy.ToString("dd/MM/yyyy");
     }
+
+    /// <summary>
+    /// Kết quả tính toán lãi suất và số nợ phải trả theo thời gian thực từ BorrowingService.
+    /// </summary>
+    public class LoanCalculationResult
+    {
+        public decimal SoTienVay { get; set; }
+        public int ThoiGianVay { get; set; }
+        public decimal LaiSuatNgay { get; set; }
+        public decimal TienLai { get; set; }
+        public decimal TongPhaiTra { get; set; }
+        public DateTime NgayDangKy { get; set; }
+        public DateTime NgayDaoHan { get; set; }
+
+        public string FormattedSoTienVay => $"{SoTienVay:N0} đ";
+        public string FormattedTienLai => $"{TienLai:N0} đ";
+        public string FormattedTongPhaiTra => $"{TongPhaiTra:N0} đ";
+        public string FormattedLaiSuat => $"{LaiSuatNgay:N2}%/ngày";
+        public string FormattedNgayDaoHan => NgayDaoHan.ToString("dd/MM/yyyy");
+    }
+
+    /// <summary>
+    /// Thống kê tổng quan các chỉ số hồ sơ vay vốn trong hệ thống phục vụ Ban Quản Trị.
+    /// </summary>
+    public class BorrowingStatistics
+    {
+        public int TongHoSo { get; set; }
+        public int ChoDuyet { get; set; }
+        public int DaDuyet { get; set; }
+        public int TuChoi { get; set; }
+        public int DaTatToan { get; set; }
+        public decimal TongTienDaGiaiNgan { get; set; }
+        public decimal TongDuNoCanThuHoi { get; set; }
+    }
 }

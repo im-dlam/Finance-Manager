@@ -8,14 +8,59 @@ using System.Threading.Tasks;
 namespace BankAccountManagement.Services
 {
     /// <summary>
-    /// Dịch vụ xử lý nghiệp vụ Vay vốn / Vay nhanh (Borrowing Service):
+    /// Dịch vụ xử lý toàn bộ nghiệp vụ Vay vốn & Thẩm định tài chính (Borrowing Service):
+    /// - Quản lý cấu hình mức vay, kỳ hạn và biểu phí lãi suất chuẩn Fintech
+    /// - Tính toán lãi suất thời gian thực, tổng dư nợ và ngày đáo hạn
     /// - Quản lý đăng ký hồ sơ vay cho Khách hàng
-    /// - Thẩm định tài chính 1 quý (90 ngày) cho Admin
-    /// - Phê duyệt giải ngân trực tiếp vào tài khoản ngân hàng và từ chối hồ sơ
+    /// - Thẩm định tài chính 1 quý (90 ngày) theo giao dịch thực tế cho Admin
+    /// - Phê duyệt giải ngân trực tiếp vào số dư tài khoản ngân hàng và ghi nhận lịch sử giao dịch
+    /// - Từ chối hồ sơ kèm lý do và chức năng thanh toán/tất toán nợ
+    /// - Thống kê tổng hợp số liệu khoản vay
     /// </summary>
     public class BorrowingService
     {
         private readonly DatabaseConfig _config;
+
+        #region CONSTANTS & SYSTEM PARAMETERS
+
+        /// <summary>
+        /// Mức vay tối thiểu cho phép (100.000 VND).
+        /// </summary>
+        public const decimal VAY_MIN = 100000m;
+
+        /// <summary>
+        /// Mức vay tối đa cho phép (10.000.000 VND).
+        /// </summary>
+        public const decimal VAY_MAX = 10000000m;
+
+        /// <summary>
+        /// Bước nhảy số tiền vay trên thanh trượt (100.000 VND).
+        /// </summary>
+        public const decimal VAY_STEP = 100000m;
+
+        /// <summary>
+        /// Thời hạn vay tối thiểu (7 ngày).
+        /// </summary>
+        public const int TIME_MIN = 7;
+
+        /// <summary>
+        /// Thời hạn vay tối đa (30 ngày).
+        /// </summary>
+        public const int TIME_MAX = 30;
+
+        /// <summary>
+        /// Bước nhảy thời hạn vay (1 ngày).
+        /// </summary>
+        public const int TIME_STEP = 1;
+
+        /// <summary>
+        /// Lãi suất ưu đãi mặc định: 1.55%/ngày (tương đương 465.000 đ lãi cho khoản 1.000.000 đ trong 30 ngày).
+        /// </summary>
+        public const decimal DEFAULT_DAILY_INTEREST_RATE = 1.55m;
+
+        #endregion
+
+        #region CONSTRUCTORS
 
         public BorrowingService()
         {
@@ -34,8 +79,12 @@ namespace BankAccountManagement.Services
             return DatabaseService.BuildConnectionString(_config);
         }
 
+        #endregion
+
+        #region DATABASE SCHEMA INITIALIZATION
+
         /// <summary>
-        /// Đảm bảo bảng dbo.KhoanVay luôn tồn tại trong cơ sở dữ liệu.
+        /// Đảm bảo bảng dbo.KhoanVay luôn tồn tại trong cơ sở dữ liệu hệ thống.
         /// </summary>
         public void EnsureTableExists()
         {
@@ -76,8 +125,63 @@ namespace BankAccountManagement.Services
             }
         }
 
+        #endregion
+
+        #region CALCULATION & BUSINESS RULES
+
         /// <summary>
-        /// Lấy tài khoản ngân hàng đang hoạt động của khách hàng để nhận giải ngân.
+        /// Tính toán tự động số tiền lãi, tổng số nợ phải trả và ngày đáo hạn theo chuẩn công thức hệ thống.
+        /// Công thức: Lãi = Vốn × (Lãi suất ngày / 100) × Số ngày vay.
+        /// Tổng phải trả = Vốn + Lãi.
+        /// </summary>
+        public LoanCalculationResult CalculateLoan(decimal soTienVay, int thoiGianVay, decimal dailyRatePercent = DEFAULT_DAILY_INTEREST_RATE)
+        {
+            decimal rate = dailyRatePercent > 0 ? dailyRatePercent : DEFAULT_DAILY_INTEREST_RATE;
+            decimal dailyRateFraction = rate / 100m;
+            decimal tienLai = Math.Round(soTienVay * dailyRateFraction * thoiGianVay, 0);
+            decimal tongPhaiTra = soTienVay + tienLai;
+            DateTime ngayDangKy = DateTime.Now;
+            DateTime ngayDaoHan = DateTime.Today.AddDays(thoiGianVay);
+
+            return new LoanCalculationResult
+            {
+                SoTienVay = soTienVay,
+                ThoiGianVay = thoiGianVay,
+                LaiSuatNgay = rate,
+                TienLai = tienLai,
+                TongPhaiTra = tongPhaiTra,
+                NgayDangKy = ngayDangKy,
+                NgayDaoHan = ngayDaoHan
+            };
+        }
+
+        /// <summary>
+        /// Kiểm tra tính hợp lệ của các tham số khi đăng ký hồ sơ khoản vay.
+        /// </summary>
+        public (bool IsValid, string ErrorMessage) ValidateLoanRegistration(
+            string maKH, string soTaiKhoan, decimal soTienVay, int thoiGianVay)
+        {
+            if (string.IsNullOrWhiteSpace(maKH))
+                return (false, "Không tìm thấy thông tin khách hàng đăng ký.");
+
+            if (string.IsNullOrWhiteSpace(soTaiKhoan))
+                return (false, "Vui lòng chọn tài khoản ngân hàng nhận tiền giải ngân.");
+
+            if (soTienVay < VAY_MIN || soTienVay > VAY_MAX)
+                return (false, $"Số tiền vay phải nằm trong khoảng từ {VAY_MIN:N0} đ đến {VAY_MAX:N0} đ.");
+
+            if (thoiGianVay < TIME_MIN || thoiGianVay > TIME_MAX)
+                return (false, $"Thời hạn vay phải từ {TIME_MIN} ngày đến {TIME_MAX} ngày.");
+
+            return (true, string.Empty);
+        }
+
+        #endregion
+
+        #region CUSTOMER LOAN REGISTRATION & ACCOUNT QUERIES
+
+        /// <summary>
+        /// Lấy danh sách tài khoản ngân hàng đang hoạt động của khách hàng để nhận giải ngân.
         /// </summary>
         public async Task<List<TaiKhoan>> GetUserPaymentAccountsAsync(string maKH)
         {
@@ -138,27 +242,13 @@ namespace BankAccountManagement.Services
         public async Task<(bool Success, string Message, string MaKhoanVay)> CreateLoanAsync(
             string maKH, string soTaiKhoan, decimal soTienVay, int thoiGianVay, decimal laiSuat, string ghiChu)
         {
-            if (string.IsNullOrWhiteSpace(maKH))
-                return (false, "Không tìm thấy thông tin khách hàng.", "");
-
-            if (string.IsNullOrWhiteSpace(soTaiKhoan))
-                return (false, "Vui lòng chọn tài khoản ngân hàng nhận tiền giải ngân.", "");
-
-            if (soTienVay <= 0)
-                return (false, "Số tiền vay phải lớn hơn 0.", "");
-
-            if (thoiGianVay <= 0)
-                return (false, "Thời gian vay không hợp lệ.", "");
+            var valResult = ValidateLoanRegistration(maKH, soTaiKhoan, soTienVay, thoiGianVay);
+            if (!valResult.IsValid)
+                return (false, valResult.ErrorMessage, "");
 
             try
             {
-                // Công thức tính lãi suất: Lãi = Vốn * (Lãi suất ngày) * Số ngày
-                decimal dailyRate = (laiSuat > 0 ? laiSuat : 1.55m) / 100m;
-                decimal tienLai = Math.Round(soTienVay * dailyRate * thoiGianVay, 0);
-                decimal tongPhaiTra = soTienVay + tienLai;
-                DateTime ngayDangKy = DateTime.Now;
-                DateTime ngayDaoHan = ngayDangKy.AddDays(thoiGianVay);
-
+                var calc = CalculateLoan(soTienVay, thoiGianVay, laiSuat);
                 string maKV = "KV" + DateTime.Now.ToString("yyMMddHHmmss") + (new Random().Next(100, 999));
 
                 using (var conn = new SqlConnection(GetConnectionString()))
@@ -177,13 +267,13 @@ namespace BankAccountManagement.Services
                         cmd.Parameters.AddWithValue("@MaKV", maKV);
                         cmd.Parameters.AddWithValue("@MaKH", maKH);
                         cmd.Parameters.AddWithValue("@STK", soTaiKhoan);
-                        cmd.Parameters.AddWithValue("@SoTien", soTienVay);
-                        cmd.Parameters.AddWithValue("@ThoiGian", thoiGianVay);
-                        cmd.Parameters.AddWithValue("@LaiSuat", laiSuat);
-                        cmd.Parameters.AddWithValue("@TienLai", tienLai);
-                        cmd.Parameters.AddWithValue("@TongPhaiTra", tongPhaiTra);
-                        cmd.Parameters.AddWithValue("@NgayDK", ngayDangKy);
-                        cmd.Parameters.AddWithValue("@NgayDH", ngayDaoHan);
+                        cmd.Parameters.AddWithValue("@SoTien", calc.SoTienVay);
+                        cmd.Parameters.AddWithValue("@ThoiGian", calc.ThoiGianVay);
+                        cmd.Parameters.AddWithValue("@LaiSuat", calc.LaiSuatNgay);
+                        cmd.Parameters.AddWithValue("@TienLai", calc.TienLai);
+                        cmd.Parameters.AddWithValue("@TongPhaiTra", calc.TongPhaiTra);
+                        cmd.Parameters.AddWithValue("@NgayDK", calc.NgayDangKy);
+                        cmd.Parameters.AddWithValue("@NgayDH", calc.NgayDaoHan);
                         cmd.Parameters.AddWithValue("@GhiChu", (object)ghiChu ?? DBNull.Value);
 
                         await cmd.ExecuteNonQueryAsync();
@@ -247,6 +337,10 @@ namespace BankAccountManagement.Services
             }
             return list;
         }
+
+        #endregion
+
+        #region ADMIN LOAN MANAGEMENT & QUERIES
 
         /// <summary>
         /// Lấy toàn bộ danh sách hồ sơ vay phục vụ quản lý phía Admin (có lọc và tìm kiếm).
@@ -316,8 +410,106 @@ namespace BankAccountManagement.Services
         }
 
         /// <summary>
+        /// Lấy chi tiết một hồ sơ khoản vay theo mã định danh.
+        /// </summary>
+        public async Task<BorrowingLoan> GetLoanByIdAsync(string maKhoanVay)
+        {
+            if (string.IsNullOrWhiteSpace(maKhoanVay)) return null;
+
+            try
+            {
+                using (var conn = new SqlConnection(GetConnectionString()))
+                {
+                    await conn.OpenAsync();
+                    const string sql = @"
+                        SELECT TOP 1 
+                               KV.MaKhoanVay, KV.MaKH, KV.SoTaiKhoan, KV.SoTienVay, KV.ThoiGianVay,
+                               KV.LaiSuat, KV.TienLai, KV.TongPhaiTra, KV.NgayDangKy, KV.NgayDaoHan,
+                               KV.TrangThai, KV.GhiChu, KV.NgayDuyet, KV.NguoiDuyet,
+                               ISNULL(KH.HoTen, ISNULL(ND.HoTen, N'Chưa cập nhật')) AS HoTen,
+                               ISNULL(ND.TenDangNhap, '') AS TenDangNhap,
+                               ISNULL(NH.TenNganHang, '') AS TenNganHang
+                        FROM dbo.KhoanVay KV
+                        LEFT JOIN dbo.ThongTinKhachHang KH ON KV.MaKH = KH.MaKH
+                        LEFT JOIN dbo.NguoiDung ND ON KV.MaKH = ND.MaKH
+                        LEFT JOIN dbo.TaiKhoan TK ON KV.SoTaiKhoan = TK.SoTaiKhoan
+                        LEFT JOIN dbo.NganHang NH ON TK.MaNganHang = NH.MaNganHang
+                        WHERE KV.MaKhoanVay = @MaKV";
+
+                    using (var cmd = new SqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@MaKV", maKhoanVay.Trim());
+                        using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            if (await reader.ReadAsync())
+                            {
+                                return ReadLoanFromReader(reader);
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[BorrowingService] GetLoanByIdAsync error: {ex.Message}");
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Lấy thống kê tổng hợp các chỉ số hồ sơ vay cho Admin Dashboard.
+        /// </summary>
+        public async Task<BorrowingStatistics> GetLoanStatisticsAsync()
+        {
+            var stats = new BorrowingStatistics();
+            try
+            {
+                using (var conn = new SqlConnection(GetConnectionString()))
+                {
+                    await conn.OpenAsync();
+                    const string sql = @"
+                        SELECT 
+                            COUNT(*) AS TongHoSo,
+                            SUM(CASE WHEN TrangThai = N'Chờ xét duyệt' THEN 1 ELSE 0 END) AS ChoDuyet,
+                            SUM(CASE WHEN TrangThai = N'Đã duyệt' THEN 1 ELSE 0 END) AS DaDuyet,
+                            SUM(CASE WHEN TrangThai = N'Từ chối' OR TrangThai = N'Đã từ chối' THEN 1 ELSE 0 END) AS TuChoi,
+                            SUM(CASE WHEN TrangThai = N'Đã tất toán' THEN 1 ELSE 0 END) AS DaTatToan,
+                            SUM(CASE WHEN TrangThai = N'Đã duyệt' THEN SoTienVay ELSE 0 END) AS TongTienDaGiaiNgan,
+                            SUM(CASE WHEN TrangThai = N'Đã duyệt' THEN TongPhaiTra ELSE 0 END) AS TongDuNoCanThuHoi
+                        FROM dbo.KhoanVay";
+
+                    using (var cmd = new SqlCommand(sql, conn))
+                    {
+                        using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            if (await reader.ReadAsync())
+                            {
+                                stats.TongHoSo = reader["TongHoSo"] != DBNull.Value ? Convert.ToInt32(reader["TongHoSo"]) : 0;
+                                stats.ChoDuyet = reader["ChoDuyet"] != DBNull.Value ? Convert.ToInt32(reader["ChoDuyet"]) : 0;
+                                stats.DaDuyet = reader["DaDuyet"] != DBNull.Value ? Convert.ToInt32(reader["DaDuyet"]) : 0;
+                                stats.TuChoi = reader["TuChoi"] != DBNull.Value ? Convert.ToInt32(reader["TuChoi"]) : 0;
+                                stats.DaTatToan = reader["DaTatToan"] != DBNull.Value ? Convert.ToInt32(reader["DaTatToan"]) : 0;
+                                stats.TongTienDaGiaiNgan = reader["TongTienDaGiaiNgan"] != DBNull.Value ? Convert.ToDecimal(reader["TongTienDaGiaiNgan"]) : 0m;
+                                stats.TongDuNoCanThuHoi = reader["TongDuNoCanThuHoi"] != DBNull.Value ? Convert.ToDecimal(reader["TongDuNoCanThuHoi"]) : 0m;
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[BorrowingService] GetLoanStatisticsAsync error: {ex.Message}");
+            }
+            return stats;
+        }
+
+        #endregion
+
+        #region FINANCIAL APPRAISAL (THẨM ĐỊNH TÀI CHÍNH 1 QUÝ)
+
+        /// <summary>
         /// Thẩm định tài chính trong 1 quý (90 ngày gần nhất) của khách hàng
-        /// gồm: Mã tài khoản, Mã khách hàng, Tên người dùng, Tổng thu chi trong 1 quý.
+        /// gồm: Mã tài khoản, Mã khách hàng, Tên người dùng, Tổng số thu chi trong 1 quý.
         /// </summary>
         public async Task<FinancialAppraisal> GetFinancialAppraisalAsync(string maKH, string soTaiKhoan, decimal soTienVay)
         {
@@ -416,11 +608,16 @@ namespace BankAccountManagement.Services
             return fa;
         }
 
+        #endregion
+
+        #region APPROVAL, REJECTION & SETTLEMENT
+
         /// <summary>
         /// Admin xác nhận duyệt hồ sơ vay:
         /// - Chuyển trạng thái sang 'Đã duyệt'
         /// - GIẢI NGÂN TRỰC TIẾP: Cộng tiền vào tài khoản ngân hàng của khách
         /// - Ghi nhận lịch sử giao dịch vào dbo.GiaoDich (Thu)
+        /// - Phát thông báo giao dịch để các Form đồng bộ số dư
         /// </summary>
         public async Task<(bool Success, string Message)> ApproveLoanAsync(string maKhoanVay, string adminUser)
         {
@@ -558,7 +755,7 @@ namespace BankAccountManagement.Services
                     await conn.OpenAsync();
                     const string sql = @"
                         UPDATE dbo.KhoanVay 
-                        SET TrangThai = N'Từ chối', 
+                        SET TrangThai = N'Đã từ chối', 
                             GhiChu = @Reason, 
                             NgayDuyet = GETDATE(), 
                             NguoiDuyet = @Admin 
@@ -588,6 +785,142 @@ namespace BankAccountManagement.Services
             }
         }
 
+        /// <summary>
+        /// Khách hàng thực hiện thanh toán / tất toán nợ khoản vay từ số dư tài khoản ngân hàng.
+        /// </summary>
+        public async Task<(bool Success, string Message)> PayLoanAsync(string maKhoanVay, string userLogin)
+        {
+            if (string.IsNullOrWhiteSpace(maKhoanVay))
+                return (false, "Mã khoản vay không hợp lệ.");
+
+            try
+            {
+                using (var conn = new SqlConnection(GetConnectionString()))
+                {
+                    await conn.OpenAsync();
+                    using (var tran = conn.BeginTransaction())
+                    {
+                        try
+                        {
+                            decimal tongPhaiTra = 0m;
+                            string soTaiKhoan = "";
+                            string currentStatus = "";
+
+                            const string sqlCheck = @"
+                                SELECT SoTaiKhoan, TongPhaiTra, TrangThai 
+                                FROM dbo.KhoanVay WITH (UPDLOCK) 
+                                WHERE MaKhoanVay = @MaKV";
+
+                            using (var cmdCheck = new SqlCommand(sqlCheck, conn, tran))
+                            {
+                                cmdCheck.Parameters.AddWithValue("@MaKV", maKhoanVay);
+                                using (var reader = await cmdCheck.ExecuteReaderAsync())
+                                {
+                                    if (!await reader.ReadAsync())
+                                    {
+                                        tran.Rollback();
+                                        return (false, "Không tìm thấy hồ sơ khoản vay.");
+                                    }
+
+                                    currentStatus = reader["TrangThai"]?.ToString() ?? "";
+                                    soTaiKhoan = reader["SoTaiKhoan"]?.ToString() ?? "";
+                                    tongPhaiTra = Convert.ToDecimal(reader["TongPhaiTra"]);
+                                }
+                            }
+
+                            if (currentStatus != "Đã duyệt")
+                            {
+                                tran.Rollback();
+                                return (false, $"Chỉ có thể thanh toán khoản vay ở trạng thái 'Đã duyệt'. Trạng thái hiện tại: {currentStatus}.");
+                            }
+
+                            // Kiểm tra số dư tài khoản thụ hưởng
+                            decimal currentBalance = 0m;
+                            const string sqlBal = @"SELECT SoDuHienTai FROM dbo.TaiKhoan WITH (UPDLOCK) WHERE SoTaiKhoan = @STK";
+                            using (var cmdBal = new SqlCommand(sqlBal, conn, tran))
+                            {
+                                cmdBal.Parameters.AddWithValue("@STK", soTaiKhoan);
+                                var balObj = await cmdBal.ExecuteScalarAsync();
+                                if (balObj == null || balObj == DBNull.Value)
+                                {
+                                    tran.Rollback();
+                                    return (false, "Không tìm thấy thông tin tài khoản trích nợ.");
+                                }
+                                currentBalance = Convert.ToDecimal(balObj);
+                            }
+
+                            if (currentBalance < tongPhaiTra)
+                            {
+                                tran.Rollback();
+                                return (false, $"Số dư tài khoản ({currentBalance:N0} đ) không đủ để thanh toán nợ ({tongPhaiTra:N0} đ).");
+                            }
+
+                            // Trừ tiền số dư tài khoản
+                            const string sqlDeduct = @"UPDATE dbo.TaiKhoan SET SoDuHienTai = SoDuHienTai - @Amount WHERE SoTaiKhoan = @STK";
+                            using (var cmdDeduct = new SqlCommand(sqlDeduct, conn, tran))
+                            {
+                                cmdDeduct.Parameters.AddWithValue("@Amount", tongPhaiTra);
+                                cmdDeduct.Parameters.AddWithValue("@STK", soTaiKhoan);
+                                await cmdDeduct.ExecuteNonQueryAsync();
+                            }
+
+                            // Cập nhật trạng thái KhoanVay sang Đã tất toán
+                            const string sqlUpdateLoan = @"
+                                UPDATE dbo.KhoanVay 
+                                SET TrangThai = N'Đã tất toán', 
+                                    GhiChu = ISNULL(GhiChu + N' | ', N'') + N'Tất toán ngày ' + CONVERT(NVARCHAR, GETDATE(), 103)
+                                WHERE MaKhoanVay = @MaKV";
+
+                            using (var cmdUpdate = new SqlCommand(sqlUpdateLoan, conn, tran))
+                            {
+                                cmdUpdate.Parameters.AddWithValue("@MaKV", maKhoanVay);
+                                await cmdUpdate.ExecuteNonQueryAsync();
+                            }
+
+                            // Ghi nhận giao dịch chi trả nợ vào dbo.GiaoDich (MaLoaiGD = 2: Chi tiền)
+                            string maGD = "GD" + DateTime.Now.ToString("yyMMddHHmmss") + (new Random().Next(100, 999));
+                            string desc = $"[Tất toán khoản vay {maKhoanVay}] Thanh toán toàn bộ gốc và lãi";
+
+                            const string sqlTx = @"
+                                INSERT INTO dbo.GiaoDich 
+                                    (MaGiaoDich, SoTaiKhoan, MaLoaiGD, SoTien, SoTienGoc, 
+                                     MaLoaiTien, LoaiTien, NgayGiaoDich, NoiDung, TrangThai)
+                                VALUES 
+                                    (@MaGD, @STK, 2, @SoTien, @SoTien, 
+                                     'VND', 'VND', GETDATE(), @NoiDung, 'Success')";
+
+                            using (var cmdTx = new SqlCommand(sqlTx, conn, tran))
+                            {
+                                cmdTx.Parameters.AddWithValue("@MaGD", maGD);
+                                cmdTx.Parameters.AddWithValue("@STK", soTaiKhoan);
+                                cmdTx.Parameters.AddWithValue("@SoTien", tongPhaiTra);
+                                cmdTx.Parameters.AddWithValue("@NoiDung", desc);
+                                await cmdTx.ExecuteNonQueryAsync();
+                            }
+
+                            tran.Commit();
+                            TransactionService.NotifyTransactionChanged();
+
+                            return (true, $"Tất toán thành công khoản vay {maKhoanVay}! Đã thanh toán {tongPhaiTra:N0} đ.");
+                        }
+                        catch (Exception ex)
+                        {
+                            tran.Rollback();
+                            throw ex;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return (false, "Lỗi khi tất toán khoản vay: " + ex.Message);
+            }
+        }
+
+        #endregion
+
+        #region HELPER METHODS
+
         private BorrowingLoan ReadLoanFromReader(SqlDataReader reader)
         {
             return new BorrowingLoan
@@ -600,7 +933,7 @@ namespace BankAccountManagement.Services
                 TenNganHang = reader["TenNganHang"]?.ToString() ?? "",
                 SoTienVay = reader["SoTienVay"] != DBNull.Value ? Convert.ToDecimal(reader["SoTienVay"]) : 0m,
                 ThoiGianVay = reader["ThoiGianVay"] != DBNull.Value ? Convert.ToInt32(reader["ThoiGianVay"]) : 30,
-                LaiSuat = reader["LaiSuat"] != DBNull.Value ? Convert.ToDecimal(reader["LaiSuat"]) : 1.55m,
+                LaiSuat = reader["LaiSuat"] != DBNull.Value ? Convert.ToDecimal(reader["LaiSuat"]) : DEFAULT_DAILY_INTEREST_RATE,
                 TienLai = reader["TienLai"] != DBNull.Value ? Convert.ToDecimal(reader["TienLai"]) : 0m,
                 TongPhaiTra = reader["TongPhaiTra"] != DBNull.Value ? Convert.ToDecimal(reader["TongPhaiTra"]) : 0m,
                 NgayDangKy = reader["NgayDangKy"] != DBNull.Value ? Convert.ToDateTime(reader["NgayDangKy"]) : DateTime.Now,
@@ -611,5 +944,7 @@ namespace BankAccountManagement.Services
                 NguoiDuyet = reader["NguoiDuyet"]?.ToString() ?? ""
             };
         }
+
+        #endregion
     }
 }

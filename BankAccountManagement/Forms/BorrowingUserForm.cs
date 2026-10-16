@@ -22,20 +22,20 @@ namespace BankAccountManagement.Forms
         private List<TaiKhoan> _userAccounts = new List<TaiKhoan>();
         private TaiKhoan _selectedAccount = null;
 
-        // Cấu hình giá trị khoản vay (VND)
-        private const decimal VAY_MIN = 100000m;
-        private const decimal VAY_MAX = 10000000m;
-        private const decimal VAY_STEP = 100000m;
+        // Cấu hình giá trị khoản vay từ BorrowingService (VND)
+        private const decimal VAY_MIN = BorrowingService.VAY_MIN;
+        private const decimal VAY_MAX = BorrowingService.VAY_MAX;
+        private const decimal VAY_STEP = BorrowingService.VAY_STEP;
         private decimal _currentVayAmount = 1000000m;
 
-        // Cấu hình kỳ hạn vay (Ngày)
-        private const int TIME_MIN = 7;
-        private const int TIME_MAX = 30;
-        private const int TIME_STEP = 1;
+        // Cấu hình kỳ hạn vay từ BorrowingService (Ngày)
+        private const int TIME_MIN = BorrowingService.TIME_MIN;
+        private const int TIME_MAX = BorrowingService.TIME_MAX;
+        private const int TIME_STEP = BorrowingService.TIME_STEP;
         private int _currentTime = 30;
 
-        // Lãi suất ưu đãi: 1.55%/ngày (tương đương 465.000 đ cho khoản 1.000.000 đ trong 30 ngày)
-        private const decimal DAILY_INTEREST_RATE = 0.0155m;
+        // Lãi suất ưu đãi từ BorrowingService
+        private const decimal DAILY_INTEREST_RATE = BorrowingService.DEFAULT_DAILY_INTEREST_RATE;
 
         // Trạng thái kéo chuột slider
         private bool _isDraggingVay = false;
@@ -299,18 +299,16 @@ namespace BankAccountManagement.Forms
         /// </summary>
         private void UpdateCalculations()
         {
-            decimal tienLai = Math.Round(_currentVayAmount * DAILY_INTEREST_RATE * _currentTime, 0);
-            decimal tongPhaiTra = _currentVayAmount + tienLai;
-            DateTime ngayDaoHan = DateTime.Today.AddDays(_currentTime);
+            var calc = _borrowingService.CalculateLoan(_currentVayAmount, _currentTime, DAILY_INTEREST_RATE);
 
             // Cập nhật bảng tóm tắt 3 cột (Bảng trống trước đây)
-            lblSum1Value.Text = $"{_currentVayAmount:N0} đ";
-            lblSum2Value.Text = "1.55%/ngày";
-            lblSum3Value.Text = ngayDaoHan.ToString("dd/MM/yyyy");
-            lblSumInterestDetail.Text = $"Tiền lãi & phí dự tính ({_currentTime} ngày): + {tienLai:N0} đ";
+            lblSum1Value.Text = calc.FormattedSoTienVay;
+            lblSum2Value.Text = calc.FormattedLaiSuat;
+            lblSum3Value.Text = calc.FormattedNgayDaoHan;
+            lblSumInterestDetail.Text = $"Tiền lãi & phí dự tính ({calc.ThoiGianVay} ngày): + {calc.FormattedTienLai}";
 
             // Cập nhật ô số nợ phải trả to nổi bật
-            txtDebtAmount.Text = $"{tongPhaiTra:N0}";
+            txtDebtAmount.Text = $"{calc.TongPhaiTra:N0}";
         }
 
         #endregion
@@ -333,16 +331,14 @@ namespace BankAccountManagement.Forms
                 return;
             }
 
-            decimal tienLai = Math.Round(_currentVayAmount * DAILY_INTEREST_RATE * _currentTime, 0);
-            decimal tongPhaiTra = _currentVayAmount + tienLai;
-            DateTime ngayDaoHan = DateTime.Today.AddDays(_currentTime);
+            var calc = _borrowingService.CalculateLoan(_currentVayAmount, _currentTime, DAILY_INTEREST_RATE);
 
             DialogResult confirm = MessageBox.Show(
                 $"XÁC NHẬN ĐĂNG KÝ KHOẢN VAY:\n\n" +
-                $"• Khoản vay: {_currentVayAmount:N0} VND\n" +
-                $"• Thời hạn vay: {_currentTime} ngày (Đáo hạn: {ngayDaoHan:dd/MM/yyyy})\n" +
-                $"• Lãi suất ưu đãi: 1.55%/ngày (Tiền lãi: {tienLai:N0} VND)\n" +
-                $"• Tổng nợ phải trả: {tongPhaiTra:N0} VND\n" +
+                $"• Khoản vay: {calc.FormattedSoTienVay}\n" +
+                $"• Thời hạn vay: {calc.ThoiGianVay} ngày (Đáo hạn: {calc.FormattedNgayDaoHan})\n" +
+                $"• Lãi suất ưu đãi: {calc.FormattedLaiSuat} (Tiền lãi: {calc.FormattedTienLai})\n" +
+                $"• Tổng nợ phải trả: {calc.FormattedTongPhaiTra}\n" +
                 $"• Tài khoản thụ hưởng: {_selectedAccount.SoTaiKhoan} ({_selectedAccount.MaNganHang})\n\n" +
                 $"Bạn có chắc chắn muốn gửi hồ sơ đăng ký vay vốn này không?",
                 "Xác nhận hồ sơ vay",
@@ -359,7 +355,7 @@ namespace BankAccountManagement.Forms
                 _selectedAccount.SoTaiKhoan,
                 _currentVayAmount,
                 _currentTime,
-                DAILY_INTEREST_RATE * 100m,
+                DAILY_INTEREST_RATE,
                 $"Vay nhanh trực tuyến kỳ hạn {_currentTime} ngày"
             );
 
