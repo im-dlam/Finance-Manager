@@ -76,6 +76,18 @@
     <Compile Include="Forms\BorrowingForm.Designer.cs">
       <DependentUpon>BorrowingForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\BorrowingUserForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\BorrowingUserForm.Designer.cs">
+      <DependentUpon>BorrowingUserForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\BorrowingAdminForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\BorrowingAdminForm.Designer.cs">
+      <DependentUpon>BorrowingAdminForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\CreditCardForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -185,10 +197,12 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Models\AuthResult.cs" />
+    <Compile Include="Models\BorrowingLoan.cs" />
     <Compile Include="Models\CartItem.cs" />
     <Compile Include="Models\CreditCardInfo.cs" />
     <Compile Include="Models\CurrencyInfo.cs" />
     <Compile Include="Models\DatabaseConfig.cs" />
+    <Compile Include="Models\FinancialAppraisal.cs" />
     <Compile Include="Models\NganHang.cs" />
     <Compile Include="Models\Product.cs" />
     <Compile Include="Models\Statistics\AccountTypeStatistic.cs" />
@@ -200,6 +214,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\AuthService.cs" />
+    <Compile Include="Services\BorrowingService.cs" />
     <Compile Include="Services\CategoryService.cs" />
     <Compile Include="Services\CreditService.cs" />
     <Compile Include="Services\CurrentSession.cs" />
@@ -220,6 +235,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\BankForm.resx">
       <DependentUpon>BankForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\BorrowingAdminForm.resx">
+      <DependentUpon>BorrowingAdminForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\BorrowingForm.resx">
       <DependentUpon>BorrowingForm.cs</DependentUpon>
