@@ -1,0 +1,495 @@
+using BankAccountManagement.Models;
+using BankAccountManagement.Services;
+using System;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace BankAccountManagement.Forms
+{
+    /// <summary>
+    /// Giao diện đăng ký khoản vay vốn trực tuyến dành riêng cho Khách hàng (User/Member).
+    /// Thiết kế chuẩn chỉnh theo phong cách Fintech hiện đại:
+    /// - Thanh trượt tương tác mượt mà kéo thả số tiền và kỳ hạn
+    /// - Tính toán lãi suất và số nợ phải trả tự động thời gian thực
+    /// - Bảng tóm tắt hiển thị rõ ràng lãi suất ưu đãi và ngày đáo hạn
+    /// - Đăng ký giải ngân trực tiếp vào tài khoản ngân hàng của khách
+    /// </summary>
+    public partial class BorrowingUserForm : Form
+    {
+        private readonly BorrowingService _borrowingService;
+        private List<TaiKhoan> _userAccounts = new List<TaiKhoan>();
+        private TaiKhoan _selectedAccount = null;
+
+        // Cấu hình giá trị khoản vay (VND)
+        private const decimal VAY_MIN = 100000m;
+        private const decimal VAY_MAX = 10000000m;
+        private const decimal VAY_STEP = 100000m;
+        private decimal _currentVayAmount = 1000000m;
+
+        // Cấu hình kỳ hạn vay (Ngày)
+        private const int TIME_MIN = 7;
+        private const int TIME_MAX = 30;
+        private const int TIME_STEP = 1;
+        private int _currentTime = 30;
+
+        // Lãi suất ưu đãi: 1.55%/ngày (tương đương 465.000 đ cho khoản 1.000.000 đ trong 30 ngày)
+        private const decimal DAILY_INTEREST_RATE = 0.0155m;
+
+        // Trạng thái kéo chuột slider
+        private bool _isDraggingVay = false;
+        private bool _isDraggingTime = false;
+        private bool _isUpdatingText = false;
+
+        public BorrowingUserForm()
+        {
+            InitializeComponent();
+            _borrowingService = new BorrowingService();
+
+            WireSliderEvents();
+            WireTextEvents();
+
+            this.Load += async (s, e) => await InitializeDataAsync();
+            this.lblAgreeText.Click += (s, e) => { chkAgree.Checked = !chkAgree.Checked; };
+            this.btnRegister.Click += async (s, e) => await HandleRegisterLoanAsync();
+            this.btnHistory.Click += (s, e) => ShowUserLoanHistoryDialog();
+        }
+
+        private async Task InitializeDataAsync()
+        {
+            await LoadUserAccountsAsync();
+            UpdateCalculations();
+            UpdateVaySliderUI();
+            UpdateTimeSliderUI();
+        }
+
+        /// <summary>
+        /// Tải danh sách tài khoản ngân hàng khả dụng của khách hàng.
+        /// </summary>
+        private async Task LoadUserAccountsAsync()
+        {
+            string maKH = CurrentSession.MaKH;
+            _userAccounts = await _borrowingService.GetUserPaymentAccountsAsync(maKH);
+
+            cboAccount.Items.Clear();
+            if (_userAccounts.Count == 0)
+            {
+                cboAccount.Items.Add("Chưa có tài khoản ngân hàng hoạt động");
+                cboAccount.SelectedIndex = 0;
+                btnRegister.Enabled = false;
+                return;
+            }
+
+            foreach (var acc in _userAccounts)
+            {
+                cboAccount.Items.Add($"{acc.SoTaiKhoan} ({acc.MaNganHang} - Số dư: {acc.SoDuHienTai:N0} VND)");
+            }
+
+            cboAccount.SelectedIndex = 0;
+            _selectedAccount = _userAccounts[0];
+            cboAccount.SelectedIndexChanged += (s, e) =>
+            {
+                if (cboAccount.SelectedIndex >= 0 && cboAccount.SelectedIndex < _userAccounts.Count)
+                {
+                    _selectedAccount = _userAccounts[cboAccount.SelectedIndex];
+                }
+            };
+        }
+
+        #region SLIDER INTERACTION & TWO-WAY BINDING
+
+        private void WireSliderEvents()
+        {
+            // Slider Khoản vay
+            trackVayBg.MouseDown += TrackVay_MouseDown;
+            trackVayFill.MouseDown += TrackVay_MouseDown;
+            thumbVay.MouseDown += (s, e) => { if (e.Button == MouseButtons.Left) _isDraggingVay = true; };
+
+            this.MouseMove += TrackVay_MouseMove;
+            pnlLeftCard.MouseMove += TrackVay_MouseMove;
+            trackVayBg.MouseMove += TrackVay_MouseMove;
+            trackVayFill.MouseMove += TrackVay_MouseMove;
+            thumbVay.MouseMove += TrackVay_MouseMove;
+
+            this.MouseUp += (s, e) => { _isDraggingVay = false; _isDraggingTime = false; };
+            pnlLeftCard.MouseUp += (s, e) => { _isDraggingVay = false; _isDraggingTime = false; };
+
+            // Slider Thời gian vay
+            trackTimeBg.MouseDown += TrackTime_MouseDown;
+            trackTimeFill.MouseDown += TrackTime_MouseDown;
+            thumbTime.MouseDown += (s, e) => { if (e.Button == MouseButtons.Left) _isDraggingTime = true; };
+
+            this.MouseMove += TrackTime_MouseMove;
+            pnlLeftCard.MouseMove += TrackTime_MouseMove;
+            trackTimeBg.MouseMove += TrackTime_MouseMove;
+            trackTimeFill.MouseMove += TrackTime_MouseMove;
+            thumbTime.MouseMove += TrackTime_MouseMove;
+        }
+
+        private void WireTextEvents()
+        {
+            txtVayAmount.Leave += (s, e) =>
+            {
+                if (_isUpdatingText) return;
+                string raw = txtVayAmount.Text.Replace(".", "").Replace(",", "").Trim();
+                if (decimal.TryParse(raw, out decimal val))
+                {
+                    SetVayAmount(val, true);
+                }
+                else
+                {
+                    SetVayAmount(_currentVayAmount, true);
+                }
+            };
+
+            txtVayAmount.KeyDown += (s, e) =>
+            {
+                if (e.KeyCode == Keys.Enter)
+                {
+                    txtVayAmount.Parent.Focus();
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                }
+            };
+
+            txtTime.Leave += (s, e) =>
+            {
+                if (_isUpdatingText) return;
+                string raw = txtTime.Text.Trim();
+                if (int.TryParse(raw, out int val))
+                {
+                    SetTime(val, true);
+                }
+                else
+                {
+                    SetTime(_currentTime, true);
+                }
+            };
+
+            txtTime.KeyDown += (s, e) =>
+            {
+                if (e.KeyCode == Keys.Enter)
+                {
+                    txtTime.Parent.Focus();
+                    e.Handled = true;
+                    e.SuppressKeyPress = true;
+                }
+            };
+        }
+
+        private void TrackVay_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left) return;
+            _isDraggingVay = true;
+            UpdateVayFromMouse(e.X + (sender == thumbVay ? thumbVay.Left : (sender == trackVayFill ? 0 : 0)));
+        }
+
+        private void TrackVay_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (!_isDraggingVay) return;
+            Point p = trackVayBg.PointToClient(Cursor.Position);
+            UpdateVayFromMouse(p.X);
+        }
+
+        private void UpdateVayFromMouse(int mouseX)
+        {
+            int trackWidth = trackVayBg.Width;
+            if (trackWidth <= 0) return;
+
+            float ratio = Math.Max(0f, Math.Min(1f, (float)mouseX / trackWidth));
+            decimal rawVal = VAY_MIN + (decimal)ratio * (VAY_MAX - VAY_MIN);
+            // Làm tròn theo bước nhảy VAY_STEP
+            decimal steppedVal = Math.Round(rawVal / VAY_STEP) * VAY_STEP;
+            SetVayAmount(steppedVal, true);
+        }
+
+        private void SetVayAmount(decimal val, bool updateUI)
+        {
+            if (val < VAY_MIN) val = VAY_MIN;
+            if (val > VAY_MAX) val = VAY_MAX;
+
+            _currentVayAmount = val;
+
+            if (updateUI)
+            {
+                _isUpdatingText = true;
+                txtVayAmount.Text = $"{_currentVayAmount:N0}";
+                _isUpdatingText = false;
+                UpdateVaySliderUI();
+                UpdateCalculations();
+            }
+        }
+
+        private void UpdateVaySliderUI()
+        {
+            int trackWidth = trackVayBg.Width;
+            if (trackWidth <= 0) return;
+
+            float ratio = (float)((_currentVayAmount - VAY_MIN) / (VAY_MAX - VAY_MIN));
+            int fillWidth = (int)(ratio * trackWidth);
+            trackVayFill.Width = Math.Max(0, fillWidth);
+
+            int thumbX = trackVayBg.Left + fillWidth - (thumbVay.Width / 2);
+            thumbX = Math.Max(trackVayBg.Left - (thumbVay.Width / 2), Math.Min(trackVayBg.Right - (thumbVay.Width / 2), thumbX));
+            thumbVay.Left = thumbX;
+        }
+
+        private void TrackTime_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left) return;
+            _isDraggingTime = true;
+            UpdateTimeFromMouse(e.X);
+        }
+
+        private void TrackTime_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (!_isDraggingTime) return;
+            Point p = trackTimeBg.PointToClient(Cursor.Position);
+            UpdateTimeFromMouse(p.X);
+        }
+
+        private void UpdateTimeFromMouse(int mouseX)
+        {
+            int trackWidth = trackTimeBg.Width;
+            if (trackWidth <= 0) return;
+
+            float ratio = Math.Max(0f, Math.Min(1f, (float)mouseX / trackWidth));
+            int rawDays = TIME_MIN + (int)Math.Round(ratio * (TIME_MAX - TIME_MIN));
+            SetTime(rawDays, true);
+        }
+
+        private void SetTime(int days, bool updateUI)
+        {
+            if (days < TIME_MIN) days = TIME_MIN;
+            if (days > TIME_MAX) days = TIME_MAX;
+
+            _currentTime = days;
+
+            if (updateUI)
+            {
+                _isUpdatingText = true;
+                txtTime.Text = _currentTime.ToString();
+                _isUpdatingText = false;
+                UpdateTimeSliderUI();
+                UpdateCalculations();
+            }
+        }
+
+        private void UpdateTimeSliderUI()
+        {
+            int trackWidth = trackTimeBg.Width;
+            if (trackWidth <= 0) return;
+
+            float ratio = (float)(_currentTime - TIME_MIN) / (TIME_MAX - TIME_MIN);
+            int fillWidth = (int)(ratio * trackWidth);
+            trackTimeFill.Width = Math.Max(0, fillWidth);
+
+            int thumbX = trackTimeBg.Left + fillWidth - (thumbTime.Width / 2);
+            thumbX = Math.Max(trackTimeBg.Left - (thumbTime.Width / 2), Math.Min(trackTimeBg.Right - (thumbTime.Width / 2), thumbX));
+            thumbTime.Left = thumbX;
+        }
+
+        #endregion
+
+        #region AUTO CALCULATION
+
+        /// <summary>
+        /// Tính toán tự động số nợ phải trả, tiền lãi và cập nhật bảng tóm tắt thời gian thực.
+        /// </summary>
+        private void UpdateCalculations()
+        {
+            decimal tienLai = Math.Round(_currentVayAmount * DAILY_INTEREST_RATE * _currentTime, 0);
+            decimal tongPhaiTra = _currentVayAmount + tienLai;
+            DateTime ngayDaoHan = DateTime.Today.AddDays(_currentTime);
+
+            // Cập nhật bảng tóm tắt 3 cột (Bảng trống trước đây)
+            lblSum1Value.Text = $"{_currentVayAmount:N0} đ";
+            lblSum2Value.Text = "1.55%/ngày";
+            lblSum3Value.Text = ngayDaoHan.ToString("dd/MM/yyyy");
+            lblSumInterestDetail.Text = $"Tiền lãi & phí dự tính ({_currentTime} ngày): + {tienLai:N0} đ";
+
+            // Cập nhật ô số nợ phải trả to nổi bật
+            txtDebtAmount.Text = $"{tongPhaiTra:N0}";
+        }
+
+        #endregion
+
+        #region REGISTER LOAN & HISTORY
+
+        private async Task HandleRegisterLoanAsync()
+        {
+            if (_selectedAccount == null)
+            {
+                MessageBox.Show("Vui lòng chọn tài khoản ngân hàng để nhận tiền giải ngân.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                cboAccount.Focus();
+                return;
+            }
+
+            if (!chkAgree.Checked)
+            {
+                MessageBox.Show("Vui lòng đọc và tích chọn đồng ý cam kết xác minh thông tin tín dụng CIC để hoàn tất đăng ký.", "Xác nhận cam kết", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                chkAgree.Focus();
+                return;
+            }
+
+            decimal tienLai = Math.Round(_currentVayAmount * DAILY_INTEREST_RATE * _currentTime, 0);
+            decimal tongPhaiTra = _currentVayAmount + tienLai;
+            DateTime ngayDaoHan = DateTime.Today.AddDays(_currentTime);
+
+            DialogResult confirm = MessageBox.Show(
+                $"XÁC NHẬN ĐĂNG KÝ KHOẢN VAY:\n\n" +
+                $"• Khoản vay: {_currentVayAmount:N0} VND\n" +
+                $"• Thời hạn vay: {_currentTime} ngày (Đáo hạn: {ngayDaoHan:dd/MM/yyyy})\n" +
+                $"• Lãi suất ưu đãi: 1.55%/ngày (Tiền lãi: {tienLai:N0} VND)\n" +
+                $"• Tổng nợ phải trả: {tongPhaiTra:N0} VND\n" +
+                $"• Tài khoản thụ hưởng: {_selectedAccount.SoTaiKhoan} ({_selectedAccount.MaNganHang})\n\n" +
+                $"Bạn có chắc chắn muốn gửi hồ sơ đăng ký vay vốn này không?",
+                "Xác nhận hồ sơ vay",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (confirm != DialogResult.Yes) return;
+
+            btnRegister.Enabled = false;
+            btnRegister.Text = "Đang xử lý hồ sơ...";
+
+            var result = await _borrowingService.CreateLoanAsync(
+                CurrentSession.MaKH,
+                _selectedAccount.SoTaiKhoan,
+                _currentVayAmount,
+                _currentTime,
+                DAILY_INTEREST_RATE * 100m,
+                $"Vay nhanh trực tuyến kỳ hạn {_currentTime} ngày"
+            );
+
+            btnRegister.Enabled = true;
+            btnRegister.Text = "Đăng ký ngay";
+
+            if (result.Success)
+            {
+                DialogResult dialogRes = MessageBox.Show(
+                    $"ĐĂNG KÝ HỒ SƠ THÀNH CÔNG!\n\n" +
+                    $"• Mã hồ sơ: {result.MaKhoanVay}\n" +
+                    $"• Số tiền: {_currentVayAmount:N0} VND\n" +
+                    $"• Trạng thái: Chờ ban quản trị xét duyệt\n\n" +
+                    $"Hệ thống sẽ tiến hành thẩm định và giải ngân trực tiếp vào tài khoản của bạn ngay khi được phê duyệt.\n\n" +
+                    $"Bạn có muốn mở xem Lịch sử khoản vay của mình ngay bây giờ không?",
+                    "Đăng ký thành công",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Information);
+
+                if (dialogRes == DialogResult.Yes)
+                {
+                    ShowUserLoanHistoryDialog();
+                }
+            }
+            else
+            {
+                MessageBox.Show(result.Message, "Lỗi đăng ký", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        /// <summary>
+        /// Hiển thị popup lịch sử các đơn vay của khách hàng.
+        /// </summary>
+        private async void ShowUserLoanHistoryDialog()
+        {
+            using (Form historyForm = new Form())
+            {
+                historyForm.Text = "Lịch sử khoản vay của tôi";
+                historyForm.Size = new Size(880, 520);
+                historyForm.StartPosition = FormStartPosition.CenterParent;
+                historyForm.FormBorderStyle = FormBorderStyle.FixedDialog;
+                historyForm.MaximizeBox = false;
+                historyForm.MinimizeBox = false;
+                historyForm.BackColor = Color.White;
+
+                Label lblTitle = new Label
+                {
+                    Text = "Danh sách hồ sơ vay vốn của bạn",
+                    Font = new Font("Segoe UI", 13F, FontStyle.Bold),
+                    ForeColor = Color.FromArgb(15, 23, 42),
+                    Location = new Point(20, 16),
+                    AutoSize = true
+                };
+                historyForm.Controls.Add(lblTitle);
+
+                DataGridView dgv = new DataGridView
+                {
+                    Location = new Point(20, 55),
+                    Size = new Size(825, 390),
+                    BackgroundColor = Color.White,
+                    BorderStyle = BorderStyle.FixedSingle,
+                    ReadOnly = true,
+                    AllowUserToAddRows = false,
+                    AllowUserToDeleteRows = false,
+                    SelectionMode = DataGridViewSelectionMode.FullRowSelect,
+                    RowHeadersVisible = false,
+                    AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
+                    Font = new Font("Segoe UI", 9.5F)
+                };
+
+                dgv.Columns.Add("MaKV", "Mã khoản vay");
+                dgv.Columns.Add("NgayDK", "Ngày đăng ký");
+                dgv.Columns.Add("SoTien", "Số tiền vay");
+                dgv.Columns.Add("ThoiGian", "Kỳ hạn");
+                dgv.Columns.Add("TongNo", "Tổng nợ phải trả");
+                dgv.Columns.Add("NgayDH", "Ngày đáo hạn");
+                dgv.Columns.Add("TrangThai", "Trạng thái");
+
+                dgv.Columns["SoTien"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                dgv.Columns["TongNo"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                dgv.Columns["TrangThai"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+
+                var loans = await _borrowingService.GetUserLoansAsync(CurrentSession.MaKH);
+                foreach (var l in loans)
+                {
+                    int rIdx = dgv.Rows.Add(
+                        l.MaKhoanVay,
+                        l.FormattedNgayDangKy,
+                        l.FormattedSoTienVay,
+                        $"{l.ThoiGianVay} ngày",
+                        l.FormattedTongPhaiTra,
+                        l.FormattedNgayDaoHan,
+                        l.TrangThai
+                    );
+
+                    // Tô màu trạng thái
+                    var row = dgv.Rows[rIdx];
+                    if (l.TrangThai == "Đã duyệt")
+                    {
+                        row.Cells["TrangThai"].Style.ForeColor = Color.FromArgb(16, 185, 129);
+                        row.Cells["TrangThai"].Style.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+                    }
+                    else if (l.TrangThai == "Từ chối")
+                    {
+                        row.Cells["TrangThai"].Style.ForeColor = Color.FromArgb(225, 29, 72);
+                        row.Cells["TrangThai"].Style.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+                    }
+                    else
+                    {
+                        row.Cells["TrangThai"].Style.ForeColor = Color.FromArgb(217, 119, 6);
+                        row.Cells["TrangThai"].Style.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+                    }
+                }
+
+                historyForm.Controls.Add(dgv);
+
+                Button btnClose = new Button
+                {
+                    Text = "Đóng",
+                    Font = new Font("Segoe UI", 9.5F, FontStyle.Bold),
+                    Size = new Size(100, 34),
+                    Location = new Point(745, 455),
+                    DialogResult = DialogResult.OK
+                };
+                historyForm.Controls.Add(btnClose);
+
+                historyForm.ShowDialog(this);
+            }
+        }
+
+        #endregion
+    }
+}

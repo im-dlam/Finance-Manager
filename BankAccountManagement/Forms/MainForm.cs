@@ -312,7 +312,14 @@ namespace BankAccountManagement
 
         private void btnBorrowing_Click(object sender, EventArgs e)
         {
-            LoadMultiForm(new BorrowingForm()); // Hiển thị Form BorrowingForm bên trong pnMain
+            if (CurrentSession.IsAdmin)
+            {
+                LoadMultiForm(new BorrowingAdminForm()); // Giao diện thẩm định & phê duyệt khoản vay Admin
+            }
+            else
+            {
+                OpenFormWithCustomerCheck(() => new BorrowingUserForm()); // Giao diện đăng ký vay vốn Khách hàng
+            }
         }
 
         private void btnSaveMoney_Click(object sender, EventArgs e)
