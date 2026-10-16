@@ -27,12 +27,15 @@ namespace BankAccountManagement.Forms
             _borrowingService = new BorrowingService();
 
             SetupDataGridViewColumns();
+            SetupRepaymentGridViews();
             WireEvents();
 
             this.Load += async (s, e) =>
             {
                 cboFilterStatus.SelectedIndex = 0; // "Tất cả"
+                SwitchToTab(true);
                 await LoadLoansAsync();
+                await LoadRepaymentTrackingAsync();
             };
         }
 
@@ -114,7 +117,15 @@ namespace BankAccountManagement.Forms
             {
                 pnlAppraisalContent.Width = Math.Max(420, pnlAppraisalScroll.ClientSize.Width - 4);
             };
-            btnRefresh.Click += async (s, e) => await LoadLoansAsync();
+
+            btnRefresh.Click += async (s, e) =>
+            {
+                if (pnlApprovalContainer.Visible)
+                    await LoadLoansAsync();
+                else
+                    await LoadRepaymentTrackingAsync();
+            };
+
             cboFilterStatus.SelectedIndexChanged += async (s, e) => await LoadLoansAsync();
 
             txtSearch.TextChanged += async (s, e) => await LoadLoansAsync();
@@ -124,6 +135,19 @@ namespace BankAccountManagement.Forms
                 {
                     e.SuppressKeyPress = true;
                     await LoadLoansAsync();
+                }
+            };
+
+            btnTabApproval.Click += (s, e) => SwitchToTab(true);
+            btnTabRepayment.Click += (s, e) => SwitchToTab(false);
+
+            txtRepaySearch.TextChanged += async (s, e) => await LoadRepaymentTrackingAsync();
+            txtRepaySearch.KeyDown += async (s, e) =>
+            {
+                if (e.KeyCode == Keys.Enter)
+                {
+                    e.SuppressKeyPress = true;
+                    await LoadRepaymentTrackingAsync();
                 }
             };
 
@@ -163,13 +187,287 @@ namespace BankAccountManagement.Forms
                     e.CellStyle.ForeColor = Color.FromArgb(22, 163, 74); // Green
                     e.CellStyle.Font = new Font(dgvLoans.Font, FontStyle.Bold);
                 }
-                else if (status == "Đã từ chối")
+                else if (status == "Đã tất toán")
+                {
+                    e.CellStyle.ForeColor = Color.FromArgb(37, 99, 235); // Blue
+                    e.CellStyle.Font = new Font(dgvLoans.Font, FontStyle.Bold);
+                }
+                else if (status == "Đã từ chối" || status == "Từ chối")
                 {
                     e.CellStyle.ForeColor = Color.FromArgb(220, 38, 38); // Red
                     e.CellStyle.Font = new Font(dgvLoans.Font, FontStyle.Bold);
                 }
             }
         }
+
+        #region TAB SWITCHING & REPAYMENT TRACKING VIEW
+
+        private void SwitchToTab(bool isApprovalTab)
+        {
+            pnlApprovalContainer.Visible = isApprovalTab;
+            pnlRepaymentContainer.Visible = !isApprovalTab;
+
+            if (isApprovalTab)
+            {
+                btnTabApproval.NormalColor = Color.FromArgb(37, 99, 235);
+                btnTabApproval.TextColor = Color.White;
+                btnTabApproval.HoverColor = Color.FromArgb(29, 78, 216);
+                btnTabApproval.BorderSize = 0;
+
+                btnTabRepayment.NormalColor = Color.White;
+                btnTabRepayment.TextColor = Color.FromArgb(71, 85, 105);
+                btnTabRepayment.HoverColor = Color.FromArgb(241, 245, 249);
+                btnTabRepayment.BorderSize = 1;
+            }
+            else
+            {
+                btnTabApproval.NormalColor = Color.White;
+                btnTabApproval.TextColor = Color.FromArgb(71, 85, 105);
+                btnTabApproval.HoverColor = Color.FromArgb(241, 245, 249);
+                btnTabApproval.BorderSize = 1;
+
+                btnTabRepayment.NormalColor = Color.FromArgb(37, 99, 235);
+                btnTabRepayment.TextColor = Color.White;
+                btnTabRepayment.HoverColor = Color.FromArgb(29, 78, 216);
+                btnTabRepayment.BorderSize = 0;
+
+                _ = LoadRepaymentTrackingAsync();
+            }
+        }
+
+        private void SetupRepaymentGridViews()
+        {
+            var colHeaderStyle = new DataGridViewCellStyle
+            {
+                Alignment = DataGridViewContentAlignment.MiddleLeft,
+                BackColor = Color.FromArgb(248, 250, 252),
+                Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+                ForeColor = Color.FromArgb(51, 65, 85),
+                Padding = new Padding(4),
+                SelectionBackColor = Color.FromArgb(248, 250, 252),
+                SelectionForeColor = Color.FromArgb(51, 65, 85),
+                WrapMode = DataGridViewTriState.True
+            };
+
+            // === 1. BẢNG USER CHƯA TRẢ KHOẢN VAY (ĐANG CÒN NỢ) ===
+            dgvUnpaidLoans.AutoGenerateColumns = false;
+            dgvUnpaidLoans.Columns.Clear();
+            dgvUnpaidLoans.ScrollBars = ScrollBars.Vertical;
+            dgvUnpaidLoans.ColumnHeadersDefaultCellStyle = colHeaderStyle;
+            dgvUnpaidLoans.ColumnHeadersHeight = 36;
+            dgvUnpaidLoans.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+
+            dgvUnpaidLoans.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "colUnpaidMa",
+                HeaderText = "Mã KV",
+                DataPropertyName = "MaKhoanVay",
+                Width = 75
+            });
+
+            dgvUnpaidLoans.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "colUnpaidKH",
+                HeaderText = "Khách hàng",
+                DataPropertyName = "FormattedCustomer",
+                Width = 120
+            });
+
+            dgvUnpaidLoans.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "colUnpaidSTK",
+                HeaderText = "STK trích nợ",
+                DataPropertyName = "SoTaiKhoan",
+                Width = 90
+            });
+
+            dgvUnpaidLoans.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "colUnpaidVay",
+                HeaderText = "Tiền vay gốc",
+                DataPropertyName = "FormattedSoTienVay",
+                Width = 95,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight }
+            });
+
+            dgvUnpaidLoans.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "colUnpaidTong",
+                HeaderText = "Nợ phải trả",
+                DataPropertyName = "FormattedTongPhaiTra",
+                Width = 100,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight }
+            });
+
+            dgvUnpaidLoans.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "colUnpaidHan",
+                HeaderText = "Đáo hạn",
+                DataPropertyName = "FormattedNgayDaoHan",
+                Width = 80,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
+            });
+
+            dgvUnpaidLoans.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "colUnpaidStatus",
+                HeaderText = "Hạn trả",
+                DataPropertyName = "TinhTrangHan",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                MinimumWidth = 95,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
+            });
+
+            dgvUnpaidLoans.CellFormatting += (s, e) =>
+            {
+                if (e.RowIndex < 0 || e.RowIndex >= dgvUnpaidLoans.Rows.Count) return;
+
+                if (dgvUnpaidLoans.Columns[e.ColumnIndex].Name == "colUnpaidTong")
+                {
+                    e.CellStyle.ForeColor = Color.FromArgb(220, 38, 38);
+                    e.CellStyle.Font = new Font(dgvUnpaidLoans.Font, FontStyle.Bold);
+                }
+                else if (dgvUnpaidLoans.Columns[e.ColumnIndex].Name == "colUnpaidStatus" && e.Value != null)
+                {
+                    string status = e.Value.ToString();
+                    if (status.Contains("Quá hạn"))
+                    {
+                        e.CellStyle.ForeColor = Color.FromArgb(220, 38, 38);
+                        e.CellStyle.Font = new Font(dgvUnpaidLoans.Font, FontStyle.Bold);
+                    }
+                    else if (status.Contains("hôm nay"))
+                    {
+                        e.CellStyle.ForeColor = Color.FromArgb(217, 119, 6);
+                        e.CellStyle.Font = new Font(dgvUnpaidLoans.Font, FontStyle.Bold);
+                    }
+                    else
+                    {
+                        e.CellStyle.ForeColor = Color.FromArgb(37, 99, 235);
+                        e.CellStyle.Font = new Font(dgvUnpaidLoans.Font, FontStyle.Bold);
+                    }
+                }
+            };
+
+            // === 2. BẢNG USER ĐÃ TRẢ KHOẢN VAY (ĐÃ TẤT TOÁN) ===
+            dgvPaidLoans.AutoGenerateColumns = false;
+            dgvPaidLoans.Columns.Clear();
+            dgvPaidLoans.ScrollBars = ScrollBars.Vertical;
+            dgvPaidLoans.ColumnHeadersDefaultCellStyle = colHeaderStyle;
+            dgvPaidLoans.ColumnHeadersHeight = 36;
+            dgvPaidLoans.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+
+            dgvPaidLoans.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "colPaidMa",
+                HeaderText = "Mã KV",
+                DataPropertyName = "MaKhoanVay",
+                Width = 75
+            });
+
+            dgvPaidLoans.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "colPaidKH",
+                HeaderText = "Khách hàng",
+                DataPropertyName = "FormattedCustomer",
+                Width = 120
+            });
+
+            dgvPaidLoans.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "colPaidSTK",
+                HeaderText = "STK thanh toán",
+                DataPropertyName = "SoTaiKhoan",
+                Width = 90
+            });
+
+            dgvPaidLoans.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "colPaidVay",
+                HeaderText = "Tiền vay gốc",
+                DataPropertyName = "FormattedSoTienVay",
+                Width = 95,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight }
+            });
+
+            dgvPaidLoans.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "colPaidTong",
+                HeaderText = "Đã thu hồi",
+                DataPropertyName = "FormattedTongPhaiTra",
+                Width = 100,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight }
+            });
+
+            dgvPaidLoans.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "colPaidNgayVay",
+                HeaderText = "Ngày vay",
+                DataPropertyName = "FormattedRegisterDate",
+                Width = 80,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
+            });
+
+            dgvPaidLoans.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "colPaidNgayTra",
+                HeaderText = "Ngày tất toán",
+                DataPropertyName = "FormattedNgayDuyet",
+                Width = 90,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
+            });
+
+            dgvPaidLoans.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "colPaidStatus",
+                HeaderText = "Trạng thái",
+                DataPropertyName = "TrangThai",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                MinimumWidth = 85,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
+            });
+
+            dgvPaidLoans.CellFormatting += (s, e) =>
+            {
+                if (e.RowIndex < 0 || e.RowIndex >= dgvPaidLoans.Rows.Count) return;
+
+                if (dgvPaidLoans.Columns[e.ColumnIndex].Name == "colPaidTong" ||
+                    dgvPaidLoans.Columns[e.ColumnIndex].Name == "colPaidStatus")
+                {
+                    e.CellStyle.ForeColor = Color.FromArgb(22, 163, 74);
+                    e.CellStyle.Font = new Font(dgvPaidLoans.Font, FontStyle.Bold);
+                }
+            };
+        }
+
+        /// <summary>
+        /// Tải dữ liệu theo dõi trả nợ phân loại rõ ràng: Chưa trả (đang nợ) và Đã trả (đã tất toán).
+        /// </summary>
+        public async Task LoadRepaymentTrackingAsync()
+        {
+            try
+            {
+                string kw = txtRepaySearch.Text.Trim();
+                var (unpaid, paid) = await _borrowingService.GetRepaymentTrackingAsync(kw);
+
+                dgvUnpaidLoans.DataSource = null;
+                dgvUnpaidLoans.DataSource = unpaid;
+
+                dgvPaidLoans.DataSource = null;
+                dgvPaidLoans.DataSource = paid;
+
+                decimal totalUnpaidDebt = unpaid.Sum(x => x.TongPhaiTra);
+                decimal totalPaidRecovered = paid.Sum(x => x.TongPhaiTra);
+
+                lblRepayUnpaidStat.Text = $"🔴 Chưa trả: {unpaid.Count} user | Nợ: {totalUnpaidDebt:N0} đ";
+                lblRepayPaidStat.Text = $"🟢 Đã tất toán: {paid.Count} user | Đã thu: {totalPaidRecovered:N0} đ";
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[BorrowingAdminForm] LoadRepaymentTrackingAsync error: {ex.Message}");
+            }
+        }
+
+        #endregion
 
         /// <summary>
         /// Tải toàn bộ danh sách hồ sơ vay và cập nhật thống kê Admin.
@@ -374,6 +672,7 @@ namespace BankAccountManagement.Forms
                     MessageBox.Show(result.Message, "Phê Duyệt Thành Công",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                     await LoadLoansAsync();
+                    await LoadRepaymentTrackingAsync();
                 }
                 else
                 {
@@ -427,6 +726,7 @@ namespace BankAccountManagement.Forms
                     MessageBox.Show(result.Message, "Đã Từ Chối Hồ Sơ",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                     await LoadLoansAsync();
+                    await LoadRepaymentTrackingAsync();
                 }
                 else
                 {

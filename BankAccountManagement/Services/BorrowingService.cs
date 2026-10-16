@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace BankAccountManagement.Services
@@ -407,6 +408,17 @@ namespace BankAccountManagement.Services
                 System.Diagnostics.Debug.WriteLine($"[BorrowingService] GetAllLoansAsync error: {ex.Message}");
             }
             return list;
+        }
+
+        /// <summary>
+        /// Lấy danh sách hồ sơ vay phân loại rõ ràng: Chưa trả (Đang còn nợ) và Đã trả (Đã tất toán).
+        /// </summary>
+        public async Task<(List<BorrowingLoan> UnpaidLoans, List<BorrowingLoan> PaidLoans)> GetRepaymentTrackingAsync(string keyword = "")
+        {
+            var all = await GetAllLoansAsync("Tất cả", keyword);
+            var unpaid = all.Where(x => x.TrangThai == "Đã duyệt").OrderBy(x => x.NgayDaoHan).ToList();
+            var paid = all.Where(x => x.TrangThai == "Đã tất toán").OrderByDescending(x => x.NgayDuyet ?? x.NgayDangKy).ToList();
+            return (unpaid, paid);
         }
 
         /// <summary>

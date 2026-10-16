@@ -58,6 +58,7 @@ namespace BankAccountManagement.Forms
             this.lblAgreeText.Click += (s, e) => { chkAgree.Checked = !chkAgree.Checked; };
             this.btnRegister.Click += async (s, e) => await HandleRegisterLoanAsync();
             this.btnHistory.Click += async (s, e) => await ToggleHistoryViewAsync();
+            this.btnPayLoan.Click += async (s, e) => await HandlePayLoanAsync();
             this.btnCloseHistory.Click += (s, e) => CloseHistoryView();
         }
 
@@ -529,6 +530,11 @@ namespace BankAccountManagement.Forms
                         e.CellStyle.ForeColor = Color.FromArgb(16, 185, 129);
                         e.CellStyle.Font = new Font(dgvHistory.Font, FontStyle.Bold);
                     }
+                    else if (status == "Đã tất toán")
+                    {
+                        e.CellStyle.ForeColor = Color.FromArgb(37, 99, 235);
+                        e.CellStyle.Font = new Font(dgvHistory.Font, FontStyle.Bold);
+                    }
                     else if (status == "Từ chối" || status == "Đã từ chối")
                     {
                         e.CellStyle.ForeColor = Color.FromArgb(220, 38, 38);
@@ -570,6 +576,7 @@ namespace BankAccountManagement.Forms
             else
             {
                 pnlHistDetailCard.Visible = false;
+                btnPayLoan.Visible = false;
             }
         }
 
@@ -587,7 +594,26 @@ namespace BankAccountManagement.Forms
                 pnlHistDebtBox.FillColor = Color.FromArgb(236, 253, 245);
                 pnlHistDebtBox.BorderColor = Color.FromArgb(167, 243, 208);
                 lblHistDebtHint.ForeColor = Color.FromArgb(6, 95, 70);
-                lblHistDebtHint.Text = $"✔ Hồ sơ đã được duyệt & giải ngân vào STK: {loan.SoTaiKhoan}";
+                lblHistDebtHint.Text = $"✔ Hồ sơ đã được giải ngân vào STK: {loan.SoTaiKhoan}. Vui lòng thanh toán trước ngày đáo hạn.";
+
+                btnPayLoan.Visible = true;
+                btnPayLoan.Enabled = true;
+                btnPayLoan.Text = "💳 Thanh toán khoản vay";
+                btnPayLoan.NormalColor = Color.FromArgb(22, 163, 74);
+                btnPayLoan.HoverColor = Color.FromArgb(21, 128, 61);
+            }
+            else if (loan.TrangThai == "Đã tất toán")
+            {
+                pnlHistDebtBox.FillColor = Color.FromArgb(240, 253, 244);
+                pnlHistDebtBox.BorderColor = Color.FromArgb(134, 239, 172);
+                lblHistDebtHint.ForeColor = Color.FromArgb(21, 128, 61);
+                lblHistDebtHint.Text = $"✔ Khoản vay đã được tất toán thành công đầy đủ gốc và lãi.";
+
+                btnPayLoan.Visible = true;
+                btnPayLoan.Enabled = false;
+                btnPayLoan.Text = "✔ Đã tất toán";
+                btnPayLoan.NormalColor = Color.FromArgb(148, 163, 184);
+                btnPayLoan.HoverColor = Color.FromArgb(148, 163, 184);
             }
             else if (loan.TrangThai == "Từ chối" || loan.TrangThai == "Đã từ chối")
             {
@@ -595,13 +621,63 @@ namespace BankAccountManagement.Forms
                 pnlHistDebtBox.BorderColor = Color.FromArgb(254, 202, 202);
                 lblHistDebtHint.ForeColor = Color.FromArgb(153, 27, 27);
                 lblHistDebtHint.Text = $"✖ Hồ sơ bị từ chối xét duyệt bởi ban quản trị.";
+                btnPayLoan.Visible = false;
             }
             else
             {
                 pnlHistDebtBox.FillColor = Color.FromArgb(255, 247, 237);
                 pnlHistDebtBox.BorderColor = Color.FromArgb(254, 215, 170);
                 lblHistDebtHint.ForeColor = Color.FromArgb(180, 83, 9);
-                lblHistDebtHint.Text = $"⚠  Số nợ được tính tự động từ khoản vay + lãi suất × thời gian vay";
+                lblHistDebtHint.Text = $"⏳ Hồ sơ đang chờ ban quản trị thẩm định và xét duyệt giải ngân.";
+                btnPayLoan.Visible = false;
+            }
+        }
+
+        private async Task HandlePayLoanAsync()
+        {
+            if (dgvHistory.SelectedRows.Count == 0) return;
+            var loan = dgvHistory.SelectedRows[0].DataBoundItem as BorrowingLoan;
+            if (loan == null) return;
+
+            if (loan.TrangThai != "Đã duyệt")
+            {
+                MessageBox.Show("Chỉ có thể thanh toán khoản vay ở trạng thái 'Đã duyệt' (đang nợ).",
+                    "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            DialogResult confirm = MessageBox.Show(
+                $"XÁC NHẬN THANH TOÁN TẤT TOÁN KHOẢN VAY:\n\n" +
+                $"• Mã khoản vay: {loan.MaKhoanVay}\n" +
+                $"• Số tiền vay gốc: {loan.FormattedSoTienVay}\n" +
+                $"• Tiền lãi ({loan.ThoiGianVay} ngày): {loan.FormattedTienLai}\n" +
+                $"• Tổng nợ cần thanh toán: {loan.FormattedTongPhaiTra}\n" +
+                $"• Tài khoản trích nợ: {loan.SoTaiKhoan}\n\n" +
+                $"Hệ thống sẽ tự động trừ số dư tài khoản trên để hoàn tất thanh toán khoản vay này.\n" +
+                $"Bạn có chắc chắn muốn tiến hành thanh toán ngay bây giờ không?",
+                "Xác nhận thanh toán nợ",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Question);
+
+            if (confirm != DialogResult.Yes) return;
+
+            btnPayLoan.Enabled = false;
+            btnPayLoan.Text = "Đang thanh toán...";
+
+            var result = await _borrowingService.PayLoanAsync(loan.MaKhoanVay, CurrentSession.TenDangNhap);
+
+            btnPayLoan.Enabled = true;
+
+            if (result.Success)
+            {
+                MessageBox.Show(result.Message, "Thanh toán thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                await LoadUserAccountsAsync();
+                await LoadUserHistoryAsync();
+            }
+            else
+            {
+                btnPayLoan.Text = "💳 Thanh toán khoản vay";
+                MessageBox.Show(result.Message, "Không thể thanh toán", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 

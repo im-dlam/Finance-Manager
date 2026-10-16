@@ -101,6 +101,7 @@ namespace BankAccountManagement.Forms
             this.lblHistDebtUnit = new System.Windows.Forms.Label();
             this.pnlHistDebtBox = new BankAccountManagement.Forms.RoundedPanel();
             this.lblHistDebtHint = new System.Windows.Forms.Label();
+            this.btnPayLoan = new BankAccountManagement.Forms.RoundedButton();
             this.btnCloseHistory = new BankAccountManagement.Forms.RoundedButton();
 
             this.pnlHeader.SuspendLayout();
@@ -639,6 +640,7 @@ namespace BankAccountManagement.Forms
             this.pnlLoanHistoryView.Controls.Add(this.lblHistHeaderSub);
             this.pnlLoanHistoryView.Controls.Add(this.dgvHistory);
             this.pnlLoanHistoryView.Controls.Add(this.pnlHistDetailCard);
+            this.pnlLoanHistoryView.Controls.Add(this.btnPayLoan);
             this.pnlLoanHistoryView.Controls.Add(this.btnCloseHistory);
             this.pnlLoanHistoryView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlLoanHistoryView.FillColor = System.Drawing.Color.White;
@@ -861,6 +863,27 @@ namespace BankAccountManagement.Forms
             this.lblHistDebtHint.Text = "⚠  Số nợ được tính tự động từ khoản vay + lãi suất × thời gian vay";
             this.lblHistDebtHint.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
 
+            // btnPayLoan
+            this.btnPayLoan.BorderRadius = 8;
+            this.btnPayLoan.BorderSize = 0;
+            this.btnPayLoan.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnPayLoan.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnPayLoan.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
+            this.btnPayLoan.ForeColor = System.Drawing.Color.White;
+            this.btnPayLoan.HoverBorder = System.Drawing.Color.Transparent;
+            this.btnPayLoan.HoverColor = System.Drawing.Color.FromArgb(21, 128, 61);
+            this.btnPayLoan.Location = new System.Drawing.Point(170, 485);
+            this.btnPayLoan.Name = "btnPayLoan";
+            this.btnPayLoan.NormalBorder = System.Drawing.Color.Transparent;
+            this.btnPayLoan.NormalColor = System.Drawing.Color.FromArgb(22, 163, 74);
+            this.btnPayLoan.PressedBorder = System.Drawing.Color.Transparent;
+            this.btnPayLoan.PressedColor = System.Drawing.Color.FromArgb(20, 83, 45);
+            this.btnPayLoan.Size = new System.Drawing.Size(195, 36);
+            this.btnPayLoan.TabIndex = 5;
+            this.btnPayLoan.Text = "💳 Thanh toán khoản vay";
+            this.btnPayLoan.TextColor = System.Drawing.Color.White;
+            this.btnPayLoan.UseVisualStyleBackColor = false;
+
             // btnCloseHistory
             this.btnCloseHistory.BorderRadius = 8;
             this.btnCloseHistory.BorderSize = 1;
@@ -1013,6 +1036,7 @@ namespace BankAccountManagement.Forms
         private System.Windows.Forms.Label lblHistDebtUnit;
         private BankAccountManagement.Forms.RoundedPanel pnlHistDebtBox;
         private System.Windows.Forms.Label lblHistDebtHint;
+        private BankAccountManagement.Forms.RoundedButton btnPayLoan;
         private BankAccountManagement.Forms.RoundedButton btnCloseHistory;
     }
 }

@@ -80,7 +80,48 @@ namespace BankAccountManagement.Forms
             this.lblCustHeader = new System.Windows.Forms.Label();
             this.lblAppraisalSub = new System.Windows.Forms.Label();
             this.lblAppraisalTitle = new System.Windows.Forms.Label();
+
+            // Nav Tabs
+            this.pnlNavTabs = new System.Windows.Forms.Panel();
+            this.btnTabApproval = new BankAccountManagement.Forms.RoundedButton();
+            this.btnTabRepayment = new BankAccountManagement.Forms.RoundedButton();
+
+            // Containers
+            this.pnlApprovalContainer = new System.Windows.Forms.Panel();
+            this.pnlRepaymentContainer = new System.Windows.Forms.Panel();
+
+            // Repayment view controls
+            this.pnlRepayToolbar = new System.Windows.Forms.Panel();
+            this.lblRepaySearch = new System.Windows.Forms.Label();
+            this.pnlRepaySearchBox = new BankAccountManagement.Forms.RoundedPanel();
+            this.txtRepaySearch = new System.Windows.Forms.TextBox();
+            this.lblRepayUnpaidStat = new System.Windows.Forms.Label();
+            this.lblRepayPaidStat = new System.Windows.Forms.Label();
+            this.tlpRepayTables = new System.Windows.Forms.TableLayoutPanel();
+            this.pnlUnpaidCard = new BankAccountManagement.Forms.RoundedPanel();
+            this.pnlUnpaidHeader = new System.Windows.Forms.Panel();
+            this.lblUnpaidTitle = new System.Windows.Forms.Label();
+            this.lblUnpaidSub = new System.Windows.Forms.Label();
+            this.dgvUnpaidLoans = new System.Windows.Forms.DataGridView();
+            this.pnlPaidCard = new BankAccountManagement.Forms.RoundedPanel();
+            this.pnlPaidHeader = new System.Windows.Forms.Panel();
+            this.lblPaidTitle = new System.Windows.Forms.Label();
+            this.lblPaidSub = new System.Windows.Forms.Label();
+            this.dgvPaidLoans = new System.Windows.Forms.DataGridView();
+
             this.pnlHeader.SuspendLayout();
+            this.pnlNavTabs.SuspendLayout();
+            this.pnlApprovalContainer.SuspendLayout();
+            this.pnlRepaymentContainer.SuspendLayout();
+            this.pnlRepayToolbar.SuspendLayout();
+            this.pnlRepaySearchBox.SuspendLayout();
+            this.tlpRepayTables.SuspendLayout();
+            this.pnlUnpaidCard.SuspendLayout();
+            this.pnlUnpaidHeader.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvUnpaidLoans)).BeginInit();
+            this.pnlPaidCard.SuspendLayout();
+            this.pnlPaidHeader.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvPaidLoans)).BeginInit();
             this.pnlFilter.SuspendLayout();
             this.pnlSearchBox.SuspendLayout();
             this.tlpMain.SuspendLayout();
@@ -227,6 +268,7 @@ namespace BankAccountManagement.Forms
             "Tất cả",
             "Chờ xét duyệt",
             "Đã duyệt",
+            "Đã tất toán",
             "Đã từ chối"});
             this.cboFilterStatus.Location = new System.Drawing.Point(95, 12);
             this.cboFilterStatus.Name = "cboFilterStatus";
@@ -935,6 +977,340 @@ namespace BankAccountManagement.Forms
             this.lblAppraisalTitle.TabIndex = 0;
             this.lblAppraisalTitle.Text = "KẾT QUẢ THẨM ĐỊNH TÀI CHÍNH & HỒ SƠ";
             this.lblAppraisalTitle.UseMnemonic = false;
+
+            // 
+            // pnlNavTabs
+            // 
+            this.pnlNavTabs.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
+            this.pnlNavTabs.Controls.Add(this.btnTabApproval);
+            this.pnlNavTabs.Controls.Add(this.btnTabRepayment);
+            this.pnlNavTabs.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlNavTabs.Location = new System.Drawing.Point(0, 75);
+            this.pnlNavTabs.Name = "pnlNavTabs";
+            this.pnlNavTabs.Size = new System.Drawing.Size(1200, 48);
+            this.pnlNavTabs.TabIndex = 1;
+
+            // 
+            // btnTabApproval
+            // 
+            this.btnTabApproval.BorderRadius = 8;
+            this.btnTabApproval.BorderSize = 0;
+            this.btnTabApproval.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnTabApproval.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnTabApproval.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
+            this.btnTabApproval.ForeColor = System.Drawing.Color.White;
+            this.btnTabApproval.HoverBorder = System.Drawing.Color.Transparent;
+            this.btnTabApproval.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(29)))), ((int)(((byte)(78)))), ((int)(((byte)(216)))));
+            this.btnTabApproval.Location = new System.Drawing.Point(20, 6);
+            this.btnTabApproval.Name = "btnTabApproval";
+            this.btnTabApproval.NormalBorder = System.Drawing.Color.Transparent;
+            this.btnTabApproval.NormalColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
+            this.btnTabApproval.PressedBorder = System.Drawing.Color.Transparent;
+            this.btnTabApproval.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(58)))), ((int)(((byte)(138)))));
+            this.btnTabApproval.Size = new System.Drawing.Size(260, 36);
+            this.btnTabApproval.TabIndex = 0;
+            this.btnTabApproval.Text = "📋 Thẩm Định & Xét Duyệt Hồ Sơ";
+            this.btnTabApproval.TextColor = System.Drawing.Color.White;
+            this.btnTabApproval.UseVisualStyleBackColor = false;
+
+            // 
+            // btnTabRepayment
+            // 
+            this.btnTabRepayment.BorderRadius = 8;
+            this.btnTabRepayment.BorderSize = 1;
+            this.btnTabRepayment.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnTabRepayment.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnTabRepayment.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
+            this.btnTabRepayment.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
+            this.btnTabRepayment.HoverBorder = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(213)))), ((int)(((byte)(225)))));
+            this.btnTabRepayment.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
+            this.btnTabRepayment.Location = new System.Drawing.Point(290, 6);
+            this.btnTabRepayment.Name = "btnTabRepayment";
+            this.btnTabRepayment.NormalBorder = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(213)))), ((int)(((byte)(225)))));
+            this.btnTabRepayment.NormalColor = System.Drawing.Color.White;
+            this.btnTabRepayment.PressedBorder = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(213)))), ((int)(((byte)(225)))));
+            this.btnTabRepayment.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
+            this.btnTabRepayment.Size = new System.Drawing.Size(310, 36);
+            this.btnTabRepayment.TabIndex = 1;
+            this.btnTabRepayment.Text = "📊 Theo Dõi Trả Nợ (Đã Trả & Chưa Trả)";
+            this.btnTabRepayment.TextColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
+            this.btnTabRepayment.UseVisualStyleBackColor = false;
+
+            // 
+            // pnlApprovalContainer
+            // 
+            this.pnlApprovalContainer.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
+            this.pnlApprovalContainer.Controls.Add(this.tlpMain);
+            this.pnlApprovalContainer.Controls.Add(this.pnlFilter);
+            this.pnlApprovalContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlApprovalContainer.Location = new System.Drawing.Point(0, 123);
+            this.pnlApprovalContainer.Name = "pnlApprovalContainer";
+            this.pnlApprovalContainer.Size = new System.Drawing.Size(1200, 627);
+            this.pnlApprovalContainer.TabIndex = 2;
+
+            // 
+            // pnlRepaymentContainer
+            // 
+            this.pnlRepaymentContainer.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
+            this.pnlRepaymentContainer.Controls.Add(this.tlpRepayTables);
+            this.pnlRepaymentContainer.Controls.Add(this.pnlRepayToolbar);
+            this.pnlRepaymentContainer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlRepaymentContainer.Location = new System.Drawing.Point(0, 123);
+            this.pnlRepaymentContainer.Name = "pnlRepaymentContainer";
+            this.pnlRepaymentContainer.Size = new System.Drawing.Size(1200, 627);
+            this.pnlRepaymentContainer.TabIndex = 3;
+            this.pnlRepaymentContainer.Visible = false;
+
+            // 
+            // pnlRepayToolbar
+            // 
+            this.pnlRepayToolbar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
+            this.pnlRepayToolbar.Controls.Add(this.lblRepaySearch);
+            this.pnlRepayToolbar.Controls.Add(this.pnlRepaySearchBox);
+            this.pnlRepayToolbar.Controls.Add(this.lblRepayUnpaidStat);
+            this.pnlRepayToolbar.Controls.Add(this.lblRepayPaidStat);
+            this.pnlRepayToolbar.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlRepayToolbar.Location = new System.Drawing.Point(0, 0);
+            this.pnlRepayToolbar.Name = "pnlRepayToolbar";
+            this.pnlRepayToolbar.Size = new System.Drawing.Size(1200, 50);
+            this.pnlRepayToolbar.TabIndex = 0;
+
+            // 
+            // lblRepaySearch
+            // 
+            this.lblRepaySearch.AutoSize = true;
+            this.lblRepaySearch.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lblRepaySearch.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
+            this.lblRepaySearch.Location = new System.Drawing.Point(18, 14);
+            this.lblRepaySearch.Name = "lblRepaySearch";
+            this.lblRepaySearch.Size = new System.Drawing.Size(95, 25);
+            this.lblRepaySearch.TabIndex = 0;
+            this.lblRepaySearch.Text = "Tìm kiếm:";
+
+            // 
+            // pnlRepaySearchBox
+            // 
+            this.pnlRepaySearchBox.BackColor = System.Drawing.Color.White;
+            this.pnlRepaySearchBox.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(213)))), ((int)(((byte)(225)))));
+            this.pnlRepaySearchBox.BorderRadius = 6;
+            this.pnlRepaySearchBox.BorderSize = 1;
+            this.pnlRepaySearchBox.Controls.Add(this.txtRepaySearch);
+            this.pnlRepaySearchBox.FillColor = System.Drawing.Color.White;
+            this.pnlRepaySearchBox.Location = new System.Drawing.Point(90, 10);
+            this.pnlRepaySearchBox.Name = "pnlRepaySearchBox";
+            this.pnlRepaySearchBox.Size = new System.Drawing.Size(320, 30);
+            this.pnlRepaySearchBox.TabIndex = 1;
+
+            // 
+            // txtRepaySearch
+            // 
+            this.txtRepaySearch.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.txtRepaySearch.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.txtRepaySearch.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
+            this.txtRepaySearch.Location = new System.Drawing.Point(8, 6);
+            this.txtRepaySearch.Name = "txtRepaySearch";
+            this.txtRepaySearch.Size = new System.Drawing.Size(304, 26);
+            this.txtRepaySearch.TabIndex = 0;
+
+            // 
+            // lblRepayUnpaidStat
+            // 
+            this.lblRepayUnpaidStat.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblRepayUnpaidStat.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(254)))), ((int)(((byte)(242)))), ((int)(((byte)(242)))));
+            this.lblRepayUnpaidStat.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lblRepayUnpaidStat.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lblRepayUnpaidStat.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(185)))), ((int)(((byte)(28)))), ((int)(((byte)(28)))));
+            this.lblRepayUnpaidStat.Location = new System.Drawing.Point(460, 9);
+            this.lblRepayUnpaidStat.Name = "lblRepayUnpaidStat";
+            this.lblRepayUnpaidStat.Size = new System.Drawing.Size(350, 32);
+            this.lblRepayUnpaidStat.TabIndex = 2;
+            this.lblRepayUnpaidStat.Text = "🔴 Chưa trả: 0 user | 0 đ";
+            this.lblRepayUnpaidStat.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+
+            // 
+            // lblRepayPaidStat
+            // 
+            this.lblRepayPaidStat.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblRepayPaidStat.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(253)))), ((int)(((byte)(244)))));
+            this.lblRepayPaidStat.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lblRepayPaidStat.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lblRepayPaidStat.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(101)))), ((int)(((byte)(52)))));
+            this.lblRepayPaidStat.Location = new System.Drawing.Point(825, 9);
+            this.lblRepayPaidStat.Name = "lblRepayPaidStat";
+            this.lblRepayPaidStat.Size = new System.Drawing.Size(350, 32);
+            this.lblRepayPaidStat.TabIndex = 3;
+            this.lblRepayPaidStat.Text = "🟢 Đã tất toán: 0 user | 0 đ";
+            this.lblRepayPaidStat.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+
+            // 
+            // tlpRepayTables
+            // 
+            this.tlpRepayTables.ColumnCount = 2;
+            this.tlpRepayTables.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpRepayTables.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tlpRepayTables.Controls.Add(this.pnlUnpaidCard, 0, 0);
+            this.tlpRepayTables.Controls.Add(this.pnlPaidCard, 1, 0);
+            this.tlpRepayTables.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tlpRepayTables.Location = new System.Drawing.Point(0, 50);
+            this.tlpRepayTables.Name = "tlpRepayTables";
+            this.tlpRepayTables.Padding = new System.Windows.Forms.Padding(16, 12, 16, 16);
+            this.tlpRepayTables.RowCount = 1;
+            this.tlpRepayTables.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tlpRepayTables.Size = new System.Drawing.Size(1200, 577);
+            this.tlpRepayTables.TabIndex = 1;
+
+            // 
+            // pnlUnpaidCard
+            // 
+            this.pnlUnpaidCard.BackColor = System.Drawing.Color.White;
+            this.pnlUnpaidCard.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(254)))), ((int)(((byte)(202)))), ((int)(((byte)(202)))));
+            this.pnlUnpaidCard.BorderRadius = 12;
+            this.pnlUnpaidCard.BorderSize = 1;
+            this.pnlUnpaidCard.Controls.Add(this.dgvUnpaidLoans);
+            this.pnlUnpaidCard.Controls.Add(this.pnlUnpaidHeader);
+            this.pnlUnpaidCard.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlUnpaidCard.FillColor = System.Drawing.Color.White;
+            this.pnlUnpaidCard.Location = new System.Drawing.Point(19, 15);
+            this.pnlUnpaidCard.Name = "pnlUnpaidCard";
+            this.pnlUnpaidCard.Padding = new System.Windows.Forms.Padding(14);
+            this.pnlUnpaidCard.Size = new System.Drawing.Size(578, 546);
+            this.pnlUnpaidCard.TabIndex = 0;
+
+            // 
+            // pnlUnpaidHeader
+            // 
+            this.pnlUnpaidHeader.BackColor = System.Drawing.Color.White;
+            this.pnlUnpaidHeader.Controls.Add(this.lblUnpaidSub);
+            this.pnlUnpaidHeader.Controls.Add(this.lblUnpaidTitle);
+            this.pnlUnpaidHeader.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlUnpaidHeader.Location = new System.Drawing.Point(14, 14);
+            this.pnlUnpaidHeader.Name = "pnlUnpaidHeader";
+            this.pnlUnpaidHeader.Size = new System.Drawing.Size(550, 52);
+            this.pnlUnpaidHeader.TabIndex = 0;
+
+            // 
+            // lblUnpaidTitle
+            // 
+            this.lblUnpaidTitle.AutoSize = true;
+            this.lblUnpaidTitle.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
+            this.lblUnpaidTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(185)))), ((int)(((byte)(28)))), ((int)(((byte)(28)))));
+            this.lblUnpaidTitle.Location = new System.Drawing.Point(2, 2);
+            this.lblUnpaidTitle.Name = "lblUnpaidTitle";
+            this.lblUnpaidTitle.Size = new System.Drawing.Size(430, 25);
+            this.lblUnpaidTitle.TabIndex = 0;
+            this.lblUnpaidTitle.Text = "🔴 USER CHƯA TRẢ KHOẢN VAY (ĐANG CÒN NỢ)";
+
+            // 
+            // lblUnpaidSub
+            // 
+            this.lblUnpaidSub.AutoSize = true;
+            this.lblUnpaidSub.Font = new System.Drawing.Font("Segoe UI", 8.5F);
+            this.lblUnpaidSub.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
+            this.lblUnpaidSub.Location = new System.Drawing.Point(3, 28);
+            this.lblUnpaidSub.Name = "lblUnpaidSub";
+            this.lblUnpaidSub.Size = new System.Drawing.Size(510, 20);
+            this.lblUnpaidSub.TabIndex = 1;
+            this.lblUnpaidSub.Text = "Các hồ sơ đã giải ngân và đang trong thời hạn trả nợ hoặc quá hạn thanh toán";
+
+            // 
+            // dgvUnpaidLoans
+            // 
+            this.dgvUnpaidLoans.AllowUserToAddRows = false;
+            this.dgvUnpaidLoans.AllowUserToDeleteRows = false;
+            this.dgvUnpaidLoans.AllowUserToResizeRows = false;
+            this.dgvUnpaidLoans.BackgroundColor = System.Drawing.Color.White;
+            this.dgvUnpaidLoans.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.dgvUnpaidLoans.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleHorizontal;
+            this.dgvUnpaidLoans.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
+            this.dgvUnpaidLoans.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvUnpaidLoans.EnableHeadersVisualStyles = false;
+            this.dgvUnpaidLoans.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
+            this.dgvUnpaidLoans.Location = new System.Drawing.Point(14, 66);
+            this.dgvUnpaidLoans.MultiSelect = false;
+            this.dgvUnpaidLoans.Name = "dgvUnpaidLoans";
+            this.dgvUnpaidLoans.ReadOnly = true;
+            this.dgvUnpaidLoans.RowHeadersVisible = false;
+            this.dgvUnpaidLoans.RowTemplate.Height = 34;
+            this.dgvUnpaidLoans.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgvUnpaidLoans.Size = new System.Drawing.Size(550, 466);
+            this.dgvUnpaidLoans.TabIndex = 1;
+
+            // 
+            // pnlPaidCard
+            // 
+            this.pnlPaidCard.BackColor = System.Drawing.Color.White;
+            this.pnlPaidCard.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(187)))), ((int)(((byte)(247)))), ((int)(((byte)(208)))));
+            this.pnlPaidCard.BorderRadius = 12;
+            this.pnlPaidCard.BorderSize = 1;
+            this.pnlPaidCard.Controls.Add(this.dgvPaidLoans);
+            this.pnlPaidCard.Controls.Add(this.pnlPaidHeader);
+            this.pnlPaidCard.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlPaidCard.FillColor = System.Drawing.Color.White;
+            this.pnlPaidCard.Location = new System.Drawing.Point(603, 15);
+            this.pnlPaidCard.Name = "pnlPaidCard";
+            this.pnlPaidCard.Padding = new System.Windows.Forms.Padding(14);
+            this.pnlPaidCard.Size = new System.Drawing.Size(578, 546);
+            this.pnlPaidCard.TabIndex = 1;
+
+            // 
+            // pnlPaidHeader
+            // 
+            this.pnlPaidHeader.BackColor = System.Drawing.Color.White;
+            this.pnlPaidHeader.Controls.Add(this.lblPaidSub);
+            this.pnlPaidHeader.Controls.Add(this.lblPaidTitle);
+            this.pnlPaidHeader.Dock = System.Windows.Forms.DockStyle.Top;
+            this.pnlPaidHeader.Location = new System.Drawing.Point(14, 14);
+            this.pnlPaidHeader.Name = "pnlPaidHeader";
+            this.pnlPaidHeader.Size = new System.Drawing.Size(550, 52);
+            this.pnlPaidHeader.TabIndex = 0;
+
+            // 
+            // lblPaidTitle
+            // 
+            this.lblPaidTitle.AutoSize = true;
+            this.lblPaidTitle.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
+            this.lblPaidTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(101)))), ((int)(((byte)(52)))));
+            this.lblPaidTitle.Location = new System.Drawing.Point(2, 2);
+            this.lblPaidTitle.Name = "lblPaidTitle";
+            this.lblPaidTitle.Size = new System.Drawing.Size(410, 25);
+            this.lblPaidTitle.TabIndex = 0;
+            this.lblPaidTitle.Text = "🟢 USER ĐÃ TRẢ KHOẢN VAY (ĐÃ TẤT TOÁN)";
+
+            // 
+            // lblPaidSub
+            // 
+            this.lblPaidSub.AutoSize = true;
+            this.lblPaidSub.Font = new System.Drawing.Font("Segoe UI", 8.5F);
+            this.lblPaidSub.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
+            this.lblPaidSub.Location = new System.Drawing.Point(3, 28);
+            this.lblPaidSub.Name = "lblPaidSub";
+            this.lblPaidSub.Size = new System.Drawing.Size(510, 20);
+            this.lblPaidSub.TabIndex = 1;
+            this.lblPaidSub.Text = "Các khoản vay đã được khách hàng thanh toán và tất toán đầy đủ gốc & lãi";
+
+            // 
+            // dgvPaidLoans
+            // 
+            this.dgvPaidLoans.AllowUserToAddRows = false;
+            this.dgvPaidLoans.AllowUserToDeleteRows = false;
+            this.dgvPaidLoans.AllowUserToResizeRows = false;
+            this.dgvPaidLoans.BackgroundColor = System.Drawing.Color.White;
+            this.dgvPaidLoans.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.dgvPaidLoans.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleHorizontal;
+            this.dgvPaidLoans.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
+            this.dgvPaidLoans.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvPaidLoans.EnableHeadersVisualStyles = false;
+            this.dgvPaidLoans.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
+            this.dgvPaidLoans.Location = new System.Drawing.Point(14, 66);
+            this.dgvPaidLoans.MultiSelect = false;
+            this.dgvPaidLoans.Name = "dgvPaidLoans";
+            this.dgvPaidLoans.ReadOnly = true;
+            this.dgvPaidLoans.RowHeadersVisible = false;
+            this.dgvPaidLoans.RowTemplate.Height = 34;
+            this.dgvPaidLoans.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgvPaidLoans.Size = new System.Drawing.Size(550, 466);
+            this.dgvPaidLoans.TabIndex = 1;
+
             // 
             // BorrowingAdminForm
             // 
@@ -942,14 +1318,31 @@ namespace BankAccountManagement.Forms
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
             this.ClientSize = new System.Drawing.Size(1200, 750);
-            this.Controls.Add(this.tlpMain);
-            this.Controls.Add(this.pnlFilter);
+            this.Controls.Add(this.pnlRepaymentContainer);
+            this.Controls.Add(this.pnlApprovalContainer);
+            this.Controls.Add(this.pnlNavTabs);
             this.Controls.Add(this.pnlHeader);
             this.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.Name = "BorrowingAdminForm";
             this.Text = "Quản lý & Thẩm định Hồ sơ Vay Vốn (Admin)";
             this.pnlHeader.ResumeLayout(false);
             this.pnlHeader.PerformLayout();
+            this.pnlNavTabs.ResumeLayout(false);
+            this.pnlApprovalContainer.ResumeLayout(false);
+            this.pnlRepaymentContainer.ResumeLayout(false);
+            this.pnlRepayToolbar.ResumeLayout(false);
+            this.pnlRepayToolbar.PerformLayout();
+            this.pnlRepaySearchBox.ResumeLayout(false);
+            this.pnlRepaySearchBox.PerformLayout();
+            this.tlpRepayTables.ResumeLayout(false);
+            this.pnlUnpaidCard.ResumeLayout(false);
+            this.pnlUnpaidHeader.ResumeLayout(false);
+            this.pnlUnpaidHeader.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvUnpaidLoans)).EndInit();
+            this.pnlPaidCard.ResumeLayout(false);
+            this.pnlPaidHeader.ResumeLayout(false);
+            this.pnlPaidHeader.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvPaidLoans)).EndInit();
             this.pnlFilter.ResumeLayout(false);
             this.pnlFilter.PerformLayout();
             this.pnlSearchBox.ResumeLayout(false);
@@ -1041,5 +1434,31 @@ namespace BankAccountManagement.Forms
         private System.Windows.Forms.TableLayoutPanel tlpActionButtons;
         private BankAccountManagement.Forms.RoundedButton btnApprove;
         private BankAccountManagement.Forms.RoundedButton btnReject;
+
+        // Nav Tabs & Containers
+        private System.Windows.Forms.Panel pnlNavTabs;
+        private BankAccountManagement.Forms.RoundedButton btnTabApproval;
+        private BankAccountManagement.Forms.RoundedButton btnTabRepayment;
+        private System.Windows.Forms.Panel pnlApprovalContainer;
+        private System.Windows.Forms.Panel pnlRepaymentContainer;
+
+        // Repayment view controls
+        private System.Windows.Forms.Panel pnlRepayToolbar;
+        private System.Windows.Forms.Label lblRepaySearch;
+        private BankAccountManagement.Forms.RoundedPanel pnlRepaySearchBox;
+        private System.Windows.Forms.TextBox txtRepaySearch;
+        private System.Windows.Forms.Label lblRepayUnpaidStat;
+        private System.Windows.Forms.Label lblRepayPaidStat;
+        private System.Windows.Forms.TableLayoutPanel tlpRepayTables;
+        private BankAccountManagement.Forms.RoundedPanel pnlUnpaidCard;
+        private System.Windows.Forms.Panel pnlUnpaidHeader;
+        private System.Windows.Forms.Label lblUnpaidTitle;
+        private System.Windows.Forms.Label lblUnpaidSub;
+        private System.Windows.Forms.DataGridView dgvUnpaidLoans;
+        private BankAccountManagement.Forms.RoundedPanel pnlPaidCard;
+        private System.Windows.Forms.Panel pnlPaidHeader;
+        private System.Windows.Forms.Label lblPaidTitle;
+        private System.Windows.Forms.Label lblPaidSub;
+        private System.Windows.Forms.DataGridView dgvPaidLoans;
     }
 }

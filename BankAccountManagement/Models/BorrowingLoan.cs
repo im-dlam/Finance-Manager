@@ -37,6 +37,21 @@ namespace BankAccountManagement.Models
         public string FormattedInterest => FormattedTienLai;
         public string FormattedTerm => $"{ThoiGianVay} ngày";
         public string FormattedRegisterDate => NgayDangKy.ToString("dd/MM/yyyy");
+        public string FormattedCustomer => string.IsNullOrWhiteSpace(HoTen) ? MaKH : $"{HoTen} ({MaKH})";
+        public string FormattedNgayDuyet => NgayDuyet.HasValue ? NgayDuyet.Value.ToString("dd/MM/yyyy") : "-";
+
+        public string TinhTrangHan
+        {
+            get
+            {
+                if (TrangThai == "Đã tất toán") return "Đã tất toán";
+                if (TrangThai != "Đã duyệt") return "-";
+                var diff = (NgayDaoHan.Date - DateTime.Today).Days;
+                if (diff < 0) return $"Quá hạn {Math.Abs(diff)} ngày";
+                if (diff == 0) return "Đến hạn hôm nay";
+                return $"Còn {diff} ngày";
+            }
+        }
     }
 
     /// <summary>
