@@ -30,7 +30,17 @@ namespace BankAccountManagement.Forms
 
             btnToggleBalance.Click += BtnToggleBalance_Click;
             btnCopyStk.Click += BtnCopyStk_Click;
-            btnSwitchBank.Click += BtnSwitchBank_Click;
+
+            // Chuyển đổi tài khoản khi click vào dòng thông tin nếu có nhiều tài khoản
+            lblSwitchInfo.Cursor = Cursors.Hand;
+            lblSwitchInfo.Click += (s, e) =>
+            {
+                if (_summary.DanhSachTaiKhoan != null && _summary.DanhSachTaiKhoan.Count > 1)
+                {
+                    _selectedAccountIndex = (_selectedAccountIndex + 1) % _summary.DanhSachTaiKhoan.Count;
+                    UpdateDisplayedAccount();
+                }
+            };
 
             btnNavHistory.Click += BtnNavHistory_Click;
             btnNavCards.Click += BtnNavCards_Click;
@@ -84,8 +94,15 @@ namespace BankAccountManagement.Forms
             }
             lblAvatar.Text = firstChar;
 
-            // Hạng thành viên
-            lblUserTier.Text = $"🌸 {_summary.HangThanhVien} >";
+            // Hạng thành viên (mặc định là Hạng Tiêu Chuẩn)
+            string hang = !string.IsNullOrWhiteSpace(_summary.HangThanhVien) ? _summary.HangThanhVien : "Hạng Tiêu Chuẩn";
+            lblUserTier.Text = $"{hang} >";
+
+            using (var g = lblUserName.CreateGraphics())
+            {
+                var sz = g.MeasureString(lblUserName.Text, lblUserName.Font);
+                pnlNameBadge.Width = Math.Max(160, (int)sz.Width + 24);
+            }
 
             // Số tài khoản hiển thị rõ ràng, không ẩn
             UpdateDisplayedAccount();
@@ -288,18 +305,7 @@ namespace BankAccountManagement.Forms
             }
         }
 
-        private void BtnSwitchBank_Click(object sender, EventArgs e)
-        {
-            if (_summary.DanhSachTaiKhoan != null && _summary.DanhSachTaiKhoan.Count > 1)
-            {
-                _selectedAccountIndex = (_selectedAccountIndex + 1) % _summary.DanhSachTaiKhoan.Count;
-                UpdateDisplayedAccount();
-            }
-            else
-            {
-                MessageBox.Show("Hiện tại bạn chỉ có 1 tài khoản đang hoạt động.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-        }
+
 
         private void BtnNavHistory_Click(object sender, EventArgs e)
         {

@@ -378,7 +378,7 @@ namespace BankAccountManagement.Services
                 if (summary.TongSoDu >= 500000000m) summary.HangThanhVien = "Hạng Kim Cương";
                 else if (summary.TongSoDu >= 100000000m) summary.HangThanhVien = "Hạng Titan";
                 else if (summary.TongSoDu >= 20000000m) summary.HangThanhVien = "Hạng Vàng";
-                else summary.HangThanhVien = "Hạng Bạc";
+                else summary.HangThanhVien = "Hạng Tiêu Chuẩn";
 
                 // 4. Lấy khoản vay sắp tới
                 summary.KhoanVaySapToi = await GetUpcomingLoanAsync(maKH);

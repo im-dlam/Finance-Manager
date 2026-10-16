@@ -44,7 +44,6 @@ namespace BankAccountManagement.Forms
             this.btnNavCards = new System.Windows.Forms.Button();
             this.btnNavHistory = new System.Windows.Forms.Button();
             this.pnlSwitchRow = new System.Windows.Forms.Panel();
-            this.btnSwitchBank = new BankAccountManagement.Forms.RoundedButton();
             this.lblSwitchInfo = new System.Windows.Forms.Label();
             this.pnlAccountInfo = new System.Windows.Forms.Panel();
             this.btnToggleBalance = new System.Windows.Forms.Button();
@@ -452,31 +451,12 @@ namespace BankAccountManagement.Forms
             // 
             // pnlSwitchRow
             // 
-            this.pnlSwitchRow.Controls.Add(this.btnSwitchBank);
             this.pnlSwitchRow.Controls.Add(this.lblSwitchInfo);
             this.pnlSwitchRow.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlSwitchRow.Location = new System.Drawing.Point(18, 126);
             this.pnlSwitchRow.Name = "pnlSwitchRow";
-            this.pnlSwitchRow.Size = new System.Drawing.Size(916, 36);
+            this.pnlSwitchRow.Size = new System.Drawing.Size(916, 28);
             this.pnlSwitchRow.TabIndex = 2;
-            // 
-            // btnSwitchBank
-            // 
-            this.btnSwitchBank.BorderRadius = 10;
-            this.btnSwitchBank.BorderSize = 1;
-            this.btnSwitchBank.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnSwitchBank.Dock = System.Windows.Forms.DockStyle.Right;
-            this.btnSwitchBank.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Bold);
-            this.btnSwitchBank.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(252)))), ((int)(((byte)(231)))));
-            this.btnSwitchBank.Location = new System.Drawing.Point(860, 0);
-            this.btnSwitchBank.Name = "btnSwitchBank";
-            this.btnSwitchBank.NormalBorder = System.Drawing.Color.FromArgb(((int)(((byte)(187)))), ((int)(((byte)(247)))), ((int)(((byte)(208)))));
-            this.btnSwitchBank.NormalColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(253)))), ((int)(((byte)(244)))));
-            this.btnSwitchBank.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(187)))), ((int)(((byte)(247)))), ((int)(((byte)(208)))));
-            this.btnSwitchBank.Size = new System.Drawing.Size(56, 36);
-            this.btnSwitchBank.TabIndex = 1;
-            this.btnSwitchBank.Text = "BẬT";
-            this.btnSwitchBank.TextColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(163)))), ((int)(((byte)(74)))));
             // 
             // lblSwitchInfo
             // 
@@ -485,7 +465,7 @@ namespace BankAccountManagement.Forms
             this.lblSwitchInfo.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
             this.lblSwitchInfo.Location = new System.Drawing.Point(0, 0);
             this.lblSwitchInfo.Name = "lblSwitchInfo";
-            this.lblSwitchInfo.Size = new System.Drawing.Size(320, 36);
+            this.lblSwitchInfo.Size = new System.Drawing.Size(320, 28);
             this.lblSwitchInfo.TabIndex = 0;
             this.lblSwitchInfo.Text = "ⓘ Tài khoản ngân hàng chính";
             this.lblSwitchInfo.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -593,13 +573,13 @@ namespace BankAccountManagement.Forms
             // 
             this.lblUserTier.AutoSize = true;
             this.lblUserTier.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.lblUserTier.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.lblUserTier.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(79)))), ((int)(((byte)(70)))), ((int)(((byte)(229)))));
-            this.lblUserTier.Location = new System.Drawing.Point(54, 27);
+            this.lblUserTier.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Regular);
+            this.lblUserTier.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
+            this.lblUserTier.Location = new System.Drawing.Point(56, 27);
             this.lblUserTier.Name = "lblUserTier";
-            this.lblUserTier.Size = new System.Drawing.Size(104, 15);
+            this.lblUserTier.Size = new System.Drawing.Size(125, 17);
             this.lblUserTier.TabIndex = 2;
-            this.lblUserTier.Text = "🌸 Hạng Titan >";
+            this.lblUserTier.Text = "Hạng Tiêu Chuẩn >";
             // 
             // pnlNameBadge
             // 
@@ -719,7 +699,6 @@ namespace BankAccountManagement.Forms
         private System.Windows.Forms.Button btnToggleBalance;
         private System.Windows.Forms.Panel pnlSwitchRow;
         private System.Windows.Forms.Label lblSwitchInfo;
-        private BankAccountManagement.Forms.RoundedButton btnSwitchBank;
         private System.Windows.Forms.Panel pnlNavActions;
         private System.Windows.Forms.Button btnNavHistory;
         private System.Windows.Forms.Button btnNavCards;
