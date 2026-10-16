@@ -115,10 +115,9 @@ namespace BankAccountManagement.Forms
                 pnlAppraisalContent.Width = Math.Max(420, pnlAppraisalScroll.ClientSize.Width - 4);
             };
             btnRefresh.Click += async (s, e) => await LoadLoansAsync();
-            btnSearch.Click += async (s, e) => await LoadLoansAsync();
-
             cboFilterStatus.SelectedIndexChanged += async (s, e) => await LoadLoansAsync();
 
+            txtSearch.TextChanged += async (s, e) => await LoadLoansAsync();
             txtSearch.KeyDown += async (s, e) =>
             {
                 if (e.KeyCode == Keys.Enter)

@@ -47,6 +47,9 @@ namespace BankAccountManagement.Forms
             InitializeComponent();
             _borrowingService = new BorrowingService();
 
+            pnlFooter.Resize += (s, e) => CenterRegisterButton();
+            CenterRegisterButton();
+
             WireSliderEvents();
             WireTextEvents();
 
@@ -56,12 +59,24 @@ namespace BankAccountManagement.Forms
             this.btnHistory.Click += (s, e) => ShowUserLoanHistoryDialog();
         }
 
+        private void CenterRegisterButton()
+        {
+            if (btnRegister != null && pnlFooter != null)
+            {
+                btnRegister.Left = Math.Max(0, (pnlFooter.ClientSize.Width - btnRegister.Width) / 2);
+                btnRegister.Top = Math.Max(0, (pnlFooter.ClientSize.Height - btnRegister.Height) / 2);
+            }
+        }
+
         private async Task InitializeDataAsync()
         {
             await LoadUserAccountsAsync();
+            CenterRegisterButton();
             UpdateCalculations();
             UpdateVaySliderUI();
             UpdateTimeSliderUI();
+            thumbVay.BringToFront();
+            thumbTime.BringToFront();
         }
 
         /// <summary>
@@ -114,6 +129,9 @@ namespace BankAccountManagement.Forms
 
             this.MouseUp += (s, e) => { _isDraggingVay = false; _isDraggingTime = false; };
             pnlLeftCard.MouseUp += (s, e) => { _isDraggingVay = false; _isDraggingTime = false; };
+            thumbVay.MouseUp += (s, e) => { _isDraggingVay = false; };
+            trackVayBg.MouseUp += (s, e) => { _isDraggingVay = false; };
+            trackVayFill.MouseUp += (s, e) => { _isDraggingVay = false; };
 
             // Slider Thời gian vay
             trackTimeBg.MouseDown += TrackTime_MouseDown;
@@ -125,6 +143,10 @@ namespace BankAccountManagement.Forms
             trackTimeBg.MouseMove += TrackTime_MouseMove;
             trackTimeFill.MouseMove += TrackTime_MouseMove;
             thumbTime.MouseMove += TrackTime_MouseMove;
+
+            thumbTime.MouseUp += (s, e) => { _isDraggingTime = false; };
+            trackTimeBg.MouseUp += (s, e) => { _isDraggingTime = false; };
+            trackTimeFill.MouseUp += (s, e) => { _isDraggingTime = false; };
         }
 
         private void WireTextEvents()
@@ -182,7 +204,8 @@ namespace BankAccountManagement.Forms
         {
             if (e.Button != MouseButtons.Left) return;
             _isDraggingVay = true;
-            UpdateVayFromMouse(e.X + (sender == thumbVay ? thumbVay.Left : (sender == trackVayFill ? 0 : 0)));
+            Point p = trackVayBg.PointToClient(Cursor.Position);
+            UpdateVayFromMouse(p.X);
         }
 
         private void TrackVay_MouseMove(object sender, MouseEventArgs e)
@@ -233,13 +256,15 @@ namespace BankAccountManagement.Forms
             int thumbX = trackVayBg.Left + fillWidth - (thumbVay.Width / 2);
             thumbX = Math.Max(trackVayBg.Left - (thumbVay.Width / 2), Math.Min(trackVayBg.Right - (thumbVay.Width / 2), thumbX));
             thumbVay.Left = thumbX;
+            thumbVay.BringToFront();
         }
 
         private void TrackTime_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button != MouseButtons.Left) return;
             _isDraggingTime = true;
-            UpdateTimeFromMouse(e.X);
+            Point p = trackTimeBg.PointToClient(Cursor.Position);
+            UpdateTimeFromMouse(p.X);
         }
 
         private void TrackTime_MouseMove(object sender, MouseEventArgs e)
@@ -288,6 +313,7 @@ namespace BankAccountManagement.Forms
             int thumbX = trackTimeBg.Left + fillWidth - (thumbTime.Width / 2);
             thumbX = Math.Max(trackTimeBg.Left - (thumbTime.Width / 2), Math.Min(trackTimeBg.Right - (thumbTime.Width / 2), thumbX));
             thumbTime.Left = thumbX;
+            thumbTime.BringToFront();
         }
 
         #endregion

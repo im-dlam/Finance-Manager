@@ -168,23 +168,22 @@ namespace BankAccountManagement.Forms
             this.pnlFooter.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.pnlFooter.Location = new System.Drawing.Point(0, 680);
             this.pnlFooter.Name = "pnlFooter";
-            this.pnlFooter.Padding = new System.Windows.Forms.Padding(24, 14, 24, 18);
             this.pnlFooter.Size = new System.Drawing.Size(1200, 85);
             this.pnlFooter.TabIndex = 2;
 
-            this.btnRegister.BorderRadius = 14;
+            this.btnRegister.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.btnRegister.BorderRadius = 12;
             this.btnRegister.BorderSize = 0;
             this.btnRegister.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnRegister.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnRegister.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnRegister.Font = new System.Drawing.Font("Segoe UI", 13F, System.Drawing.FontStyle.Bold);
+            this.btnRegister.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
             this.btnRegister.ForeColor = System.Drawing.Color.White;
             this.btnRegister.HoverColor = System.Drawing.Color.FromArgb(219, 39, 119);
-            this.btnRegister.Location = new System.Drawing.Point(24, 14);
+            this.btnRegister.Location = new System.Drawing.Point(460, 18);
             this.btnRegister.Name = "btnRegister";
             this.btnRegister.NormalColor = System.Drawing.Color.FromArgb(190, 24, 93);
             this.btnRegister.PressedColor = System.Drawing.Color.FromArgb(157, 23, 77);
-            this.btnRegister.Size = new System.Drawing.Size(1152, 53);
+            this.btnRegister.Size = new System.Drawing.Size(280, 48);
             this.btnRegister.TabIndex = 0;
             this.btnRegister.Text = "Đăng ký ngay";
             this.btnRegister.TextColor = System.Drawing.Color.White;
@@ -230,18 +229,18 @@ namespace BankAccountManagement.Forms
             this.pnlLeftCard.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlLeftCard.Margin = new System.Windows.Forms.Padding(0, 0, 12, 0);
             this.pnlLeftCard.Name = "pnlLeftCard";
+            this.pnlLeftCard.Controls.Add(this.thumbVay);
+            this.pnlLeftCard.Controls.Add(this.thumbTime);
             this.pnlLeftCard.Controls.Add(this.lblVayTitle);
             this.pnlLeftCard.Controls.Add(this.pnlVayInputBox);
-            this.pnlLeftCard.Controls.Add(this.trackVayBg);
             this.pnlLeftCard.Controls.Add(this.trackVayFill);
-            this.pnlLeftCard.Controls.Add(this.thumbVay);
+            this.pnlLeftCard.Controls.Add(this.trackVayBg);
             this.pnlLeftCard.Controls.Add(this.lblVayMin);
             this.pnlLeftCard.Controls.Add(this.lblVayMax);
             this.pnlLeftCard.Controls.Add(this.lblTimeTitle);
             this.pnlLeftCard.Controls.Add(this.pnlTimeInputBox);
-            this.pnlLeftCard.Controls.Add(this.trackTimeBg);
             this.pnlLeftCard.Controls.Add(this.trackTimeFill);
-            this.pnlLeftCard.Controls.Add(this.thumbTime);
+            this.pnlLeftCard.Controls.Add(this.trackTimeBg);
             this.pnlLeftCard.Controls.Add(this.lblTimeMin);
             this.pnlLeftCard.Controls.Add(this.lblTimeMax);
 
@@ -254,21 +253,21 @@ namespace BankAccountManagement.Forms
             this.lblVayTitle.Size = new System.Drawing.Size(94, 19);
             this.lblVayTitle.Text = "Tôi muốn vay";
 
-            // Ô nhập số tiền vay bo tròn
-            this.pnlVayInputBox.BorderColor = System.Drawing.Color.FromArgb(203, 213, 225);
-            this.pnlVayInputBox.BorderRadius = 8;
-            this.pnlVayInputBox.BorderSize = 1;
+            // Ô nhập số tiền vay bo tròn - viền đậm rõ nét
+            this.pnlVayInputBox.BorderColor = System.Drawing.Color.FromArgb(100, 116, 139);
+            this.pnlVayInputBox.BorderRadius = 10;
+            this.pnlVayInputBox.BorderSize = 2;
             this.pnlVayInputBox.FillColor = System.Drawing.Color.White;
             this.pnlVayInputBox.Location = new System.Drawing.Point(32, 54);
             this.pnlVayInputBox.Name = "pnlVayInputBox";
-            this.pnlVayInputBox.Size = new System.Drawing.Size(320, 38);
+            this.pnlVayInputBox.Size = new System.Drawing.Size(320, 42);
             this.pnlVayInputBox.Controls.Add(this.txtVayAmount);
             this.pnlVayInputBox.Controls.Add(this.lblVayUnit);
 
             this.txtVayAmount.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.txtVayAmount.Font = new System.Drawing.Font("Segoe UI", 13.5F, System.Drawing.FontStyle.Bold);
             this.txtVayAmount.ForeColor = System.Drawing.Color.FromArgb(15, 23, 42);
-            this.txtVayAmount.Location = new System.Drawing.Point(12, 6);
+            this.txtVayAmount.Location = new System.Drawing.Point(12, 8);
             this.txtVayAmount.Name = "txtVayAmount";
             this.txtVayAmount.Size = new System.Drawing.Size(265, 24);
             this.txtVayAmount.Text = "1.000.000";
@@ -277,7 +276,7 @@ namespace BankAccountManagement.Forms
             this.lblVayUnit.AutoSize = true;
             this.lblVayUnit.Font = new System.Drawing.Font("Segoe UI", 13F, System.Drawing.FontStyle.Bold);
             this.lblVayUnit.ForeColor = System.Drawing.Color.FromArgb(190, 24, 93);
-            this.lblVayUnit.Location = new System.Drawing.Point(285, 6);
+            this.lblVayUnit.Location = new System.Drawing.Point(285, 8);
             this.lblVayUnit.Name = "lblVayUnit";
             this.lblVayUnit.Size = new System.Drawing.Size(22, 25);
             this.lblVayUnit.Text = "đ";
@@ -289,7 +288,7 @@ namespace BankAccountManagement.Forms
             this.trackVayBg.FillColor = System.Drawing.Color.FromArgb(226, 232, 240);
             this.trackVayBg.Location = new System.Drawing.Point(32, 126);
             this.trackVayBg.Name = "trackVayBg";
-            this.trackVayBg.Size = new System.Drawing.Size(530, 8);
+            this.trackVayBg.Size = new System.Drawing.Size(520, 8);
 
             this.trackVayFill.BorderRadius = 4;
             this.trackVayFill.BorderSize = 0;
@@ -319,7 +318,7 @@ namespace BankAccountManagement.Forms
             this.lblVayMax.AutoSize = true;
             this.lblVayMax.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.lblVayMax.ForeColor = System.Drawing.Color.FromArgb(148, 163, 184);
-            this.lblVayMax.Location = new System.Drawing.Point(500, 146);
+            this.lblVayMax.Location = new System.Drawing.Point(485, 146);
             this.lblVayMax.Name = "lblVayMax";
             this.lblVayMax.Size = new System.Drawing.Size(65, 15);
             this.lblVayMax.Text = "10.000.000";
@@ -333,20 +332,20 @@ namespace BankAccountManagement.Forms
             this.lblTimeTitle.Size = new System.Drawing.Size(95, 19);
             this.lblTimeTitle.Text = "Thời gian vay";
 
-            this.pnlTimeInputBox.BorderColor = System.Drawing.Color.FromArgb(203, 213, 225);
-            this.pnlTimeInputBox.BorderRadius = 8;
-            this.pnlTimeInputBox.BorderSize = 1;
+            this.pnlTimeInputBox.BorderColor = System.Drawing.Color.FromArgb(148, 163, 184);
+            this.pnlTimeInputBox.BorderRadius = 10;
+            this.pnlTimeInputBox.BorderSize = 2;
             this.pnlTimeInputBox.FillColor = System.Drawing.Color.White;
             this.pnlTimeInputBox.Location = new System.Drawing.Point(32, 232);
             this.pnlTimeInputBox.Name = "pnlTimeInputBox";
-            this.pnlTimeInputBox.Size = new System.Drawing.Size(320, 38);
+            this.pnlTimeInputBox.Size = new System.Drawing.Size(320, 42);
             this.pnlTimeInputBox.Controls.Add(this.txtTime);
             this.pnlTimeInputBox.Controls.Add(this.lblTimeUnit);
 
             this.txtTime.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.txtTime.Font = new System.Drawing.Font("Segoe UI", 13.5F, System.Drawing.FontStyle.Bold);
             this.txtTime.ForeColor = System.Drawing.Color.FromArgb(15, 23, 42);
-            this.txtTime.Location = new System.Drawing.Point(12, 6);
+            this.txtTime.Location = new System.Drawing.Point(12, 8);
             this.txtTime.Name = "txtTime";
             this.txtTime.Size = new System.Drawing.Size(250, 24);
             this.txtTime.Text = "30";
@@ -355,7 +354,7 @@ namespace BankAccountManagement.Forms
             this.lblTimeUnit.AutoSize = true;
             this.lblTimeUnit.Font = new System.Drawing.Font("Segoe UI", 11.5F, System.Drawing.FontStyle.Bold);
             this.lblTimeUnit.ForeColor = System.Drawing.Color.FromArgb(100, 116, 139);
-            this.lblTimeUnit.Location = new System.Drawing.Point(268, 7);
+            this.lblTimeUnit.Location = new System.Drawing.Point(268, 9);
             this.lblTimeUnit.Name = "lblTimeUnit";
             this.lblTimeUnit.Size = new System.Drawing.Size(46, 21);
             this.lblTimeUnit.Text = "ngày";
@@ -367,7 +366,7 @@ namespace BankAccountManagement.Forms
             this.trackTimeBg.FillColor = System.Drawing.Color.FromArgb(226, 232, 240);
             this.trackTimeBg.Location = new System.Drawing.Point(32, 304);
             this.trackTimeBg.Name = "trackTimeBg";
-            this.trackTimeBg.Size = new System.Drawing.Size(530, 8);
+            this.trackTimeBg.Size = new System.Drawing.Size(520, 8);
 
             this.trackTimeFill.BorderRadius = 4;
             this.trackTimeFill.BorderSize = 0;
@@ -397,7 +396,7 @@ namespace BankAccountManagement.Forms
             this.lblTimeMax.AutoSize = true;
             this.lblTimeMax.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.lblTimeMax.ForeColor = System.Drawing.Color.FromArgb(148, 163, 184);
-            this.lblTimeMax.Location = new System.Drawing.Point(515, 324);
+            this.lblTimeMax.Location = new System.Drawing.Point(505, 324);
             this.lblTimeMax.Name = "lblTimeMax";
             this.lblTimeMax.Size = new System.Drawing.Size(48, 15);
             this.lblTimeMax.Text = "30 ngày";
