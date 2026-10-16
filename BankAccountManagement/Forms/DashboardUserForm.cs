@@ -30,9 +30,6 @@ namespace BankAccountManagement.Forms
 
             btnToggleBalance.Click += BtnToggleBalance_Click;
             btnCopyStk.Click += BtnCopyStk_Click;
-            btnQR.Click += BtnQR_Click;
-            btnNotification.Click += BtnNotification_Click;
-            btnSearch.Click += BtnSearch_Click;
             btnSwitchBank.Click += BtnSwitchBank_Click;
 
             btnNavHistory.Click += BtnNavHistory_Click;
@@ -40,7 +37,10 @@ namespace BankAccountManagement.Forms
 
             btnPayDebt.Click += async (s, e) => await BtnPayDebt_ClickAsync();
             btnOpenLimitDialog.Click += async (s, e) => await OpenSpendingLimitDialogAsync();
-            btnSetSpendingLimit.Click += async (s, e) => await OpenSpendingLimitDialogAsync();
+
+            // Cho phép click vào toàn bộ thẻ Quản lý chi tiêu để mở dialog thiết lập
+            pnlSpendingCard.Click += async (s, e) => await OpenSpendingLimitDialogAsync();
+            lblSpendingTitle.Click += async (s, e) => await OpenSpendingLimitDialogAsync();
         }
 
         /// <summary>
@@ -66,7 +66,7 @@ namespace BankAccountManagement.Forms
         }
 
         /// <summary>
-        /// Cập nhật hiển thị thẻ thông tin cá nhân và tài khoản (Navy Card).
+        /// Cập nhật hiển thị thẻ thông tin cá nhân và tài khoản (White Card sáng sủa, rõ ràng).
         /// </summary>
         private void UpdateUserInfoUI()
         {
@@ -87,7 +87,7 @@ namespace BankAccountManagement.Forms
             // Hạng thành viên
             lblUserTier.Text = $"🌸 {_summary.HangThanhVien} >";
 
-            // Số tài khoản
+            // Số tài khoản hiển thị rõ ràng, không ẩn
             UpdateDisplayedAccount();
 
             // Số dư
@@ -103,7 +103,9 @@ namespace BankAccountManagement.Forms
 
                 var acc = _summary.DanhSachTaiKhoan[_selectedAccountIndex];
                 _summary.SoTaiKhoanChinh = acc.SoTaiKhoan;
-                lblAccountNumber.Text = _summary.SoTaiKhoanMasked;
+
+                // Hiển thị số tài khoản rõ ràng, không ẩn dấu sao
+                lblAccountNumber.Text = !string.IsNullOrWhiteSpace(acc.SoTaiKhoan) ? acc.SoTaiKhoan.Trim() : "Chưa có tài khoản";
 
                 if (_summary.DanhSachTaiKhoan.Count > 1)
                 {
@@ -116,9 +118,12 @@ namespace BankAccountManagement.Forms
             }
             else
             {
-                lblAccountNumber.Text = _summary.SoTaiKhoanMasked;
-                lblSwitchInfo.Text = "ⓘ Tài khoản ngân hàng";
+                lblAccountNumber.Text = !string.IsNullOrWhiteSpace(_summary.SoTaiKhoanChinh) ? _summary.SoTaiKhoanChinh.Trim() : "Chưa có tài khoản";
+                lblSwitchInfo.Text = "ⓘ Tài khoản ngân hàng chính";
             }
+
+            // Tự động căn chỉnh nút sao chép nằm ngay sau số tài khoản
+            btnCopyStk.Left = lblAccountNumber.Right + 8;
         }
 
         private void UpdateBalanceDisplay()
@@ -133,6 +138,9 @@ namespace BankAccountManagement.Forms
                 lblBalance.Text = "•••••••••";
                 btnToggleBalance.Text = "👁";
             }
+
+            // Tự động căn chỉnh nút con mắt nằm ngay sau số dư
+            btnToggleBalance.Left = lblBalance.Right + 8;
         }
 
         /// <summary>
@@ -142,11 +150,10 @@ namespace BankAccountManagement.Forms
         {
             if (_summary.KhoanVaySapToi != null)
             {
-                lblDebtDueDate.Text = $"Ngày đến hạn: {_summary.KhoanVaySapToi.NgayDaoHan:dd/MM/yyyy}";
-                lblDebtAmount.Text = $"{_summary.KhoanVaySapToi.TongPhaiTra:N0} đ";
-                lblDebtStatus.Text = "Chưa thanh toán";
-                lblDebtStatus.ForeColor = Color.FromArgb(220, 38, 38); // Đỏ
-                lblDebtStatus.BackColor = Color.FromArgb(254, 242, 242);
+                lblDebtDueDate.Text = $"Kỳ hạn tiếp theo: {_summary.KhoanVaySapToi.NgayDaoHan:dd/MM/yyyy}";
+                lblDebtAmount.Text = $"- Số tiền: {_summary.KhoanVaySapToi.TongPhaiTra:N0} đ";
+                lblDebtStatus.Text = "- Trạng thái: Chưa thanh toán";
+                lblDebtStatus.ForeColor = Color.FromArgb(225, 29, 72);
 
                 btnPayDebt.Enabled = true;
                 btnPayDebt.Text = "Thanh toán ngay";
@@ -157,17 +164,16 @@ namespace BankAccountManagement.Forms
             }
             else
             {
-                lblDebtDueDate.Text = "Không có khoản vay nào đến hạn";
-                lblDebtAmount.Text = "0 đ";
-                lblDebtStatus.Text = "An toàn";
-                lblDebtStatus.ForeColor = Color.FromArgb(22, 163, 74); // Xanh lá
-                lblDebtStatus.BackColor = Color.FromArgb(240, 253, 244);
+                lblDebtDueDate.Text = "Kỳ hạn tiếp theo: Không có khoản vay đến hạn";
+                lblDebtAmount.Text = "- Số tiền: 0 đ";
+                lblDebtStatus.Text = "- Trạng thái: An toàn (Không có dư nợ)";
+                lblDebtStatus.ForeColor = Color.FromArgb(22, 163, 74);
 
                 btnPayDebt.Enabled = false;
                 btnPayDebt.Text = "Không có dư nợ";
-                btnPayDebt.NormalColor = Color.FromArgb(226, 232, 240);
-                btnPayDebt.HoverColor = Color.FromArgb(226, 232, 240);
-                btnPayDebt.PressedColor = Color.FromArgb(226, 232, 240);
+                btnPayDebt.NormalColor = Color.FromArgb(241, 245, 249);
+                btnPayDebt.HoverColor = Color.FromArgb(241, 245, 249);
+                btnPayDebt.PressedColor = Color.FromArgb(241, 245, 249);
                 btnPayDebt.ForeColor = Color.FromArgb(148, 163, 184);
             }
         }
@@ -180,11 +186,11 @@ namespace BankAccountManagement.Forms
             var stats = _summary.Spending ?? new SpendingStats();
 
             // Ngày
-            lblDailySpent.Text = $"Đã chi: {stats.FormattedDaChiHomNay} / {stats.FormattedHanMucNgay}";
+            lblDailySpent.Text = $"Đã chi: {stats.FormattedDaChiHomNay} / {stats.FormattedHanMucNgay} (Ngày)";
             lblDailyRemaining.Text = $"Còn lại: {stats.FormattedConLaiHomNay} ({stats.PhanTramNgay}%)";
 
             // Tuần
-            lblWeeklySpent.Text = $"Đã chi: {stats.FormattedDaChiTuanNay} / {stats.FormattedHanMucTuan}";
+            lblWeeklySpent.Text = $"Đã chi: {stats.FormattedDaChiTuanNay} / {stats.FormattedHanMucTuan} (Tuần)";
             lblWeeklyRemaining.Text = $"Còn lại: {stats.FormattedConLaiTuanNay} ({stats.PhanTramTuan}%)";
 
             // Badge trạng thái
@@ -201,7 +207,7 @@ namespace BankAccountManagement.Forms
             }
             else
             {
-                lblSpendingStatusBadge.ForeColor = Color.FromArgb(22, 163, 74);
+                lblSpendingStatusBadge.ForeColor = Color.FromArgb(22, 101, 52);
                 lblSpendingStatusBadge.BackColor = Color.FromArgb(240, 253, 244);
             }
 
@@ -221,17 +227,17 @@ namespace BankAccountManagement.Forms
 
             if (stats.VuotMucNgay)
             {
-                pnlDailyProgressBar.FillColor = Color.FromArgb(239, 68, 68); // Đỏ
+                pnlDailyProgressBar.FillColor = Color.FromArgb(239, 68, 68);
                 pnlDailyProgressBar.BorderColor = Color.FromArgb(239, 68, 68);
             }
             else if (stats.PhanTramNgay >= 80)
             {
-                pnlDailyProgressBar.FillColor = Color.FromArgb(245, 158, 11); // Cam
+                pnlDailyProgressBar.FillColor = Color.FromArgb(245, 158, 11);
                 pnlDailyProgressBar.BorderColor = Color.FromArgb(245, 158, 11);
             }
             else
             {
-                pnlDailyProgressBar.FillColor = Color.FromArgb(37, 99, 235); // Xanh dương
+                pnlDailyProgressBar.FillColor = Color.FromArgb(37, 99, 235);
                 pnlDailyProgressBar.BorderColor = Color.FromArgb(37, 99, 235);
             }
 
@@ -243,17 +249,17 @@ namespace BankAccountManagement.Forms
 
             if (stats.VuotMucTuan)
             {
-                pnlWeeklyProgressBar.FillColor = Color.FromArgb(239, 68, 68); // Đỏ
+                pnlWeeklyProgressBar.FillColor = Color.FromArgb(239, 68, 68);
                 pnlWeeklyProgressBar.BorderColor = Color.FromArgb(239, 68, 68);
             }
             else if (stats.PhanTramTuan >= 80)
             {
-                pnlWeeklyProgressBar.FillColor = Color.FromArgb(245, 158, 11); // Cam
+                pnlWeeklyProgressBar.FillColor = Color.FromArgb(245, 158, 11);
                 pnlWeeklyProgressBar.BorderColor = Color.FromArgb(245, 158, 11);
             }
             else
             {
-                pnlWeeklyProgressBar.FillColor = Color.FromArgb(16, 185, 129); // Xanh ngọc
+                pnlWeeklyProgressBar.FillColor = Color.FromArgb(16, 185, 129);
                 pnlWeeklyProgressBar.BorderColor = Color.FromArgb(16, 185, 129);
             }
         }
@@ -279,129 +285,6 @@ namespace BankAccountManagement.Forms
                 {
                     MessageBox.Show("Không thể sao chép vào bộ nhớ đệm: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
-            }
-        }
-
-        private void BtnQR_Click(object sender, EventArgs e)
-        {
-            string stk = !string.IsNullOrWhiteSpace(_summary.SoTaiKhoanChinh) ? _summary.SoTaiKhoanChinh : "Chưa có tài khoản";
-            string name = !string.IsNullOrWhiteSpace(_summary.HoTen) ? _summary.HoTen : CurrentSession.TenDangNhap;
-
-            using (var qrForm = new Form())
-            {
-                qrForm.Text = "Mã QR Nhận Tiền";
-                qrForm.Size = new Size(360, 420);
-                qrForm.StartPosition = FormStartPosition.CenterParent;
-                qrForm.FormBorderStyle = FormBorderStyle.FixedDialog;
-                qrForm.MaximizeBox = false;
-                qrForm.MinimizeBox = false;
-                qrForm.BackColor = Color.White;
-
-                var pnlCard = new RoundedPanel
-                {
-                    Dock = DockStyle.Fill,
-                    FillColor = Color.White,
-                    BorderColor = Color.FromArgb(226, 232, 240),
-                    BorderSize = 1,
-                    BorderRadius = 16,
-                    Padding = new Padding(20)
-                };
-
-                var lblTitle = new Label
-                {
-                    Text = "QUÉT ĐỂ CHUYỂN TIỀN",
-                    Font = new Font("Segoe UI", 12F, FontStyle.Bold),
-                    ForeColor = Color.FromArgb(15, 23, 42),
-                    Dock = DockStyle.Top,
-                    Height = 30,
-                    TextAlign = ContentAlignment.MiddleCenter
-                };
-
-                var lblName = new Label
-                {
-                    Text = name.ToUpper(),
-                    Font = new Font("Segoe UI", 11F, FontStyle.Bold),
-                    ForeColor = Color.FromArgb(37, 99, 235),
-                    Dock = DockStyle.Top,
-                    Height = 26,
-                    TextAlign = ContentAlignment.MiddleCenter
-                };
-
-                var lblStk = new Label
-                {
-                    Text = $"STK: {stk}",
-                    Font = new Font("Segoe UI", 10F, FontStyle.Regular),
-                    ForeColor = Color.FromArgb(100, 116, 139),
-                    Dock = DockStyle.Top,
-                    Height = 24,
-                    TextAlign = ContentAlignment.MiddleCenter
-                };
-
-                var pnlQrBox = new RoundedPanel
-                {
-                    Size = new Size(200, 200),
-                    Location = new Point(70, 100),
-                    BorderColor = Color.FromArgb(203, 213, 225),
-                    BorderSize = 2,
-                    BorderRadius = 12,
-                    FillColor = Color.FromArgb(248, 250, 252)
-                };
-
-                var lblQrSim = new Label
-                {
-                    Dock = DockStyle.Fill,
-                    Text = "[\n  QR CODE  \n  VIETQR  \n]",
-                    Font = new Font("Segoe UI", 13F, FontStyle.Bold),
-                    ForeColor = Color.FromArgb(30, 41, 59),
-                    TextAlign = ContentAlignment.MiddleCenter
-                };
-                pnlQrBox.Controls.Add(lblQrSim);
-
-                var btnClose = new RoundedButton
-                {
-                    Text = "Đóng",
-                    Dock = DockStyle.Bottom,
-                    Height = 40,
-                    NormalColor = Color.FromArgb(241, 245, 249),
-                    HoverColor = Color.FromArgb(226, 232, 240),
-                    PressedColor = Color.FromArgb(203, 213, 225),
-                    ForeColor = Color.FromArgb(51, 65, 85),
-                    BorderRadius = 10,
-                    Cursor = Cursors.Hand
-                };
-                btnClose.Click += (s2, e2) => qrForm.Close();
-
-                pnlCard.Controls.Add(pnlQrBox);
-                pnlCard.Controls.Add(lblStk);
-                pnlCard.Controls.Add(lblName);
-                pnlCard.Controls.Add(lblTitle);
-                pnlCard.Controls.Add(btnClose);
-
-                qrForm.Controls.Add(pnlCard);
-                qrForm.ShowDialog(this);
-            }
-        }
-
-        private void BtnNotification_Click(object sender, EventArgs e)
-        {
-            string msg = "Không có thông báo mới nào.";
-            if (_summary.Spending != null && (_summary.Spending.VuotMucNgay || _summary.Spending.VuotMucTuan))
-            {
-                msg = "⚠ Cảnh báo: Chi tiêu của bạn đã vượt quá hạn mức thiết lập!\nVui lòng điều chỉnh hoặc kiểm tra lại lịch sử giao dịch.";
-            }
-            else if (_summary.KhoanVaySapToi != null)
-            {
-                msg = $"🔔 Nhắc nhở: Bạn có khoản vay {_summary.KhoanVaySapToi.MaKhoanVay} đến hạn ngày {_summary.KhoanVaySapToi.NgayDaoHan:dd/MM/yyyy}.\nSố tiền cần trả: {_summary.KhoanVaySapToi.TongPhaiTra:N0} đ.";
-            }
-            MessageBox.Show(msg, "Trung tâm thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        }
-
-        private void BtnSearch_Click(object sender, EventArgs e)
-        {
-            var main = this.TopLevelControl as MainForm ?? this.ParentForm as MainForm;
-            if (main != null)
-            {
-                main.OpenFormWithCustomerCheck(() => new TransactionForm());
             }
         }
 

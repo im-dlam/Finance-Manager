@@ -20,7 +20,6 @@ namespace BankAccountManagement.Forms
             this.pnlRoot = new System.Windows.Forms.Panel();
             this.tblBottomCards = new System.Windows.Forms.TableLayoutPanel();
             this.pnlSpendingCard = new BankAccountManagement.Forms.RoundedPanel();
-            this.btnSetSpendingLimit = new BankAccountManagement.Forms.RoundedButton();
             this.lblSpendingStatusBadge = new System.Windows.Forms.Label();
             this.pnlWeeklyProgressTrack = new BankAccountManagement.Forms.RoundedPanel();
             this.pnlWeeklyProgressBar = new BankAccountManagement.Forms.RoundedPanel();
@@ -55,9 +54,6 @@ namespace BankAccountManagement.Forms
             this.lblAccountNumber = new System.Windows.Forms.Label();
             this.lblAccountNumberTitle = new System.Windows.Forms.Label();
             this.pnlDarkHeader = new System.Windows.Forms.Panel();
-            this.btnQR = new BankAccountManagement.Forms.RoundedButton();
-            this.btnNotification = new System.Windows.Forms.Button();
-            this.btnSearch = new System.Windows.Forms.Button();
             this.lblUserTier = new System.Windows.Forms.Label();
             this.pnlNameBadge = new BankAccountManagement.Forms.RoundedPanel();
             this.lblUserName = new System.Windows.Forms.Label();
@@ -115,7 +111,6 @@ namespace BankAccountManagement.Forms
             this.pnlSpendingCard.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
             this.pnlSpendingCard.BorderRadius = 14;
             this.pnlSpendingCard.BorderSize = 1;
-            this.pnlSpendingCard.Controls.Add(this.btnSetSpendingLimit);
             this.pnlSpendingCard.Controls.Add(this.lblSpendingStatusBadge);
             this.pnlSpendingCard.Controls.Add(this.pnlWeeklyProgressTrack);
             this.pnlSpendingCard.Controls.Add(this.lblWeeklyRemaining);
@@ -133,35 +128,17 @@ namespace BankAccountManagement.Forms
             this.pnlSpendingCard.Size = new System.Drawing.Size(468, 380);
             this.pnlSpendingCard.TabIndex = 1;
             // 
-            // btnSetSpendingLimit
-            // 
-            this.btnSetSpendingLimit.BorderRadius = 10;
-            this.btnSetSpendingLimit.BorderSize = 1;
-            this.btnSetSpendingLimit.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnSetSpendingLimit.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.btnSetSpendingLimit.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
-            this.btnSetSpendingLimit.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(242)))), ((int)(((byte)(255)))));
-            this.btnSetSpendingLimit.Location = new System.Drawing.Point(18, 322);
-            this.btnSetSpendingLimit.Name = "btnSetSpendingLimit";
-            this.btnSetSpendingLimit.NormalBorder = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(213)))), ((int)(((byte)(225)))));
-            this.btnSetSpendingLimit.NormalColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
-            this.btnSetSpendingLimit.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(231)))), ((int)(((byte)(255)))));
-            this.btnSetSpendingLimit.Size = new System.Drawing.Size(432, 42);
-            this.btnSetSpendingLimit.TabIndex = 8;
-            this.btnSetSpendingLimit.Text = "⚙ Thiết lập ngân sách chi tiêu";
-            this.btnSetSpendingLimit.TextColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(58)))), ((int)(((byte)(138)))));
-            // 
             // lblSpendingStatusBadge
             // 
             this.lblSpendingStatusBadge.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblSpendingStatusBadge.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(253)))), ((int)(((byte)(244)))));
-            this.lblSpendingStatusBadge.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lblSpendingStatusBadge.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
             this.lblSpendingStatusBadge.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(101)))), ((int)(((byte)(52)))));
-            this.lblSpendingStatusBadge.Location = new System.Drawing.Point(18, 226);
+            this.lblSpendingStatusBadge.Location = new System.Drawing.Point(18, 230);
             this.lblSpendingStatusBadge.Name = "lblSpendingStatusBadge";
-            this.lblSpendingStatusBadge.Padding = new System.Windows.Forms.Padding(8, 0, 8, 0);
-            this.lblSpendingStatusBadge.Size = new System.Drawing.Size(432, 34);
+            this.lblSpendingStatusBadge.Padding = new System.Windows.Forms.Padding(10, 0, 10, 0);
+            this.lblSpendingStatusBadge.Size = new System.Drawing.Size(432, 38);
             this.lblSpendingStatusBadge.TabIndex = 7;
             this.lblSpendingStatusBadge.Text = "✔ Đang trong giới hạn chi tiêu an toàn";
             this.lblSpendingStatusBadge.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -198,10 +175,10 @@ namespace BankAccountManagement.Forms
             // 
             this.lblWeeklyRemaining.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lblWeeklyRemaining.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.lblWeeklyRemaining.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(163)))), ((int)(((byte)(74)))));
-            this.lblWeeklyRemaining.Location = new System.Drawing.Point(260, 168);
+            this.lblWeeklyRemaining.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
+            this.lblWeeklyRemaining.Location = new System.Drawing.Point(234, 166);
             this.lblWeeklyRemaining.Name = "lblWeeklyRemaining";
-            this.lblWeeklyRemaining.Size = new System.Drawing.Size(190, 20);
+            this.lblWeeklyRemaining.Size = new System.Drawing.Size(216, 22);
             this.lblWeeklyRemaining.TabIndex = 5;
             this.lblWeeklyRemaining.Text = "Còn lại: 10,000,000 đ";
             this.lblWeeklyRemaining.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -213,9 +190,9 @@ namespace BankAccountManagement.Forms
             this.lblWeeklySpent.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.lblWeeklySpent.Location = new System.Drawing.Point(18, 168);
             this.lblWeeklySpent.Name = "lblWeeklySpent";
-            this.lblWeeklySpent.Size = new System.Drawing.Size(201, 17);
+            this.lblWeeklySpent.Size = new System.Drawing.Size(190, 17);
             this.lblWeeklySpent.TabIndex = 4;
-            this.lblWeeklySpent.Text = "Tuần này: 0 đ / 10,000,000 đ";
+            this.lblWeeklySpent.Text = "Đã chi: 0 đ / 10,000,000 đ (Tuần)";
             // 
             // pnlDailyProgressTrack
             // 
@@ -227,19 +204,19 @@ namespace BankAccountManagement.Forms
             this.pnlDailyProgressTrack.BorderSize = 0;
             this.pnlDailyProgressTrack.Controls.Add(this.pnlDailyProgressBar);
             this.pnlDailyProgressTrack.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
-            this.pnlDailyProgressTrack.Location = new System.Drawing.Point(18, 118);
+            this.pnlDailyProgressTrack.Location = new System.Drawing.Point(18, 126);
             this.pnlDailyProgressTrack.Name = "pnlDailyProgressTrack";
             this.pnlDailyProgressTrack.Size = new System.Drawing.Size(432, 10);
             this.pnlDailyProgressTrack.TabIndex = 3;
             // 
             // pnlDailyProgressBar
             // 
-            this.pnlDailyProgressBar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(16)))), ((int)(((byte)(185)))), ((int)(((byte)(129)))));
+            this.pnlDailyProgressBar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
             this.pnlDailyProgressBar.BorderColor = System.Drawing.Color.Transparent;
             this.pnlDailyProgressBar.BorderRadius = 4;
             this.pnlDailyProgressBar.BorderSize = 0;
             this.pnlDailyProgressBar.Dock = System.Windows.Forms.DockStyle.Left;
-            this.pnlDailyProgressBar.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(16)))), ((int)(((byte)(185)))), ((int)(((byte)(129)))));
+            this.pnlDailyProgressBar.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
             this.pnlDailyProgressBar.Location = new System.Drawing.Point(0, 0);
             this.pnlDailyProgressBar.Name = "pnlDailyProgressBar";
             this.pnlDailyProgressBar.Size = new System.Drawing.Size(80, 10);
@@ -249,10 +226,10 @@ namespace BankAccountManagement.Forms
             // 
             this.lblDailyRemaining.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lblDailyRemaining.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.lblDailyRemaining.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(163)))), ((int)(((byte)(74)))));
-            this.lblDailyRemaining.Location = new System.Drawing.Point(260, 92);
+            this.lblDailyRemaining.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
+            this.lblDailyRemaining.Location = new System.Drawing.Point(234, 98);
             this.lblDailyRemaining.Name = "lblDailyRemaining";
-            this.lblDailyRemaining.Size = new System.Drawing.Size(190, 20);
+            this.lblDailyRemaining.Size = new System.Drawing.Size(216, 22);
             this.lblDailyRemaining.TabIndex = 2;
             this.lblDailyRemaining.Text = "Còn lại: 2,000,000 đ";
             this.lblDailyRemaining.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -262,11 +239,11 @@ namespace BankAccountManagement.Forms
             this.lblDailySpent.AutoSize = true;
             this.lblDailySpent.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
             this.lblDailySpent.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
-            this.lblDailySpent.Location = new System.Drawing.Point(18, 92);
+            this.lblDailySpent.Location = new System.Drawing.Point(18, 100);
             this.lblDailySpent.Name = "lblDailySpent";
-            this.lblDailySpent.Size = new System.Drawing.Size(191, 17);
+            this.lblDailySpent.Size = new System.Drawing.Size(182, 17);
             this.lblDailySpent.TabIndex = 1;
-            this.lblDailySpent.Text = "Hôm nay: 0 đ / 2,000,000 đ";
+            this.lblDailySpent.Text = "Đã chi: 0 đ / 2,000,000 đ (Ngày)";
             // 
             // pnlSpendingHeader
             // 
@@ -275,7 +252,7 @@ namespace BankAccountManagement.Forms
             this.pnlSpendingHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlSpendingHeader.Location = new System.Drawing.Point(18, 16);
             this.pnlSpendingHeader.Name = "pnlSpendingHeader";
-            this.pnlSpendingHeader.Size = new System.Drawing.Size(432, 48);
+            this.pnlSpendingHeader.Size = new System.Drawing.Size(432, 60);
             this.pnlSpendingHeader.TabIndex = 0;
             // 
             // btnOpenLimitDialog
@@ -284,17 +261,17 @@ namespace BankAccountManagement.Forms
             this.btnOpenLimitDialog.BorderSize = 1;
             this.btnOpenLimitDialog.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnOpenLimitDialog.Dock = System.Windows.Forms.DockStyle.Right;
-            this.btnOpenLimitDialog.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Bold);
+            this.btnOpenLimitDialog.Font = new System.Drawing.Font("Segoe UI", 11F);
             this.btnOpenLimitDialog.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(242)))), ((int)(((byte)(255)))));
-            this.btnOpenLimitDialog.Location = new System.Drawing.Point(336, 0);
+            this.btnOpenLimitDialog.Location = new System.Drawing.Point(392, 0);
             this.btnOpenLimitDialog.Name = "btnOpenLimitDialog";
-            this.btnOpenLimitDialog.NormalBorder = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(213)))), ((int)(((byte)(225)))));
-            this.btnOpenLimitDialog.NormalColor = System.Drawing.Color.White;
+            this.btnOpenLimitDialog.NormalBorder = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
+            this.btnOpenLimitDialog.NormalColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
             this.btnOpenLimitDialog.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(231)))), ((int)(((byte)(255)))));
-            this.btnOpenLimitDialog.Size = new System.Drawing.Size(96, 48);
+            this.btnOpenLimitDialog.Size = new System.Drawing.Size(40, 60);
             this.btnOpenLimitDialog.TabIndex = 1;
-            this.btnOpenLimitDialog.Text = "⚙ Thiết lập";
-            this.btnOpenLimitDialog.TextColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
+            this.btnOpenLimitDialog.Text = "⚙";
+            this.btnOpenLimitDialog.TextColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             // 
             // lblSpendingTitle
             // 
@@ -303,7 +280,7 @@ namespace BankAccountManagement.Forms
             this.lblSpendingTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.lblSpendingTitle.Location = new System.Drawing.Point(0, 0);
             this.lblSpendingTitle.Name = "lblSpendingTitle";
-            this.lblSpendingTitle.Size = new System.Drawing.Size(260, 48);
+            this.lblSpendingTitle.Size = new System.Drawing.Size(260, 60);
             this.lblSpendingTitle.TabIndex = 0;
             this.lblSpendingTitle.Text = "QUẢN LÝ CHI TIÊU";
             this.lblSpendingTitle.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -396,15 +373,15 @@ namespace BankAccountManagement.Forms
             // pnlDarkCard
             // 
             this.pnlDarkCard.BackColor = System.Drawing.Color.Transparent;
-            this.pnlDarkCard.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
-            this.pnlDarkCard.BorderRadius = 18;
+            this.pnlDarkCard.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
+            this.pnlDarkCard.BorderRadius = 14;
             this.pnlDarkCard.BorderSize = 1;
             this.pnlDarkCard.Controls.Add(this.pnlNavActions);
             this.pnlDarkCard.Controls.Add(this.pnlSwitchRow);
             this.pnlDarkCard.Controls.Add(this.pnlAccountInfo);
             this.pnlDarkCard.Controls.Add(this.pnlDarkHeader);
             this.pnlDarkCard.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlDarkCard.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
+            this.pnlDarkCard.FillColor = System.Drawing.Color.White;
             this.pnlDarkCard.Location = new System.Drawing.Point(24, 54);
             this.pnlDarkCard.Margin = new System.Windows.Forms.Padding(0, 0, 0, 16);
             this.pnlDarkCard.Name = "pnlDarkCard";
@@ -427,7 +404,7 @@ namespace BankAccountManagement.Forms
             // 
             this.lblNavDivider.Anchor = System.Windows.Forms.AnchorStyles.Top;
             this.lblNavDivider.Font = new System.Drawing.Font("Segoe UI", 12F);
-            this.lblNavDivider.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(65)))), ((int)(((byte)(85)))));
+            this.lblNavDivider.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
             this.lblNavDivider.Location = new System.Drawing.Point(448, 6);
             this.lblNavDivider.Name = "lblNavDivider";
             this.lblNavDivider.Size = new System.Drawing.Size(20, 28);
@@ -445,12 +422,13 @@ namespace BankAccountManagement.Forms
             this.btnNavCards.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
             this.btnNavCards.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnNavCards.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
-            this.btnNavCards.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(213)))), ((int)(((byte)(225)))));
+            this.btnNavCards.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(65)))), ((int)(((byte)(85)))));
             this.btnNavCards.Location = new System.Drawing.Point(490, 4);
             this.btnNavCards.Name = "btnNavCards";
             this.btnNavCards.Size = new System.Drawing.Size(220, 32);
             this.btnNavCards.TabIndex = 1;
             this.btnNavCards.Text = "💳 Tài khoản & Thẻ";
+            this.btnNavCards.UseMnemonic = false;
             this.btnNavCards.UseVisualStyleBackColor = false;
             // 
             // btnNavHistory
@@ -463,12 +441,13 @@ namespace BankAccountManagement.Forms
             this.btnNavHistory.FlatAppearance.MouseOverBackColor = System.Drawing.Color.Transparent;
             this.btnNavHistory.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnNavHistory.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
-            this.btnNavHistory.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(213)))), ((int)(((byte)(225)))));
+            this.btnNavHistory.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(65)))), ((int)(((byte)(85)))));
             this.btnNavHistory.Location = new System.Drawing.Point(206, 4);
             this.btnNavHistory.Name = "btnNavHistory";
             this.btnNavHistory.Size = new System.Drawing.Size(220, 32);
             this.btnNavHistory.TabIndex = 0;
             this.btnNavHistory.Text = "🕒 Lịch sử giao dịch";
+            this.btnNavHistory.UseMnemonic = false;
             this.btnNavHistory.UseVisualStyleBackColor = false;
             // 
             // pnlSwitchRow
@@ -483,31 +462,32 @@ namespace BankAccountManagement.Forms
             // 
             // btnSwitchBank
             // 
-            this.btnSwitchBank.BorderRadius = 14;
-            this.btnSwitchBank.BorderSize = 0;
+            this.btnSwitchBank.BorderRadius = 10;
+            this.btnSwitchBank.BorderSize = 1;
             this.btnSwitchBank.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnSwitchBank.Dock = System.Windows.Forms.DockStyle.Right;
-            this.btnSwitchBank.Font = new System.Drawing.Font("Segoe UI", 8F, System.Drawing.FontStyle.Bold);
-            this.btnSwitchBank.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(65)))), ((int)(((byte)(85)))));
+            this.btnSwitchBank.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Bold);
+            this.btnSwitchBank.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(252)))), ((int)(((byte)(231)))));
             this.btnSwitchBank.Location = new System.Drawing.Point(860, 0);
             this.btnSwitchBank.Name = "btnSwitchBank";
-            this.btnSwitchBank.NormalColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
-            this.btnSwitchBank.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
+            this.btnSwitchBank.NormalBorder = System.Drawing.Color.FromArgb(((int)(((byte)(187)))), ((int)(((byte)(247)))), ((int)(((byte)(208)))));
+            this.btnSwitchBank.NormalColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(253)))), ((int)(((byte)(244)))));
+            this.btnSwitchBank.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(187)))), ((int)(((byte)(247)))), ((int)(((byte)(208)))));
             this.btnSwitchBank.Size = new System.Drawing.Size(56, 36);
             this.btnSwitchBank.TabIndex = 1;
             this.btnSwitchBank.Text = "BẬT";
-            this.btnSwitchBank.TextColor = System.Drawing.Color.FromArgb(((int)(((byte)(34)))), ((int)(((byte)(197)))), ((int)(((byte)(94)))));
+            this.btnSwitchBank.TextColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(163)))), ((int)(((byte)(74)))));
             // 
             // lblSwitchInfo
             // 
             this.lblSwitchInfo.Dock = System.Windows.Forms.DockStyle.Left;
-            this.lblSwitchInfo.Font = new System.Drawing.Font("Segoe UI", 8.5F);
-            this.lblSwitchInfo.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(148)))), ((int)(((byte)(163)))), ((int)(((byte)(184)))));
+            this.lblSwitchInfo.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.lblSwitchInfo.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
             this.lblSwitchInfo.Location = new System.Drawing.Point(0, 0);
             this.lblSwitchInfo.Name = "lblSwitchInfo";
-            this.lblSwitchInfo.Size = new System.Drawing.Size(260, 36);
+            this.lblSwitchInfo.Size = new System.Drawing.Size(320, 36);
             this.lblSwitchInfo.TabIndex = 0;
-            this.lblSwitchInfo.Text = "ⓘ Tài khoản ngân hàng số";
+            this.lblSwitchInfo.Text = "ⓘ Tài khoản ngân hàng chính";
             this.lblSwitchInfo.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // pnlAccountInfo
@@ -531,8 +511,8 @@ namespace BankAccountManagement.Forms
             this.btnToggleBalance.FlatAppearance.BorderSize = 0;
             this.btnToggleBalance.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnToggleBalance.Font = new System.Drawing.Font("Segoe UI Emoji", 10F);
-            this.btnToggleBalance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(148)))), ((int)(((byte)(163)))), ((int)(((byte)(184)))));
-            this.btnToggleBalance.Location = new System.Drawing.Point(240, 32);
+            this.btnToggleBalance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
+            this.btnToggleBalance.Location = new System.Drawing.Point(260, 32);
             this.btnToggleBalance.Name = "btnToggleBalance";
             this.btnToggleBalance.Size = new System.Drawing.Size(28, 24);
             this.btnToggleBalance.TabIndex = 5;
@@ -542,9 +522,9 @@ namespace BankAccountManagement.Forms
             // lblBalance
             // 
             this.lblBalance.AutoSize = true;
-            this.lblBalance.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
-            this.lblBalance.ForeColor = System.Drawing.Color.White;
-            this.lblBalance.Location = new System.Drawing.Point(90, 33);
+            this.lblBalance.Font = new System.Drawing.Font("Segoe UI", 12.5F, System.Drawing.FontStyle.Bold);
+            this.lblBalance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
+            this.lblBalance.Location = new System.Drawing.Point(95, 33);
             this.lblBalance.Name = "lblBalance";
             this.lblBalance.Size = new System.Drawing.Size(82, 21);
             this.lblBalance.TabIndex = 4;
@@ -553,11 +533,11 @@ namespace BankAccountManagement.Forms
             // lblBalanceTitle
             // 
             this.lblBalanceTitle.AutoSize = true;
-            this.lblBalanceTitle.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.lblBalanceTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(148)))), ((int)(((byte)(163)))), ((int)(((byte)(184)))));
+            this.lblBalanceTitle.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.lblBalanceTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
             this.lblBalanceTitle.Location = new System.Drawing.Point(0, 36);
             this.lblBalanceTitle.Name = "lblBalanceTitle";
-            this.lblBalanceTitle.Size = new System.Drawing.Size(40, 15);
+            this.lblBalanceTitle.Size = new System.Drawing.Size(43, 17);
             this.lblBalanceTitle.TabIndex = 3;
             this.lblBalanceTitle.Text = "Số dư:";
             // 
@@ -567,8 +547,8 @@ namespace BankAccountManagement.Forms
             this.btnCopyStk.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnCopyStk.FlatAppearance.BorderSize = 0;
             this.btnCopyStk.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnCopyStk.Font = new System.Drawing.Font("Segoe UI Emoji", 9F);
-            this.btnCopyStk.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(148)))), ((int)(((byte)(163)))), ((int)(((byte)(184)))));
+            this.btnCopyStk.Font = new System.Drawing.Font("Segoe UI Emoji", 9.5F);
+            this.btnCopyStk.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
             this.btnCopyStk.Location = new System.Drawing.Point(260, 4);
             this.btnCopyStk.Name = "btnCopyStk";
             this.btnCopyStk.Size = new System.Drawing.Size(26, 24);
@@ -579,30 +559,27 @@ namespace BankAccountManagement.Forms
             // lblAccountNumber
             // 
             this.lblAccountNumber.AutoSize = true;
-            this.lblAccountNumber.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Bold);
-            this.lblAccountNumber.ForeColor = System.Drawing.Color.White;
-            this.lblAccountNumber.Location = new System.Drawing.Point(90, 6);
+            this.lblAccountNumber.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
+            this.lblAccountNumber.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
+            this.lblAccountNumber.Location = new System.Drawing.Point(95, 6);
             this.lblAccountNumber.Name = "lblAccountNumber";
-            this.lblAccountNumber.Size = new System.Drawing.Size(124, 19);
+            this.lblAccountNumber.Size = new System.Drawing.Size(100, 20);
             this.lblAccountNumber.TabIndex = 1;
-            this.lblAccountNumber.Text = "0851000******";
+            this.lblAccountNumber.Text = "1000000001";
             // 
             // lblAccountNumberTitle
             // 
             this.lblAccountNumberTitle.AutoSize = true;
-            this.lblAccountNumberTitle.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.lblAccountNumberTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(148)))), ((int)(((byte)(163)))), ((int)(((byte)(184)))));
-            this.lblAccountNumberTitle.Location = new System.Drawing.Point(0, 9);
+            this.lblAccountNumberTitle.Font = new System.Drawing.Font("Segoe UI", 9.5F);
+            this.lblAccountNumberTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
+            this.lblAccountNumberTitle.Location = new System.Drawing.Point(0, 8);
             this.lblAccountNumberTitle.Name = "lblAccountNumberTitle";
-            this.lblAccountNumberTitle.Size = new System.Drawing.Size(75, 15);
+            this.lblAccountNumberTitle.Size = new System.Drawing.Size(82, 17);
             this.lblAccountNumberTitle.TabIndex = 0;
             this.lblAccountNumberTitle.Text = "Số tài khoản:";
             // 
             // pnlDarkHeader
             // 
-            this.pnlDarkHeader.Controls.Add(this.btnQR);
-            this.pnlDarkHeader.Controls.Add(this.btnNotification);
-            this.pnlDarkHeader.Controls.Add(this.btnSearch);
             this.pnlDarkHeader.Controls.Add(this.lblUserTier);
             this.pnlDarkHeader.Controls.Add(this.pnlNameBadge);
             this.pnlDarkHeader.Controls.Add(this.pnlAvatar);
@@ -612,102 +589,53 @@ namespace BankAccountManagement.Forms
             this.pnlDarkHeader.Size = new System.Drawing.Size(916, 50);
             this.pnlDarkHeader.TabIndex = 0;
             // 
-            // btnQR
-            // 
-            this.btnQR.BorderRadius = 10;
-            this.btnQR.BorderSize = 0;
-            this.btnQR.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnQR.Dock = System.Windows.Forms.DockStyle.Right;
-            this.btnQR.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.btnQR.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
-            this.btnQR.Location = new System.Drawing.Point(842, 0);
-            this.btnQR.Name = "btnQR";
-            this.btnQR.NormalColor = System.Drawing.Color.White;
-            this.btnQR.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
-            this.btnQR.Size = new System.Drawing.Size(74, 50);
-            this.btnQR.TabIndex = 5;
-            this.btnQR.Text = "🔲 QR";
-            this.btnQR.TextColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
-            // 
-            // btnNotification
-            // 
-            this.btnNotification.BackColor = System.Drawing.Color.Transparent;
-            this.btnNotification.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnNotification.Dock = System.Windows.Forms.DockStyle.Right;
-            this.btnNotification.FlatAppearance.BorderSize = 0;
-            this.btnNotification.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnNotification.Font = new System.Drawing.Font("Segoe UI Emoji", 12F);
-            this.btnNotification.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(213)))), ((int)(((byte)(225)))));
-            this.btnNotification.Location = new System.Drawing.Point(802, 0);
-            this.btnNotification.Name = "btnNotification";
-            this.btnNotification.Size = new System.Drawing.Size(40, 50);
-            this.btnNotification.TabIndex = 4;
-            this.btnNotification.Text = "🔔";
-            this.btnNotification.UseVisualStyleBackColor = false;
-            // 
-            // btnSearch
-            // 
-            this.btnSearch.BackColor = System.Drawing.Color.Transparent;
-            this.btnSearch.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnSearch.Dock = System.Windows.Forms.DockStyle.Right;
-            this.btnSearch.FlatAppearance.BorderSize = 0;
-            this.btnSearch.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnSearch.Font = new System.Drawing.Font("Segoe UI Emoji", 11F);
-            this.btnSearch.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(213)))), ((int)(((byte)(225)))));
-            this.btnSearch.Location = new System.Drawing.Point(762, 0);
-            this.btnSearch.Name = "btnSearch";
-            this.btnSearch.Size = new System.Drawing.Size(40, 50);
-            this.btnSearch.TabIndex = 3;
-            this.btnSearch.Text = "🔍";
-            this.btnSearch.UseVisualStyleBackColor = false;
-            // 
             // lblUserTier
             // 
             this.lblUserTier.AutoSize = true;
             this.lblUserTier.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.lblUserTier.Font = new System.Drawing.Font("Segoe UI", 8.5F);
-            this.lblUserTier.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(148)))), ((int)(((byte)(163)))), ((int)(((byte)(184)))));
+            this.lblUserTier.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lblUserTier.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(79)))), ((int)(((byte)(70)))), ((int)(((byte)(229)))));
             this.lblUserTier.Location = new System.Drawing.Point(54, 27);
             this.lblUserTier.Name = "lblUserTier";
-            this.lblUserTier.Size = new System.Drawing.Size(99, 15);
+            this.lblUserTier.Size = new System.Drawing.Size(104, 15);
             this.lblUserTier.TabIndex = 2;
             this.lblUserTier.Text = "🌸 Hạng Titan >";
             // 
             // pnlNameBadge
             // 
             this.pnlNameBadge.BackColor = System.Drawing.Color.Transparent;
-            this.pnlNameBadge.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(190)))), ((int)(((byte)(242)))), ((int)(((byte)(100)))));
+            this.pnlNameBadge.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
             this.pnlNameBadge.BorderRadius = 8;
             this.pnlNameBadge.BorderSize = 1;
             this.pnlNameBadge.Controls.Add(this.lblUserName);
-            this.pnlNameBadge.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(54)))), ((int)(((byte)(83)))), ((int)(((byte)(20)))));
+            this.pnlNameBadge.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
             this.pnlNameBadge.Location = new System.Drawing.Point(54, 2);
             this.pnlNameBadge.Name = "pnlNameBadge";
-            this.pnlNameBadge.Padding = new System.Windows.Forms.Padding(6, 2, 6, 2);
-            this.pnlNameBadge.Size = new System.Drawing.Size(200, 24);
+            this.pnlNameBadge.Padding = new System.Windows.Forms.Padding(8, 2, 8, 2);
+            this.pnlNameBadge.Size = new System.Drawing.Size(260, 24);
             this.pnlNameBadge.TabIndex = 1;
             // 
             // lblUserName
             // 
             this.lblUserName.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblUserName.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Bold);
-            this.lblUserName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(236)))), ((int)(((byte)(252)))), ((int)(((byte)(203)))));
-            this.lblUserName.Location = new System.Drawing.Point(6, 2);
+            this.lblUserName.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
+            this.lblUserName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
+            this.lblUserName.Location = new System.Drawing.Point(8, 2);
             this.lblUserName.Name = "lblUserName";
-            this.lblUserName.Size = new System.Drawing.Size(188, 20);
+            this.lblUserName.Size = new System.Drawing.Size(244, 20);
             this.lblUserName.TabIndex = 0;
-            this.lblUserName.Text = "DUONG THI HUYEN DIU";
+            this.lblUserName.Text = "NGƯỜI DÙNG";
             this.lblUserName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // pnlAvatar
             // 
-            this.pnlAvatar.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
-            this.pnlAvatar.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(65)))), ((int)(((byte)(85)))));
-            this.pnlAvatar.BorderRadius = 21;
+            this.pnlAvatar.BackColor = System.Drawing.Color.Transparent;
+            this.pnlAvatar.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(199)))), ((int)(((byte)(210)))), ((int)(((byte)(254)))));
+            this.pnlAvatar.BorderRadius = 22;
             this.pnlAvatar.BorderSize = 1;
             this.pnlAvatar.Controls.Add(this.lblAvatar);
             this.pnlAvatar.Dock = System.Windows.Forms.DockStyle.Left;
-            this.pnlAvatar.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
+            this.pnlAvatar.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(238)))), ((int)(((byte)(242)))), ((int)(((byte)(255)))));
             this.pnlAvatar.Location = new System.Drawing.Point(0, 0);
             this.pnlAvatar.Name = "pnlAvatar";
             this.pnlAvatar.Size = new System.Drawing.Size(44, 50);
@@ -716,8 +644,8 @@ namespace BankAccountManagement.Forms
             // lblAvatar
             // 
             this.lblAvatar.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lblAvatar.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
-            this.lblAvatar.ForeColor = System.Drawing.Color.White;
+            this.lblAvatar.Font = new System.Drawing.Font("Segoe UI", 13F, System.Drawing.FontStyle.Bold);
+            this.lblAvatar.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
             this.lblAvatar.Location = new System.Drawing.Point(0, 0);
             this.lblAvatar.Name = "lblAvatar";
             this.lblAvatar.Size = new System.Drawing.Size(44, 50);
@@ -782,9 +710,6 @@ namespace BankAccountManagement.Forms
         private BankAccountManagement.Forms.RoundedPanel pnlNameBadge;
         private System.Windows.Forms.Label lblUserName;
         private System.Windows.Forms.Label lblUserTier;
-        private System.Windows.Forms.Button btnSearch;
-        private System.Windows.Forms.Button btnNotification;
-        private BankAccountManagement.Forms.RoundedButton btnQR;
         private System.Windows.Forms.Panel pnlAccountInfo;
         private System.Windows.Forms.Label lblAccountNumberTitle;
         private System.Windows.Forms.Label lblAccountNumber;
@@ -816,6 +741,5 @@ namespace BankAccountManagement.Forms
         private BankAccountManagement.Forms.RoundedPanel pnlWeeklyProgressTrack;
         private BankAccountManagement.Forms.RoundedPanel pnlWeeklyProgressBar;
         private System.Windows.Forms.Label lblSpendingStatusBadge;
-        private BankAccountManagement.Forms.RoundedButton btnSetSpendingLimit;
     }
 }
