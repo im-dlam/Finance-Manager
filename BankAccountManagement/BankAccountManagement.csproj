@@ -236,6 +236,9 @@
     <EmbeddedResource Include="Forms\BankForm.resx">
       <DependentUpon>BankForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\BorrowingAdminForm.resx">
+      <DependentUpon>BorrowingAdminForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\BorrowingForm.resx">
       <DependentUpon>BorrowingForm.cs</DependentUpon>
     </EmbeddedResource>

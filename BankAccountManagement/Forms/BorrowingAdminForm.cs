@@ -40,13 +40,14 @@ namespace BankAccountManagement.Forms
         {
             dgvLoans.AutoGenerateColumns = false;
             dgvLoans.Columns.Clear();
+            dgvLoans.ScrollBars = ScrollBars.Vertical;
 
             dgvLoans.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "colMaKV",
                 HeaderText = "Mã hồ sơ",
                 DataPropertyName = "MaKhoanVay",
-                Width = 115
+                Width = 95
             });
 
             dgvLoans.Columns.Add(new DataGridViewTextBoxColumn
@@ -54,7 +55,8 @@ namespace BankAccountManagement.Forms
                 Name = "colKH",
                 HeaderText = "Khách hàng",
                 DataPropertyName = "HoTen",
-                Width = 135
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                MinimumWidth = 110
             });
 
             dgvLoans.Columns.Add(new DataGridViewTextBoxColumn
@@ -62,7 +64,7 @@ namespace BankAccountManagement.Forms
                 Name = "colSTK",
                 HeaderText = "Số tài khoản",
                 DataPropertyName = "SoTaiKhoan",
-                Width = 105
+                Width = 95
             });
 
             dgvLoans.Columns.Add(new DataGridViewTextBoxColumn
@@ -70,7 +72,7 @@ namespace BankAccountManagement.Forms
                 Name = "colSoTien",
                 HeaderText = "Số tiền vay",
                 DataPropertyName = "FormattedLoanAmount",
-                Width = 105
+                Width = 90
             });
 
             dgvLoans.Columns.Add(new DataGridViewTextBoxColumn
@@ -78,7 +80,7 @@ namespace BankAccountManagement.Forms
                 Name = "colThoiGian",
                 HeaderText = "Kỳ hạn",
                 DataPropertyName = "FormattedTerm",
-                Width = 65
+                Width = 60
             });
 
             dgvLoans.Columns.Add(new DataGridViewTextBoxColumn
@@ -86,7 +88,7 @@ namespace BankAccountManagement.Forms
                 Name = "colTongTra",
                 HeaderText = "Tổng phải trả",
                 DataPropertyName = "FormattedTotalPay",
-                Width = 110
+                Width = 95
             });
 
             dgvLoans.Columns.Add(new DataGridViewTextBoxColumn
@@ -94,7 +96,7 @@ namespace BankAccountManagement.Forms
                 Name = "colNgayDK",
                 HeaderText = "Ngày ĐK",
                 DataPropertyName = "FormattedRegisterDate",
-                Width = 85
+                Width = 75
             });
 
             dgvLoans.Columns.Add(new DataGridViewTextBoxColumn
@@ -102,12 +104,16 @@ namespace BankAccountManagement.Forms
                 Name = "colTrangThai",
                 HeaderText = "Trạng thái",
                 DataPropertyName = "TrangThai",
-                Width = 105
+                Width = 95
             });
         }
 
         private void WireEvents()
         {
+            pnlAppraisalScroll.Resize += (s, e) =>
+            {
+                pnlAppraisalContent.Width = Math.Max(420, pnlAppraisalScroll.ClientSize.Width - 4);
+            };
             btnRefresh.Click += async (s, e) => await LoadLoansAsync();
             btnSearch.Click += async (s, e) => await LoadLoansAsync();
 
