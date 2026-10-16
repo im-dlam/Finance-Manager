@@ -61,7 +61,7 @@ namespace BankAccountManagement.Models
         public string HoTen { get; set; } = "";
         public string TenDangNhap { get; set; } = "";
         public string MaKH { get; set; } = "";
-        public string HangThanhVien { get; set; } = "Hạng Titan";
+        public string HangThanhVien { get; set; } = "Hạng Tiêu Chuẩn";
         public string SoTaiKhoanChinh { get; set; } = "";
         
         public string SoTaiKhoanMasked
