@@ -312,6 +312,12 @@ namespace BankAccountManagement
                     cboMyAccount.DataSource = dtMyAccounts;
                     cboMyAccount.DisplayMember = "HienThi";
                     cboMyAccount.ValueMember = "SoTaiKhoan";
+                    if (dtMyAccounts != null && dtMyAccounts.Rows.Count > 0)
+                    {
+                        cboMyAccount.SelectedIndex = 0;
+                        // 1 người dùng chỉ có 1 tài khoản ngân hàng: tự động lấy luôn và khóa combobox
+                        cboMyAccount.Enabled = false;
+                    }
                     UpdateSenderAccountFromSelection();
                 }
 
@@ -400,13 +406,26 @@ namespace BankAccountManagement
         private void UpdateSenderAccountFromSelection()
         {
             if (CurrentSession.IsAdmin || cboMyAccount == null) return;
-            DataRowView drv = cboMyAccount.SelectedItem as DataRowView;
-            if (drv != null)
+            DataRow row = null;
+            if (cboMyAccount.SelectedItem is DataRowView drv)
             {
-                _selectedSenderAccount = drv["SoTaiKhoan"]?.ToString() ?? "";
-                _selectedSenderBalance = drv["SoDuHienTai"] != DBNull.Value ? Convert.ToDecimal(drv["SoDuHienTai"]) : 0m;
-                _selectedSenderCurrency = drv["MaLoaiTien"]?.ToString() ?? "VND";
-                _selectedSenderQuyDoi = drv["QuyDoi"] != DBNull.Value ? Convert.ToDecimal(drv["QuyDoi"]) : 1m;
+                row = drv.Row;
+            }
+            else if (cboMyAccount.DataSource is DataTable dt && dt.Rows.Count > 0)
+            {
+                row = dt.Rows[0];
+            }
+
+            if (row != null)
+            {
+                _selectedSenderAccount = row["SoTaiKhoan"]?.ToString() ?? "";
+                _selectedSenderBalance = row["SoDuHienTai"] != DBNull.Value ? Convert.ToDecimal(row["SoDuHienTai"]) : 0m;
+                _selectedSenderCurrency = row["MaLoaiTien"]?.ToString() ?? "VND";
+                _selectedSenderQuyDoi = row["QuyDoi"] != DBNull.Value ? Convert.ToDecimal(row["QuyDoi"]) : 1m;
+                if (_selectedSenderCurrency.Equals("USD", StringComparison.OrdinalIgnoreCase) && _selectedSenderQuyDoi <= 1)
+                {
+                    _selectedSenderQuyDoi = 25400m;
+                }
 
                 if (txtSoDuThucTe != null)
                 {
@@ -423,7 +442,33 @@ namespace BankAccountManagement
                     txtSoTaiKhoan.Text = _selectedSenderAccount;
                     txtNguoiNhan.Text = CurrentSession.HoTen ?? "";
                 }
+
+                UpdateConvertedAmount();
             }
+        }
+
+        private void RefreshSenderBalance()
+        {
+            if (CurrentSession.IsAdmin || string.IsNullOrEmpty(_selectedSenderAccount)) return;
+            try
+            {
+                decimal bal = _transactionService.GetAccountBalance(_selectedSenderAccount);
+                CurrencyInfo cur = _transactionService.GetAccountCurrency(_selectedSenderAccount);
+                _selectedSenderBalance = bal;
+                if (cur != null)
+                {
+                    _selectedSenderCurrency = cur.MaLoaiTien;
+                    _selectedSenderQuyDoi = (cur.MaLoaiTien.Equals("USD", StringComparison.OrdinalIgnoreCase) && cur.QuyDoi <= 1) ? 25400m : cur.QuyDoi;
+                }
+                if (txtSoDuThucTe != null)
+                {
+                    decimal displayVND = (_selectedSenderCurrency == "VND")
+                        ? _selectedSenderBalance
+                        : (_selectedSenderBalance * _selectedSenderQuyDoi);
+                    txtSoDuThucTe.Text = $"{displayVND:N0} VND";
+                }
+            }
+            catch { }
         }
 
         private void LoadActualBalance()
@@ -589,7 +634,11 @@ namespace BankAccountManagement
                     else if (tt == "Rút tiền")
                         cboLoaiGD.SelectedValue = 2;
                     else if (tt == "Chuyển khoản" || tt == "Thanh toán")
-                        cboLoaiGD.SelectedValue = 3;
+                    {
+                        // Khi Admin thực hiện thao tác Chuyển khoản đến số tài khoản người nhận,
+                        // đối với tài khoản đích đó thì đây là khoản THU (Nhận chuyển khoản - MaLoaiGD = 4)
+                        cboLoaiGD.SelectedValue = 4;
+                    }
                 }
 
                 if (!CurrentSession.IsAdmin)
@@ -625,41 +674,98 @@ namespace BankAccountManagement
                 {
                     if (maLoai == 1 && CurrentSession.IsAdmin) cboThaoTac.SelectedItem = "Nạp tiền";
                     else if (maLoai == 2) cboThaoTac.SelectedItem = "Rút tiền";
-                    else if (maLoai == 3) cboThaoTac.SelectedItem = "Chuyển khoản";
+                    else if (maLoai == 3 || maLoai == 4) cboThaoTac.SelectedItem = "Chuyển khoản";
                 }
             }
             catch { }
             finally { _isSyncingType = false; }
         }
 
-        private void UpdateConvertedAmount()
+        private decimal ParseAmount(string text, string currency)
         {
-            decimal soTienGoc;
-            if (!decimal.TryParse(txtSoTien.Text.Replace(",", ""), out soTienGoc))
+            if (string.IsNullOrWhiteSpace(text)) return 0m;
+            string clean = text.Trim();
+            if (currency.Equals("USD", StringComparison.OrdinalIgnoreCase))
             {
-                lblQuyDoi.Text = "Quy đổi: 0 VND";
-                lblQuyDoi.Tag = 0m;
-                return;
-            }
-
-            CurrencyInfo selectedCurrency = cboLoaiTien.SelectedItem as CurrencyInfo;
-            if (selectedCurrency == null)
-            {
-                lblQuyDoi.Text = $"Quy đổi: {soTienGoc:N0} VND";
-                lblQuyDoi.Tag = soTienGoc;
-                return;
-            }
-
-            decimal soTienVND = soTienGoc * selectedCurrency.QuyDoi;
-            if (selectedCurrency.MaLoaiTien.Equals("USD", StringComparison.OrdinalIgnoreCase))
-            {
-                lblQuyDoi.Text = $"Quy đổi: {soTienVND:N0} VND (Tỷ giá: {selectedCurrency.QuyDoi:N0})";
+                clean = clean.Replace(",", "");
+                if (decimal.TryParse(clean, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out decimal val))
+                    return val;
             }
             else
             {
-                lblQuyDoi.Text = $"Quy đổi: {soTienVND:N0} VND";
+                clean = clean.Replace(".", "").Replace(",", "");
+                if (decimal.TryParse(clean, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out decimal val))
+                    return val;
             }
+            return 0m;
+        }
+
+        private void UpdateConvertedAmount()
+        {
+            if (cboLoaiTien == null || txtSoTien == null || lblQuyDoi == null) return;
+
+            string currencyCode = "VND";
+            if (cboLoaiTien.SelectedItem is CurrencyInfo ci && !string.IsNullOrEmpty(ci.MaLoaiTien))
+            {
+                currencyCode = ci.MaLoaiTien;
+            }
+            else if (cboLoaiTien.SelectedValue != null)
+            {
+                currencyCode = cboLoaiTien.SelectedValue.ToString();
+            }
+
+            decimal soTienGoc = ParseAmount(txtSoTien.Text, currencyCode);
+            if (soTienGoc <= 0)
+            {
+                lblQuyDoi.Text = "Quy đổi: 0 VND";
+                lblQuyDoi.ForeColor = Color.ForestGreen;
+                lblQuyDoi.Tag = 0m;
+                if (!CurrentSession.IsAdmin && btnSave != null) btnSave.Enabled = true;
+                return;
+            }
+
+            decimal tyGia = 1m;
+            if (currencyCode.Equals("USD", StringComparison.OrdinalIgnoreCase))
+            {
+                tyGia = 25400m;
+                if (cboLoaiTien.SelectedItem is CurrencyInfo curr && curr.QuyDoi > 1)
+                {
+                    tyGia = curr.QuyDoi;
+                }
+            }
+
+            decimal soTienVND = soTienGoc * tyGia;
             lblQuyDoi.Tag = soTienVND;
+
+            // KIỂM TRA SỐ DƯ REAL-TIME CHO USER: MỌI GIAO DỊCH KHÔNG THỂ QUÁ SỐ DƯ TÀI KHOẢN
+            if (!CurrentSession.IsAdmin && !string.IsNullOrEmpty(_selectedSenderAccount))
+            {
+                decimal availableVND = (_selectedSenderCurrency == "VND")
+                    ? _selectedSenderBalance
+                    : (_selectedSenderBalance * (_selectedSenderQuyDoi > 1 ? _selectedSenderQuyDoi : 25400m));
+
+                if (soTienVND > availableVND)
+                {
+                    lblQuyDoi.ForeColor = Color.Crimson;
+                    lblQuyDoi.Text = $"Quy đổi: {soTienVND:N0} VND  ⚠️ (VƯỢT QUÁ SỐ DƯ HIỆN TẠI: {availableVND:N0} VND)";
+                    if (btnSave != null) btnSave.Enabled = false;
+                    return;
+                }
+                else
+                {
+                    if (btnSave != null) btnSave.Enabled = true;
+                }
+            }
+
+            lblQuyDoi.ForeColor = Color.ForestGreen;
+            if (currencyCode.Equals("USD", StringComparison.OrdinalIgnoreCase))
+            {
+                lblQuyDoi.Text = $"Quy đổi: {soTienVND:N0} VND  (Tỷ giá: 1 USD = {tyGia:N0} VND)";
+            }
+            else
+            {
+                lblQuyDoi.Text = $"Quy đổi: {soTienGoc:N0} VND";
+            }
         }
 
         private void BtnSave_Click(object sender, EventArgs e)
@@ -668,17 +774,34 @@ namespace BankAccountManagement
             {
                 string tkNhan = txtSoTaiKhoan.Text.Trim();
                 string thaoTac = cboThaoTac.SelectedItem?.ToString() ?? "";
-                decimal soTienGoc = 0;
-                if (!decimal.TryParse(txtSoTien.Text.Replace(",", ""), out soTienGoc) || soTienGoc <= 0)
+                
+                string currencyCode = "VND";
+                if (cboLoaiTien.SelectedItem is CurrencyInfo ci && !string.IsNullOrEmpty(ci.MaLoaiTien))
+                {
+                    currencyCode = ci.MaLoaiTien;
+                }
+                else if (cboLoaiTien.SelectedValue != null)
+                {
+                    currencyCode = cboLoaiTien.SelectedValue.ToString();
+                }
+
+                decimal soTienGoc = ParseAmount(txtSoTien.Text, currencyCode);
+                if (soTienGoc <= 0)
                 {
                     MessageBox.Show("Số tiền không hợp lệ!", "Lỗi nhập liệu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     txtSoTien.Focus();
                     return;
                 }
 
-                CurrencyInfo selectedCurrency = cboLoaiTien.SelectedItem as CurrencyInfo;
-                string loaiTien = selectedCurrency != null ? selectedCurrency.MaLoaiTien : "VND";
-                decimal quyDoi = selectedCurrency != null ? selectedCurrency.QuyDoi : 1m;
+                string loaiTien = currencyCode;
+                decimal quyDoi = 1m;
+                if (currencyCode.Equals("USD", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (cboLoaiTien.SelectedItem is CurrencyInfo curr && curr.QuyDoi > 1)
+                        quyDoi = curr.QuyDoi;
+                    else
+                        quyDoi = 25400m;
+                }
                 decimal soTienVND = soTienGoc * quyDoi;
 
                 string maGD = "GD" + DateTime.Now.ToString("yyyyMMddHHmmss");
@@ -689,6 +812,8 @@ namespace BankAccountManagement
                 // ========================================================
                 if (!CurrentSession.IsAdmin)
                 {
+                    RefreshSenderBalance(); // Cập nhật số dư mới nhất từ DB
+
                     if (string.IsNullOrEmpty(_selectedSenderAccount))
                     {
                         MessageBox.Show("Bạn chưa có tài khoản ngân hàng nào để thực hiện giao dịch!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -697,13 +822,14 @@ namespace BankAccountManagement
 
                     decimal senderVndBalance = (_selectedSenderCurrency == "VND")
                         ? _selectedSenderBalance
-                        : (_selectedSenderBalance * _selectedSenderQuyDoi);
+                        : (_selectedSenderBalance * (_selectedSenderQuyDoi > 1 ? _selectedSenderQuyDoi : 25400m));
 
-                    // Kiểm tra số dư tài khoản gửi của User
+                    // Kiểm tra số dư tài khoản gửi của User: MỌI GIAO DỊCH KHÔNG THỂ QUÁ SỐ DƯ TÀI KHOẢN
                     if (soTienVND > senderVndBalance)
                     {
                         MessageBox.Show($"Số tiền giao dịch ({soTienVND:N0} VND) không được vượt quá số dư hiện tại ({senderVndBalance:N0} VND) của tài khoản!", 
                             "Cảnh báo số dư", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        txtSoTien.Focus();
                         return;
                     }
 
@@ -792,9 +918,23 @@ namespace BankAccountManagement
                 }
 
                 int maLoai = 1;
-                if (thaoTac == "Nạp tiền") maLoai = 1;
-                else if (thaoTac == "Rút tiền") maLoai = 2;
-                else if (thaoTac == "Chuyển khoản" || thaoTac == "Thanh toán") maLoai = 3;
+                if (cboLoaiGD != null && cboLoaiGD.SelectedValue != null && int.TryParse(cboLoaiGD.SelectedValue.ToString(), out int selectedMaLoai))
+                {
+                    maLoai = selectedMaLoai;
+                }
+                else
+                {
+                    if (thaoTac == "Nạp tiền") maLoai = 1;
+                    else if (thaoTac == "Rút tiền") maLoai = 2;
+                    else if (thaoTac == "Chuyển khoản" || thaoTac == "Thanh toán") maLoai = 4;
+                }
+
+                // Khi Admin chuyển tiền tới tài khoản này, tài khoản này là bên nhận tiền (Thu),
+                // vì vậy nếu thao tác là Chuyển khoản và maLoai đang là 3 (Chi) thì phải đổi thành 4 (Nhận chuyển khoản - Thu)
+                if ((thaoTac == "Chuyển khoản" || thaoTac == "Thanh toán") && maLoai == 3)
+                {
+                    maLoai = 4;
+                }
 
                 string noiDungAdmin = txtNoiDung.Text.Trim();
                 if (string.IsNullOrWhiteSpace(noiDungAdmin))
