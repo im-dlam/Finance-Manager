@@ -1,4 +1,4 @@
-﻿using BankAccountManagement.Models;
+using BankAccountManagement.Models;
 using BankAccountManagement.Services;
 using System;
 using System.Collections.Generic;
@@ -89,22 +89,35 @@ namespace BankAccountManagement
                 DataTable dtAccounts =
                     _transactionService.GetAccountsList();
 
-                DataRow allAccRow =
-                    dtAccounts.NewRow();
+                if (CurrentSession.IsAdmin)
+                {
+                    DataRow allAccRow = dtAccounts.NewRow();
+                    allAccRow["SoTaiKhoan"] = "Tất cả";
+                    allAccRow["HienThi"] = "Tất cả";
+                    dtAccounts.Rows.InsertAt(allAccRow, 0);
 
-                allAccRow["SoTaiKhoan"] = "Tất cả";
-                allAccRow["HienThi"] = "Tất cả";
-
-                dtAccounts.Rows.InsertAt(allAccRow, 0);
-
-                comboAccount.DataSource = dtAccounts;
-                comboAccount.DisplayMember = "HienThi";
-                comboAccount.ValueMember = "SoTaiKhoan";
-                comboAccount.DropDownStyle = ComboBoxStyle.DropDown;
-                comboAccount.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
-                comboAccount.AutoCompleteSource = AutoCompleteSource.ListItems;
-                comboAccount.SelectedIndex = 0;
-
+                    comboAccount.DataSource = dtAccounts;
+                    comboAccount.DisplayMember = "HienThi";
+                    comboAccount.ValueMember = "SoTaiKhoan";
+                    comboAccount.DropDownStyle = ComboBoxStyle.DropDown;
+                    comboAccount.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+                    comboAccount.AutoCompleteSource = AutoCompleteSource.ListItems;
+                    comboAccount.SelectedIndex = 0;
+                    comboAccount.Enabled = true;
+                }
+                else
+                {
+                    // Đối với User (Member): Mỗi người chỉ có duy nhất 1 tài khoản ngân hàng
+                    comboAccount.DataSource = dtAccounts;
+                    comboAccount.DisplayMember = "HienThi";
+                    comboAccount.ValueMember = "SoTaiKhoan";
+                    comboAccount.DropDownStyle = ComboBoxStyle.DropDownList;
+                    if (dtAccounts.Rows.Count > 0)
+                    {
+                        comboAccount.SelectedIndex = 0;
+                        comboAccount.Enabled = false; // Cố định hiển thị tài khoản của chính mình
+                    }
+                }
 
                 DataTable dtTypes =
                     _transactionService.GetTransactionTypes();
@@ -134,6 +147,14 @@ namespace BankAccountManagement
 
         private string GetFilterAccount()
         {
+            if (!CurrentSession.IsAdmin)
+            {
+                if (comboAccount.SelectedValue != null && !string.IsNullOrEmpty(comboAccount.SelectedValue.ToString()))
+                    return comboAccount.SelectedValue.ToString();
+                if (comboAccount.SelectedItem is DataRowView drv)
+                    return drv["SoTaiKhoan"]?.ToString() ?? "Tất cả";
+            }
+
             if (comboAccount.SelectedIndex > 0)
                 return comboAccount.SelectedValue?.ToString() ?? "Tất cả";
 

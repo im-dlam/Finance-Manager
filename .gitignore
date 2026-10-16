@@ -4,3 +4,6 @@ obj/
 *.user
 *.suo
 Config/database.ini
+UpgradeLog.htm
+*.slnx
+.agents/

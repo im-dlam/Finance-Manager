@@ -100,20 +100,81 @@ namespace BankAccountManagement
 
         /// <summary>
         /// Phân quyền dựa trên vai trò của người dùng hiện tại (Admin/Member).
-        /// Nếu là Member, ẩn các menu không được phép truy cập (ví dụ: Quản lý khách hàng).
+        /// Nếu là Member, ẩn các menu không được phép truy cập (Quản trị khách hàng, Ngân hàng)
+        /// và kéo các nút chức năng bên dưới lên liền mạch, không để lại khoảng trống.
         /// </summary>
         private void ApplyRolePermissions()
         {
             Console.WriteLine($"CurrentSession.IsAdmin: {CurrentSession.IsAdmin}");
 
             if (CurrentSession.IsAdmin)
+            {
+                btnCustomers.Visible = true;
+                btnBanks.Visible = true;
+                ArrangeSidebarMenu(isAdmin: true);
                 return;
+            }
 
-            // Member – ẩn menu quản trị khách hàng
+            // Member – ẩn menu quản trị khách hàng và ngân hàng
             btnCustomers.Visible = false;
             btnCustomers.Height = 0;
-            btnBanks.Top -= 46;
-            btnStatistic.Top -= 46;
+
+            btnBanks.Visible = false;
+            btnBanks.Height = 0;
+
+            // Kéo các nút chức năng ở dưới lên liền mạch
+            ArrangeSidebarMenu(isAdmin: false);
+        }
+
+        /// <summary>
+        /// Sắp xếp vị trí các nút menu bên trái theo thứ tự và khoảng cách chuẩn (46px),
+        /// loại bỏ hoàn toàn khoảng cách trống khi ẩn các mục quản trị ở phía Member.
+        /// </summary>
+        /// <param name="isAdmin">True nếu là tài khoản Quản trị viên, False nếu là Khách hàng (Member).</param>
+        private void ArrangeSidebarMenu(bool isAdmin)
+        {
+            int currentTop = 106;
+            const int buttonHeight = 40;
+            const int spacing = 6;
+            const int buttonWidth = 154;
+            const int buttonLeft = 16;
+            int step = buttonHeight + spacing; // 46px
+
+            Button[] menuButtons = isAdmin
+                ? new Button[]
+                {
+                    btnDashboards,
+                    btnAccounts,
+                    btnTransactions,
+                    btnCustomers,
+                    btnBanks,
+                    btnCreditCard,
+                    btnShop,
+                    btnBorrowing,
+                    btnSaveMoney,
+                    btnStatistic
+                }
+                : new Button[]
+                {
+                    btnDashboards,
+                    btnAccounts,
+                    btnTransactions,
+                    btnCreditCard,
+                    btnShop,
+                    btnBorrowing,
+                    btnSaveMoney,
+                    btnStatistic
+                };
+
+            foreach (var btn in menuButtons)
+            {
+                btn.Left = buttonLeft;
+                btn.Top = currentTop;
+                btn.Width = buttonWidth;
+                btn.Height = buttonHeight;
+                btn.Visible = true;
+                currentTop += step;
+            }
         }
 
         private void btnDashboards_Click(object sender, EventArgs e)
@@ -135,11 +196,13 @@ namespace BankAccountManagement
 
         private void btnCustomers_Click(object sender, EventArgs e)
         {
+            if (!CurrentSession.IsAdmin) return;
             LoadMultiForm(new CustomerForm()); // Hiển thị Form CustomerForm bên trong pnMain
         }
 
         private void btnBanks_Click(object sender, EventArgs e)
         {
+            if (!CurrentSession.IsAdmin) return;
             LoadMultiForm(new BankForm()); // Hiển thị Form BankForm bên trong pnMain
         }
 
@@ -225,13 +288,26 @@ namespace BankAccountManagement
 
         private void btnCreditCard_Click(object sender, EventArgs e)
         {
-            LoadMultiForm(new CreditCardForm()); // Hiển thị Form CreditCardForm bên trong pnMain
-
+            if (CurrentSession.IsAdmin)
+            {
+                LoadMultiForm(new CreditCardForm()); // Hiển thị Form quản lý thẻ Admin
+            }
+            else
+            {
+                OpenFormWithCustomerCheck(() => new CreditCardUserForm()); // Hiển thị Form thẻ ATM của User
+            }
         }
 
         private void btnShop_Click(object sender, EventArgs e)
         {
-            LoadMultiForm(new ShopForm()); // Hiển thị Form ShopForm bên trong pnMain
+            if (CurrentSession.IsAdmin)
+            {
+                LoadMultiForm(new ShopAdminForm()); // Giao diện quản lý sản phẩm Admin
+            }
+            else
+            {
+                OpenFormWithCustomerCheck(() => new ShopUserForm()); // Giao diện mua sắm Khách hàng
+            }
         }
 
         private void btnBorrowing_Click(object sender, EventArgs e)

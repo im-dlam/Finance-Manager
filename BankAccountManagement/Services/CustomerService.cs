@@ -311,6 +311,22 @@ namespace BankAccountManagement.Services
                                 cmdKh.ExecuteNonQuery();
                             }
 
+                            // ---------- 3.2. INSERT dbo.TaiKhoan (tự động tạo tài khoản mặc định Thẻ ghi nợ) ----------
+                            using (var cmdAcc = new SqlCommand(@"
+                        DECLARE @NewAcc VARCHAR(30);
+                        SELECT @NewAcc = '1000' + RIGHT('000000' + CAST(ISNULL(MAX(CAST(RIGHT(SoTaiKhoan, 6) AS BIGINT)), 1000) + 1 AS VARCHAR(10)), 6)
+                        FROM dbo.TaiKhoan;
+
+                        IF @NewAcc IS NULL OR LEN(@NewAcc) < 10
+                            SET @NewAcc = '1000' + CAST(ABS(CHECKSUM(NEWID())) % 900000 + 100000 AS VARCHAR(10));
+
+                        INSERT INTO dbo.TaiKhoan (SoTaiKhoan, MaKH, MaNganHang, MaLoaiTien, SoDuBanDau, SoDuHienTai, NgayMo, TrangThai)
+                        VALUES (@NewAcc, @MaKH, 'NH01', 'VND', 50000000, 50000000, GETDATE(), 'Active')", conn, tran))
+                            {
+                                cmdAcc.Parameters.AddWithValue("@MaKH", maKH);
+                                cmdAcc.ExecuteNonQuery();
+                            }
+
                             // ---------- 4. UPDATE NguoiDung.MaKH để link ----------
                             using (var cmd = new SqlCommand(@"
                         UPDATE dbo.NguoiDung
