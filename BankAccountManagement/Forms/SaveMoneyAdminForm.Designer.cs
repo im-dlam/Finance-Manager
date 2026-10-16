@@ -24,7 +24,6 @@ namespace BankAccountManagement.Forms
             this.pnlCustomerDetailBox = new BankAccountManagement.Forms.RoundedPanel();
             this.pnlCustActionButtons = new System.Windows.Forms.Panel();
             this.btnClearCustomerFilter = new BankAccountManagement.Forms.RoundedButton();
-            this.btnFilterCustomerSavings = new BankAccountManagement.Forms.RoundedButton();
             this.lblCustSavingsCount = new System.Windows.Forms.Label();
             this.lblCustSavingsCountTitle = new System.Windows.Forms.Label();
             this.lblCustTotalSavings = new System.Windows.Forms.Label();
@@ -194,30 +193,11 @@ namespace BankAccountManagement.Forms
             // 
             this.pnlCustActionButtons.BackColor = System.Drawing.Color.Transparent;
             this.pnlCustActionButtons.Controls.Add(this.btnClearCustomerFilter);
-            this.pnlCustActionButtons.Controls.Add(this.btnFilterCustomerSavings);
             this.pnlCustActionButtons.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlCustActionButtons.Location = new System.Drawing.Point(12, 270);
+            this.pnlCustActionButtons.Location = new System.Drawing.Point(12, 320);
             this.pnlCustActionButtons.Name = "pnlCustActionButtons";
-            this.pnlCustActionButtons.Size = new System.Drawing.Size(296, 94);
+            this.pnlCustActionButtons.Size = new System.Drawing.Size(296, 44);
             this.pnlCustActionButtons.TabIndex = 15;
-            // 
-            // btnFilterCustomerSavings
-            // 
-            this.btnFilterCustomerSavings.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnFilterCustomerSavings.BorderRadius = 10;
-            this.btnFilterCustomerSavings.BorderSize = 0;
-            this.btnFilterCustomerSavings.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnFilterCustomerSavings.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
-            this.btnFilterCustomerSavings.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(29)))), ((int)(((byte)(78)))), ((int)(((byte)(216)))));
-            this.btnFilterCustomerSavings.Location = new System.Drawing.Point(0, 0);
-            this.btnFilterCustomerSavings.Name = "btnFilterCustomerSavings";
-            this.btnFilterCustomerSavings.NormalColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
-            this.btnFilterCustomerSavings.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(64)))), ((int)(((byte)(175)))));
-            this.btnFilterCustomerSavings.Size = new System.Drawing.Size(296, 42);
-            this.btnFilterCustomerSavings.TabIndex = 0;
-            this.btnFilterCustomerSavings.Text = "🔍 Xem sổ của khách này";
-            this.btnFilterCustomerSavings.TextColor = System.Drawing.Color.White;
             // 
             // btnClearCustomerFilter
             // 
@@ -226,17 +206,18 @@ namespace BankAccountManagement.Forms
             this.btnClearCustomerFilter.BorderRadius = 10;
             this.btnClearCustomerFilter.BorderSize = 1;
             this.btnClearCustomerFilter.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnClearCustomerFilter.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnClearCustomerFilter.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
             this.btnClearCustomerFilter.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
-            this.btnClearCustomerFilter.Location = new System.Drawing.Point(0, 52);
+            this.btnClearCustomerFilter.Location = new System.Drawing.Point(0, 0);
             this.btnClearCustomerFilter.Name = "btnClearCustomerFilter";
             this.btnClearCustomerFilter.NormalBorder = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(213)))), ((int)(((byte)(225)))));
             this.btnClearCustomerFilter.NormalColor = System.Drawing.Color.White;
             this.btnClearCustomerFilter.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
-            this.btnClearCustomerFilter.Size = new System.Drawing.Size(296, 38);
-            this.btnClearCustomerFilter.TabIndex = 1;
+            this.btnClearCustomerFilter.Size = new System.Drawing.Size(296, 40);
+            this.btnClearCustomerFilter.TabIndex = 0;
             this.btnClearCustomerFilter.Text = "🔄 Xem tất cả khách hàng";
             this.btnClearCustomerFilter.TextColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
+            // 
             // 
             // lblCustSavingsCount
             // 
@@ -1082,7 +1063,6 @@ namespace BankAccountManagement.Forms
         private System.Windows.Forms.Label lblCustSavingsCountTitle;
         private System.Windows.Forms.Label lblCustSavingsCount;
         private System.Windows.Forms.Panel pnlCustActionButtons;
-        private BankAccountManagement.Forms.RoundedButton btnFilterCustomerSavings;
         private BankAccountManagement.Forms.RoundedButton btnClearCustomerFilter;
         private BankAccountManagement.Forms.RoundedPanel pnlSavingsWrapper;
         private System.Windows.Forms.Label lblSavingsPanelTitle;

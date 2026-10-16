@@ -126,22 +126,13 @@ namespace BankAccountManagement.Forms
                 }
             };
 
-            // Lọc sổ theo khách hàng được chọn
-            btnFilterCustomerSavings.Click += async (s, e) =>
-            {
-                if (_selectedCustomer != null)
-                {
-                    _customerFilterMaKH = _selectedCustomer.MaKH;
-                    lblSavingsPanelTitle.Text = $"Sổ tiết kiệm của: {_selectedCustomer.HoTen} ({_selectedCustomer.MaKH})";
-                    await LoadSavingsListAsync();
-                }
-            };
-
-            // Bỏ lọc khách hàng
+            // Xem tất cả khách hàng / Tải lại danh sách
             btnClearCustomerFilter.Click += async (s, e) =>
             {
+                txtSearchCustomer.Text = "";
                 _customerFilterMaKH = null;
                 lblSavingsPanelTitle.Text = "Danh sách sổ tiết kiệm";
+                await LoadCustomersAsync();
                 await LoadSavingsListAsync();
             };
 
@@ -243,8 +234,6 @@ namespace BankAccountManagement.Forms
             lblCustBalance.Text = cust.FormattedTongSoDu;
             lblCustTotalSavings.Text = cust.FormattedTongTienDangGui;
             lblCustSavingsCount.Text = $"{cust.SoDangGui} đang gửi / {cust.SoDaTatToan} tất toán";
-
-            btnFilterCustomerSavings.Enabled = true;
         }
 
         private void ClearCustomerDetail()
@@ -258,7 +247,6 @@ namespace BankAccountManagement.Forms
             lblCustBalance.Text = "0 đ";
             lblCustTotalSavings.Text = "0 đ";
             lblCustSavingsCount.Text = "0 đang gửi / 0 tất toán";
-            btnFilterCustomerSavings.Enabled = false;
         }
 
         private void DisplaySavingsSummary(SoTietKiem s)
