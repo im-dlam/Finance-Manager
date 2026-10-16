@@ -50,13 +50,15 @@ namespace BankAccountManagement.Forms
             pnlFooter.Resize += (s, e) => CenterRegisterButton();
             CenterRegisterButton();
 
+            SetupHistoryGridView();
             WireSliderEvents();
             WireTextEvents();
 
             this.Load += async (s, e) => await InitializeDataAsync();
             this.lblAgreeText.Click += (s, e) => { chkAgree.Checked = !chkAgree.Checked; };
             this.btnRegister.Click += async (s, e) => await HandleRegisterLoanAsync();
-            this.btnHistory.Click += (s, e) => ShowUserLoanHistoryDialog();
+            this.btnHistory.Click += async (s, e) => await ToggleHistoryViewAsync();
+            this.btnCloseHistory.Click += (s, e) => CloseHistoryView();
         }
 
         private void CenterRegisterButton()
@@ -403,7 +405,7 @@ namespace BankAccountManagement.Forms
 
                 if (dialogRes == DialogResult.Yes)
                 {
-                    ShowUserLoanHistoryDialog();
+                    await ShowHistoryInRightCardAsync();
                 }
             }
             else
@@ -412,103 +414,194 @@ namespace BankAccountManagement.Forms
             }
         }
 
-        /// <summary>
-        /// Hiển thị popup lịch sử các đơn vay của khách hàng.
-        /// </summary>
-        private async void ShowUserLoanHistoryDialog()
+        #endregion
+
+        #region EMBEDDED HISTORY VIEW (IN RIGHT CARD)
+
+        private void SetCalcControlsVisible(bool visible)
         {
-            using (Form historyForm = new Form())
+            pnlSummary.Visible = visible;
+            pnlRedDot.Visible = visible;
+            lblPayTitle.Visible = visible;
+            lblPayDesc.Visible = visible;
+            lblDebtTitle.Visible = visible;
+            pnlDebtInputBox.Visible = visible;
+            pnlDebtBox.Visible = visible;
+            chkAgree.Visible = visible;
+            lblAgreeText.Visible = visible;
+        }
+
+        private async Task ToggleHistoryViewAsync()
+        {
+            if (pnlLoanHistoryView.Visible)
             {
-                historyForm.Text = "Lịch sử khoản vay của tôi";
-                historyForm.Size = new Size(880, 520);
-                historyForm.StartPosition = FormStartPosition.CenterParent;
-                historyForm.FormBorderStyle = FormBorderStyle.FixedDialog;
-                historyForm.MaximizeBox = false;
-                historyForm.MinimizeBox = false;
-                historyForm.BackColor = Color.White;
+                CloseHistoryView();
+            }
+            else
+            {
+                await ShowHistoryInRightCardAsync();
+            }
+        }
 
-                Label lblTitle = new Label
+        private async Task ShowHistoryInRightCardAsync()
+        {
+            SetCalcControlsVisible(false);
+            pnlLoanHistoryView.Visible = true;
+            pnlLoanHistoryView.BringToFront();
+            btnHistory.Text = "📝 Đăng ký khoản vay";
+            await LoadUserHistoryAsync();
+        }
+
+        private void CloseHistoryView()
+        {
+            pnlLoanHistoryView.Visible = false;
+            SetCalcControlsVisible(true);
+            btnHistory.Text = "📋 Lịch sử vay của tôi";
+        }
+
+        private void SetupHistoryGridView()
+        {
+            dgvHistory.AutoGenerateColumns = false;
+            dgvHistory.Columns.Clear();
+            dgvHistory.ScrollBars = ScrollBars.Vertical;
+
+            dgvHistory.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "colHistMa",
+                HeaderText = "Mã hồ sơ",
+                DataPropertyName = "MaKhoanVay",
+                Width = 90
+            });
+
+            dgvHistory.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "colHistNgay",
+                HeaderText = "Ngày ĐK",
+                DataPropertyName = "FormattedNgayDangKy",
+                Width = 100
+            });
+
+            dgvHistory.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "colHistSoTien",
+                HeaderText = "Số tiền vay",
+                DataPropertyName = "FormattedSoTienVay",
+                Width = 85,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight }
+            });
+
+            dgvHistory.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "colHistKyHan",
+                HeaderText = "Kỳ hạn",
+                DataPropertyName = "FormattedTerm",
+                Width = 60,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
+            });
+
+            dgvHistory.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "colHistTongNo",
+                HeaderText = "Tổng nợ",
+                DataPropertyName = "FormattedTongPhaiTra",
+                Width = 85,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight }
+            });
+
+            dgvHistory.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "colHistTrangThai",
+                HeaderText = "Trạng thái",
+                DataPropertyName = "TrangThai",
+                AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
+                MinimumWidth = 60,
+                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
+            });
+
+            dgvHistory.CellFormatting += (s, e) =>
+            {
+                if (e.RowIndex < 0 || e.RowIndex >= dgvHistory.Rows.Count) return;
+                if (dgvHistory.Columns[e.ColumnIndex].Name == "colHistTrangThai" && e.Value != null)
                 {
-                    Text = "Danh sách hồ sơ vay vốn của bạn",
-                    Font = new Font("Segoe UI", 13F, FontStyle.Bold),
-                    ForeColor = Color.FromArgb(15, 23, 42),
-                    Location = new Point(20, 16),
-                    AutoSize = true
-                };
-                historyForm.Controls.Add(lblTitle);
-
-                DataGridView dgv = new DataGridView
-                {
-                    Location = new Point(20, 55),
-                    Size = new Size(825, 390),
-                    BackgroundColor = Color.White,
-                    BorderStyle = BorderStyle.FixedSingle,
-                    ReadOnly = true,
-                    AllowUserToAddRows = false,
-                    AllowUserToDeleteRows = false,
-                    SelectionMode = DataGridViewSelectionMode.FullRowSelect,
-                    RowHeadersVisible = false,
-                    AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill,
-                    Font = new Font("Segoe UI", 9.5F)
-                };
-
-                dgv.Columns.Add("MaKV", "Mã khoản vay");
-                dgv.Columns.Add("NgayDK", "Ngày đăng ký");
-                dgv.Columns.Add("SoTien", "Số tiền vay");
-                dgv.Columns.Add("ThoiGian", "Kỳ hạn");
-                dgv.Columns.Add("TongNo", "Tổng nợ phải trả");
-                dgv.Columns.Add("NgayDH", "Ngày đáo hạn");
-                dgv.Columns.Add("TrangThai", "Trạng thái");
-
-                dgv.Columns["SoTien"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-                dgv.Columns["TongNo"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
-                dgv.Columns["TrangThai"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-
-                var loans = await _borrowingService.GetUserLoansAsync(CurrentSession.MaKH);
-                foreach (var l in loans)
-                {
-                    int rIdx = dgv.Rows.Add(
-                        l.MaKhoanVay,
-                        l.FormattedNgayDangKy,
-                        l.FormattedSoTienVay,
-                        $"{l.ThoiGianVay} ngày",
-                        l.FormattedTongPhaiTra,
-                        l.FormattedNgayDaoHan,
-                        l.TrangThai
-                    );
-
-                    // Tô màu trạng thái
-                    var row = dgv.Rows[rIdx];
-                    if (l.TrangThai == "Đã duyệt")
+                    string status = e.Value.ToString();
+                    if (status == "Đã duyệt")
                     {
-                        row.Cells["TrangThai"].Style.ForeColor = Color.FromArgb(16, 185, 129);
-                        row.Cells["TrangThai"].Style.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+                        e.CellStyle.ForeColor = Color.FromArgb(16, 185, 129);
+                        e.CellStyle.Font = new Font(dgvHistory.Font, FontStyle.Bold);
                     }
-                    else if (l.TrangThai == "Từ chối")
+                    else if (status == "Từ chối" || status == "Đã từ chối")
                     {
-                        row.Cells["TrangThai"].Style.ForeColor = Color.FromArgb(225, 29, 72);
-                        row.Cells["TrangThai"].Style.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+                        e.CellStyle.ForeColor = Color.FromArgb(220, 38, 38);
+                        e.CellStyle.Font = new Font(dgvHistory.Font, FontStyle.Bold);
                     }
                     else
                     {
-                        row.Cells["TrangThai"].Style.ForeColor = Color.FromArgb(217, 119, 6);
-                        row.Cells["TrangThai"].Style.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+                        e.CellStyle.ForeColor = Color.FromArgb(217, 119, 6);
+                        e.CellStyle.Font = new Font(dgvHistory.Font, FontStyle.Bold);
                     }
                 }
+            };
 
-                historyForm.Controls.Add(dgv);
-
-                Button btnClose = new Button
+            dgvHistory.SelectionChanged += (s, e) =>
+            {
+                if (dgvHistory.SelectedRows.Count > 0)
                 {
-                    Text = "Đóng",
-                    Font = new Font("Segoe UI", 9.5F, FontStyle.Bold),
-                    Size = new Size(100, 34),
-                    Location = new Point(745, 455),
-                    DialogResult = DialogResult.OK
-                };
-                historyForm.Controls.Add(btnClose);
+                    var loan = dgvHistory.SelectedRows[0].DataBoundItem as BorrowingLoan;
+                    if (loan != null)
+                    {
+                        DisplayHistoryLoanDetail(loan);
+                    }
+                }
+            };
+        }
 
-                historyForm.ShowDialog(this);
+        private async Task LoadUserHistoryAsync()
+        {
+            var loans = await _borrowingService.GetUserLoansAsync(CurrentSession.MaKH);
+            dgvHistory.DataSource = null;
+            dgvHistory.DataSource = loans;
+
+            if (loans != null && loans.Count > 0)
+            {
+                pnlHistDetailCard.Visible = true;
+                dgvHistory.Rows[0].Selected = true;
+                DisplayHistoryLoanDetail(loans[0]);
+            }
+            else
+            {
+                pnlHistDetailCard.Visible = false;
+            }
+        }
+
+        private void DisplayHistoryLoanDetail(BorrowingLoan loan)
+        {
+            pnlHistDetailCard.Visible = true;
+            lblHistSum1Value.Text = loan.FormattedSoTienVay;
+            lblHistSum2Value.Text = $"{loan.LaiSuat:N2}%/ngày";
+            lblHistSum3Value.Text = loan.FormattedNgayDaoHan;
+            lblHistSumInterestDetail.Text = $"Tiền lãi, phí dự tính ({loan.ThoiGianVay} ngày): + {loan.FormattedTienLai}";
+            txtHistDebtAmount.Text = $"{loan.TongPhaiTra:N0}";
+
+            if (loan.TrangThai == "Đã duyệt")
+            {
+                pnlHistDebtBox.FillColor = Color.FromArgb(236, 253, 245);
+                pnlHistDebtBox.BorderColor = Color.FromArgb(167, 243, 208);
+                lblHistDebtHint.ForeColor = Color.FromArgb(6, 95, 70);
+                lblHistDebtHint.Text = $"✔ Hồ sơ đã được duyệt & giải ngân vào STK: {loan.SoTaiKhoan}";
+            }
+            else if (loan.TrangThai == "Từ chối" || loan.TrangThai == "Đã từ chối")
+            {
+                pnlHistDebtBox.FillColor = Color.FromArgb(254, 242, 242);
+                pnlHistDebtBox.BorderColor = Color.FromArgb(254, 202, 202);
+                lblHistDebtHint.ForeColor = Color.FromArgb(153, 27, 27);
+                lblHistDebtHint.Text = $"✖ Hồ sơ bị từ chối xét duyệt bởi ban quản trị.";
+            }
+            else
+            {
+                pnlHistDebtBox.FillColor = Color.FromArgb(255, 247, 237);
+                pnlHistDebtBox.BorderColor = Color.FromArgb(254, 215, 170);
+                lblHistDebtHint.ForeColor = Color.FromArgb(180, 83, 9);
+                lblHistDebtHint.Text = $"⚠  Số nợ được tính tự động từ khoản vay + lãi suất × thời gian vay";
             }
         }
 

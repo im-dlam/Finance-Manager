@@ -78,6 +78,31 @@ namespace BankAccountManagement.Forms
             this.chkAgree = new System.Windows.Forms.CheckBox();
             this.lblAgreeText = new System.Windows.Forms.Label();
 
+            // History View
+            this.pnlLoanHistoryView = new BankAccountManagement.Forms.RoundedPanel();
+            this.lblHistHeaderTitle = new System.Windows.Forms.Label();
+            this.lblHistHeaderSub = new System.Windows.Forms.Label();
+            this.dgvHistory = new System.Windows.Forms.DataGridView();
+            this.pnlHistDetailCard = new BankAccountManagement.Forms.RoundedPanel();
+            this.pnlHistSummary = new BankAccountManagement.Forms.RoundedPanel();
+            this.lblHistSum1Value = new System.Windows.Forms.Label();
+            this.lblHistSum1Title = new System.Windows.Forms.Label();
+            this.lblHistSum2Value = new System.Windows.Forms.Label();
+            this.lblHistSum2Title = new System.Windows.Forms.Label();
+            this.lblHistSum3Value = new System.Windows.Forms.Label();
+            this.lblHistSum3Title = new System.Windows.Forms.Label();
+            this.lblHistSumInterestDetail = new System.Windows.Forms.Label();
+            this.pnlHistRedDot = new BankAccountManagement.Forms.RoundedPanel();
+            this.lblHistPayTitle = new System.Windows.Forms.Label();
+            this.lblHistPayDesc = new System.Windows.Forms.Label();
+            this.lblHistDebtTitle = new System.Windows.Forms.Label();
+            this.pnlHistDebtInputBox = new BankAccountManagement.Forms.RoundedPanel();
+            this.txtHistDebtAmount = new System.Windows.Forms.TextBox();
+            this.lblHistDebtUnit = new System.Windows.Forms.Label();
+            this.pnlHistDebtBox = new BankAccountManagement.Forms.RoundedPanel();
+            this.lblHistDebtHint = new System.Windows.Forms.Label();
+            this.btnCloseHistory = new BankAccountManagement.Forms.RoundedButton();
+
             this.pnlHeader.SuspendLayout();
             this.pnlFooter.SuspendLayout();
             this.pnlContent.SuspendLayout();
@@ -89,6 +114,11 @@ namespace BankAccountManagement.Forms
             this.pnlSummary.SuspendLayout();
             this.pnlDebtInputBox.SuspendLayout();
             this.pnlDebtBox.SuspendLayout();
+            this.pnlLoanHistoryView.SuspendLayout();
+            this.pnlHistDetailCard.SuspendLayout();
+            this.pnlHistSummary.SuspendLayout();
+            this.pnlHistDebtInputBox.SuspendLayout();
+            this.pnlHistDebtBox.SuspendLayout();
             this.SuspendLayout();
 
             // =============================================================
@@ -412,6 +442,7 @@ namespace BankAccountManagement.Forms
             this.pnlRightCard.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlRightCard.Margin = new System.Windows.Forms.Padding(12, 0, 0, 0);
             this.pnlRightCard.Name = "pnlRightCard";
+            this.pnlRightCard.Controls.Add(this.pnlLoanHistoryView);
             this.pnlRightCard.Controls.Add(this.pnlSummary);
             this.pnlRightCard.Controls.Add(this.pnlRedDot);
             this.pnlRightCard.Controls.Add(this.lblPayTitle);
@@ -598,6 +629,259 @@ namespace BankAccountManagement.Forms
             this.lblAgreeText.Text = "Chúng tôi có thể xác minh thông tin của bạn và báo cáo các khoản vay của bạn cho Trung tâm Thông tin Tín dụng Quốc gia Việt Nam (CIC) và các tổ chức tín dụng khác.";
 
             // =============================================================
+            // pnlLoanHistoryView — Giao diện Lịch sử hiển thị trực tiếp trong Thẻ phải
+            // =============================================================
+            this.pnlLoanHistoryView.BackColor = System.Drawing.Color.White;
+            this.pnlLoanHistoryView.BorderColor = System.Drawing.Color.FromArgb(226, 232, 240);
+            this.pnlLoanHistoryView.BorderRadius = 16;
+            this.pnlLoanHistoryView.BorderSize = 0;
+            this.pnlLoanHistoryView.Controls.Add(this.lblHistHeaderTitle);
+            this.pnlLoanHistoryView.Controls.Add(this.lblHistHeaderSub);
+            this.pnlLoanHistoryView.Controls.Add(this.dgvHistory);
+            this.pnlLoanHistoryView.Controls.Add(this.pnlHistDetailCard);
+            this.pnlLoanHistoryView.Controls.Add(this.btnCloseHistory);
+            this.pnlLoanHistoryView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlLoanHistoryView.FillColor = System.Drawing.Color.White;
+            this.pnlLoanHistoryView.Location = new System.Drawing.Point(0, 0);
+            this.pnlLoanHistoryView.Name = "pnlLoanHistoryView";
+            this.pnlLoanHistoryView.Size = new System.Drawing.Size(530, 555);
+            this.pnlLoanHistoryView.TabIndex = 10;
+            this.pnlLoanHistoryView.Visible = false;
+
+            // lblHistHeaderTitle
+            this.lblHistHeaderTitle.AutoSize = true;
+            this.lblHistHeaderTitle.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
+            this.lblHistHeaderTitle.ForeColor = System.Drawing.Color.FromArgb(15, 23, 42);
+            this.lblHistHeaderTitle.Location = new System.Drawing.Point(20, 14);
+            this.lblHistHeaderTitle.Name = "lblHistHeaderTitle";
+            this.lblHistHeaderTitle.Size = new System.Drawing.Size(262, 21);
+            this.lblHistHeaderTitle.TabIndex = 0;
+            this.lblHistHeaderTitle.Text = "Danh sách hồ sơ vay vốn của bạn";
+
+            // lblHistHeaderSub
+            this.lblHistHeaderSub.AutoSize = true;
+            this.lblHistHeaderSub.Font = new System.Drawing.Font("Segoe UI", 8.5F);
+            this.lblHistHeaderSub.ForeColor = System.Drawing.Color.FromArgb(100, 116, 139);
+            this.lblHistHeaderSub.Location = new System.Drawing.Point(20, 36);
+            this.lblHistHeaderSub.Name = "lblHistHeaderSub";
+            this.lblHistHeaderSub.Size = new System.Drawing.Size(248, 15);
+            this.lblHistHeaderSub.TabIndex = 1;
+            this.lblHistHeaderSub.Text = "Bấm chọn hồ sơ trong bảng để xem chi tiết bên dưới";
+
+            // dgvHistory
+            this.dgvHistory.AllowUserToAddRows = false;
+            this.dgvHistory.AllowUserToDeleteRows = false;
+            this.dgvHistory.BackgroundColor = System.Drawing.Color.White;
+            this.dgvHistory.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.dgvHistory.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            this.dgvHistory.EnableHeadersVisualStyles = false;
+            this.dgvHistory.Font = new System.Drawing.Font("Segoe UI", 8.5F);
+            this.dgvHistory.Location = new System.Drawing.Point(20, 56);
+            this.dgvHistory.MultiSelect = false;
+            this.dgvHistory.Name = "dgvHistory";
+            this.dgvHistory.ReadOnly = true;
+            this.dgvHistory.RowHeadersVisible = false;
+            this.dgvHistory.RowTemplate.Height = 28;
+            this.dgvHistory.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgvHistory.Size = new System.Drawing.Size(480, 120);
+            this.dgvHistory.TabIndex = 2;
+
+            // pnlHistDetailCard
+            this.pnlHistDetailCard.BackColor = System.Drawing.Color.Transparent;
+            this.pnlHistDetailCard.BorderColor = System.Drawing.Color.Transparent;
+            this.pnlHistDetailCard.BorderSize = 0;
+            this.pnlHistDetailCard.Controls.Add(this.pnlHistSummary);
+            this.pnlHistDetailCard.Controls.Add(this.pnlHistRedDot);
+            this.pnlHistDetailCard.Controls.Add(this.lblHistPayTitle);
+            this.pnlHistDetailCard.Controls.Add(this.lblHistPayDesc);
+            this.pnlHistDetailCard.Controls.Add(this.lblHistDebtTitle);
+            this.pnlHistDetailCard.Controls.Add(this.pnlHistDebtInputBox);
+            this.pnlHistDetailCard.Controls.Add(this.pnlHistDebtBox);
+            this.pnlHistDetailCard.FillColor = System.Drawing.Color.White;
+            this.pnlHistDetailCard.Location = new System.Drawing.Point(20, 182);
+            this.pnlHistDetailCard.Name = "pnlHistDetailCard";
+            this.pnlHistDetailCard.Size = new System.Drawing.Size(480, 290);
+            this.pnlHistDetailCard.TabIndex = 3;
+
+            // pnlHistSummary (Ảnh 2 top box)
+            this.pnlHistSummary.BorderColor = System.Drawing.Color.FromArgb(241, 245, 249);
+            this.pnlHistSummary.BorderRadius = 12;
+            this.pnlHistSummary.BorderSize = 1;
+            this.pnlHistSummary.Controls.Add(this.lblHistSum1Value);
+            this.pnlHistSummary.Controls.Add(this.lblHistSum1Title);
+            this.pnlHistSummary.Controls.Add(this.lblHistSum2Value);
+            this.pnlHistSummary.Controls.Add(this.lblHistSum2Title);
+            this.pnlHistSummary.Controls.Add(this.lblHistSum3Value);
+            this.pnlHistSummary.Controls.Add(this.lblHistSum3Title);
+            this.pnlHistSummary.Controls.Add(this.lblHistSumInterestDetail);
+            this.pnlHistSummary.FillColor = System.Drawing.Color.FromArgb(248, 250, 252);
+            this.pnlHistSummary.Location = new System.Drawing.Point(0, 0);
+            this.pnlHistSummary.Name = "pnlHistSummary";
+            this.pnlHistSummary.Size = new System.Drawing.Size(480, 95);
+            this.pnlHistSummary.TabIndex = 0;
+
+            this.lblHistSum1Value.AutoSize = true;
+            this.lblHistSum1Value.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
+            this.lblHistSum1Value.ForeColor = System.Drawing.Color.FromArgb(15, 23, 42);
+            this.lblHistSum1Value.Location = new System.Drawing.Point(16, 12);
+            this.lblHistSum1Value.Name = "lblHistSum1Value";
+            this.lblHistSum1Value.Size = new System.Drawing.Size(94, 20);
+            this.lblHistSum1Value.Text = "7,100,000 đ";
+
+            this.lblHistSum1Title.AutoSize = true;
+            this.lblHistSum1Title.Font = new System.Drawing.Font("Segoe UI", 8.5F);
+            this.lblHistSum1Title.ForeColor = System.Drawing.Color.FromArgb(100, 116, 139);
+            this.lblHistSum1Title.Location = new System.Drawing.Point(16, 36);
+            this.lblHistSum1Title.Name = "lblHistSum1Title";
+            this.lblHistSum1Title.Size = new System.Drawing.Size(60, 15);
+            this.lblHistSum1Title.Text = "Khoản vay";
+
+            this.lblHistSum2Value.AutoSize = true;
+            this.lblHistSum2Value.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
+            this.lblHistSum2Value.ForeColor = System.Drawing.Color.FromArgb(190, 24, 93);
+            this.lblHistSum2Value.Location = new System.Drawing.Point(165, 12);
+            this.lblHistSum2Value.Name = "lblHistSum2Value";
+            this.lblHistSum2Value.Size = new System.Drawing.Size(89, 20);
+            this.lblHistSum2Value.Text = "1.55%/ngày";
+
+            this.lblHistSum2Title.AutoSize = true;
+            this.lblHistSum2Title.Font = new System.Drawing.Font("Segoe UI", 8.5F);
+            this.lblHistSum2Title.ForeColor = System.Drawing.Color.FromArgb(100, 116, 139);
+            this.lblHistSum2Title.Location = new System.Drawing.Point(165, 36);
+            this.lblHistSum2Title.Name = "lblHistSum2Title";
+            this.lblHistSum2Title.Size = new System.Drawing.Size(86, 15);
+            this.lblHistSum2Title.Text = "Lãi suất ưu đãi";
+
+            this.lblHistSum3Value.AutoSize = true;
+            this.lblHistSum3Value.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
+            this.lblHistSum3Value.ForeColor = System.Drawing.Color.FromArgb(15, 23, 42);
+            this.lblHistSum3Value.Location = new System.Drawing.Point(320, 12);
+            this.lblHistSum3Value.Name = "lblHistSum3Value";
+            this.lblHistSum3Value.Size = new System.Drawing.Size(87, 20);
+            this.lblHistSum3Value.Text = "06/11/2026";
+
+            this.lblHistSum3Title.AutoSize = true;
+            this.lblHistSum3Title.Font = new System.Drawing.Font("Segoe UI", 8.5F);
+            this.lblHistSum3Title.ForeColor = System.Drawing.Color.FromArgb(100, 116, 139);
+            this.lblHistSum3Title.Location = new System.Drawing.Point(320, 36);
+            this.lblHistSum3Title.Name = "lblHistSum3Title";
+            this.lblHistSum3Title.Size = new System.Drawing.Size(80, 15);
+            this.lblHistSum3Title.Text = "Ngày đáo hạn";
+
+            this.lblHistSumInterestDetail.AutoSize = true;
+            this.lblHistSumInterestDetail.Font = new System.Drawing.Font("Segoe UI Semibold", 8.5F, System.Drawing.FontStyle.Bold);
+            this.lblHistSumInterestDetail.ForeColor = System.Drawing.Color.FromArgb(190, 24, 93);
+            this.lblHistSumInterestDetail.Location = new System.Drawing.Point(16, 66);
+            this.lblHistSumInterestDetail.Name = "lblHistSumInterestDetail";
+            this.lblHistSumInterestDetail.Size = new System.Drawing.Size(265, 15);
+            this.lblHistSumInterestDetail.Text = "Tiền lãi, phí dự tính (21 ngày): + 2,311,050 đ";
+
+            // pnlHistRedDot
+            this.pnlHistRedDot.BorderRadius = 5;
+            this.pnlHistRedDot.BorderSize = 0;
+            this.pnlHistRedDot.FillColor = System.Drawing.Color.FromArgb(239, 68, 68);
+            this.pnlHistRedDot.Location = new System.Drawing.Point(0, 108);
+            this.pnlHistRedDot.Name = "pnlHistRedDot";
+            this.pnlHistRedDot.Size = new System.Drawing.Size(10, 10);
+
+            // lblHistPayTitle
+            this.lblHistPayTitle.AutoSize = true;
+            this.lblHistPayTitle.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
+            this.lblHistPayTitle.ForeColor = System.Drawing.Color.FromArgb(15, 23, 42);
+            this.lblHistPayTitle.Location = new System.Drawing.Point(16, 103);
+            this.lblHistPayTitle.Name = "lblHistPayTitle";
+            this.lblHistPayTitle.Size = new System.Drawing.Size(168, 20);
+            this.lblHistPayTitle.Text = "Số tiền phải trả của bạn";
+
+            // lblHistPayDesc
+            this.lblHistPayDesc.Font = new System.Drawing.Font("Segoe UI", 8.5F);
+            this.lblHistPayDesc.ForeColor = System.Drawing.Color.FromArgb(100, 116, 139);
+            this.lblHistPayDesc.Location = new System.Drawing.Point(0, 126);
+            this.lblHistPayDesc.Name = "lblHistPayDesc";
+            this.lblHistPayDesc.Size = new System.Drawing.Size(480, 20);
+            this.lblHistPayDesc.Text = "Ngày đến hạn có thể rơi vào ngày lễ (không làm việc) và sẽ được dời lại ngày làm việc gần nhất.";
+
+            // lblHistDebtTitle
+            this.lblHistDebtTitle.AutoSize = true;
+            this.lblHistDebtTitle.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.lblHistDebtTitle.ForeColor = System.Drawing.Color.FromArgb(15, 23, 42);
+            this.lblHistDebtTitle.Location = new System.Drawing.Point(0, 150);
+            this.lblHistDebtTitle.Name = "lblHistDebtTitle";
+            this.lblHistDebtTitle.Size = new System.Drawing.Size(126, 19);
+            this.lblHistDebtTitle.Text = "Ghi số nợ phải trả";
+
+            // pnlHistDebtInputBox
+            this.pnlHistDebtInputBox.BorderColor = System.Drawing.Color.FromArgb(203, 213, 225);
+            this.pnlHistDebtInputBox.BorderRadius = 8;
+            this.pnlHistDebtInputBox.BorderSize = 1;
+            this.pnlHistDebtInputBox.Controls.Add(this.txtHistDebtAmount);
+            this.pnlHistDebtInputBox.Controls.Add(this.lblHistDebtUnit);
+            this.pnlHistDebtInputBox.FillColor = System.Drawing.Color.White;
+            this.pnlHistDebtInputBox.Location = new System.Drawing.Point(0, 172);
+            this.pnlHistDebtInputBox.Name = "pnlHistDebtInputBox";
+            this.pnlHistDebtInputBox.Size = new System.Drawing.Size(480, 42);
+            this.pnlHistDebtInputBox.TabIndex = 4;
+
+            this.txtHistDebtAmount.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.txtHistDebtAmount.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold);
+            this.txtHistDebtAmount.ForeColor = System.Drawing.Color.FromArgb(190, 24, 93);
+            this.txtHistDebtAmount.Location = new System.Drawing.Point(12, 6);
+            this.txtHistDebtAmount.Name = "txtHistDebtAmount";
+            this.txtHistDebtAmount.ReadOnly = true;
+            this.txtHistDebtAmount.Size = new System.Drawing.Size(415, 29);
+            this.txtHistDebtAmount.Text = "9,411,050";
+            this.txtHistDebtAmount.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+
+            this.lblHistDebtUnit.AutoSize = true;
+            this.lblHistDebtUnit.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold);
+            this.lblHistDebtUnit.ForeColor = System.Drawing.Color.FromArgb(190, 24, 93);
+            this.lblHistDebtUnit.Location = new System.Drawing.Point(435, 6);
+            this.lblHistDebtUnit.Name = "lblHistDebtUnit";
+            this.lblHistDebtUnit.Size = new System.Drawing.Size(26, 30);
+            this.lblHistDebtUnit.Text = "đ";
+
+            // pnlHistDebtBox
+            this.pnlHistDebtBox.BorderColor = System.Drawing.Color.FromArgb(254, 215, 170);
+            this.pnlHistDebtBox.BorderRadius = 8;
+            this.pnlHistDebtBox.BorderSize = 1;
+            this.pnlHistDebtBox.Controls.Add(this.lblHistDebtHint);
+            this.pnlHistDebtBox.FillColor = System.Drawing.Color.FromArgb(255, 247, 237);
+            this.pnlHistDebtBox.Location = new System.Drawing.Point(0, 222);
+            this.pnlHistDebtBox.Name = "pnlHistDebtBox";
+            this.pnlHistDebtBox.Size = new System.Drawing.Size(480, 36);
+            this.pnlHistDebtBox.TabIndex = 5;
+
+            this.lblHistDebtHint.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblHistDebtHint.Font = new System.Drawing.Font("Segoe UI", 8.5F);
+            this.lblHistDebtHint.ForeColor = System.Drawing.Color.FromArgb(180, 83, 9);
+            this.lblHistDebtHint.Location = new System.Drawing.Point(0, 0);
+            this.lblHistDebtHint.Name = "lblHistDebtHint";
+            this.lblHistDebtHint.Padding = new System.Windows.Forms.Padding(10, 0, 10, 0);
+            this.lblHistDebtHint.Size = new System.Drawing.Size(480, 36);
+            this.lblHistDebtHint.Text = "⚠  Số nợ được tính tự động từ khoản vay + lãi suất × thời gian vay";
+            this.lblHistDebtHint.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+
+            // btnCloseHistory
+            this.btnCloseHistory.BorderRadius = 8;
+            this.btnCloseHistory.BorderSize = 1;
+            this.btnCloseHistory.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnCloseHistory.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnCloseHistory.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
+            this.btnCloseHistory.ForeColor = System.Drawing.Color.FromArgb(51, 65, 85);
+            this.btnCloseHistory.HoverBorder = System.Drawing.Color.FromArgb(190, 24, 93);
+            this.btnCloseHistory.HoverColor = System.Drawing.Color.FromArgb(253, 242, 248);
+            this.btnCloseHistory.Location = new System.Drawing.Point(380, 485);
+            this.btnCloseHistory.Name = "btnCloseHistory";
+            this.btnCloseHistory.NormalBorder = System.Drawing.Color.FromArgb(203, 213, 225);
+            this.btnCloseHistory.NormalColor = System.Drawing.Color.White;
+            this.btnCloseHistory.PressedColor = System.Drawing.Color.FromArgb(248, 250, 252);
+            this.btnCloseHistory.Size = new System.Drawing.Size(120, 36);
+            this.btnCloseHistory.TabIndex = 6;
+            this.btnCloseHistory.Text = "Đóng";
+            this.btnCloseHistory.TextColor = System.Drawing.Color.FromArgb(51, 65, 85);
+            this.btnCloseHistory.UseVisualStyleBackColor = false;
+
+            // =============================================================
             // BorrowingUserForm
             // =============================================================
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -631,6 +915,15 @@ namespace BankAccountManagement.Forms
             this.pnlDebtInputBox.ResumeLayout(false);
             this.pnlDebtInputBox.PerformLayout();
             this.pnlDebtBox.ResumeLayout(false);
+            this.pnlHistDebtBox.ResumeLayout(false);
+            this.pnlHistDebtInputBox.ResumeLayout(false);
+            this.pnlHistDebtInputBox.PerformLayout();
+            this.pnlHistSummary.ResumeLayout(false);
+            this.pnlHistSummary.PerformLayout();
+            this.pnlHistDetailCard.ResumeLayout(false);
+            this.pnlHistDetailCard.PerformLayout();
+            this.pnlLoanHistoryView.ResumeLayout(false);
+            this.pnlLoanHistoryView.PerformLayout();
             this.ResumeLayout(false);
         }
 
@@ -696,5 +989,30 @@ namespace BankAccountManagement.Forms
 
         private System.Windows.Forms.CheckBox chkAgree;
         private System.Windows.Forms.Label lblAgreeText;
+
+        // History View (Embedded in Right Card)
+        private BankAccountManagement.Forms.RoundedPanel pnlLoanHistoryView;
+        private System.Windows.Forms.Label lblHistHeaderTitle;
+        private System.Windows.Forms.Label lblHistHeaderSub;
+        private System.Windows.Forms.DataGridView dgvHistory;
+        private BankAccountManagement.Forms.RoundedPanel pnlHistDetailCard;
+        private BankAccountManagement.Forms.RoundedPanel pnlHistSummary;
+        private System.Windows.Forms.Label lblHistSum1Value;
+        private System.Windows.Forms.Label lblHistSum1Title;
+        private System.Windows.Forms.Label lblHistSum2Value;
+        private System.Windows.Forms.Label lblHistSum2Title;
+        private System.Windows.Forms.Label lblHistSum3Value;
+        private System.Windows.Forms.Label lblHistSum3Title;
+        private System.Windows.Forms.Label lblHistSumInterestDetail;
+        private BankAccountManagement.Forms.RoundedPanel pnlHistRedDot;
+        private System.Windows.Forms.Label lblHistPayTitle;
+        private System.Windows.Forms.Label lblHistPayDesc;
+        private System.Windows.Forms.Label lblHistDebtTitle;
+        private BankAccountManagement.Forms.RoundedPanel pnlHistDebtInputBox;
+        private System.Windows.Forms.TextBox txtHistDebtAmount;
+        private System.Windows.Forms.Label lblHistDebtUnit;
+        private BankAccountManagement.Forms.RoundedPanel pnlHistDebtBox;
+        private System.Windows.Forms.Label lblHistDebtHint;
+        private BankAccountManagement.Forms.RoundedButton btnCloseHistory;
     }
 }
