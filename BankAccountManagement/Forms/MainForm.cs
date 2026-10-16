@@ -23,7 +23,14 @@ namespace BankAccountManagement
         public MainForm(User user)
         {
             InitializeComponent();
-            LoadMultiForm(new DashboardForm());
+            if (CurrentSession.IsMember)
+            {
+                LoadMultiForm(new DashboardUserForm());
+            }
+            else
+            {
+                LoadMultiForm(new DashboardForm());
+            }
             ApplyRolePermissions();
         }
 
@@ -179,7 +186,14 @@ namespace BankAccountManagement
 
         private void btnDashboards_Click(object sender, EventArgs e)
         {
-            LoadMultiForm(new DashboardForm()); // Hiển thị Form DashboardForm bên trong pnMain
+            if (CurrentSession.IsMember)
+            {
+                LoadMultiForm(new DashboardUserForm());
+            }
+            else
+            {
+                LoadMultiForm(new DashboardForm());
+            }
         }
 
         private void btnAccounts_Click(object sender, EventArgs e)
@@ -258,7 +272,7 @@ namespace BankAccountManagement
             }
         }
 
-        private void OpenFormWithCustomerCheck(Func<Form> formFactory)
+        public void OpenFormWithCustomerCheck(Func<Form> formFactory)
         {
             if (CurrentSession.IsAdmin)
             {
