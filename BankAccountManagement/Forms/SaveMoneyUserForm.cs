@@ -202,7 +202,6 @@ namespace BankAccountManagement.Forms
             // Nút điều hướng các bước
             btnStep1Next.Click += (s, e) => GoToStep2();
             btnPhoneBack.Click += (s, e) => HandleBackButton();
-            btnPhoneRightIcon.Click += (s, e) => { dgvUserSavings.Focus(); };
 
             btnStep2Confirm.Click += async (s, e) => await HandleConfirmAndOpenAsync();
 
@@ -223,12 +222,6 @@ namespace BankAccountManagement.Forms
                 _currentAmount = 10000000m;
                 SetSelectedTerm(6);
                 RecalculateStep1();
-            };
-
-            btnRefreshUser.Click += async (s, e) =>
-            {
-                await LoadUserAccountsAsync();
-                await LoadUserSavingsHistoryAsync();
             };
 
             // Vẽ thanh tiến trình Bước 2

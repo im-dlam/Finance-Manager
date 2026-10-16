@@ -26,7 +26,6 @@ namespace BankAccountManagement.Forms
             this.lblHistoryTitle = new System.Windows.Forms.Label();
             this.pnlSummaryBanner = new BankAccountManagement.Forms.RoundedPanel();
             this.btnNewSavings = new BankAccountManagement.Forms.RoundedButton();
-            this.btnRefreshUser = new BankAccountManagement.Forms.RoundedButton();
             this.lblSumInterest = new System.Windows.Forms.Label();
             this.lblSumInterestTitle = new System.Windows.Forms.Label();
             this.lblSumCount = new System.Windows.Forms.Label();
@@ -117,7 +116,6 @@ namespace BankAccountManagement.Forms
             this.pnlStep3Banner = new BankAccountManagement.Forms.RoundedPanel();
             this.lblStep3BannerText = new System.Windows.Forms.Label();
             this.pnlPhoneTopNav = new System.Windows.Forms.Panel();
-            this.btnPhoneRightIcon = new System.Windows.Forms.Button();
             this.pnlTopNavTitleWrapper = new System.Windows.Forms.Panel();
             this.lblPhoneNavSubtitle = new System.Windows.Forms.Label();
             this.lblPhoneNavTitle = new System.Windows.Forms.Label();
@@ -268,7 +266,6 @@ namespace BankAccountManagement.Forms
             this.pnlSummaryBanner.BorderRadius = 16;
             this.pnlSummaryBanner.BorderSize = 1;
             this.pnlSummaryBanner.Controls.Add(this.btnNewSavings);
-            this.pnlSummaryBanner.Controls.Add(this.btnRefreshUser);
             this.pnlSummaryBanner.Controls.Add(this.lblSumInterest);
             this.pnlSummaryBanner.Controls.Add(this.lblSumInterestTitle);
             this.pnlSummaryBanner.Controls.Add(this.lblSumCount);
@@ -286,36 +283,20 @@ namespace BankAccountManagement.Forms
             // 
             // btnNewSavings
             // 
+            this.btnNewSavings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnNewSavings.BorderRadius = 10;
             this.btnNewSavings.BorderSize = 0;
             this.btnNewSavings.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnNewSavings.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnNewSavings.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
             this.btnNewSavings.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(29)))), ((int)(((byte)(78)))), ((int)(((byte)(216)))));
-            this.btnNewSavings.Location = new System.Drawing.Point(448, 18);
+            this.btnNewSavings.Location = new System.Drawing.Point(348, 16);
             this.btnNewSavings.Name = "btnNewSavings";
             this.btnNewSavings.NormalColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
             this.btnNewSavings.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(64)))), ((int)(((byte)(175)))));
-            this.btnNewSavings.Size = new System.Drawing.Size(176, 36);
+            this.btnNewSavings.Size = new System.Drawing.Size(168, 38);
             this.btnNewSavings.TabIndex = 8;
             this.btnNewSavings.Text = "➕ Mở tài khoản mới";
             this.btnNewSavings.TextColor = System.Drawing.Color.White;
-            // 
-            // btnRefreshUser
-            // 
-            this.btnRefreshUser.BorderRadius = 8;
-            this.btnRefreshUser.BorderSize = 1;
-            this.btnRefreshUser.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnRefreshUser.Font = new System.Drawing.Font("Segoe UI", 8.5F);
-            this.btnRefreshUser.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
-            this.btnRefreshUser.Location = new System.Drawing.Point(344, 18);
-            this.btnRefreshUser.Name = "btnRefreshUser";
-            this.btnRefreshUser.NormalBorder = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(213)))), ((int)(((byte)(225)))));
-            this.btnRefreshUser.NormalColor = System.Drawing.Color.White;
-            this.btnRefreshUser.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
-            this.btnRefreshUser.Size = new System.Drawing.Size(96, 36);
-            this.btnRefreshUser.TabIndex = 7;
-            this.btnRefreshUser.Text = "🔄 Làm mới";
-            this.btnRefreshUser.TextColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             // 
             // lblSumInterest
             // 
@@ -1493,7 +1474,6 @@ namespace BankAccountManagement.Forms
             // pnlPhoneTopNav
             // 
             this.pnlPhoneTopNav.Controls.Add(this.pnlTopNavTitleWrapper);
-            this.pnlPhoneTopNav.Controls.Add(this.btnPhoneRightIcon);
             this.pnlPhoneTopNav.Controls.Add(this.btnPhoneBack);
             this.pnlPhoneTopNav.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlPhoneTopNav.Location = new System.Drawing.Point(0, 0);
@@ -1501,22 +1481,6 @@ namespace BankAccountManagement.Forms
             this.pnlPhoneTopNav.Padding = new System.Windows.Forms.Padding(0, 0, 0, 8);
             this.pnlPhoneTopNav.Size = new System.Drawing.Size(512, 56);
             this.pnlPhoneTopNav.TabIndex = 1;
-            // 
-            // btnPhoneRightIcon
-            // 
-            this.btnPhoneRightIcon.BackColor = System.Drawing.Color.Transparent;
-            this.btnPhoneRightIcon.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnPhoneRightIcon.Dock = System.Windows.Forms.DockStyle.Right;
-            this.btnPhoneRightIcon.FlatAppearance.BorderSize = 0;
-            this.btnPhoneRightIcon.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnPhoneRightIcon.Font = new System.Drawing.Font("Segoe UI", 12F);
-            this.btnPhoneRightIcon.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
-            this.btnPhoneRightIcon.Location = new System.Drawing.Point(472, 0);
-            this.btnPhoneRightIcon.Name = "btnPhoneRightIcon";
-            this.btnPhoneRightIcon.Size = new System.Drawing.Size(40, 48);
-            this.btnPhoneRightIcon.TabIndex = 3;
-            this.btnPhoneRightIcon.Text = "📄";
-            this.btnPhoneRightIcon.UseVisualStyleBackColor = false;
             // 
             // btnPhoneBack
             // 
@@ -1637,7 +1601,6 @@ namespace BankAccountManagement.Forms
         private System.Windows.Forms.Button btnPhoneBack;
         private System.Windows.Forms.Label lblPhoneNavTitle;
         private System.Windows.Forms.Label lblPhoneNavSubtitle;
-        private System.Windows.Forms.Button btnPhoneRightIcon;
         private System.Windows.Forms.Panel pnlStepContainer;
         private System.Windows.Forms.Panel pnlStep1;
         private System.Windows.Forms.Panel pnlStep2;
@@ -1726,7 +1689,6 @@ namespace BankAccountManagement.Forms
         private System.Windows.Forms.Label lblSumInterestTitle;
         private System.Windows.Forms.Label lblSumInterest;
         private BankAccountManagement.Forms.RoundedButton btnNewSavings;
-        private BankAccountManagement.Forms.RoundedButton btnRefreshUser;
         private BankAccountManagement.Forms.RoundedPanel pnlHistoryCard;
         private System.Windows.Forms.Label lblHistoryTitle;
         private BankAccountManagement.Forms.RoundedPanel pnlGridWrapper;

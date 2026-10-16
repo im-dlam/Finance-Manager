@@ -141,7 +141,7 @@ namespace BankAccountManagement.Forms
             btnClearCustomerFilter.Click += async (s, e) =>
             {
                 _customerFilterMaKH = null;
-                lblSavingsPanelTitle.Text = "Danh sách tài khoản tiết kiệm";
+                lblSavingsPanelTitle.Text = "Danh sách sổ tiết kiệm";
                 await LoadSavingsListAsync();
             };
 
