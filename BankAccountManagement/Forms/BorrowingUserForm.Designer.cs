@@ -82,6 +82,7 @@ namespace BankAccountManagement.Forms
             this.pnlLoanHistoryView = new BankAccountManagement.Forms.RoundedPanel();
             this.lblHistHeaderTitle = new System.Windows.Forms.Label();
             this.lblHistHeaderSub = new System.Windows.Forms.Label();
+            this.pnlHistGridWrapper = new BankAccountManagement.Forms.RoundedPanel();
             this.dgvHistory = new System.Windows.Forms.DataGridView();
             this.pnlHistDetailCard = new BankAccountManagement.Forms.RoundedPanel();
             this.pnlHistSummary = new BankAccountManagement.Forms.RoundedPanel();
@@ -638,7 +639,7 @@ namespace BankAccountManagement.Forms
             this.pnlLoanHistoryView.BorderSize = 0;
             this.pnlLoanHistoryView.Controls.Add(this.lblHistHeaderTitle);
             this.pnlLoanHistoryView.Controls.Add(this.lblHistHeaderSub);
-            this.pnlLoanHistoryView.Controls.Add(this.dgvHistory);
+            this.pnlLoanHistoryView.Controls.Add(this.pnlHistGridWrapper);
             this.pnlLoanHistoryView.Controls.Add(this.pnlHistDetailCard);
             this.pnlLoanHistoryView.Controls.Add(this.btnPayLoan);
             this.pnlLoanHistoryView.Controls.Add(this.btnCloseHistory);
@@ -670,23 +671,44 @@ namespace BankAccountManagement.Forms
             this.lblHistHeaderSub.TabIndex = 1;
             this.lblHistHeaderSub.Text = "Bấm chọn hồ sơ trong bảng để xem chi tiết bên dưới";
 
-            // dgvHistory
+            // pnlHistGridWrapper — Khung viền bo góc chuẩn app hiện đại
+            this.pnlHistGridWrapper.BackColor = System.Drawing.Color.White;
+            this.pnlHistGridWrapper.BorderColor = System.Drawing.Color.FromArgb(226, 232, 240);
+            this.pnlHistGridWrapper.BorderRadius = 12;
+            this.pnlHistGridWrapper.BorderSize = 1;
+            this.pnlHistGridWrapper.Controls.Add(this.dgvHistory);
+            this.pnlHistGridWrapper.FillColor = System.Drawing.Color.White;
+            this.pnlHistGridWrapper.Location = new System.Drawing.Point(20, 56);
+            this.pnlHistGridWrapper.Name = "pnlHistGridWrapper";
+            this.pnlHistGridWrapper.Padding = new System.Windows.Forms.Padding(1);
+            this.pnlHistGridWrapper.Size = new System.Drawing.Size(480, 118);
+            this.pnlHistGridWrapper.TabIndex = 2;
+
+            // dgvHistory — Bảng không viền đen thô, đồng bộ phong cách ứng dụng
             this.dgvHistory.AllowUserToAddRows = false;
             this.dgvHistory.AllowUserToDeleteRows = false;
+            this.dgvHistory.AllowUserToResizeRows = false;
+            this.dgvHistory.AllowUserToResizeColumns = false;
             this.dgvHistory.BackgroundColor = System.Drawing.Color.White;
-            this.dgvHistory.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.dgvHistory.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.dgvHistory.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleHorizontal;
+            this.dgvHistory.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
+            this.dgvHistory.ColumnHeadersHeight = 32;
             this.dgvHistory.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            this.dgvHistory.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvHistory.EnableHeadersVisualStyles = false;
             this.dgvHistory.Font = new System.Drawing.Font("Segoe UI", 8.5F);
-            this.dgvHistory.Location = new System.Drawing.Point(20, 56);
+            this.dgvHistory.GridColor = System.Drawing.Color.FromArgb(241, 245, 249);
+            this.dgvHistory.Location = new System.Drawing.Point(1, 1);
             this.dgvHistory.MultiSelect = false;
             this.dgvHistory.Name = "dgvHistory";
             this.dgvHistory.ReadOnly = true;
             this.dgvHistory.RowHeadersVisible = false;
-            this.dgvHistory.RowTemplate.Height = 28;
+            this.dgvHistory.RowTemplate.Height = 32;
+            this.dgvHistory.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.dgvHistory.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgvHistory.Size = new System.Drawing.Size(480, 120);
-            this.dgvHistory.TabIndex = 2;
+            this.dgvHistory.Size = new System.Drawing.Size(478, 116);
+            this.dgvHistory.TabIndex = 0;
 
             // pnlHistDetailCard
             this.pnlHistDetailCard.BackColor = System.Drawing.Color.Transparent;
@@ -945,6 +967,7 @@ namespace BankAccountManagement.Forms
             this.pnlHistSummary.PerformLayout();
             this.pnlHistDetailCard.ResumeLayout(false);
             this.pnlHistDetailCard.PerformLayout();
+            this.pnlHistGridWrapper.ResumeLayout(false);
             this.pnlLoanHistoryView.ResumeLayout(false);
             this.pnlLoanHistoryView.PerformLayout();
             this.ResumeLayout(false);
@@ -1017,6 +1040,7 @@ namespace BankAccountManagement.Forms
         private BankAccountManagement.Forms.RoundedPanel pnlLoanHistoryView;
         private System.Windows.Forms.Label lblHistHeaderTitle;
         private System.Windows.Forms.Label lblHistHeaderSub;
+        private BankAccountManagement.Forms.RoundedPanel pnlHistGridWrapper;
         private System.Windows.Forms.DataGridView dgvHistory;
         private BankAccountManagement.Forms.RoundedPanel pnlHistDetailCard;
         private BankAccountManagement.Forms.RoundedPanel pnlHistSummary;

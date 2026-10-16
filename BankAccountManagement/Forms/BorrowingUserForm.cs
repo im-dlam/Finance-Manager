@@ -3,6 +3,7 @@ using BankAccountManagement.Services;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -462,91 +463,166 @@ namespace BankAccountManagement.Forms
 
         private void SetupHistoryGridView()
         {
+            try
+            {
+                typeof(DataGridView).InvokeMember("DoubleBuffered",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.SetProperty,
+                    null, dgvHistory, new object[] { true });
+            }
+            catch { }
+
             dgvHistory.AutoGenerateColumns = false;
             dgvHistory.Columns.Clear();
             dgvHistory.ScrollBars = ScrollBars.Vertical;
+            dgvHistory.BorderStyle = BorderStyle.None;
+            dgvHistory.CellBorderStyle = DataGridViewCellBorderStyle.SingleHorizontal;
+            dgvHistory.GridColor = Color.FromArgb(241, 245, 249);
+            dgvHistory.BackgroundColor = Color.White;
+            dgvHistory.RowHeadersVisible = false;
+            dgvHistory.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvHistory.MultiSelect = false;
+            dgvHistory.AllowUserToAddRows = false;
+            dgvHistory.AllowUserToDeleteRows = false;
+            dgvHistory.AllowUserToResizeRows = false;
+            dgvHistory.AllowUserToResizeColumns = false;
+            dgvHistory.RowTemplate.Height = 32;
 
+            // Tiêu đề cột (Header): Slate-50 sang trọng, font Semibold, chiều cao thoáng đãng
+            dgvHistory.EnableHeadersVisualStyles = false;
+            dgvHistory.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+            dgvHistory.ColumnHeadersHeight = 32;
+            dgvHistory.ColumnHeadersDefaultCellStyle = new DataGridViewCellStyle
+            {
+                Alignment = DataGridViewContentAlignment.MiddleCenter,
+                BackColor = Color.FromArgb(248, 250, 252),
+                ForeColor = Color.FromArgb(71, 85, 105),
+                Font = new Font("Segoe UI Semibold", 8.25F, FontStyle.Bold),
+                SelectionBackColor = Color.FromArgb(248, 250, 252),
+                SelectionForeColor = Color.FromArgb(71, 85, 105),
+                Padding = new Padding(2, 0, 2, 0)
+            };
+
+            // Dòng thường & Khi chọn: Sử dụng nền xám nhẹ Slate-100 thanh lịch, không dùng màu xanh đậm cũ
+            dgvHistory.DefaultCellStyle = new DataGridViewCellStyle
+            {
+                BackColor = Color.White,
+                ForeColor = Color.FromArgb(15, 23, 42),
+                Font = new Font("Segoe UI", 8.25F),
+                SelectionBackColor = Color.FromArgb(241, 245, 249),
+                SelectionForeColor = Color.FromArgb(15, 23, 42),
+                Padding = new Padding(2, 0, 2, 0)
+            };
+
+            dgvHistory.AlternatingRowsDefaultCellStyle = new DataGridViewCellStyle
+            {
+                BackColor = Color.FromArgb(250, 252, 254),
+                ForeColor = Color.FromArgb(15, 23, 42),
+                Font = new Font("Segoe UI", 8.25F),
+                SelectionBackColor = Color.FromArgb(241, 245, 249),
+                SelectionForeColor = Color.FromArgb(15, 23, 42),
+                Padding = new Padding(2, 0, 2, 0)
+            };
+
+            // 1. Mã hồ sơ
             dgvHistory.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "colHistMa",
                 HeaderText = "Mã hồ sơ",
                 DataPropertyName = "MaKhoanVay",
-                Width = 90
+                Width = 84,
+                DefaultCellStyle = new DataGridViewCellStyle
+                {
+                    Alignment = DataGridViewContentAlignment.MiddleCenter,
+                    Font = new Font("Segoe UI Semibold", 8F),
+                    ForeColor = Color.FromArgb(51, 65, 85),
+                    SelectionBackColor = Color.FromArgb(241, 245, 249),
+                    SelectionForeColor = Color.FromArgb(15, 23, 42)
+                }
             });
 
+            // 2. Ngày vay (chỉ hiển thị ngày/tháng/năm để vừa vặn, không bị cắt)
             dgvHistory.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "colHistNgay",
-                HeaderText = "Ngày ĐK",
-                DataPropertyName = "FormattedNgayDangKy",
-                Width = 100
+                HeaderText = "Ngày vay",
+                DataPropertyName = "FormattedRegisterDate",
+                Width = 72,
+                DefaultCellStyle = new DataGridViewCellStyle
+                {
+                    Alignment = DataGridViewContentAlignment.MiddleCenter,
+                    ForeColor = Color.FromArgb(100, 116, 139),
+                    SelectionBackColor = Color.FromArgb(241, 245, 249),
+                    SelectionForeColor = Color.FromArgb(15, 23, 42)
+                }
             });
 
-            dgvHistory.Columns.Add(new DataGridViewTextBoxColumn
-            {
-                Name = "colHistSoTien",
-                HeaderText = "Số tiền vay",
-                DataPropertyName = "FormattedSoTienVay",
-                Width = 85,
-                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight }
-            });
-
+            // 3. Kỳ hạn
             dgvHistory.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "colHistKyHan",
                 HeaderText = "Kỳ hạn",
                 DataPropertyName = "FormattedTerm",
-                Width = 60,
-                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
+                Width = 52,
+                DefaultCellStyle = new DataGridViewCellStyle
+                {
+                    Alignment = DataGridViewContentAlignment.MiddleCenter,
+                    ForeColor = Color.FromArgb(100, 116, 139),
+                    SelectionBackColor = Color.FromArgb(241, 245, 249),
+                    SelectionForeColor = Color.FromArgb(15, 23, 42)
+                }
             });
 
+            // 4. Số tiền vay
+            dgvHistory.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                Name = "colHistSoTien",
+                HeaderText = "Tiền vay",
+                DataPropertyName = "FormattedSoTienVay",
+                Width = 80,
+                DefaultCellStyle = new DataGridViewCellStyle
+                {
+                    Alignment = DataGridViewContentAlignment.MiddleRight,
+                    Font = new Font("Segoe UI Semibold", 8.25F),
+                    ForeColor = Color.FromArgb(15, 23, 42),
+                    SelectionBackColor = Color.FromArgb(241, 245, 249),
+                    SelectionForeColor = Color.FromArgb(15, 23, 42)
+                }
+            });
+
+            // 5. Tổng nợ
             dgvHistory.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "colHistTongNo",
                 HeaderText = "Tổng nợ",
                 DataPropertyName = "FormattedTongPhaiTra",
-                Width = 85,
-                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleRight }
+                Width = 84,
+                DefaultCellStyle = new DataGridViewCellStyle
+                {
+                    Alignment = DataGridViewContentAlignment.MiddleRight,
+                    Font = new Font("Segoe UI Bold", 8.25F),
+                    ForeColor = Color.FromArgb(190, 24, 93),
+                    SelectionBackColor = Color.FromArgb(241, 245, 249),
+                    SelectionForeColor = Color.FromArgb(190, 24, 93)
+                }
             });
 
+            // 6. Trạng thái (Pill Badge tự co giãn lấp đầy)
             dgvHistory.Columns.Add(new DataGridViewTextBoxColumn
             {
                 Name = "colHistTrangThai",
                 HeaderText = "Trạng thái",
                 DataPropertyName = "TrangThai",
                 AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill,
-                MinimumWidth = 60,
-                DefaultCellStyle = new DataGridViewCellStyle { Alignment = DataGridViewContentAlignment.MiddleCenter }
+                MinimumWidth = 92,
+                DefaultCellStyle = new DataGridViewCellStyle
+                {
+                    Alignment = DataGridViewContentAlignment.MiddleCenter,
+                    SelectionBackColor = Color.FromArgb(241, 245, 249)
+                }
             });
 
-            dgvHistory.CellFormatting += (s, e) =>
-            {
-                if (e.RowIndex < 0 || e.RowIndex >= dgvHistory.Rows.Count) return;
-                if (dgvHistory.Columns[e.ColumnIndex].Name == "colHistTrangThai" && e.Value != null)
-                {
-                    string status = e.Value.ToString();
-                    if (status == "Đã duyệt")
-                    {
-                        e.CellStyle.ForeColor = Color.FromArgb(16, 185, 129);
-                        e.CellStyle.Font = new Font(dgvHistory.Font, FontStyle.Bold);
-                    }
-                    else if (status == "Đã tất toán")
-                    {
-                        e.CellStyle.ForeColor = Color.FromArgb(37, 99, 235);
-                        e.CellStyle.Font = new Font(dgvHistory.Font, FontStyle.Bold);
-                    }
-                    else if (status == "Từ chối" || status == "Đã từ chối")
-                    {
-                        e.CellStyle.ForeColor = Color.FromArgb(220, 38, 38);
-                        e.CellStyle.Font = new Font(dgvHistory.Font, FontStyle.Bold);
-                    }
-                    else
-                    {
-                        e.CellStyle.ForeColor = Color.FromArgb(217, 119, 6);
-                        e.CellStyle.Font = new Font(dgvHistory.Font, FontStyle.Bold);
-                    }
-                }
-            };
+            // Vẽ giao diện hiện đại: Thanh định vị hàng đang chọn và Pill Badge trạng thái
+            dgvHistory.CellPainting += DgvHistory_CellPainting;
 
             dgvHistory.SelectionChanged += (s, e) =>
             {
@@ -559,6 +635,125 @@ namespace BankAccountManagement.Forms
                     }
                 }
             };
+        }
+
+        private void DgvHistory_CellPainting(object sender, DataGridViewCellPaintingEventArgs e)
+        {
+            if (e.RowIndex < 0) return;
+
+            bool isSelected = (e.State & DataGridViewElementStates.Selected) != 0;
+
+            // Xử lý vẽ cột Trạng thái dạng Pill Badge hiện đại
+            if (e.ColumnIndex >= 0 && dgvHistory.Columns[e.ColumnIndex].Name == "colHistTrangThai")
+            {
+                e.Handled = true;
+
+                // Nền hàng (màu thường hoặc màu khi được chọn)
+                Color rowBg = isSelected
+                    ? Color.FromArgb(241, 245, 249)
+                    : (e.RowIndex % 2 == 0 ? Color.White : Color.FromArgb(250, 252, 254));
+
+                using (var bgBrush = new SolidBrush(rowBg))
+                {
+                    e.Graphics.FillRectangle(bgBrush, e.CellBounds);
+                }
+
+                // Đường kẻ ngang mỏng phân cách hàng
+                using (var linePen = new Pen(Color.FromArgb(241, 245, 249)))
+                {
+                    e.Graphics.DrawLine(linePen, e.CellBounds.Left, e.CellBounds.Bottom - 1, e.CellBounds.Right, e.CellBounds.Bottom - 1);
+                }
+
+                if (e.Value != null)
+                {
+                    string status = e.Value.ToString();
+                    Color pillBg, pillBorder, pillText;
+                    string pillLabel;
+
+                    if (status == "Đã duyệt")
+                    {
+                        pillBg = Color.FromArgb(236, 253, 245);
+                        pillBorder = Color.FromArgb(167, 243, 208);
+                        pillText = Color.FromArgb(22, 163, 74);
+                        pillLabel = "✔ Đã duyệt";
+                    }
+                    else if (status == "Đã tất toán")
+                    {
+                        pillBg = Color.FromArgb(239, 246, 255);
+                        pillBorder = Color.FromArgb(191, 219, 254);
+                        pillText = Color.FromArgb(37, 99, 235);
+                        pillLabel = "✔ Đã tất toán";
+                    }
+                    else if (status == "Từ chối" || status == "Đã từ chối")
+                    {
+                        pillBg = Color.FromArgb(254, 242, 242);
+                        pillBorder = Color.FromArgb(254, 202, 202);
+                        pillText = Color.FromArgb(220, 38, 38);
+                        pillLabel = "✖ Từ chối";
+                    }
+                    else
+                    {
+                        pillBg = Color.FromArgb(255, 251, 235);
+                        pillBorder = Color.FromArgb(254, 240, 138);
+                        pillText = Color.FromArgb(217, 119, 6);
+                        pillLabel = "⏳ Chờ duyệt";
+                    }
+
+                    using (var pillFont = new Font("Segoe UI", 7.5F, FontStyle.Bold))
+                    {
+                        var measured = TextRenderer.MeasureText(pillLabel, pillFont);
+                        int pillH = 20;
+                        int pillW = Math.Min(e.CellBounds.Width - 6, Math.Max(74, measured.Width + 8));
+                        int pillX = e.CellBounds.X + (e.CellBounds.Width - pillW) / 2;
+                        int pillY = e.CellBounds.Y + (e.CellBounds.Height - pillH) / 2;
+
+                        var pillRect = new Rectangle(pillX, pillY, pillW, pillH);
+
+                        var oldSmoothing = e.Graphics.SmoothingMode;
+                        e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+
+                        using (var path = CreatePillPath(pillRect, 8))
+                        {
+                            using (var fillBrush = new SolidBrush(pillBg))
+                                e.Graphics.FillPath(fillBrush, path);
+                            using (var borderPen = new Pen(pillBorder, 1))
+                                e.Graphics.DrawPath(borderPen, path);
+                        }
+
+                        e.Graphics.SmoothingMode = oldSmoothing;
+
+                        TextRenderer.DrawText(e.Graphics, pillLabel, pillFont, pillRect, pillText,
+                            TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.SingleLine);
+                    }
+                }
+            }
+            // Nếu là cột đầu tiên và hàng được chọn, vẽ thanh định vị hồng đậm ở mép trái
+            else if (e.ColumnIndex == 0 && isSelected)
+            {
+                e.Paint(e.ClipBounds, DataGridViewPaintParts.All);
+                using (var indicatorBrush = new SolidBrush(Color.FromArgb(190, 24, 93)))
+                {
+                    e.Graphics.FillRectangle(indicatorBrush, e.CellBounds.Left, e.CellBounds.Top, 3, e.CellBounds.Height);
+                }
+                e.Handled = true;
+            }
+        }
+
+        private static GraphicsPath CreatePillPath(Rectangle rect, int radius)
+        {
+            int d = Math.Min(radius * 2, Math.Min(rect.Width, rect.Height));
+            var path = new GraphicsPath();
+            if (d <= 0)
+            {
+                path.AddRectangle(rect);
+                return path;
+            }
+            path.AddArc(rect.X, rect.Y, d, d, 180, 90);
+            path.AddArc(rect.Right - d, rect.Y, d, d, 270, 90);
+            path.AddArc(rect.Right - d, rect.Bottom - d, d, d, 0, 90);
+            path.AddArc(rect.X, rect.Bottom - d, d, d, 90, 90);
+            path.CloseFigure();
+            return path;
         }
 
         private async Task LoadUserHistoryAsync()
