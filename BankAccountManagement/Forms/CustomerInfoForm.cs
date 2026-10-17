@@ -1,4 +1,4 @@
-﻿using BankAccountManagement.Models;
+using BankAccountManagement.Models;
 using BankAccountManagement.Services;
 using System;
 using System.Drawing;
@@ -121,7 +121,7 @@ namespace BankAccountManagement.Forms
         private void BtnCancel_Click(object sender, EventArgs e)
         {
             var confirm = MessageBox.Show(
-                "Hủy nhập thông tin? Bạn sẽ không thể sử dụng dịch vụ cho đến khi hoàn tất.",
+                "Hủy nhập thông tin? Bạn sẽ không thể sử dụng đầy đủ các tính năng cho đến khi hoàn tất hồ sơ.",
                 "Xác nhận",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
@@ -129,6 +129,15 @@ namespace BankAccountManagement.Forms
             if (confirm != DialogResult.Yes) return;
 
             this.DialogResult = DialogResult.Cancel;
+            if (!this.TopLevel)
+            {
+                var main = this.TopLevelControl as MainForm ?? this.ParentForm as MainForm;
+                if (main != null)
+                {
+                    main.LoadMultiForm(new DashboardUserForm());
+                    return;
+                }
+            }
             this.Close();
         }
 
@@ -142,12 +151,55 @@ namespace BankAccountManagement.Forms
             txtFullName.Text = CurrentSession.User?.HoTen ?? "";
             txtEmail.Text = CurrentSession.User?.Email ?? "";
 
+            // Nếu user đã có MaKH hoặc thông tin cũ, prefill các trường chưa bị dummy
+            if (!string.IsNullOrWhiteSpace(CurrentSession.User?.MaKH))
+            {
+                try
+                {
+                    var profile = CustomerService.GetCustomerProfile(CurrentSession.User.MaKH);
+                    if (profile != null)
+                    {
+                        if (!string.IsNullOrWhiteSpace(profile.HoTen))
+                            txtFullName.Text = profile.HoTen;
+
+                        if (!string.IsNullOrWhiteSpace(profile.Email))
+                            txtEmail.Text = profile.Email;
+
+                        if (!string.IsNullOrWhiteSpace(profile.CMND_CCCD) && !profile.CMND_CCCD.StartsWith("001200"))
+                            txtCccd.Text = profile.CMND_CCCD;
+
+                        if (!string.IsNullOrWhiteSpace(profile.SoDienThoai) && profile.SoDienThoai != "0901234567")
+                            txtPhone.Text = profile.SoDienThoai;
+
+                        if (!string.IsNullOrWhiteSpace(profile.DiaChi) && profile.DiaChi != "Hà Nội")
+                            txtAddress.Text = profile.DiaChi;
+
+                        if (profile.NgaySinh.HasValue && profile.NgaySinh.Value.Year > 1900)
+                            dtpDob.Value = profile.NgaySinh.Value;
+
+                        if (!string.IsNullOrWhiteSpace(profile.GioiTinh))
+                        {
+                            int idx = cboGender.FindStringExact(profile.GioiTinh);
+                            if (idx >= 0) cboGender.SelectedIndex = idx;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("[CustomerInfoForm] Prefill error: " + ex.Message);
+                }
+            }
+
             if (string.IsNullOrWhiteSpace(txtFullName.Text))
                 txtFullName.Focus();
             else if (string.IsNullOrWhiteSpace(txtEmail.Text))
                 txtEmail.Focus();
-            else
+            else if (string.IsNullOrWhiteSpace(txtCccd.Text))
                 txtCccd.Focus();
+            else if (string.IsNullOrWhiteSpace(txtPhone.Text))
+                txtPhone.Focus();
+            else
+                txtAddress.Focus();
         }
 
         // ============================================================

@@ -25,7 +25,14 @@ namespace BankAccountManagement
             InitializeComponent();
             if (CurrentSession.IsMember)
             {
-                LoadMultiForm(new DashboardUserForm());
+                if (CurrentSession.NeedsCustomerInfo)
+                {
+                    OpenFormWithCustomerCheck(() => new DashboardUserForm());
+                }
+                else
+                {
+                    LoadMultiForm(new DashboardUserForm());
+                }
             }
             else
             {
@@ -280,7 +287,7 @@ namespace BankAccountManagement
                 return;
             }
 
-            if (CurrentSession.HasCustomerInfo)
+            if (!CurrentSession.NeedsCustomerInfo)
             {
                 LoadMultiForm(formFactory());
                 return;
