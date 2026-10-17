@@ -1,4 +1,4 @@
-﻿using BankAccountManagement.Models;
+using BankAccountManagement.Models;
 using System;
 using System.Data.SqlClient;
 
@@ -18,13 +18,13 @@ namespace BankAccountManagement.Services
         public static string HoTen => User?.HoTen;
         public static string Email => User?.Email;
 
-        /// <summary>True nếu user đã có hồ sơ KH (đã nhập ở CustomerInfoForm).</summary>
+        /// <summary>True nếu user đã có hồ sơ KH đầy đủ và hợp lệ (không phải dummy).</summary>
         public static bool HasCustomerInfo =>
-            User != null && !string.IsNullOrWhiteSpace(User.MaKH);
+            User != null && (User.IsAdmin || (User.HasCompleteProfile && !string.IsNullOrWhiteSpace(User.MaKH)));
 
-        /// <summary>True nếu user cần nhập hồ sơ (Member + chưa có MaKH).</summary>
+        /// <summary>True nếu user cần nhập hồ sơ (Member + đăng nhập lần đầu hoặc chưa đủ thông tin).</summary>
         public static bool NeedsCustomerInfo =>
-            User != null && !User.IsAdmin && !HasCustomerInfo;
+            User != null && !User.IsAdmin && (User.IsFirstLogin || !User.HasCompleteProfile || string.IsNullOrWhiteSpace(User.MaKH));
 
         public static void SetUser(User user)
         {
@@ -32,7 +32,7 @@ namespace BankAccountManagement.Services
             User = user;
             System.Diagnostics.Debug.WriteLine(
                 $"[Session] SetUser: {user.TenDangNhap} | " +
-                $"Quyen={user.Quyen} | MaKH={user.MaKH ?? "NULL"}");
+                $"Quyen={user.Quyen} | MaKH={user.MaKH ?? "NULL"} | IsFirstLogin={user.IsFirstLogin} | HasCompleteProfile={user.HasCompleteProfile}");
         }
 
         public static void Clear()
@@ -64,15 +64,23 @@ namespace BankAccountManagement.Services
             try
             {
                 const string sql = @"
-                    SELECT  MaNguoiDung,
-                            TenDangNhap,
-                            Quyen,
-                            TrangThai,
-                            MaKH,
-                            HoTen,
-                            Email
-                    FROM    dbo.NguoiDung
-                    WHERE   MaNguoiDung = @Id";
+                    SELECT  nd.MaNguoiDung,
+                            nd.TenDangNhap,
+                            nd.Quyen,
+                            nd.TrangThai,
+                            nd.MaKH,
+                            nd.HoTen,
+                            nd.Email,
+                            nd.LanDangNhap,
+                            kh.MaKH      AS MaKHReal,
+                            kh.CMND_CCCD,
+                            kh.SoDienThoai,
+                            kh.DiaChi,
+                            kh.NgaySinh
+                    FROM    dbo.NguoiDung nd
+                    LEFT JOIN dbo.ThongTinKhachHang kh 
+                           ON kh.MaKH = nd.MaKH
+                    WHERE   nd.MaNguoiDung = @Id";
 
                 DatabaseConfig config = DatabaseConfigManager.Load();
 
@@ -105,11 +113,32 @@ namespace BankAccountManagement.Services
 
                             User.Email = reader.IsDBNull(reader.GetOrdinal("Email"))
                                         ? null : reader.GetString(reader.GetOrdinal("Email"));
+
+                            bool isFirstLogin = reader.IsDBNull(reader.GetOrdinal("LanDangNhap"));
+                            User.LanDangNhap = isFirstLogin ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("LanDangNhap"));
+                            User.IsFirstLogin = isFirstLogin;
+
+                            string maKHReal = reader.IsDBNull(reader.GetOrdinal("MaKHReal")) ? null : reader.GetString(reader.GetOrdinal("MaKHReal"));
+                            string cmnd = reader.IsDBNull(reader.GetOrdinal("CMND_CCCD")) ? null : reader.GetString(reader.GetOrdinal("CMND_CCCD"));
+                            string sdt = reader.IsDBNull(reader.GetOrdinal("SoDienThoai")) ? null : reader.GetString(reader.GetOrdinal("SoDienThoai"));
+                            string diaChi = reader.IsDBNull(reader.GetOrdinal("DiaChi")) ? null : reader.GetString(reader.GetOrdinal("DiaChi"));
+                            bool hasDob = !reader.IsDBNull(reader.GetOrdinal("NgaySinh"));
+
+                            bool isDummyCccd = !string.IsNullOrWhiteSpace(cmnd) && (cmnd.StartsWith("001200") && cmnd.Length == 12);
+                            bool isDummyPhone = sdt == "0901234567";
+
+                            User.HasCompleteProfile = !string.IsNullOrWhiteSpace(maKHReal)
+                                                   && !string.IsNullOrWhiteSpace(cmnd)
+                                                   && !isDummyCccd
+                                                   && !string.IsNullOrWhiteSpace(sdt)
+                                                   && !isDummyPhone
+                                                   && !string.IsNullOrWhiteSpace(diaChi)
+                                                   && hasDob;
                         }
                     }
                 }
 
-                DebugLog($"Refresh OK: {User.TenDangNhap} | MaKH={User.MaKH ?? "NULL"}");
+                DebugLog($"Refresh OK: {User.TenDangNhap} | MaKH={User.MaKH ?? "NULL"} | HasCompleteProfile={User.HasCompleteProfile}");
                 return true;
             }
             catch (Exception ex)
@@ -123,7 +152,7 @@ namespace BankAccountManagement.Services
         /// Đánh dấu user đã hoàn tất hồ sơ khách hàng.
         /// Gọi ngay trong <c>CustomerService.SaveCustomerInfo()</c> sau khi COMMIT.
         /// </summary>
-        /// <param name="maKH">Mã KH vừa tạo (VD: "KH000001").</param>
+        /// <param name="maKH">Mã KH vừa tạo/cập nhật.</param>
         /// <param name="hoTen">Họ tên (optional — nếu null sẽ giữ nguyên).</param>
         /// <param name="email">Email (optional).</param>
         public static void MarkCustomerInfoCompleted(string maKH, string hoTen = null, string email = null)
@@ -141,6 +170,8 @@ namespace BankAccountManagement.Services
             }
 
             User.MaKH = maKH;
+            User.IsFirstLogin = false;
+            User.HasCompleteProfile = true;
 
             if (!string.IsNullOrWhiteSpace(hoTen))
                 User.HoTen = hoTen;
