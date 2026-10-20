@@ -29,6 +29,55 @@ namespace BankAccountManagement.Services
             }
         }
 
+        public TransactionService()
+        {
+            EnsureTableSchema();
+        }
+
+        private static bool _schemaChecked = false;
+        private static readonly object _schemaLock = new object();
+
+        public void EnsureTableSchema()
+        {
+            if (_schemaChecked) return;
+            lock (_schemaLock)
+            {
+                if (_schemaChecked) return;
+                try
+                {
+                    using (var conn = new SqlConnection(GetConnectionString()))
+                    {
+                        conn.Open();
+                        const string sql = @"
+                            IF OBJECT_ID(N'dbo.GiaoDich', N'U') IS NOT NULL
+                            BEGIN
+                                IF COL_LENGTH(N'dbo.GiaoDich', N'LoaiTien') IS NULL
+                                BEGIN
+                                    ALTER TABLE dbo.GiaoDich ADD LoaiTien VARCHAR(10) NULL CONSTRAINT DF_GiaoDich_LoaiTien DEFAULT 'VND';
+                                END;
+                                IF COL_LENGTH(N'dbo.GiaoDich', N'SoTienGoc') IS NULL
+                                BEGIN
+                                    ALTER TABLE dbo.GiaoDich ADD SoTienGoc DECIMAL(18,2) NULL;
+                                END;
+                                IF COL_LENGTH(N'dbo.GiaoDich', N'MaLoaiTien') IS NULL
+                                BEGIN
+                                    ALTER TABLE dbo.GiaoDich ADD MaLoaiTien VARCHAR(10) NULL;
+                                END;
+                            END;";
+                        using (var cmd = new SqlCommand(sql, conn))
+                        {
+                            cmd.ExecuteNonQuery();
+                        }
+                    }
+                    _schemaChecked = true;
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[TransactionService] EnsureTableSchema error: {ex.Message}");
+                }
+            }
+        }
+
         private string GetConnectionString()
         {
             return DatabaseService.BuildConnectionString(DatabaseConfigManager.Load());
@@ -61,6 +110,7 @@ namespace BankAccountManagement.Services
         // ============================================================
         public DataTable GetAllTransactions()
         {
+            EnsureTableSchema();
             DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             {
@@ -143,6 +193,7 @@ namespace BankAccountManagement.Services
         // ============================================================
         public DataTable SearchTransactions(string keyword, string soTaiKhoan = "", string tenLoai = "")
         {
+            EnsureTableSchema();
             DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             {
