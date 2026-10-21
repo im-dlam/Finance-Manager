@@ -1,4 +1,4 @@
-﻿namespace BankAccountManagement.Forms
+namespace BankAccountManagement.Forms
 {
     partial class CustomerForm
     {
@@ -219,7 +219,7 @@
             this.pnlToolbarRight.Dock = System.Windows.Forms.DockStyle.Right;
             this.pnlToolbarRight.Location = new System.Drawing.Point(900, 0);
             this.pnlToolbarRight.Name = "pnlToolbarRight";
-            this.pnlToolbarRight.Size = new System.Drawing.Size(540, 76);
+            this.pnlToolbarRight.Size = new System.Drawing.Size(280, 76);
             this.pnlToolbarRight.TabIndex = 1;
             // 
             // flpToolbarRight
@@ -360,9 +360,9 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblStat1Value.Font = new System.Drawing.Font("Segoe UI", 22F, System.Drawing.FontStyle.Bold);
             this.lblStat1Value.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
-            this.lblStat1Value.Location = new System.Drawing.Point(104, 48);
+            this.lblStat1Value.Location = new System.Drawing.Point(76, 48);
             this.lblStat1Value.Name = "lblStat1Value";
-            this.lblStat1Value.Size = new System.Drawing.Size(220, 44);
+            this.lblStat1Value.Size = new System.Drawing.Size(248, 44);
             this.lblStat1Value.TabIndex = 3;
             this.lblStat1Value.Text = "0";
             // 
@@ -372,20 +372,20 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblStat1Title.Font = new System.Drawing.Font("Segoe UI", 8.75F, System.Drawing.FontStyle.Bold);
             this.lblStat1Title.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
-            this.lblStat1Title.Location = new System.Drawing.Point(104, 28);
+            this.lblStat1Title.Location = new System.Drawing.Point(76, 28);
             this.lblStat1Title.Name = "lblStat1Title";
-            this.lblStat1Title.Size = new System.Drawing.Size(220, 18);
+            this.lblStat1Title.Size = new System.Drawing.Size(248, 18);
             this.lblStat1Title.TabIndex = 2;
             this.lblStat1Title.Text = "TỔNG NGƯỜI DÙNG";
             // 
             // lblStat1Icon
             // 
             this.lblStat1Icon.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
-            this.lblStat1Icon.Font = new System.Drawing.Font("Segoe MDL2 Assets", 22F);
+            this.lblStat1Icon.Font = new System.Drawing.Font("Segoe MDL2 Assets", 20F);
             this.lblStat1Icon.ForeColor = System.Drawing.Color.White;
-            this.lblStat1Icon.Location = new System.Drawing.Point(28, 26);
+            this.lblStat1Icon.Location = new System.Drawing.Point(16, 26);
             this.lblStat1Icon.Name = "lblStat1Icon";
-            this.lblStat1Icon.Size = new System.Drawing.Size(60, 60);
+            this.lblStat1Icon.Size = new System.Drawing.Size(52, 52);
             this.lblStat1Icon.TabIndex = 1;
             this.lblStat1Icon.Text = "";
             this.lblStat1Icon.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -422,9 +422,9 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblStat2Value.Font = new System.Drawing.Font("Segoe UI", 22F, System.Drawing.FontStyle.Bold);
             this.lblStat2Value.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
-            this.lblStat2Value.Location = new System.Drawing.Point(104, 48);
+            this.lblStat2Value.Location = new System.Drawing.Point(76, 48);
             this.lblStat2Value.Name = "lblStat2Value";
-            this.lblStat2Value.Size = new System.Drawing.Size(220, 44);
+            this.lblStat2Value.Size = new System.Drawing.Size(248, 44);
             this.lblStat2Value.TabIndex = 3;
             this.lblStat2Value.Text = "0";
             // 
@@ -434,20 +434,20 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblStat2Title.Font = new System.Drawing.Font("Segoe UI", 8.75F, System.Drawing.FontStyle.Bold);
             this.lblStat2Title.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
-            this.lblStat2Title.Location = new System.Drawing.Point(104, 28);
+            this.lblStat2Title.Location = new System.Drawing.Point(76, 28);
             this.lblStat2Title.Name = "lblStat2Title";
-            this.lblStat2Title.Size = new System.Drawing.Size(220, 18);
+            this.lblStat2Title.Size = new System.Drawing.Size(248, 18);
             this.lblStat2Title.TabIndex = 2;
             this.lblStat2Title.Text = "ĐANG HOẠT ĐỘNG";
             // 
             // lblStat2Icon
             // 
             this.lblStat2Icon.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(16)))), ((int)(((byte)(185)))), ((int)(((byte)(129)))));
-            this.lblStat2Icon.Font = new System.Drawing.Font("Segoe MDL2 Assets", 22F);
+            this.lblStat2Icon.Font = new System.Drawing.Font("Segoe MDL2 Assets", 20F);
             this.lblStat2Icon.ForeColor = System.Drawing.Color.White;
-            this.lblStat2Icon.Location = new System.Drawing.Point(28, 26);
+            this.lblStat2Icon.Location = new System.Drawing.Point(16, 26);
             this.lblStat2Icon.Name = "lblStat2Icon";
-            this.lblStat2Icon.Size = new System.Drawing.Size(60, 60);
+            this.lblStat2Icon.Size = new System.Drawing.Size(52, 52);
             this.lblStat2Icon.TabIndex = 1;
             this.lblStat2Icon.Text = "";
             this.lblStat2Icon.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -484,9 +484,9 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblStat3Value.Font = new System.Drawing.Font("Segoe UI", 22F, System.Drawing.FontStyle.Bold);
             this.lblStat3Value.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
-            this.lblStat3Value.Location = new System.Drawing.Point(104, 48);
+            this.lblStat3Value.Location = new System.Drawing.Point(76, 48);
             this.lblStat3Value.Name = "lblStat3Value";
-            this.lblStat3Value.Size = new System.Drawing.Size(220, 44);
+            this.lblStat3Value.Size = new System.Drawing.Size(248, 44);
             this.lblStat3Value.TabIndex = 3;
             this.lblStat3Value.Text = "0";
             // 
@@ -496,20 +496,20 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblStat3Title.Font = new System.Drawing.Font("Segoe UI", 8.75F, System.Drawing.FontStyle.Bold);
             this.lblStat3Title.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
-            this.lblStat3Title.Location = new System.Drawing.Point(104, 28);
+            this.lblStat3Title.Location = new System.Drawing.Point(76, 28);
             this.lblStat3Title.Name = "lblStat3Title";
-            this.lblStat3Title.Size = new System.Drawing.Size(220, 18);
+            this.lblStat3Title.Size = new System.Drawing.Size(248, 18);
             this.lblStat3Title.TabIndex = 2;
             this.lblStat3Title.Text = "MỚI TRONG THÁNG";
             // 
             // lblStat3Icon
             // 
             this.lblStat3Icon.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(158)))), ((int)(((byte)(11)))));
-            this.lblStat3Icon.Font = new System.Drawing.Font("Segoe MDL2 Assets", 22F);
+            this.lblStat3Icon.Font = new System.Drawing.Font("Segoe MDL2 Assets", 20F);
             this.lblStat3Icon.ForeColor = System.Drawing.Color.White;
-            this.lblStat3Icon.Location = new System.Drawing.Point(28, 26);
+            this.lblStat3Icon.Location = new System.Drawing.Point(16, 26);
             this.lblStat3Icon.Name = "lblStat3Icon";
-            this.lblStat3Icon.Size = new System.Drawing.Size(60, 60);
+            this.lblStat3Icon.Size = new System.Drawing.Size(52, 52);
             this.lblStat3Icon.TabIndex = 1;
             this.lblStat3Icon.Text = "";
             this.lblStat3Icon.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -546,9 +546,9 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblStat4Value.Font = new System.Drawing.Font("Segoe UI", 22F, System.Drawing.FontStyle.Bold);
             this.lblStat4Value.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
-            this.lblStat4Value.Location = new System.Drawing.Point(104, 48);
+            this.lblStat4Value.Location = new System.Drawing.Point(76, 48);
             this.lblStat4Value.Name = "lblStat4Value";
-            this.lblStat4Value.Size = new System.Drawing.Size(236, 44);
+            this.lblStat4Value.Size = new System.Drawing.Size(264, 44);
             this.lblStat4Value.TabIndex = 3;
             this.lblStat4Value.Text = "0";
             // 
@@ -558,20 +558,20 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblStat4Title.Font = new System.Drawing.Font("Segoe UI", 8.75F, System.Drawing.FontStyle.Bold);
             this.lblStat4Title.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
-            this.lblStat4Title.Location = new System.Drawing.Point(104, 28);
+            this.lblStat4Title.Location = new System.Drawing.Point(76, 28);
             this.lblStat4Title.Name = "lblStat4Title";
-            this.lblStat4Title.Size = new System.Drawing.Size(236, 18);
+            this.lblStat4Title.Size = new System.Drawing.Size(264, 18);
             this.lblStat4Title.TabIndex = 2;
             this.lblStat4Title.Text = "TÀI KHOẢN ĐÃ MỞ";
             // 
             // lblStat4Icon
             // 
             this.lblStat4Icon.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(139)))), ((int)(((byte)(92)))), ((int)(((byte)(246)))));
-            this.lblStat4Icon.Font = new System.Drawing.Font("Segoe MDL2 Assets", 22F);
+            this.lblStat4Icon.Font = new System.Drawing.Font("Segoe MDL2 Assets", 20F);
             this.lblStat4Icon.ForeColor = System.Drawing.Color.White;
-            this.lblStat4Icon.Location = new System.Drawing.Point(28, 26);
+            this.lblStat4Icon.Location = new System.Drawing.Point(16, 26);
             this.lblStat4Icon.Name = "lblStat4Icon";
-            this.lblStat4Icon.Size = new System.Drawing.Size(60, 60);
+            this.lblStat4Icon.Size = new System.Drawing.Size(52, 52);
             this.lblStat4Icon.TabIndex = 1;
             this.lblStat4Icon.Text = "";
             this.lblStat4Icon.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -624,16 +624,17 @@
             // splitMain.Panel1
             // 
             this.splitMain.Panel1.Controls.Add(this.pnlGridCard);
-            this.splitMain.Panel1.Padding = new System.Windows.Forms.Padding(24, 16, 8, 20);
-            this.splitMain.Panel1MinSize = 480;
+            this.splitMain.Panel1.Padding = new System.Windows.Forms.Padding(16, 12, 6, 16);
+            this.splitMain.Panel1MinSize = 400;
             // 
             // splitMain.Panel2
             // 
             this.splitMain.Panel2.Controls.Add(this.pnlDetailCard);
-            this.splitMain.Panel2.Padding = new System.Windows.Forms.Padding(8, 16, 24, 20);
-            this.splitMain.Panel2MinSize = 380;
+            this.splitMain.Panel2.Padding = new System.Windows.Forms.Padding(6, 12, 16, 16);
+            this.splitMain.Panel2MinSize = 280;
+            this.splitMain.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
             this.splitMain.Size = new System.Drawing.Size(1440, 624);
-            this.splitMain.SplitterDistance = 900;
+            this.splitMain.SplitterDistance = 1114;
             this.splitMain.SplitterWidth = 6;
             this.splitMain.TabIndex = 2;
             // 
@@ -669,7 +670,7 @@
             dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
             dataGridViewCellStyle2.Font = new System.Drawing.Font("Segoe UI", 9F);
             dataGridViewCellStyle2.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
-            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding(12, 0, 0, 0);
+            dataGridViewCellStyle2.Padding = new System.Windows.Forms.Padding(6, 0, 0, 0);
             dataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
             dataGridViewCellStyle2.SelectionForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
@@ -689,7 +690,7 @@
             dataGridViewCellStyle3.BackColor = System.Drawing.Color.White;
             dataGridViewCellStyle3.Font = new System.Drawing.Font("Segoe UI", 9F);
             dataGridViewCellStyle3.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
-            dataGridViewCellStyle3.Padding = new System.Windows.Forms.Padding(12, 0, 0, 0);
+            dataGridViewCellStyle3.Padding = new System.Windows.Forms.Padding(6, 0, 0, 0);
             dataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.FromArgb(((int)(((byte)(239)))), ((int)(((byte)(246)))), ((int)(((byte)(255)))));
             dataGridViewCellStyle3.SelectionForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(64)))), ((int)(((byte)(175)))));
             dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.False;
@@ -1205,7 +1206,7 @@
             this.Controls.Add(this.pnlToolbar);
             this.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.MinimumSize = new System.Drawing.Size(1200, 720);
+            this.MinimumSize = new System.Drawing.Size(800, 450);
             this.Name = "CustomerForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Quản lý Khách hàng — Bank Account Management";

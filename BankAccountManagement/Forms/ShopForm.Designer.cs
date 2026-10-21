@@ -1,4 +1,4 @@
-﻿namespace BankAccountManagement.Forms
+namespace BankAccountManagement.Forms
 {
     partial class ShopForm
     {
@@ -127,7 +127,7 @@
             // btnCart — "🛒 Giỏ hàng"
             this.btnCart.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
             this.btnCart.BackColor = System.Drawing.Color.Transparent;
-            this.btnCart.BorderRadius = 10;
+            this.btnCart.BorderRadius = 0;
             this.btnCart.BorderSize = 0;
             this.btnCart.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnCart.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -232,7 +232,7 @@
 
             // btnCart1 — "Thêm giỏ"
             this.btnCart1.BackColor = System.Drawing.Color.Transparent;
-            this.btnCart1.BorderRadius = 8;
+            this.btnCart1.BorderRadius = 0;
             this.btnCart1.BorderSize = 1;
             this.btnCart1.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnCart1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -255,7 +255,7 @@
             // btnBuy1 — "Mua"
             this.btnBuy1.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
             this.btnBuy1.BackColor = System.Drawing.Color.Transparent;
-            this.btnBuy1.BorderRadius = 8;
+            this.btnBuy1.BorderRadius = 0;
             this.btnBuy1.BorderSize = 0;
             this.btnBuy1.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnBuy1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -334,7 +334,7 @@
             this.lblPrice2.Text = "20.990.000 đ";
 
             this.btnCart2.BackColor = System.Drawing.Color.Transparent;
-            this.btnCart2.BorderRadius = 8;
+            this.btnCart2.BorderRadius = 0;
             this.btnCart2.BorderSize = 1;
             this.btnCart2.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnCart2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -356,7 +356,7 @@
 
             this.btnBuy2.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
             this.btnBuy2.BackColor = System.Drawing.Color.Transparent;
-            this.btnBuy2.BorderRadius = 8;
+            this.btnBuy2.BorderRadius = 0;
             this.btnBuy2.BorderSize = 0;
             this.btnBuy2.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnBuy2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -435,7 +435,7 @@
             this.lblPrice3.Text = "2.990.000 đ";
 
             this.btnCart3.BackColor = System.Drawing.Color.Transparent;
-            this.btnCart3.BorderRadius = 8;
+            this.btnCart3.BorderRadius = 0;
             this.btnCart3.BorderSize = 1;
             this.btnCart3.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnCart3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -457,7 +457,7 @@
 
             this.btnBuy3.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
             this.btnBuy3.BackColor = System.Drawing.Color.Transparent;
-            this.btnBuy3.BorderRadius = 8;
+            this.btnBuy3.BorderRadius = 0;
             this.btnBuy3.BorderSize = 0;
             this.btnBuy3.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnBuy3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -536,7 +536,7 @@
             this.lblPrice4.Text = "12.990.000 đ";
 
             this.btnCart4.BackColor = System.Drawing.Color.Transparent;
-            this.btnCart4.BorderRadius = 8;
+            this.btnCart4.BorderRadius = 0;
             this.btnCart4.BorderSize = 1;
             this.btnCart4.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnCart4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -558,7 +558,7 @@
 
             this.btnBuy4.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
             this.btnBuy4.BackColor = System.Drawing.Color.Transparent;
-            this.btnBuy4.BorderRadius = 8;
+            this.btnBuy4.BorderRadius = 0;
             this.btnBuy4.BorderSize = 0;
             this.btnBuy4.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnBuy4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -637,7 +637,7 @@
             this.lblPrice5.Text = "5.990.000 đ";
 
             this.btnCart5.BackColor = System.Drawing.Color.Transparent;
-            this.btnCart5.BorderRadius = 8;
+            this.btnCart5.BorderRadius = 0;
             this.btnCart5.BorderSize = 1;
             this.btnCart5.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnCart5.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -659,7 +659,7 @@
 
             this.btnBuy5.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
             this.btnBuy5.BackColor = System.Drawing.Color.Transparent;
-            this.btnBuy5.BorderRadius = 8;
+            this.btnBuy5.BorderRadius = 0;
             this.btnBuy5.BorderSize = 0;
             this.btnBuy5.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnBuy5.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -738,7 +738,7 @@
             this.lblPrice6.Text = "23.990.000 đ";
 
             this.btnCart6.BackColor = System.Drawing.Color.Transparent;
-            this.btnCart6.BorderRadius = 8;
+            this.btnCart6.BorderRadius = 0;
             this.btnCart6.BorderSize = 1;
             this.btnCart6.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnCart6.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -760,7 +760,7 @@
 
             this.btnBuy6.Anchor = System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right;
             this.btnBuy6.BackColor = System.Drawing.Color.Transparent;
-            this.btnBuy6.BorderRadius = 8;
+            this.btnBuy6.BorderRadius = 0;
             this.btnBuy6.BorderSize = 0;
             this.btnBuy6.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnBuy6.FlatStyle = System.Windows.Forms.FlatStyle.Flat;

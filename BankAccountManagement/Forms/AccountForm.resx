@@ -120,4 +120,9 @@
   <metadata name="colCustomerCode.UserAddedColumn" type="System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
     <value>True</value>
   </metadata>
+  <data name="lblSideNoticeText.Text" xml:space="preserve">
+    <value>Theo quy định định danh tài chính, Tên đăng nhập và Số tài khoản là hai thông số cố định không thể chỉnh sửa.
+
+Quý khách được quyền cập nhật Họ tên, CCCD, SĐT, Email, Địa chỉ và Mật khẩu ở biểu mẫu bên cạnh.</value>
+  </data>
 </root>

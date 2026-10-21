@@ -203,6 +203,8 @@ namespace BankAccountManagement.Forms
             btnStep1Next.Click += (s, e) => GoToStep2();
             btnPhoneBack.Click += (s, e) => HandleBackButton();
 
+            btnStep2Confirm.UseMnemonic = false;
+            btnStep2Confirm.Text = "Xác nhận mở sổ";
             btnStep2Confirm.Click += async (s, e) => await HandleConfirmAndOpenAsync();
 
             btnStep3Close.Click += (s, e) =>
@@ -450,7 +452,7 @@ namespace BankAccountManagement.Forms
                 CurrentSession.TenDangNhap);
 
             btnStep2Confirm.Enabled = true;
-            btnStep2Confirm.Text = "Xác nhận & Mở ✨";
+            btnStep2Confirm.Text = "Xác nhận mở sổ";
 
             if (result.Success && result.Savings != null)
             {

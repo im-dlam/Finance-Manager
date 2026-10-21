@@ -55,10 +55,12 @@ namespace BankAccountManagement.Services
                         SELECT ISNULL(
                             SUM(
                                 CASE
-                                    WHEN LT.TenLoaiTien = N'VND'
+                                    WHEN LT.MaLoaiTien = 'VND' OR LT.TenLoaiTien = N'VND'
                                         THEN TK.SoDuHienTai
+                                    WHEN LT.MaLoaiTien = 'USD' AND (LT.QuyDoi IS NULL OR LT.QuyDoi <= 1)
+                                        THEN TK.SoDuHienTai * 25400
                                     ELSE
-                                        TK.SoDuHienTai * LT.QuyDoi
+                                        TK.SoDuHienTai * ISNULL(LT.QuyDoi, 1.0)
                                 END
                             ),
                             0
@@ -240,7 +242,7 @@ namespace BankAccountManagement.Services
             string sql = @"
                 SELECT TOP (@Limit)
                     ROW_NUMBER() OVER (
-                        ORDER BY TK.SoDuHienTai * LT.QuyDoi DESC
+                        ORDER BY TK.SoDuHienTai * ISNULL(LT.QuyDoi, 1.0) DESC
                     ) AS STT,
 
                     TK.SoTaiKhoan,
@@ -249,7 +251,7 @@ namespace BankAccountManagement.Services
 
                     TK.SoDuHienTai,
 
-                    TK.SoDuHienTai * LT.QuyDoi AS SoDuVND,
+                    TK.SoDuHienTai * ISNULL(LT.QuyDoi, 1.0) AS SoDuVND,
 
                     LT.TenLoaiTien AS LoaiTien
 
@@ -263,7 +265,7 @@ namespace BankAccountManagement.Services
 
                 WHERE TK.TrangThai = N'Active'
 
-                ORDER BY TK.SoDuHienTai * LT.QuyDoi DESC;
+                ORDER BY TK.SoDuHienTai * ISNULL(LT.QuyDoi, 1.0) DESC;
             ";
 
             var result = new List<TopAccountStatistic>();
