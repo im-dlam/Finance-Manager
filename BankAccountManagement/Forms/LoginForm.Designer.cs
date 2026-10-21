@@ -6,9 +6,16 @@
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
-                components.Dispose();
-            base.Dispose(disposing);
+            try
+            {
+                if (disposing && (components != null))
+                    components.Dispose();
+                base.Dispose(disposing);
+            }
+            catch (System.Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[LoginForm] Dispose warning: {ex.Message}");
+            }
         }
 
         #region Windows Form Designer generated code

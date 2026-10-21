@@ -1,4 +1,4 @@
-﻿namespace BankAccountManagement
+namespace BankAccountManagement
 {
     partial class MainForm
     {
@@ -81,8 +81,9 @@
             // 
             // btnSettings
             // 
+            this.btnSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnSettings.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnSettings.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.btnSettings.Dock = System.Windows.Forms.DockStyle.None;
             this.btnSettings.FlatAppearance.BorderSize = 0;
             this.btnSettings.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSettings.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -111,7 +112,7 @@
             this.btnStatistic.Name = "btnStatistic";
             this.btnStatistic.Size = new System.Drawing.Size(154, 40);
             this.btnStatistic.TabIndex = 10;
-            this.btnStatistic.Text = "   Báo cáo";
+            this.btnStatistic.Text = "   Thống kê";
             this.btnStatistic.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.btnStatistic.UseVisualStyleBackColor = true;
             this.btnStatistic.Click += new System.EventHandler(this.btnStatistic_Click);
@@ -371,12 +372,15 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(1219, 637);
+            this.ClientSize = new System.Drawing.Size(1280, 720);
             this.Controls.Add(this.pnMain);
             this.Controls.Add(this.pnTitlebar);
             this.Controls.Add(this.panel1);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
+            this.MinimumSize = new System.Drawing.Size(1150, 650);
+            this.MaximizeBox = true;
             this.Name = "MainForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Bank Manager";
             this.panel1.ResumeLayout(false);
             this.panel2.ResumeLayout(false);

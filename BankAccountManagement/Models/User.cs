@@ -13,11 +13,13 @@ namespace BankAccountManagement.Models
 
         public string Quyen { get; set; }
 
-        /// <summary>Mã KH liên kết – NULL nếu chưa link với KhachHang.</summary>
+        /// <summary>Mã KH liên kết – NULL nếu chưa link với ThongTinKhachHang.</summary>
         public string MaKH { get; set; }
 
         public string HoTen { get; set; }
         public string Email { get; set; }
+        public string MaNganHang { get; set; }
+        public string TenNganHang { get; set; }
         public string TrangThai { get; set; }
 
         /// <summary>Lần đăng nhập gần nhất. NULL nếu là lần đăng nhập đầu tiên.</summary>

@@ -272,7 +272,7 @@ namespace BankAccountManagement.Forms
                 NormalBorder = Color.FromArgb(203, 213, 225),
                 TextColor = Color.FromArgb(71, 85, 105),
                 BorderSize = 1,
-                BorderRadius = 8,
+                BorderRadius = 0,
                 Size = new Size(140, 44),
                 Location = new Point(140, startY),
                 Cursor = Cursors.Hand
@@ -289,7 +289,7 @@ namespace BankAccountManagement.Forms
                 PressedColor = Color.FromArgb(29, 78, 216),
                 TextColor = Color.White,
                 BorderSize = 0,
-                BorderRadius = 8,
+                BorderRadius = 0,
                 Size = new Size(200, 44),
                 Location = new Point(295, startY),
                 Cursor = Cursors.Hand

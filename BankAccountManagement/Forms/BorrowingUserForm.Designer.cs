@@ -179,7 +179,7 @@ namespace BankAccountManagement.Forms
             this.btnHistory.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnHistory.Font = new System.Drawing.Font("Segoe UI Semibold", 9.5F, System.Drawing.FontStyle.Bold);
             this.btnHistory.ForeColor = System.Drawing.Color.FromArgb(51, 65, 85);
-            this.btnHistory.HoverBorder = System.Drawing.Color.FromArgb(190, 24, 93);
+            this.btnHistory.HoverBorder = System.Drawing.Color.FromArgb(37, 99, 235);
             this.btnHistory.HoverColor = System.Drawing.Color.FromArgb(253, 242, 248);
             this.btnHistory.Location = new System.Drawing.Point(1010, 36);
             this.btnHistory.Name = "btnHistory";
@@ -210,11 +210,11 @@ namespace BankAccountManagement.Forms
             this.btnRegister.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnRegister.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
             this.btnRegister.ForeColor = System.Drawing.Color.White;
-            this.btnRegister.HoverColor = System.Drawing.Color.FromArgb(219, 39, 119);
+            this.btnRegister.HoverColor = System.Drawing.Color.FromArgb(29, 78, 216);
             this.btnRegister.Location = new System.Drawing.Point(460, 18);
             this.btnRegister.Name = "btnRegister";
-            this.btnRegister.NormalColor = System.Drawing.Color.FromArgb(190, 24, 93);
-            this.btnRegister.PressedColor = System.Drawing.Color.FromArgb(157, 23, 77);
+            this.btnRegister.NormalColor = System.Drawing.Color.FromArgb(37, 99, 235);
+            this.btnRegister.PressedColor = System.Drawing.Color.FromArgb(30, 64, 175);
             this.btnRegister.Size = new System.Drawing.Size(280, 48);
             this.btnRegister.TabIndex = 0;
             this.btnRegister.Text = "Đăng ký ngay";
@@ -307,7 +307,7 @@ namespace BankAccountManagement.Forms
 
             this.lblVayUnit.AutoSize = true;
             this.lblVayUnit.Font = new System.Drawing.Font("Segoe UI", 13F, System.Drawing.FontStyle.Bold);
-            this.lblVayUnit.ForeColor = System.Drawing.Color.FromArgb(190, 24, 93);
+            this.lblVayUnit.ForeColor = System.Drawing.Color.FromArgb(37, 99, 235);
             this.lblVayUnit.Location = new System.Drawing.Point(285, 8);
             this.lblVayUnit.Name = "lblVayUnit";
             this.lblVayUnit.Size = new System.Drawing.Size(22, 25);
@@ -325,7 +325,7 @@ namespace BankAccountManagement.Forms
             this.trackVayFill.BorderRadius = 4;
             this.trackVayFill.BorderSize = 0;
             this.trackVayFill.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.trackVayFill.FillColor = System.Drawing.Color.FromArgb(190, 24, 93);
+            this.trackVayFill.FillColor = System.Drawing.Color.FromArgb(37, 99, 235);
             this.trackVayFill.Location = new System.Drawing.Point(32, 126);
             this.trackVayFill.Name = "trackVayFill";
             this.trackVayFill.Size = new System.Drawing.Size(60, 8);
@@ -334,7 +334,7 @@ namespace BankAccountManagement.Forms
             this.thumbVay.BorderRadius = 12;
             this.thumbVay.BorderSize = 3;
             this.thumbVay.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.thumbVay.FillColor = System.Drawing.Color.FromArgb(190, 24, 93);
+            this.thumbVay.FillColor = System.Drawing.Color.FromArgb(37, 99, 235);
             this.thumbVay.Location = new System.Drawing.Point(75, 118);
             this.thumbVay.Name = "thumbVay";
             this.thumbVay.Size = new System.Drawing.Size(24, 24);
@@ -403,7 +403,7 @@ namespace BankAccountManagement.Forms
             this.trackTimeFill.BorderRadius = 4;
             this.trackTimeFill.BorderSize = 0;
             this.trackTimeFill.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.trackTimeFill.FillColor = System.Drawing.Color.FromArgb(190, 24, 93);
+            this.trackTimeFill.FillColor = System.Drawing.Color.FromArgb(37, 99, 235);
             this.trackTimeFill.Location = new System.Drawing.Point(32, 304);
             this.trackTimeFill.Name = "trackTimeFill";
             this.trackTimeFill.Size = new System.Drawing.Size(500, 8);
@@ -412,7 +412,7 @@ namespace BankAccountManagement.Forms
             this.thumbTime.BorderRadius = 12;
             this.thumbTime.BorderSize = 3;
             this.thumbTime.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.thumbTime.FillColor = System.Drawing.Color.FromArgb(190, 24, 93);
+            this.thumbTime.FillColor = System.Drawing.Color.FromArgb(37, 99, 235);
             this.thumbTime.Location = new System.Drawing.Point(515, 296);
             this.thumbTime.Name = "thumbTime";
             this.thumbTime.Size = new System.Drawing.Size(24, 24);
@@ -493,7 +493,7 @@ namespace BankAccountManagement.Forms
             // Cột 2: Lãi suất ⭐
             this.lblSum2Value.AutoSize = true;
             this.lblSum2Value.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
-            this.lblSum2Value.ForeColor = System.Drawing.Color.FromArgb(190, 24, 93);
+            this.lblSum2Value.ForeColor = System.Drawing.Color.FromArgb(37, 99, 235);
             this.lblSum2Value.Location = new System.Drawing.Point(165, 16);
             this.lblSum2Value.Name = "lblSum2Value";
             this.lblSum2Value.Size = new System.Drawing.Size(89, 20);
@@ -527,7 +527,7 @@ namespace BankAccountManagement.Forms
             // Dòng chi tiết lãi
             this.lblSumInterestDetail.AutoSize = true;
             this.lblSumInterestDetail.Font = new System.Drawing.Font("Segoe UI Semibold", 8.5F, System.Drawing.FontStyle.Bold);
-            this.lblSumInterestDetail.ForeColor = System.Drawing.Color.FromArgb(190, 24, 93);
+            this.lblSumInterestDetail.ForeColor = System.Drawing.Color.FromArgb(37, 99, 235);
             this.lblSumInterestDetail.Location = new System.Drawing.Point(16, 72);
             this.lblSumInterestDetail.Name = "lblSumInterestDetail";
             this.lblSumInterestDetail.Size = new System.Drawing.Size(275, 15);
@@ -577,7 +577,7 @@ namespace BankAccountManagement.Forms
 
             this.txtDebtAmount.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.txtDebtAmount.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold);
-            this.txtDebtAmount.ForeColor = System.Drawing.Color.FromArgb(190, 24, 93);
+            this.txtDebtAmount.ForeColor = System.Drawing.Color.FromArgb(37, 99, 235);
             this.txtDebtAmount.Location = new System.Drawing.Point(12, 7);
             this.txtDebtAmount.Name = "txtDebtAmount";
             this.txtDebtAmount.ReadOnly = true;
@@ -587,7 +587,7 @@ namespace BankAccountManagement.Forms
 
             this.lblDebtUnit.AutoSize = true;
             this.lblDebtUnit.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold);
-            this.lblDebtUnit.ForeColor = System.Drawing.Color.FromArgb(190, 24, 93);
+            this.lblDebtUnit.ForeColor = System.Drawing.Color.FromArgb(37, 99, 235);
             this.lblDebtUnit.Location = new System.Drawing.Point(435, 7);
             this.lblDebtUnit.Name = "lblDebtUnit";
             this.lblDebtUnit.Size = new System.Drawing.Size(26, 30);
@@ -762,7 +762,7 @@ namespace BankAccountManagement.Forms
 
             this.lblHistSum2Value.AutoSize = true;
             this.lblHistSum2Value.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
-            this.lblHistSum2Value.ForeColor = System.Drawing.Color.FromArgb(190, 24, 93);
+            this.lblHistSum2Value.ForeColor = System.Drawing.Color.FromArgb(37, 99, 235);
             this.lblHistSum2Value.Location = new System.Drawing.Point(165, 12);
             this.lblHistSum2Value.Name = "lblHistSum2Value";
             this.lblHistSum2Value.Size = new System.Drawing.Size(89, 20);
@@ -794,7 +794,7 @@ namespace BankAccountManagement.Forms
 
             this.lblHistSumInterestDetail.AutoSize = true;
             this.lblHistSumInterestDetail.Font = new System.Drawing.Font("Segoe UI Semibold", 8.5F, System.Drawing.FontStyle.Bold);
-            this.lblHistSumInterestDetail.ForeColor = System.Drawing.Color.FromArgb(190, 24, 93);
+            this.lblHistSumInterestDetail.ForeColor = System.Drawing.Color.FromArgb(37, 99, 235);
             this.lblHistSumInterestDetail.Location = new System.Drawing.Point(16, 66);
             this.lblHistSumInterestDetail.Name = "lblHistSumInterestDetail";
             this.lblHistSumInterestDetail.Size = new System.Drawing.Size(265, 15);
@@ -848,7 +848,7 @@ namespace BankAccountManagement.Forms
 
             this.txtHistDebtAmount.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.txtHistDebtAmount.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold);
-            this.txtHistDebtAmount.ForeColor = System.Drawing.Color.FromArgb(190, 24, 93);
+            this.txtHistDebtAmount.ForeColor = System.Drawing.Color.FromArgb(37, 99, 235);
             this.txtHistDebtAmount.Location = new System.Drawing.Point(12, 6);
             this.txtHistDebtAmount.Name = "txtHistDebtAmount";
             this.txtHistDebtAmount.ReadOnly = true;
@@ -858,7 +858,7 @@ namespace BankAccountManagement.Forms
 
             this.lblHistDebtUnit.AutoSize = true;
             this.lblHistDebtUnit.Font = new System.Drawing.Font("Segoe UI", 16F, System.Drawing.FontStyle.Bold);
-            this.lblHistDebtUnit.ForeColor = System.Drawing.Color.FromArgb(190, 24, 93);
+            this.lblHistDebtUnit.ForeColor = System.Drawing.Color.FromArgb(37, 99, 235);
             this.lblHistDebtUnit.Location = new System.Drawing.Point(435, 6);
             this.lblHistDebtUnit.Name = "lblHistDebtUnit";
             this.lblHistDebtUnit.Size = new System.Drawing.Size(26, 30);
@@ -913,7 +913,7 @@ namespace BankAccountManagement.Forms
             this.btnCloseHistory.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCloseHistory.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
             this.btnCloseHistory.ForeColor = System.Drawing.Color.FromArgb(51, 65, 85);
-            this.btnCloseHistory.HoverBorder = System.Drawing.Color.FromArgb(190, 24, 93);
+            this.btnCloseHistory.HoverBorder = System.Drawing.Color.FromArgb(37, 99, 235);
             this.btnCloseHistory.HoverColor = System.Drawing.Color.FromArgb(253, 242, 248);
             this.btnCloseHistory.Location = new System.Drawing.Point(380, 485);
             this.btnCloseHistory.Name = "btnCloseHistory";

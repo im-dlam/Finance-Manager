@@ -1,4 +1,4 @@
--- ============================================================
+﻿-- ============================================================
 -- BANK MANAGEMENT - DATABASE SCHEMA
 -- Version: 3.0 (Pure DDL - No Seed Data)
 -- Compatible with SQL Server 2016 / 2019 / 2022 / Express
@@ -41,8 +41,21 @@ BEGIN
 END;
 
 -- ============================================================
--- 3. KHÁCH HÀNG (Core Customers)
+-- 3. DỌN DẸP BẢNG CŨ dbo.KhachHang (Chuyển hẳn sang ThongTinKhachHang)
 -- ============================================================
+IF OBJECT_ID(N'dbo.KhachHang', N'U') IS NOT NULL
+BEGIN
+    DECLARE @dropFkSql NVARCHAR(MAX) = N'';
+    SELECT @dropFkSql += N'ALTER TABLE ' + QUOTENAME(OBJECT_SCHEMA_NAME(parent_object_id)) + '.' + QUOTENAME(OBJECT_NAME(parent_object_id)) + 
+                         N' DROP CONSTRAINT ' + QUOTENAME(name) + N';' + CHAR(10)
+    FROM sys.foreign_keys
+    WHERE referenced_object_id = OBJECT_ID('dbo.KhachHang') OR parent_object_id = OBJECT_ID('dbo.KhachHang');
+
+    IF LEN(@dropFkSql) > 0
+        EXEC sp_executesql @dropFkSql;
+
+    DROP TABLE dbo.KhachHang;
+END;
 
 -- ============================================================
 -- 4. THÔNG TIN KHÁCH HÀNG (Detailed Customer Profiles)
@@ -83,6 +96,7 @@ BEGIN
         MaKH          VARCHAR(20)   NULL,
         HoTen         NVARCHAR(100) NULL,
         Email         VARCHAR(100)  NULL,
+        MaNganHang    VARCHAR(20)   NULL,
         TrangThai     NVARCHAR(50)  NOT NULL
             CONSTRAINT DF_NguoiDung_TrangThai DEFAULT N'Active',
         NgayTao       DATETIME      NOT NULL
@@ -93,6 +107,8 @@ BEGIN
         CONSTRAINT UQ_NguoiDung_TenDangNhap UNIQUE (TenDangNhap),
         CONSTRAINT FK_NguoiDung_ThongTinKhachHang FOREIGN KEY (MaKH)
             REFERENCES dbo.ThongTinKhachHang(MaKH),
+        CONSTRAINT FK_NguoiDung_NganHang FOREIGN KEY (MaNganHang)
+            REFERENCES dbo.NganHang(MaNganHang),
         CONSTRAINT CK_NguoiDung_Quyen CHECK (Quyen IN ('Admin', 'Member')),
         CONSTRAINT CK_NguoiDung_TrangThai CHECK (TrangThai IN (N'Active', N'Locked'))
     );

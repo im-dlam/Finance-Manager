@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -13,6 +13,8 @@ namespace BankAccountManagement.Forms
         private CustomerService _customerService = new CustomerService();
         private bool isAddNew = false;
         private bool isAdmin = false;
+        private static readonly System.Drawing.Font _dgvBtnFont = new System.Drawing.Font("Segoe UI", 9.5f, System.Drawing.FontStyle.Bold);
+        private int _lastSplitWidth = -1;
 
         public CustomerForm()
         {
@@ -110,8 +112,9 @@ namespace BankAccountManagement.Forms
                 colTrangThai.Name = "colTrangThai"; 
                 colTrangThai.DataPropertyName = "TrangThai"; 
                 colTrangThai.HeaderText = "Trạng Thái"; 
-                colTrangThai.Width = 100; 
-                colTrangThai.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                colTrangThai.Width = 78; 
+                colTrangThai.MinimumWidth = 70;
+                colTrangThai.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
                 dgvCustomers.Columns.Add(colTrangThai); 
 
                 DataGridViewButtonColumn btnLockColumn = new DataGridViewButtonColumn(); 
@@ -119,7 +122,7 @@ namespace BankAccountManagement.Forms
                 btnLockColumn.HeaderText = "Khóa"; 
                 btnLockColumn.Text = "Khóa"; 
                 btnLockColumn.UseColumnTextForButtonValue = true; 
-                btnLockColumn.Width = 80;
+                btnLockColumn.Width = 50;
                 btnLockColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.None; 
                 btnLockColumn.FlatStyle = FlatStyle.Flat; 
                                                                                 
@@ -128,7 +131,7 @@ namespace BankAccountManagement.Forms
                 // Thêm cột spacer để cách 2 nút ra
                 DataGridViewTextBoxColumn colSpacer = new DataGridViewTextBoxColumn();
                 colSpacer.Name = "colSpacer";
-                colSpacer.Width = 10;
+                colSpacer.Width = 4;
                 colSpacer.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
                 colSpacer.ReadOnly = true;
                 dgvCustomers.Columns.Add(colSpacer);
@@ -138,7 +141,7 @@ namespace BankAccountManagement.Forms
                 btnUnlockColumn.HeaderText = "Mở"; 
                 btnUnlockColumn.Text = "Mở"; 
                 btnUnlockColumn.UseColumnTextForButtonValue = true; 
-                btnUnlockColumn.Width = 80;
+                btnUnlockColumn.Width = 50;
                 btnUnlockColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.None; 
                 btnUnlockColumn.FlatStyle = FlatStyle.Flat; 
                                                                                 
@@ -154,6 +157,14 @@ namespace BankAccountManagement.Forms
                 lblMaKH.Visible = false;
                 txtMaKH.Visible = false;
             }
+
+            SetDoubleBuffered(this, true);
+            SetDoubleBuffered(dgvCustomers, true);
+            SetDoubleBuffered(pnlGridCard, true);
+            SetDoubleBuffered(pnlDetailCard, true);
+
+            AdjustSplitter();
+            this.Resize += (s, ev) => AdjustSplitter();
 
             SetControlState(false);
             LoadData();
@@ -190,27 +201,39 @@ namespace BankAccountManagement.Forms
                     
                     dgvCustomers.Columns["colMaKH"].DataPropertyName = "MaNguoiDung";
                     dgvCustomers.Columns["colMaKH"].HeaderText = "Mã ND";
-                    dgvCustomers.Columns["colMaKH"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                    dgvCustomers.Columns["colMaKH"].Width = 62;
+                    dgvCustomers.Columns["colMaKH"].MinimumWidth = 55;
+                    dgvCustomers.Columns["colMaKH"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
 
                     dgvCustomers.Columns["colHoTen"].DataPropertyName = "TenDangNhap";
                     dgvCustomers.Columns["colHoTen"].HeaderText = "Tên đăng nhập";
+                    dgvCustomers.Columns["colHoTen"].MinimumWidth = 95;
+                    dgvCustomers.Columns["colHoTen"].FillWeight = 26F;
                     dgvCustomers.Columns["colHoTen"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
                     dgvCustomers.Columns["colCMND"].DataPropertyName = "HoTen";
                     dgvCustomers.Columns["colCMND"].HeaderText = "Họ tên";
+                    dgvCustomers.Columns["colCMND"].MinimumWidth = 95;
+                    dgvCustomers.Columns["colCMND"].FillWeight = 28F;
                     dgvCustomers.Columns["colCMND"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
                     dgvCustomers.Columns["colNgaySinh"].DataPropertyName = "Quyen";
                     dgvCustomers.Columns["colNgaySinh"].HeaderText = "Quyền";
-                    dgvCustomers.Columns["colNgaySinh"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                    dgvCustomers.Columns["colNgaySinh"].Width = 68;
+                    dgvCustomers.Columns["colNgaySinh"].MinimumWidth = 60;
+                    dgvCustomers.Columns["colNgaySinh"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
 
                     dgvCustomers.Columns["colGioiTinh"].DataPropertyName = "Email";
                     dgvCustomers.Columns["colGioiTinh"].HeaderText = "Email";
+                    dgvCustomers.Columns["colGioiTinh"].MinimumWidth = 100;
+                    dgvCustomers.Columns["colGioiTinh"].FillWeight = 32F;
                     dgvCustomers.Columns["colGioiTinh"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
                     dgvCustomers.Columns["colSDT"].DataPropertyName = "NgayTao";
                     dgvCustomers.Columns["colSDT"].HeaderText = "Ngày tạo";
-                    dgvCustomers.Columns["colSDT"].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                    dgvCustomers.Columns["colSDT"].Width = 95;
+                    dgvCustomers.Columns["colSDT"].MinimumWidth = 85;
+                    dgvCustomers.Columns["colSDT"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
 
                     dgvCustomers.Columns["colEmail"].Visible = false;
                     dgvCustomers.Columns["colDiaChi"].Visible = false;
@@ -299,7 +322,7 @@ namespace BankAccountManagement.Forms
                         }
                     }
                     
-                    TextRenderer.DrawText(e.Graphics, text, new System.Drawing.Font("Segoe UI", 9.5f, System.Drawing.FontStyle.Bold), btnRect, textColor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+                    TextRenderer.DrawText(e.Graphics, text, _dgvBtnFont, btnRect, textColor, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
                     
                     e.Handled = true;
                 }
@@ -498,6 +521,49 @@ namespace BankAccountManagement.Forms
             {
                 DgvCustomers_CellClick(dgvCustomers, new DataGridViewCellEventArgs(0, dgvCustomers.CurrentRow.Index));
             }
+        }
+
+        private void AdjustSplitter()
+        {
+            if (splitMain == null || splitMain.IsDisposed || splitMain.Width <= 0) return;
+            try
+            {
+                int totalWidth = splitMain.Width;
+                if (totalWidth == _lastSplitWidth) return;
+                _lastSplitWidth = totalWidth;
+
+                int desiredPanel2Width = 340; // Thẻ thông tin bên phải rộng 340px (card 318px), vừa vặn các trường và nút bấm
+                int minPanel1 = Math.Max(380, splitMain.Panel1MinSize);
+                int minPanel2 = Math.Max(280, splitMain.Panel2MinSize);
+                int splitterW = splitMain.SplitterWidth;
+
+                int targetDistance = totalWidth - desiredPanel2Width - splitterW;
+                if (targetDistance < minPanel1)
+                {
+                    targetDistance = totalWidth - minPanel2 - splitterW;
+                }
+
+                if (targetDistance >= minPanel1 && targetDistance <= totalWidth - minPanel2)
+                {
+                    if (splitMain.SplitterDistance != targetDistance)
+                    {
+                        splitMain.SplitterDistance = targetDistance;
+                    }
+                }
+            }
+            catch { }
+        }
+
+        private static void SetDoubleBuffered(Control control, bool enable = true)
+        {
+            if (control == null) return;
+            try
+            {
+                var prop = typeof(Control).GetProperty("DoubleBuffered",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                prop?.SetValue(control, enable, null);
+            }
+            catch { }
         }
 
     }

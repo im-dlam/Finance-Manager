@@ -170,7 +170,7 @@ namespace BankAccountManagement.Forms
             this.btnRefresh.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(58)))), ((int)(((byte)(138)))));
             this.btnRefresh.Size = new System.Drawing.Size(110, 38);
             this.btnRefresh.TabIndex = 3;
-            this.btnRefresh.Text = "🔄 Làm mới";
+            this.btnRefresh.Text = "Làm mới";
             this.btnRefresh.TextColor = System.Drawing.Color.White;
             this.btnRefresh.UseVisualStyleBackColor = false;
             // 
@@ -1009,7 +1009,7 @@ namespace BankAccountManagement.Forms
             this.btnTabApproval.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(58)))), ((int)(((byte)(138)))));
             this.btnTabApproval.Size = new System.Drawing.Size(260, 36);
             this.btnTabApproval.TabIndex = 0;
-            this.btnTabApproval.Text = "📋 Thẩm Định & Xét Duyệt Hồ Sơ";
+            this.btnTabApproval.Text = "Thẩm Định & Xét Duyệt Hồ Sơ";
             this.btnTabApproval.TextColor = System.Drawing.Color.White;
             this.btnTabApproval.UseVisualStyleBackColor = false;
 
@@ -1032,7 +1032,7 @@ namespace BankAccountManagement.Forms
             this.btnTabRepayment.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
             this.btnTabRepayment.Size = new System.Drawing.Size(310, 36);
             this.btnTabRepayment.TabIndex = 1;
-            this.btnTabRepayment.Text = "📊 Theo Dõi Trả Nợ (Đã Trả & Chưa Trả)";
+            this.btnTabRepayment.Text = "Theo Dõi Trả Nợ (Đã Trả / Chưa Trả)";
             this.btnTabRepayment.TextColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.btnTabRepayment.UseVisualStyleBackColor = false;
 
@@ -1124,7 +1124,7 @@ namespace BankAccountManagement.Forms
             this.lblRepayUnpaidStat.Name = "lblRepayUnpaidStat";
             this.lblRepayUnpaidStat.Size = new System.Drawing.Size(350, 32);
             this.lblRepayUnpaidStat.TabIndex = 2;
-            this.lblRepayUnpaidStat.Text = "🔴 Chưa trả: 0 user | 0 đ";
+            this.lblRepayUnpaidStat.Text = "Chưa trả: 0 user | 0 đ";
             this.lblRepayUnpaidStat.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 
             // 
@@ -1139,7 +1139,7 @@ namespace BankAccountManagement.Forms
             this.lblRepayPaidStat.Name = "lblRepayPaidStat";
             this.lblRepayPaidStat.Size = new System.Drawing.Size(350, 32);
             this.lblRepayPaidStat.TabIndex = 3;
-            this.lblRepayPaidStat.Text = "🟢 Đã tất toán: 0 user | 0 đ";
+            this.lblRepayPaidStat.Text = "Đã tất toán: 0 user | 0 đ";
             this.lblRepayPaidStat.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 
             // 
@@ -1198,7 +1198,7 @@ namespace BankAccountManagement.Forms
             this.lblUnpaidTitle.Name = "lblUnpaidTitle";
             this.lblUnpaidTitle.Size = new System.Drawing.Size(430, 25);
             this.lblUnpaidTitle.TabIndex = 0;
-            this.lblUnpaidTitle.Text = "🔴 USER CHƯA TRẢ KHOẢN VAY (ĐANG CÒN NỢ)";
+            this.lblUnpaidTitle.Text = "USER CHƯA TRẢ KHOẢN VAY (ĐANG CÒN NỢ)";
 
             // 
             // lblUnpaidSub
@@ -1274,7 +1274,7 @@ namespace BankAccountManagement.Forms
             this.lblPaidTitle.Name = "lblPaidTitle";
             this.lblPaidTitle.Size = new System.Drawing.Size(410, 25);
             this.lblPaidTitle.TabIndex = 0;
-            this.lblPaidTitle.Text = "🟢 USER ĐÃ TRẢ KHOẢN VAY (ĐÃ TẤT TOÁN)";
+            this.lblPaidTitle.Text = "USER ĐÃ TRẢ KHOẢN VAY (ĐÃ TẤT TOÁN)";
 
             // 
             // lblPaidSub

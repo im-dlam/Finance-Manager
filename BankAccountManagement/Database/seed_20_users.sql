@@ -35,10 +35,7 @@ BEGIN TRY
     DELETE FROM dbo.TaiKhoan 
     WHERE MaKH NOT IN (SELECT MaKH FROM @AdminMaKH) OR MaKH IS NULL;
 
-    -- 5. Xóa dữ liệu khách hàng không thuộc Admin trong cả 2 bảng KhachHang và ThongTinKhachHang
-    DELETE FROM dbo.KhachHang 
-    WHERE MaKH NOT IN (SELECT MaKH FROM @AdminMaKH);
-
+    -- 5. Xóa dữ liệu khách hàng không thuộc Admin trong bảng ThongTinKhachHang
     DELETE FROM dbo.ThongTinKhachHang 
     WHERE MaKH NOT IN (SELECT MaKH FROM @AdminMaKH);
 
@@ -50,7 +47,6 @@ BEGIN TRY
     UPDATE dbo.NguoiDung SET HoTen = N'Quản trị viên' WHERE TenDangNhap = 'admin';
     UPDATE dbo.NguoiDung SET HoTen = N'Vũ Đại D' WHERE TenDangNhap = 'nhanvien_d';
     UPDATE dbo.ThongTinKhachHang SET HoTen = N'Quản trị viên' WHERE MaKH = 'KH000005';
-    UPDATE dbo.KhachHang SET HoTen = N'Quản trị viên' WHERE MaKH = 'KH000005';
 
     PRINT N'Đã dọn dẹp xong dữ liệu cũ. Bắt đầu tạo 20 users mới...';
 
@@ -108,12 +104,9 @@ BEGIN TRY
             @MaKH = MaKH, @HasKYC = HasKYC, @AccountCount = AccountCount
         FROM @UsersTable WHERE Id = @i;
 
-        -- 1. Thêm vào KhachHang & ThongTinKhachHang nếu có KYC
+        -- 1. Thêm vào ThongTinKhachHang nếu có KYC
         IF @HasKYC = 1 AND @MaKH IS NOT NULL
         BEGIN
-            INSERT INTO dbo.KhachHang (MaKH, HoTen, CMND_CCCD, NgaySinh, GioiTinh, SoDienThoai, Email, DiaChi, TrangThai, NgayTao)
-            VALUES (@MaKH, @FullName, @Cccd, @Dob, @Gender, @Phone, @Email, @Address, N'Active', GETDATE());
-
             INSERT INTO dbo.ThongTinKhachHang (MaKH, HoTen, CMND_CCCD, NgaySinh, GioiTinh, SoDienThoai, Email, DiaChi, TrangThai, NgayTao)
             VALUES (@MaKH, @FullName, @Cccd, @Dob, @Gender, @Phone, @Email, @Address, N'Active', SYSDATETIME());
         END

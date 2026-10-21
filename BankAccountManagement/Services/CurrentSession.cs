@@ -17,6 +17,77 @@ namespace BankAccountManagement.Services
         public static string MaKH => User?.MaKH;
         public static string HoTen => User?.HoTen;
         public static string Email => User?.Email;
+        public static string MaNganHang => User?.MaNganHang;
+        public static string TenNganHang => User?.TenNganHang;
+
+        /// <summary>
+        /// Cờ đánh dấu người dùng đang tự chọn hạng trên TopBar ComboBox để kiểm thử giao diện.
+        /// Khi true, hệ thống không tự động ghi đè hạng dựa trên số dư tài khoản.
+        /// </summary>
+        public static bool IsManualTierOverride { get; set; } = false;
+
+        /// <summary>Hạng thành viên hiện tại (Mặc định cho người mới bắt đầu: Hạng Tiêu Chuẩn - Dưới 200 triệu).</summary>
+        private static string _selectedUserTier = "Hạng Tiêu Chuẩn";
+        public static event Action<string> OnTierChanged;
+
+        /// <summary>Hạng thành viên hiện tại (Mặc định cho người mới bắt đầu: Hạng Tiêu Chuẩn - Dưới 200 triệu).</summary>
+        public static string SelectedUserTier
+        {
+            get => _selectedUserTier;
+            set
+            {
+                if (_selectedUserTier != value)
+                {
+                    _selectedUserTier = value;
+                    OnTierChanged?.Invoke(value);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Lấy tổng số dư thực tế tất cả tài khoản của người dùng hiện tại từ CSDL.
+        /// </summary>
+        public static decimal GetUserTotalBalance()
+        {
+            if (User == null) return 0m;
+            try
+            {
+                string maKH = User.MaKH ?? "";
+                string uName = User.TenDangNhap ?? "";
+                DatabaseConfig config = DatabaseConfigManager.Load();
+                using (var conn = DatabaseService.CreateConnection(config))
+                {
+                    conn.Open();
+                    const string sql = @"
+                        SELECT ISNULL(SUM(TK.SoDuHienTai), 0)
+                        FROM dbo.TaiKhoan TK
+                        WHERE (TK.MaKH = @MaKH OR TK.MaKH IN (SELECT ND.MaKH FROM dbo.NguoiDung ND WHERE ND.TenDangNhap = @User AND ND.MaKH IS NOT NULL))
+                          AND (TK.TrangThai = 'Active' OR TK.TrangThai = N'Đang hoạt động' OR TK.TrangThai IS NULL)";
+                    using (var cmd = new SqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@MaKH", maKH);
+                        cmd.Parameters.AddWithValue("@User", uName);
+                        object res = cmd.ExecuteScalar();
+                        return (res != null && res != DBNull.Value) ? Convert.ToDecimal(res) : 0m;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[Session] GetUserTotalBalance error: {ex.Message}");
+                return 0m;
+            }
+        }
+
+        /// <summary>
+        /// Cập nhật hạng thành viên theo khoảng số dư thực tế trong CSDL.
+        /// </summary>
+        public static void RefreshTierByBalance()
+        {
+            if (!IsMember) return;
+            decimal totalBalance = GetUserTotalBalance();
+            UserTierTheme.UpdateSessionTierByBalance(totalBalance);
+        }
 
         /// <summary>True nếu user đã có hồ sơ KH đầy đủ và hợp lệ (không phải dummy).</summary>
         public static bool HasCustomerInfo =>
@@ -30,15 +101,20 @@ namespace BankAccountManagement.Services
         {
             if (user == null) throw new ArgumentNullException(nameof(user));
             User = user;
+            IsManualTierOverride = false; // Người mới bắt đầu hoặc vừa đăng nhập: tự động theo số dư
+            decimal initBal = GetUserTotalBalance();
+            _selectedUserTier = UserTierTheme.DetermineTierByBalance(initBal);
             System.Diagnostics.Debug.WriteLine(
                 $"[Session] SetUser: {user.TenDangNhap} | " +
-                $"Quyen={user.Quyen} | MaKH={user.MaKH ?? "NULL"} | IsFirstLogin={user.IsFirstLogin} | HasCompleteProfile={user.HasCompleteProfile}");
+                $"Quyen={user.Quyen} | MaKH={user.MaKH ?? "NULL"} | Tier={_selectedUserTier} | IsFirstLogin={user.IsFirstLogin} | HasCompleteProfile={user.HasCompleteProfile}");
         }
 
         public static void Clear()
         {
             System.Diagnostics.Debug.WriteLine($"[Session] Clear {User?.TenDangNhap}");
             User = null;
+            IsManualTierOverride = false;
+            _selectedUserTier = "Hạng Tiêu Chuẩn";
         }
 
         public static void RequireAdmin()
@@ -95,7 +171,7 @@ namespace BankAccountManagement.Services
                         {
                             if (!reader.Read())
                             {
-                                DebugLog($"Refresh: user #{User.MaNguoiDung} không tồn tại → clear");
+                                DebugLog($"Refresh: user #{User.MaNguoiDung} không tồn tại — clear");
                                 User = null;
                                 return false;
                             }
