@@ -324,6 +324,7 @@ namespace BankAccountManagement.Services
             using (var settings = new SettingsForm())
             {
                 settings.ShowDialog();
+                GC.KeepAlive(settings);
             }
 
             return DatabaseConfigManager.Exists();

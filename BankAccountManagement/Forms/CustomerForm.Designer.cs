@@ -137,7 +137,7 @@ namespace BankAccountManagement.Forms
             this.pnlToolbar.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlToolbar.Location = new System.Drawing.Point(0, 0);
             this.pnlToolbar.Name = "pnlToolbar";
-            this.pnlToolbar.Size = new System.Drawing.Size(1440, 76);
+            this.pnlToolbar.Size = new System.Drawing.Size(1440, 56);
             this.pnlToolbar.TabIndex = 0;
             // 
             // pnlToolbarLeft
@@ -148,7 +148,7 @@ namespace BankAccountManagement.Forms
             this.pnlToolbarLeft.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlToolbarLeft.Location = new System.Drawing.Point(0, 0);
             this.pnlToolbarLeft.Name = "pnlToolbarLeft";
-            this.pnlToolbarLeft.Size = new System.Drawing.Size(900, 76);
+            this.pnlToolbarLeft.Size = new System.Drawing.Size(900, 56);
             this.pnlToolbarLeft.TabIndex = 0;
             // 
             // btnSearch
@@ -161,13 +161,13 @@ namespace BankAccountManagement.Forms
             this.btnSearch.ForeColor = System.Drawing.Color.White;
             this.btnSearch.HoverBorder = System.Drawing.Color.Transparent;
             this.btnSearch.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(59)))), ((int)(((byte)(130)))), ((int)(((byte)(246)))));
-            this.btnSearch.Location = new System.Drawing.Point(376, 20);
+            this.btnSearch.Location = new System.Drawing.Point(264, 9);
             this.btnSearch.Name = "btnSearch";
             this.btnSearch.NormalBorder = System.Drawing.Color.Transparent;
             this.btnSearch.NormalColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
             this.btnSearch.PressedBorder = System.Drawing.Color.Transparent;
             this.btnSearch.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(29)))), ((int)(((byte)(78)))), ((int)(((byte)(216)))));
-            this.btnSearch.Size = new System.Drawing.Size(104, 40);
+            this.btnSearch.Size = new System.Drawing.Size(95, 38);
             this.btnSearch.TabIndex = 1;
             this.btnSearch.Text = "Tìm kiếm";
             this.btnSearch.TextColor = System.Drawing.Color.White;
@@ -182,9 +182,9 @@ namespace BankAccountManagement.Forms
             this.pnlSearchBox.Controls.Add(this.txtSearch);
             this.pnlSearchBox.Controls.Add(this.lblSearchIcon);
             this.pnlSearchBox.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
-            this.pnlSearchBox.Location = new System.Drawing.Point(24, 20);
+            this.pnlSearchBox.Location = new System.Drawing.Point(16, 9);
             this.pnlSearchBox.Name = "pnlSearchBox";
-            this.pnlSearchBox.Size = new System.Drawing.Size(340, 40);
+            this.pnlSearchBox.Size = new System.Drawing.Size(240, 38);
             this.pnlSearchBox.TabIndex = 0;
             // 
             // txtSearch
@@ -219,7 +219,7 @@ namespace BankAccountManagement.Forms
             this.pnlToolbarRight.Dock = System.Windows.Forms.DockStyle.Right;
             this.pnlToolbarRight.Location = new System.Drawing.Point(900, 0);
             this.pnlToolbarRight.Name = "pnlToolbarRight";
-            this.pnlToolbarRight.Size = new System.Drawing.Size(280, 76);
+            this.pnlToolbarRight.Size = new System.Drawing.Size(280, 56);
             this.pnlToolbarRight.TabIndex = 1;
             // 
             // flpToolbarRight
@@ -232,7 +232,7 @@ namespace BankAccountManagement.Forms
             this.flpToolbarRight.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
             this.flpToolbarRight.Location = new System.Drawing.Point(0, 0);
             this.flpToolbarRight.Name = "flpToolbarRight";
-            this.flpToolbarRight.Padding = new System.Windows.Forms.Padding(0, 20, 24, 0);
+            this.flpToolbarRight.Padding = new System.Windows.Forms.Padding(0, 9, 16, 0);
             this.flpToolbarRight.Size = new System.Drawing.Size(540, 76);
             this.flpToolbarRight.TabIndex = 0;
             this.flpToolbarRight.WrapContents = false;
@@ -254,7 +254,7 @@ namespace BankAccountManagement.Forms
             this.btnRefresh.NormalColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
             this.btnRefresh.PressedBorder = System.Drawing.Color.Transparent;
             this.btnRefresh.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(213)))), ((int)(((byte)(225)))));
-            this.btnRefresh.Size = new System.Drawing.Size(44, 40);
+            this.btnRefresh.Size = new System.Drawing.Size(38, 38);
             this.btnRefresh.TabIndex = 3;
             this.btnRefresh.Text = "";
             this.btnRefresh.TextColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
@@ -277,7 +277,7 @@ namespace BankAccountManagement.Forms
             this.btnEdit.NormalColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
             this.btnEdit.PressedBorder = System.Drawing.Color.Transparent;
             this.btnEdit.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(213)))), ((int)(((byte)(225)))));
-            this.btnEdit.Size = new System.Drawing.Size(96, 40);
+            this.btnEdit.Size = new System.Drawing.Size(75, 38);
             this.btnEdit.TabIndex = 1;
             this.btnEdit.Text = "Sửa";
             this.btnEdit.TextColor = System.Drawing.Color.FromArgb(((int)(((byte)(51)))), ((int)(((byte)(65)))), ((int)(((byte)(85)))));
@@ -300,7 +300,7 @@ namespace BankAccountManagement.Forms
             this.btnDelete.NormalColor = System.Drawing.Color.FromArgb(((int)(((byte)(254)))), ((int)(((byte)(242)))), ((int)(((byte)(242)))));
             this.btnDelete.PressedBorder = System.Drawing.Color.Transparent;
             this.btnDelete.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(254)))), ((int)(((byte)(202)))), ((int)(((byte)(202)))));
-            this.btnDelete.Size = new System.Drawing.Size(100, 40);
+            this.btnDelete.Size = new System.Drawing.Size(75, 38);
             this.btnDelete.TabIndex = 2;
             this.btnDelete.Text = "Xóa";
             this.btnDelete.TextColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(38)))), ((int)(((byte)(38)))));
@@ -311,10 +311,10 @@ namespace BankAccountManagement.Forms
             this.pnlStats.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
             this.pnlStats.Controls.Add(this.tlpStats);
             this.pnlStats.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlStats.Location = new System.Drawing.Point(0, 76);
+            this.pnlStats.Location = new System.Drawing.Point(0, 56);
             this.pnlStats.Name = "pnlStats";
-            this.pnlStats.Padding = new System.Windows.Forms.Padding(24, 20, 24, 8);
-            this.pnlStats.Size = new System.Drawing.Size(1440, 140);
+            this.pnlStats.Padding = new System.Windows.Forms.Padding(16, 6, 16, 6);
+            this.pnlStats.Size = new System.Drawing.Size(1440, 88);
             this.pnlStats.TabIndex = 1;
             // 
             // tlpStats
@@ -329,11 +329,11 @@ namespace BankAccountManagement.Forms
             this.tlpStats.Controls.Add(this.pnlStat3, 2, 0);
             this.tlpStats.Controls.Add(this.pnlStat4, 3, 0);
             this.tlpStats.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tlpStats.Location = new System.Drawing.Point(24, 20);
+            this.tlpStats.Location = new System.Drawing.Point(16, 6);
             this.tlpStats.Name = "tlpStats";
             this.tlpStats.RowCount = 1;
             this.tlpStats.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tlpStats.Size = new System.Drawing.Size(1392, 112);
+            this.tlpStats.Size = new System.Drawing.Size(1408, 76);
             this.tlpStats.TabIndex = 0;
             // 
             // pnlStat1
@@ -351,7 +351,7 @@ namespace BankAccountManagement.Forms
             this.pnlStat1.Location = new System.Drawing.Point(0, 0);
             this.pnlStat1.Margin = new System.Windows.Forms.Padding(0, 0, 16, 0);
             this.pnlStat1.Name = "pnlStat1";
-            this.pnlStat1.Size = new System.Drawing.Size(332, 112);
+            this.pnlStat1.Size = new System.Drawing.Size(332, 76);
             this.pnlStat1.TabIndex = 0;
             // 
             // lblStat1Value
@@ -360,7 +360,7 @@ namespace BankAccountManagement.Forms
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblStat1Value.Font = new System.Drawing.Font("Segoe UI", 22F, System.Drawing.FontStyle.Bold);
             this.lblStat1Value.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
-            this.lblStat1Value.Location = new System.Drawing.Point(76, 48);
+            this.lblStat1Value.Location = new System.Drawing.Point(64, 30);
             this.lblStat1Value.Name = "lblStat1Value";
             this.lblStat1Value.Size = new System.Drawing.Size(248, 44);
             this.lblStat1Value.TabIndex = 3;
@@ -372,7 +372,7 @@ namespace BankAccountManagement.Forms
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblStat1Title.Font = new System.Drawing.Font("Segoe UI", 8.75F, System.Drawing.FontStyle.Bold);
             this.lblStat1Title.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
-            this.lblStat1Title.Location = new System.Drawing.Point(76, 28);
+            this.lblStat1Title.Location = new System.Drawing.Point(64, 14);
             this.lblStat1Title.Name = "lblStat1Title";
             this.lblStat1Title.Size = new System.Drawing.Size(248, 18);
             this.lblStat1Title.TabIndex = 2;
@@ -383,9 +383,9 @@ namespace BankAccountManagement.Forms
             this.lblStat1Icon.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
             this.lblStat1Icon.Font = new System.Drawing.Font("Segoe MDL2 Assets", 20F);
             this.lblStat1Icon.ForeColor = System.Drawing.Color.White;
-            this.lblStat1Icon.Location = new System.Drawing.Point(16, 26);
+            this.lblStat1Icon.Location = new System.Drawing.Point(14, 17);
             this.lblStat1Icon.Name = "lblStat1Icon";
-            this.lblStat1Icon.Size = new System.Drawing.Size(52, 52);
+            this.lblStat1Icon.Size = new System.Drawing.Size(42, 42);
             this.lblStat1Icon.TabIndex = 1;
             this.lblStat1Icon.Text = "";
             this.lblStat1Icon.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -393,9 +393,9 @@ namespace BankAccountManagement.Forms
             // pnlStat1Accent
             // 
             this.pnlStat1Accent.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
-            this.pnlStat1Accent.Location = new System.Drawing.Point(0, 16);
+            this.pnlStat1Accent.Location = new System.Drawing.Point(0, 12);
             this.pnlStat1Accent.Name = "pnlStat1Accent";
-            this.pnlStat1Accent.Size = new System.Drawing.Size(5, 80);
+            this.pnlStat1Accent.Size = new System.Drawing.Size(5, 52);
             this.pnlStat1Accent.TabIndex = 0;
             // 
             // pnlStat2
@@ -413,7 +413,7 @@ namespace BankAccountManagement.Forms
             this.pnlStat2.Location = new System.Drawing.Point(348, 0);
             this.pnlStat2.Margin = new System.Windows.Forms.Padding(0, 0, 16, 0);
             this.pnlStat2.Name = "pnlStat2";
-            this.pnlStat2.Size = new System.Drawing.Size(332, 112);
+            this.pnlStat2.Size = new System.Drawing.Size(332, 76);
             this.pnlStat2.TabIndex = 1;
             // 
             // lblStat2Value
@@ -422,7 +422,7 @@ namespace BankAccountManagement.Forms
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblStat2Value.Font = new System.Drawing.Font("Segoe UI", 22F, System.Drawing.FontStyle.Bold);
             this.lblStat2Value.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
-            this.lblStat2Value.Location = new System.Drawing.Point(76, 48);
+            this.lblStat2Value.Location = new System.Drawing.Point(64, 30);
             this.lblStat2Value.Name = "lblStat2Value";
             this.lblStat2Value.Size = new System.Drawing.Size(248, 44);
             this.lblStat2Value.TabIndex = 3;
@@ -434,7 +434,7 @@ namespace BankAccountManagement.Forms
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblStat2Title.Font = new System.Drawing.Font("Segoe UI", 8.75F, System.Drawing.FontStyle.Bold);
             this.lblStat2Title.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
-            this.lblStat2Title.Location = new System.Drawing.Point(76, 28);
+            this.lblStat2Title.Location = new System.Drawing.Point(64, 14);
             this.lblStat2Title.Name = "lblStat2Title";
             this.lblStat2Title.Size = new System.Drawing.Size(248, 18);
             this.lblStat2Title.TabIndex = 2;
@@ -445,9 +445,9 @@ namespace BankAccountManagement.Forms
             this.lblStat2Icon.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(16)))), ((int)(((byte)(185)))), ((int)(((byte)(129)))));
             this.lblStat2Icon.Font = new System.Drawing.Font("Segoe MDL2 Assets", 20F);
             this.lblStat2Icon.ForeColor = System.Drawing.Color.White;
-            this.lblStat2Icon.Location = new System.Drawing.Point(16, 26);
+            this.lblStat2Icon.Location = new System.Drawing.Point(14, 17);
             this.lblStat2Icon.Name = "lblStat2Icon";
-            this.lblStat2Icon.Size = new System.Drawing.Size(52, 52);
+            this.lblStat2Icon.Size = new System.Drawing.Size(42, 42);
             this.lblStat2Icon.TabIndex = 1;
             this.lblStat2Icon.Text = "";
             this.lblStat2Icon.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -455,9 +455,9 @@ namespace BankAccountManagement.Forms
             // pnlStat2Accent
             // 
             this.pnlStat2Accent.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(16)))), ((int)(((byte)(185)))), ((int)(((byte)(129)))));
-            this.pnlStat2Accent.Location = new System.Drawing.Point(0, 16);
+            this.pnlStat2Accent.Location = new System.Drawing.Point(0, 12);
             this.pnlStat2Accent.Name = "pnlStat2Accent";
-            this.pnlStat2Accent.Size = new System.Drawing.Size(5, 80);
+            this.pnlStat2Accent.Size = new System.Drawing.Size(5, 52);
             this.pnlStat2Accent.TabIndex = 0;
             // 
             // pnlStat3
@@ -475,7 +475,7 @@ namespace BankAccountManagement.Forms
             this.pnlStat3.Location = new System.Drawing.Point(696, 0);
             this.pnlStat3.Margin = new System.Windows.Forms.Padding(0, 0, 16, 0);
             this.pnlStat3.Name = "pnlStat3";
-            this.pnlStat3.Size = new System.Drawing.Size(332, 112);
+            this.pnlStat3.Size = new System.Drawing.Size(332, 76);
             this.pnlStat3.TabIndex = 2;
             // 
             // lblStat3Value
@@ -484,7 +484,7 @@ namespace BankAccountManagement.Forms
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblStat3Value.Font = new System.Drawing.Font("Segoe UI", 22F, System.Drawing.FontStyle.Bold);
             this.lblStat3Value.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
-            this.lblStat3Value.Location = new System.Drawing.Point(76, 48);
+            this.lblStat3Value.Location = new System.Drawing.Point(64, 30);
             this.lblStat3Value.Name = "lblStat3Value";
             this.lblStat3Value.Size = new System.Drawing.Size(248, 44);
             this.lblStat3Value.TabIndex = 3;
@@ -496,7 +496,7 @@ namespace BankAccountManagement.Forms
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblStat3Title.Font = new System.Drawing.Font("Segoe UI", 8.75F, System.Drawing.FontStyle.Bold);
             this.lblStat3Title.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
-            this.lblStat3Title.Location = new System.Drawing.Point(76, 28);
+            this.lblStat3Title.Location = new System.Drawing.Point(64, 14);
             this.lblStat3Title.Name = "lblStat3Title";
             this.lblStat3Title.Size = new System.Drawing.Size(248, 18);
             this.lblStat3Title.TabIndex = 2;
@@ -507,9 +507,9 @@ namespace BankAccountManagement.Forms
             this.lblStat3Icon.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(158)))), ((int)(((byte)(11)))));
             this.lblStat3Icon.Font = new System.Drawing.Font("Segoe MDL2 Assets", 20F);
             this.lblStat3Icon.ForeColor = System.Drawing.Color.White;
-            this.lblStat3Icon.Location = new System.Drawing.Point(16, 26);
+            this.lblStat3Icon.Location = new System.Drawing.Point(14, 17);
             this.lblStat3Icon.Name = "lblStat3Icon";
-            this.lblStat3Icon.Size = new System.Drawing.Size(52, 52);
+            this.lblStat3Icon.Size = new System.Drawing.Size(42, 42);
             this.lblStat3Icon.TabIndex = 1;
             this.lblStat3Icon.Text = "";
             this.lblStat3Icon.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -517,9 +517,9 @@ namespace BankAccountManagement.Forms
             // pnlStat3Accent
             // 
             this.pnlStat3Accent.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(158)))), ((int)(((byte)(11)))));
-            this.pnlStat3Accent.Location = new System.Drawing.Point(0, 16);
+            this.pnlStat3Accent.Location = new System.Drawing.Point(0, 12);
             this.pnlStat3Accent.Name = "pnlStat3Accent";
-            this.pnlStat3Accent.Size = new System.Drawing.Size(5, 80);
+            this.pnlStat3Accent.Size = new System.Drawing.Size(5, 52);
             this.pnlStat3Accent.TabIndex = 0;
             // 
             // pnlStat4
@@ -537,7 +537,7 @@ namespace BankAccountManagement.Forms
             this.pnlStat4.Location = new System.Drawing.Point(1044, 0);
             this.pnlStat4.Margin = new System.Windows.Forms.Padding(0);
             this.pnlStat4.Name = "pnlStat4";
-            this.pnlStat4.Size = new System.Drawing.Size(348, 112);
+            this.pnlStat4.Size = new System.Drawing.Size(332, 76);
             this.pnlStat4.TabIndex = 3;
             // 
             // lblStat4Value
@@ -546,7 +546,7 @@ namespace BankAccountManagement.Forms
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblStat4Value.Font = new System.Drawing.Font("Segoe UI", 22F, System.Drawing.FontStyle.Bold);
             this.lblStat4Value.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
-            this.lblStat4Value.Location = new System.Drawing.Point(76, 48);
+            this.lblStat4Value.Location = new System.Drawing.Point(64, 30);
             this.lblStat4Value.Name = "lblStat4Value";
             this.lblStat4Value.Size = new System.Drawing.Size(264, 44);
             this.lblStat4Value.TabIndex = 3;
@@ -558,7 +558,7 @@ namespace BankAccountManagement.Forms
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblStat4Title.Font = new System.Drawing.Font("Segoe UI", 8.75F, System.Drawing.FontStyle.Bold);
             this.lblStat4Title.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
-            this.lblStat4Title.Location = new System.Drawing.Point(76, 28);
+            this.lblStat4Title.Location = new System.Drawing.Point(64, 14);
             this.lblStat4Title.Name = "lblStat4Title";
             this.lblStat4Title.Size = new System.Drawing.Size(264, 18);
             this.lblStat4Title.TabIndex = 2;
@@ -569,9 +569,9 @@ namespace BankAccountManagement.Forms
             this.lblStat4Icon.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(139)))), ((int)(((byte)(92)))), ((int)(((byte)(246)))));
             this.lblStat4Icon.Font = new System.Drawing.Font("Segoe MDL2 Assets", 20F);
             this.lblStat4Icon.ForeColor = System.Drawing.Color.White;
-            this.lblStat4Icon.Location = new System.Drawing.Point(16, 26);
+            this.lblStat4Icon.Location = new System.Drawing.Point(14, 17);
             this.lblStat4Icon.Name = "lblStat4Icon";
-            this.lblStat4Icon.Size = new System.Drawing.Size(52, 52);
+            this.lblStat4Icon.Size = new System.Drawing.Size(42, 42);
             this.lblStat4Icon.TabIndex = 1;
             this.lblStat4Icon.Text = "";
             this.lblStat4Icon.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -579,9 +579,9 @@ namespace BankAccountManagement.Forms
             // pnlStat4Accent
             // 
             this.pnlStat4Accent.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(139)))), ((int)(((byte)(92)))), ((int)(((byte)(246)))));
-            this.pnlStat4Accent.Location = new System.Drawing.Point(0, 16);
+            this.pnlStat4Accent.Location = new System.Drawing.Point(0, 12);
             this.pnlStat4Accent.Name = "pnlStat4Accent";
-            this.pnlStat4Accent.Size = new System.Drawing.Size(5, 80);
+            this.pnlStat4Accent.Size = new System.Drawing.Size(5, 52);
             this.pnlStat4Accent.TabIndex = 0;
             // 
             // pnlStatus
@@ -618,24 +618,24 @@ namespace BankAccountManagement.Forms
             // 
             this.splitMain.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
             this.splitMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitMain.Location = new System.Drawing.Point(0, 216);
+            this.splitMain.Location = new System.Drawing.Point(0, 144);
             this.splitMain.Name = "splitMain";
             // 
             // splitMain.Panel1
             // 
             this.splitMain.Panel1.Controls.Add(this.pnlGridCard);
-            this.splitMain.Panel1.Padding = new System.Windows.Forms.Padding(16, 12, 6, 16);
+            this.splitMain.Panel1.Padding = new System.Windows.Forms.Padding(16, 16, 8, 16);
             this.splitMain.Panel1MinSize = 400;
             // 
             // splitMain.Panel2
             // 
             this.splitMain.Panel2.Controls.Add(this.pnlDetailCard);
-            this.splitMain.Panel2.Padding = new System.Windows.Forms.Padding(6, 12, 16, 16);
+            this.splitMain.Panel2.Padding = new System.Windows.Forms.Padding(8, 16, 16, 16);
             this.splitMain.Panel2MinSize = 280;
             this.splitMain.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
             this.splitMain.Size = new System.Drawing.Size(1440, 624);
             this.splitMain.SplitterDistance = 1114;
-            this.splitMain.SplitterWidth = 6;
+            this.splitMain.SplitterWidth = 4;
             this.splitMain.TabIndex = 2;
             // 
             // pnlGridCard
@@ -664,7 +664,7 @@ namespace BankAccountManagement.Forms
             this.dgvCustomers.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
             this.dgvCustomers.BackgroundColor = System.Drawing.Color.White;
             this.dgvCustomers.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.dgvCustomers.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.SingleHorizontal;
+            this.dgvCustomers.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None;
             this.dgvCustomers.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
@@ -697,7 +697,7 @@ namespace BankAccountManagement.Forms
             this.dgvCustomers.DefaultCellStyle = dataGridViewCellStyle3;
             this.dgvCustomers.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvCustomers.EnableHeadersVisualStyles = false;
-            this.dgvCustomers.GridColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
+            this.dgvCustomers.GridColor = System.Drawing.Color.White;
             this.dgvCustomers.Location = new System.Drawing.Point(2, 66);
             this.dgvCustomers.MultiSelect = false;
             this.dgvCustomers.Name = "dgvCustomers";
@@ -1123,7 +1123,7 @@ namespace BankAccountManagement.Forms
             this.btnCancel.Margin = new System.Windows.Forms.Padding(0, 0, 6, 0);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.NormalBorder = System.Drawing.Color.Transparent;
-            this.btnCancel.NormalColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(128)))));
+            this.btnCancel.NormalColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
             this.btnCancel.PressedBorder = System.Drawing.Color.Transparent;
             this.btnCancel.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(213)))), ((int)(((byte)(225)))));
             this.btnCancel.Size = new System.Drawing.Size(223, 56);
@@ -1140,26 +1140,26 @@ namespace BankAccountManagement.Forms
             this.btnSave.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnSave.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSave.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
-            this.btnSave.ForeColor = System.Drawing.Color.White;
+            this.btnSave.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.btnSave.HoverBorder = System.Drawing.Color.Transparent;
             this.btnSave.HoverColor = System.Drawing.Color.FromArgb(((int)(((byte)(5)))), ((int)(((byte)(150)))), ((int)(((byte)(105)))));
             this.btnSave.Location = new System.Drawing.Point(255, 0);
             this.btnSave.Margin = new System.Windows.Forms.Padding(6, 0, 0, 0);
             this.btnSave.Name = "btnSave";
             this.btnSave.NormalBorder = System.Drawing.Color.Transparent;
-            this.btnSave.NormalColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
+            this.btnSave.NormalColor = System.Drawing.Color.FromArgb(((int)(((byte)(226)))), ((int)(((byte)(232)))), ((int)(((byte)(240)))));
             this.btnSave.PressedBorder = System.Drawing.Color.Transparent;
             this.btnSave.PressedColor = System.Drawing.Color.FromArgb(((int)(((byte)(59)))), ((int)(((byte)(130)))), ((int)(((byte)(246)))));
             this.btnSave.Size = new System.Drawing.Size(223, 56);
             this.btnSave.TabIndex = 1;
             this.btnSave.Text = "Lưu lại";
-            this.btnSave.TextColor = System.Drawing.Color.White;
+            this.btnSave.TextColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.btnSave.UseVisualStyleBackColor = false;
             // 
             // pnlDetailBanner
             // 
-            this.pnlDetailBanner.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(248)))), ((int)(((byte)(250)))), ((int)(((byte)(252)))));
-            this.pnlDetailBanner.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
+            this.pnlDetailBanner.BackColor = System.Drawing.Color.White;
+            this.pnlDetailBanner.BorderColor = System.Drawing.Color.Transparent;
             this.pnlDetailBanner.BorderRadius = 12;
             this.pnlDetailBanner.BorderSize = 0;
             this.pnlDetailBanner.Controls.Add(this.lblDetailSubtitle);
