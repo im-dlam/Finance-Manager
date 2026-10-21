@@ -1,4 +1,4 @@
-using BankAccountManagement.Models;
+﻿using BankAccountManagement.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -374,11 +374,11 @@ namespace BankAccountManagement.Services
                     }
                 }
 
-                // 3. Phân hạng thành viên theo tổng số dư
-                if (summary.TongSoDu >= 500000000m) summary.HangThanhVien = "Hạng Kim Cương";
-                else if (summary.TongSoDu >= 100000000m) summary.HangThanhVien = "Hạng Titan";
-                else if (summary.TongSoDu >= 20000000m) summary.HangThanhVien = "Hạng Vàng";
-                else summary.HangThanhVien = "Hạng Tiêu Chuẩn";
+                // 3. Phân hạng thành viên theo tổng số dư (Diamond: >= 1 tỷ, Gold: 500tr - 1 tỷ, Silver: 200 - 500tr, Standard: < 200tr)
+                summary.HangThanhVien = UserTierTheme.DetermineTierByBalance(summary.TongSoDu);
+
+
+
 
                 // 4. Lấy khoản vay sắp tới
                 summary.KhoanVaySapToi = await GetUpcomingLoanAsync(maKH);

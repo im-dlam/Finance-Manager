@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -53,16 +53,15 @@ namespace BankAccountManagement.Forms
 
         public RoundedButton()
         {
+            // Bật các style để vẽ mượt, không nháy
             SetStyle(ControlStyles.AllPaintingInWmPaint |
                      ControlStyles.UserPaint |
                      ControlStyles.OptimizedDoubleBuffer |
-                     ControlStyles.ResizeRedraw |
-                     ControlStyles.SupportsTransparentBackColor, true);
+                     ControlStyles.ResizeRedraw, true);
 
-            BackColor = Color.Transparent;
+            // KHÔNG set BackColor = Color.Transparent ở đây nữa
             FlatStyle = FlatStyle.Flat;
-            FlatAppearance.BorderSize = 0;                              // ✅ Ẩn border native
-            // FlatAppearance.BorderColor = Color.Transparent; // Throws NotSupportedException             // ✅ Màu border trong suốt
+            FlatAppearance.BorderSize = 0;
             UseVisualStyleBackColor = false;
             Cursor = Cursors.Hand;
         }
@@ -70,9 +69,31 @@ namespace BankAccountManagement.Forms
         protected override void OnHandleCreated(EventArgs e) { base.OnHandleCreated(e); UpdateRegion(); }
         protected override void OnSizeChanged(EventArgs e) { base.OnSizeChanged(e); UpdateRegion(); }
 
+        //private void UpdateRegion()
+        //{
+        //    if (Width <= 0 || Height <= 0) return;
+        //    if (_borderRadius <= 0) { Region = null; return; }
+
+        //    using (var path = GetRoundedPath(new RectangleF(0, 0, Width, Height), _borderRadius))
+        //    {
+        //        var old = Region;
+        //        Region = new Region(path);
+        //        old?.Dispose();
+        //    }
+        //}
+
+        private int _lastWidth = -1;
+        private int _lastHeight = -1;
+
         private void UpdateRegion()
         {
             if (Width <= 0 || Height <= 0) return;
+
+            // Nếu kích thước không đổi, bỏ qua để đỡ tốn CPU
+            if (_lastWidth == Width && _lastHeight == Height) return;
+            _lastWidth = Width;
+            _lastHeight = Height;
+
             if (_borderRadius <= 0) { Region = null; return; }
 
             using (var path = GetRoundedPath(new RectangleF(0, 0, Width, Height), _borderRadius))
@@ -82,12 +103,17 @@ namespace BankAccountManagement.Forms
                 old?.Dispose();
             }
         }
-
         protected override void OnMouseEnter(EventArgs e) { _isHovered = true; Invalidate(); base.OnMouseEnter(e); }
         protected override void OnMouseLeave(EventArgs e) { _isHovered = false; _isPressed = false; Invalidate(); base.OnMouseLeave(e); }
         protected override void OnMouseDown(MouseEventArgs e) { if (e.Button == MouseButtons.Left) _isPressed = true; Invalidate(); base.OnMouseDown(e); }
         protected override void OnMouseUp(MouseEventArgs e) { _isPressed = false; Invalidate(); base.OnMouseUp(e); }
         protected override void OnEnabledChanged(EventArgs e) { Invalidate(); base.OnEnabledChanged(e); }
+
+        // Chặn WinForms vẽ nền trắng mặc định
+        protected override void OnPaintBackground(PaintEventArgs pevent)
+        {
+            // Không gọi base.OnPaintBackground(pevent) để tránh nháy trắng
+        }
 
         protected override void OnPaint(PaintEventArgs pevent)
         {
@@ -106,19 +132,19 @@ namespace BankAccountManagement.Forms
             else if (_isHovered) { fill = _hoverColor; border = _hoverBorder; text = _textColor; }
             else { fill = _normalColor; border = _normalBorder; text = _textColor; }
 
-            if (fill.A == 0) fill = Color.White;
-
             if (_borderRadius > 0)
             {
                 using (var path = GetRoundedPath(new RectangleF(0, 0, Width, Height), _borderRadius))
                 {
-                    using (var brush = new SolidBrush(fill))
-                        g.FillPath(brush, path);
+                    // Chỉ vẽ nền nếu màu không phải là trong suốt hoàn toàn
+                    if (fill.A > 0)
+                    {
+                        using (var brush = new SolidBrush(fill))
+                            g.FillPath(brush, path);
+                    }
 
-                    // ✅ CHỈ VẼ VIỀN khi BorderSize > 0 VÀ màu viền có alpha > 0
                     if (_borderSize > 0 && border.A > 0)
                     {
-                        // Thu nhỏ path để viền không bị cắt
                         using (var pathBorder = GetRoundedPath(
                             new RectangleF(_borderSize / 2f, _borderSize / 2f,
                                            Width - _borderSize, Height - _borderSize),
@@ -132,8 +158,11 @@ namespace BankAccountManagement.Forms
             }
             else
             {
-                using (var brush = new SolidBrush(fill))
-                    g.FillRectangle(brush, 0, 0, Width, Height);
+                if (fill.A > 0)
+                {
+                    using (var brush = new SolidBrush(fill))
+                        g.FillRectangle(brush, 0, 0, Width, Height);
+                }
 
                 if (_borderSize > 0 && border.A > 0)
                 {

@@ -80,7 +80,7 @@ namespace BankAccountManagement.Forms
             this.pnlSearch.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlSearch.BackColor = System.Drawing.Color.Transparent;
             this.pnlSearch.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(203)))), ((int)(((byte)(213)))), ((int)(((byte)(225)))));
-            this.pnlSearch.BorderRadius = 10;
+            this.pnlSearch.BorderRadius = 0;
             this.pnlSearch.BorderSize = 1;
             this.pnlSearch.Controls.Add(this.lblSearchIcon);
             this.pnlSearch.Controls.Add(this.txtSearch);
@@ -118,7 +118,7 @@ namespace BankAccountManagement.Forms
             // 
             this.btnCart.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnCart.BackColor = System.Drawing.Color.Transparent;
-            this.btnCart.BorderRadius = 10;
+            this.btnCart.BorderRadius = 0;
             this.btnCart.BorderSize = 0;
             this.btnCart.Cursor = System.Windows.Forms.Cursors.Hand;
             this.btnCart.FlatStyle = System.Windows.Forms.FlatStyle.Flat;

@@ -341,7 +341,7 @@ namespace BankAccountManagement.Forms
                 NormalBorder = Color.FromArgb(99, 91, 255),
                 TextColor = Color.FromArgb(99, 91, 255),
                 BorderSize = 1,
-                BorderRadius = 8,
+                BorderRadius = 0,
                 Location = new Point(0, 0),
                 Size = new Size(btnCartWidth, 36),
                 Cursor = Cursors.Hand
@@ -375,7 +375,7 @@ namespace BankAccountManagement.Forms
                 PressedColor = Color.FromArgb(67, 56, 202),
                 TextColor = Color.White,
                 BorderSize = 0,
-                BorderRadius = 8,
+                BorderRadius = 0,
                 Location = new Point(innerWidth - btnBuyWidth, 0),
                 Size = new Size(btnBuyWidth, 36),
                 Cursor = Cursors.Hand

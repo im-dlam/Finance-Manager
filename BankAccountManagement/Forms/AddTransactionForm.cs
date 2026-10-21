@@ -6,6 +6,7 @@ using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
+using System.Linq;
 
 namespace BankAccountManagement
 {
@@ -56,10 +57,20 @@ namespace BankAccountManagement
         private string _selectedSenderCurrency = "VND";
         private decimal _selectedSenderQuyDoi = 1m;
 
+        public AddTransactionForm() : this(null) { }
+
         public AddTransactionForm(List<CurrencyInfo> currencies)
         {
             _transactionService = new TransactionService();
             _currencies = currencies;
+            if (_currencies == null || _currencies.Count == 0)
+            {
+                try
+                {
+                    _currencies = _transactionService.GetCurrencies();
+                }
+                catch { }
+            }
 
             InitializeCustomComponent();
             LoadDropdowns();
@@ -422,16 +433,21 @@ namespace BankAccountManagement
                 _selectedSenderBalance = row["SoDuHienTai"] != DBNull.Value ? Convert.ToDecimal(row["SoDuHienTai"]) : 0m;
                 _selectedSenderCurrency = row["MaLoaiTien"]?.ToString() ?? "VND";
                 _selectedSenderQuyDoi = row["QuyDoi"] != DBNull.Value ? Convert.ToDecimal(row["QuyDoi"]) : 1m;
-                if (_selectedSenderCurrency.Equals("USD", StringComparison.OrdinalIgnoreCase) && _selectedSenderQuyDoi <= 1)
+                if (_selectedSenderQuyDoi <= 1 && !_selectedSenderCurrency.Equals("VND", StringComparison.OrdinalIgnoreCase))
                 {
-                    _selectedSenderQuyDoi = 25400m;
+                    var matchedCurr = _currencies?.FirstOrDefault(c => string.Equals(c.MaLoaiTien, _selectedSenderCurrency, StringComparison.OrdinalIgnoreCase));
+                    if (matchedCurr != null && matchedCurr.QuyDoi > 0)
+                        _selectedSenderQuyDoi = matchedCurr.QuyDoi;
+                    else if (_selectedSenderCurrency.Equals("USD", StringComparison.OrdinalIgnoreCase))
+                        _selectedSenderQuyDoi = 25400m;
                 }
 
                 if (txtSoDuThucTe != null)
                 {
+                    decimal senderRate = _selectedSenderQuyDoi > 0 ? _selectedSenderQuyDoi : 1m;
                     decimal displayVND = (_selectedSenderCurrency == "VND")
                         ? _selectedSenderBalance
-                        : (_selectedSenderBalance * _selectedSenderQuyDoi);
+                        : (_selectedSenderBalance * senderRate);
                     txtSoDuThucTe.Text = $"{displayVND:N0} VND";
                 }
 
@@ -458,13 +474,23 @@ namespace BankAccountManagement
                 if (cur != null)
                 {
                     _selectedSenderCurrency = cur.MaLoaiTien;
-                    _selectedSenderQuyDoi = (cur.MaLoaiTien.Equals("USD", StringComparison.OrdinalIgnoreCase) && cur.QuyDoi <= 1) ? 25400m : cur.QuyDoi;
+                    decimal qd = cur.QuyDoi;
+                    if (qd <= 1 && !_selectedSenderCurrency.Equals("VND", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var matchedCurr = _currencies?.FirstOrDefault(c => string.Equals(c.MaLoaiTien, _selectedSenderCurrency, StringComparison.OrdinalIgnoreCase));
+                        if (matchedCurr != null && matchedCurr.QuyDoi > 0)
+                            qd = matchedCurr.QuyDoi;
+                        else if (_selectedSenderCurrency.Equals("USD", StringComparison.OrdinalIgnoreCase))
+                            qd = 25400m;
+                    }
+                    _selectedSenderQuyDoi = qd > 0 ? qd : 1m;
                 }
                 if (txtSoDuThucTe != null)
                 {
+                    decimal senderRate = _selectedSenderQuyDoi > 0 ? _selectedSenderQuyDoi : 1m;
                     decimal displayVND = (_selectedSenderCurrency == "VND")
                         ? _selectedSenderBalance
-                        : (_selectedSenderBalance * _selectedSenderQuyDoi);
+                        : (_selectedSenderBalance * senderRate);
                     txtSoDuThucTe.Text = $"{displayVND:N0} VND";
                 }
             }
@@ -633,7 +659,9 @@ namespace BankAccountManagement
                         cboLoaiGD.SelectedValue = 1;
                     else if (tt == "Rút tiền")
                         cboLoaiGD.SelectedValue = 2;
-                    else if (tt == "Chuyển khoản" || tt == "Thanh toán")
+                    else if (tt == "Thanh toán")
+                        cboLoaiGD.SelectedValue = 2;
+                    else if (tt == "Chuyển khoản")
                     {
                         // Khi Admin thực hiện thao tác Chuyển khoản đến số tài khoản người nhận,
                         // đối với tài khoản đích đó thì đây là khoản THU (Nhận chuyển khoản - MaLoaiGD = 4)
@@ -684,19 +712,57 @@ namespace BankAccountManagement
         private decimal ParseAmount(string text, string currency)
         {
             if (string.IsNullOrWhiteSpace(text)) return 0m;
-            string clean = text.Trim();
-            if (currency.Equals("USD", StringComparison.OrdinalIgnoreCase))
+            string clean = text.Trim().Replace(" ", "");
+
+            if (clean.Contains(",") && clean.Contains("."))
             {
-                clean = clean.Replace(",", "");
-                if (decimal.TryParse(clean, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out decimal val))
-                    return val;
+                if (clean.LastIndexOf('.') > clean.LastIndexOf(','))
+                {
+                    clean = clean.Replace(",", "");
+                }
+                else
+                {
+                    clean = clean.Replace(".", "").Replace(",", ".");
+                }
             }
-            else
+            else if (clean.Contains(","))
             {
-                clean = clean.Replace(".", "").Replace(",", "");
-                if (decimal.TryParse(clean, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out decimal val))
-                    return val;
+                if (currency.Equals("VND", StringComparison.OrdinalIgnoreCase) || 
+                    currency.Equals("JPY", StringComparison.OrdinalIgnoreCase) || 
+                    currency.Equals("KRW", StringComparison.OrdinalIgnoreCase))
+                {
+                    clean = clean.Replace(",", "");
+                }
+                else
+                {
+                    int commaCount = clean.Count(c => c == ',');
+                    if (commaCount > 1)
+                    {
+                        clean = clean.Replace(",", "");
+                    }
+                    else
+                    {
+                        int idx = clean.IndexOf(',');
+                        if (clean.Length - idx - 1 == 3 && idx <= 3)
+                            clean = clean.Replace(",", "");
+                        else
+                            clean = clean.Replace(",", ".");
+                    }
+                }
             }
+            else if (clean.Contains("."))
+            {
+                if (currency.Equals("VND", StringComparison.OrdinalIgnoreCase) || 
+                    currency.Equals("JPY", StringComparison.OrdinalIgnoreCase) || 
+                    currency.Equals("KRW", StringComparison.OrdinalIgnoreCase))
+                {
+                    clean = clean.Replace(".", "");
+                }
+            }
+
+            if (decimal.TryParse(clean, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out decimal val))
+                return val;
+
             return 0m;
         }
 
@@ -725,13 +791,19 @@ namespace BankAccountManagement
             }
 
             decimal tyGia = 1m;
-            if (currencyCode.Equals("USD", StringComparison.OrdinalIgnoreCase))
+            if (cboLoaiTien.SelectedItem is CurrencyInfo ciItem && !string.IsNullOrEmpty(ciItem.MaLoaiTien))
+            {
+                if (ciItem.QuyDoi > 0) tyGia = ciItem.QuyDoi;
+            }
+            else
+            {
+                var matchedCurr = _currencies?.FirstOrDefault(c => string.Equals(c.MaLoaiTien, currencyCode, StringComparison.OrdinalIgnoreCase));
+                if (matchedCurr != null && matchedCurr.QuyDoi > 0) tyGia = matchedCurr.QuyDoi;
+            }
+
+            if (currencyCode.Equals("USD", StringComparison.OrdinalIgnoreCase) && tyGia <= 1m)
             {
                 tyGia = 25400m;
-                if (cboLoaiTien.SelectedItem is CurrencyInfo curr && curr.QuyDoi > 1)
-                {
-                    tyGia = curr.QuyDoi;
-                }
             }
 
             decimal soTienVND = soTienGoc * tyGia;
@@ -740,9 +812,15 @@ namespace BankAccountManagement
             // KIỂM TRA SỐ DƯ REAL-TIME CHO USER: MỌI GIAO DỊCH KHÔNG THỂ QUÁ SỐ DƯ TÀI KHOẢN
             if (!CurrentSession.IsAdmin && !string.IsNullOrEmpty(_selectedSenderAccount))
             {
+                decimal senderRate = _selectedSenderQuyDoi > 0 ? _selectedSenderQuyDoi : 1m;
+                if (_selectedSenderCurrency.Equals("USD", StringComparison.OrdinalIgnoreCase) && senderRate <= 1m)
+                {
+                    senderRate = 25400m;
+                }
+
                 decimal availableVND = (_selectedSenderCurrency == "VND")
                     ? _selectedSenderBalance
-                    : (_selectedSenderBalance * (_selectedSenderQuyDoi > 1 ? _selectedSenderQuyDoi : 25400m));
+                    : (_selectedSenderBalance * senderRate);
 
                 if (soTienVND > availableVND)
                 {
@@ -758,13 +836,13 @@ namespace BankAccountManagement
             }
 
             lblQuyDoi.ForeColor = Color.ForestGreen;
-            if (currencyCode.Equals("USD", StringComparison.OrdinalIgnoreCase))
+            if (!currencyCode.Equals("VND", StringComparison.OrdinalIgnoreCase) && tyGia != 1m)
             {
-                lblQuyDoi.Text = $"Quy đổi: {soTienVND:N0} VND  (Tỷ giá: 1 USD = {tyGia:N0} VND)";
+                lblQuyDoi.Text = $"Quy đổi: {soTienVND:N0} VND  (Tỷ giá: 1 {currencyCode} = {tyGia:N0} VND)";
             }
             else
             {
-                lblQuyDoi.Text = $"Quy đổi: {soTienGoc:N0} VND";
+                lblQuyDoi.Text = $"Quy đổi: {soTienVND:N0} VND";
             }
         }
 
@@ -795,12 +873,20 @@ namespace BankAccountManagement
 
                 string loaiTien = currencyCode;
                 decimal quyDoi = 1m;
-                if (currencyCode.Equals("USD", StringComparison.OrdinalIgnoreCase))
+                if (cboLoaiTien.SelectedItem is CurrencyInfo curr && curr.QuyDoi > 0)
                 {
-                    if (cboLoaiTien.SelectedItem is CurrencyInfo curr && curr.QuyDoi > 1)
-                        quyDoi = curr.QuyDoi;
-                    else
-                        quyDoi = 25400m;
+                    quyDoi = curr.QuyDoi;
+                }
+                else
+                {
+                    var matchedCurr = _currencies?.FirstOrDefault(c => string.Equals(c.MaLoaiTien, currencyCode, StringComparison.OrdinalIgnoreCase));
+                    if (matchedCurr != null && matchedCurr.QuyDoi > 0)
+                        quyDoi = matchedCurr.QuyDoi;
+                }
+
+                if (currencyCode.Equals("USD", StringComparison.OrdinalIgnoreCase) && quyDoi <= 1m)
+                {
+                    quyDoi = 25400m;
                 }
                 decimal soTienVND = soTienGoc * quyDoi;
 
@@ -820,9 +906,15 @@ namespace BankAccountManagement
                         return;
                     }
 
+                    decimal senderRate = _selectedSenderQuyDoi > 0 ? _selectedSenderQuyDoi : 1m;
+                    if (_selectedSenderCurrency.Equals("USD", StringComparison.OrdinalIgnoreCase) && senderRate <= 1m)
+                    {
+                        senderRate = 25400m;
+                    }
+
                     decimal senderVndBalance = (_selectedSenderCurrency == "VND")
                         ? _selectedSenderBalance
-                        : (_selectedSenderBalance * (_selectedSenderQuyDoi > 1 ? _selectedSenderQuyDoi : 25400m));
+                        : (_selectedSenderBalance * senderRate);
 
                     // Kiểm tra số dư tài khoản gửi của User: MỌI GIAO DỊCH KHÔNG THỂ QUÁ SỐ DƯ TÀI KHOẢN
                     if (soTienVND > senderVndBalance)

@@ -1,4 +1,4 @@
-using BankAccountManagement.Models;
+﻿using BankAccountManagement.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -7,6 +7,45 @@ namespace BankAccountManagement.Services
 {
     public class NganHangService
     {
+        /// <summary>
+        /// Lấy toàn bộ danh sách ngân hàng công khai trực tiếp từ DB (dành cho Form Đăng ký / Đăng nhập).
+        /// </summary>
+        public static List<NganHang> GetPublicBanks()
+        {
+            var result = new List<NganHang>();
+            try
+            {
+                DatabaseConfig config = DatabaseConfigManager.Load();
+                using (var conn = DatabaseService.CreateConnection(config))
+                {
+                    conn.Open();
+                    const string sql = @"
+                        SELECT MaNganHang, TenNganHang, ChiNhanh, SwiftCode
+                        FROM   dbo.NganHang
+                        ORDER  BY CAST(SUBSTRING(MaNganHang, 3, 10) AS INT), MaNganHang;";
+
+                    using (var cmd = new SqlCommand(sql, conn))
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            result.Add(new NganHang
+                            {
+                                MaNganHang = reader["MaNganHang"]?.ToString(),
+                                TenNganHang = reader["TenNganHang"]?.ToString(),
+                                ChiNhanh = reader["ChiNhanh"]?.ToString(),
+                                SwiftCode = reader["SwiftCode"]?.ToString()
+                            });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("GetPublicBanks error: " + ex.Message);
+            }
+            return result;
+        }
         private readonly string _connectionString;
 
         public NganHangService()

@@ -63,6 +63,26 @@ namespace BankAccountManagement.Services
                                 BEGIN
                                     ALTER TABLE dbo.GiaoDich ADD MaLoaiTien VARCHAR(10) NULL;
                                 END;
+
+                                -- Tự động bổ sung giao dịch khởi tạo cho các tài khoản có số dư ban đầu nhưng chưa có giao dịch
+                                INSERT INTO dbo.GiaoDich 
+                                    (MaGiaoDich, SoTaiKhoan, MaLoaiGD, SoTien, SoTienGoc, 
+                                     MaLoaiTien, LoaiTien, NgayGiaoDich, NoiDung, TrangThai)
+                                SELECT 
+                                    'GD' + CONVERT(VARCHAR(8), TK.NgayMo, 112) + RIGHT('000000' + CAST(ABS(CHECKSUM(NEWID())) % 1000000 AS VARCHAR(6)), 6),
+                                    TK.SoTaiKhoan,
+                                    1, -- Nạp tiền / Thu
+                                    CASE WHEN TK.MaLoaiTien = 'VND' OR LT.QuyDoi IS NULL THEN TK.SoDuBanDau ELSE TK.SoDuBanDau * LT.QuyDoi END,
+                                    TK.SoDuBanDau,
+                                    ISNULL(TK.MaLoaiTien, 'VND'),
+                                    ISNULL(TK.MaLoaiTien, 'VND'),
+                                    TK.NgayMo,
+                                    N'Ngân hàng khởi tạo tài khoản',
+                                    'Success'
+                                FROM dbo.TaiKhoan TK
+                                LEFT JOIN dbo.LoaiTien LT ON TK.MaLoaiTien = LT.MaLoaiTien
+                                WHERE TK.SoDuBanDau > 0
+                                  AND NOT EXISTS (SELECT 1 FROM dbo.GiaoDich GD WHERE GD.SoTaiKhoan = TK.SoTaiKhoan);
                             END;";
                         using (var cmd = new SqlCommand(sql, conn))
                         {
@@ -129,7 +149,10 @@ namespace BankAccountManagement.Services
                         ISNULL(NULLIF(G.LoaiTien, ''), ISNULL(NULLIF(G.MaLoaiTien, ''), 'VND')) AS LoaiTien, 
                         ISNULL(NULLIF(G.MaLoaiTien, ''), ISNULL(NULLIF(G.LoaiTien, ''), 'VND')) AS MaLoaiTien, 
                         L.PhanLoai,
-                        L.TenLoaiGD AS ThaoTac, 
+                        CASE 
+                            WHEN G.NoiDung LIKE N'%khởi tạo%' THEN N'Khởi tạo'
+                            ELSE L.TenLoaiGD 
+                        END AS ThaoTac, 
                         G.TrangThai 
                     FROM dbo.GiaoDich G
                     INNER JOIN dbo.LoaiGiaoDich L ON G.MaLoaiGD = L.MaLoaiGD
@@ -212,7 +235,10 @@ namespace BankAccountManagement.Services
                         ISNULL(NULLIF(G.LoaiTien, ''), ISNULL(NULLIF(G.MaLoaiTien, ''), 'VND')) AS LoaiTien, 
                         ISNULL(NULLIF(G.MaLoaiTien, ''), ISNULL(NULLIF(G.LoaiTien, ''), 'VND')) AS MaLoaiTien, 
                         L.PhanLoai,
-                        L.TenLoaiGD AS ThaoTac, 
+                        CASE 
+                            WHEN G.NoiDung LIKE N'%khởi tạo%' THEN N'Khởi tạo'
+                            ELSE L.TenLoaiGD 
+                        END AS ThaoTac, 
                         G.TrangThai 
                     FROM dbo.GiaoDich G
                     INNER JOIN dbo.LoaiGiaoDich L ON G.MaLoaiGD = L.MaLoaiGD
@@ -529,7 +555,7 @@ namespace BankAccountManagement.Services
                                     (MaGiaoDich, SoTaiKhoan, MaLoaiGD, SoTien, SoTienGoc, 
                                      MaLoaiTien, LoaiTien, NgayGiaoDich, NoiDung, TrangThai)
                                 VALUES 
-                                    (@MaGD, @SoTaiKhoan, 1, @SoTienVND, @SoTienGoc, 
+                                    (@MaGD, @SoTaiKhoan, 4, @SoTienVND, @SoTienGoc, 
                                      @MaLoaiTien, @LoaiTien, @Ngay, @NoiDung, @TrangThai)";
                             using (SqlCommand cmd = new SqlCommand(sqlInsertRecipient, conn, transaction))
                             {
@@ -578,7 +604,7 @@ namespace BankAccountManagement.Services
                          INNER JOIN dbo.TaiKhoan TK    ON TK.SoTaiKhoan = G.SoTaiKhoan
                          WHERE  (@Kw = '' OR G.NoiDung LIKE N'%' + @Kw + N'%') 
                            AND  (@Tk = N'Tất cả' OR G.SoTaiKhoan = @Tk) 
-                           AND  (@Loai = N'Tất cả' OR L.TenLoaiGD = @Loai)
+                           AND  (@Loai = N'Tất cả' OR (@Loai = N'Khởi tạo' AND G.NoiDung LIKE N'%khởi tạo%') OR (@Loai = N'Nạp tiền' AND L.TenLoaiGD = @Loai AND G.NoiDung NOT LIKE N'%khởi tạo%') OR (@Loai <> N'Khởi tạo' AND @Loai <> N'Nạp tiền' AND L.TenLoaiGD = @Loai))
                            {userFilter}) AS TongGiaoDich,
 
                         (SELECT ISNULL(SUM(G.SoTien), 0) 
@@ -588,7 +614,7 @@ namespace BankAccountManagement.Services
                          WHERE  L.PhanLoai = 'INCOME'
                            AND  (@Kw = '' OR G.NoiDung LIKE N'%' + @Kw + N'%') 
                            AND  (@Tk = N'Tất cả' OR G.SoTaiKhoan = @Tk) 
-                           AND  (@Loai = N'Tất cả' OR L.TenLoaiGD = @Loai)
+                           AND  (@Loai = N'Tất cả' OR (@Loai = N'Khởi tạo' AND G.NoiDung LIKE N'%khởi tạo%') OR (@Loai = N'Nạp tiền' AND L.TenLoaiGD = @Loai AND G.NoiDung NOT LIKE N'%khởi tạo%') OR (@Loai <> N'Khởi tạo' AND @Loai <> N'Nạp tiền' AND L.TenLoaiGD = @Loai))
                            {userFilter}) AS TongThu,
 
                         (SELECT ISNULL(SUM(G.SoTien), 0) 
@@ -598,7 +624,7 @@ namespace BankAccountManagement.Services
                          WHERE  L.PhanLoai = 'EXPENSE'
                            AND  (@Kw = '' OR G.NoiDung LIKE N'%' + @Kw + N'%') 
                            AND  (@Tk = N'Tất cả' OR G.SoTaiKhoan = @Tk) 
-                           AND  (@Loai = N'Tất cả' OR L.TenLoaiGD = @Loai)
+                           AND  (@Loai = N'Tất cả' OR (@Loai = N'Khởi tạo' AND G.NoiDung LIKE N'%khởi tạo%') OR (@Loai = N'Nạp tiền' AND L.TenLoaiGD = @Loai AND G.NoiDung NOT LIKE N'%khởi tạo%') OR (@Loai <> N'Khởi tạo' AND @Loai <> N'Nạp tiền' AND L.TenLoaiGD = @Loai))
                            {userFilter}) AS TongChi";
 
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
@@ -848,7 +874,8 @@ namespace BankAccountManagement.Services
                     SELECT ISNULL(SUM(
                         CASE 
                             WHEN LT.MaLoaiTien = 'VND' THEN TK.SoDuHienTai 
-                            ELSE TK.SoDuHienTai * ISNULL(NULLIF(LT.QuyDoi, 1), 25400) 
+                            WHEN LT.MaLoaiTien = 'USD' AND (LT.QuyDoi IS NULL OR LT.QuyDoi <= 1) THEN TK.SoDuHienTai * 25400 
+                            ELSE TK.SoDuHienTai * ISNULL(LT.QuyDoi, 1.0) 
                         END
                     ), 0)
                     FROM dbo.TaiKhoan TK

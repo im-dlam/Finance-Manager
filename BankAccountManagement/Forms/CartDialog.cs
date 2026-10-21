@@ -188,7 +188,7 @@ namespace BankAccountManagement.Forms
                 NormalBorder = Color.FromArgb(203, 213, 225),
                 TextColor = Color.FromArgb(71, 85, 105),
                 BorderSize = 1,
-                BorderRadius = 8,
+                BorderRadius = 0,
                 Size = new Size(125, 42),
                 Location = new Point(140, 58),
                 Cursor = Cursors.Hand
@@ -216,7 +216,7 @@ namespace BankAccountManagement.Forms
                 PressedColor = Color.FromArgb(67, 56, 202),
                 TextColor = Color.White,
                 BorderSize = 0,
-                BorderRadius = 8,
+                BorderRadius = 0,
                 Size = new Size(190, 44),
                 Anchor = AnchorStyles.Top | AnchorStyles.Right,
                 Location = new Point(pnlBottom.Width - 210, 56),
@@ -382,7 +382,7 @@ namespace BankAccountManagement.Forms
                 Location = new Point(10, 9),
                 FillColor = Color.White,
                 BorderColor = Color.FromArgb(226, 232, 240),
-                BorderRadius = 8,
+                BorderRadius = 0,
                 BorderSize = 1
             };
             row.Controls.Add(pnlThumb);
