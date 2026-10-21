@@ -213,15 +213,7 @@ namespace BankAccountManagement.Forms
             HideError();
 
             this.DialogResult = DialogResult.OK;
-            // Trì hoãn việc đóng Form sang chu kỳ message tiếp theo bằng BeginInvoke
-            // nhằm đảm bảo sự kiện click và WndProc của Button hoàn tất giải phóng ngăn chặn lỗi CallbackOnCollectedDelegate
-            this.BeginInvoke((Action)(() =>
-            {
-                if (!this.IsDisposed)
-                {
-                    this.Close();
-                }
-            }));
+            this.Close();
         }
 
         private void ResetLoginForm()

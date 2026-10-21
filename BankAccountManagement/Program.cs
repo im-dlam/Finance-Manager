@@ -17,45 +17,29 @@ namespace BankAccountManagement
 
         private void ShowLoginForm(string prefillUser = null)
         {
-            _loginForm = new LoginForm(prefillUser);
-            _loginForm.FormClosed += (s, e) =>
+            using (_loginForm = new LoginForm(prefillUser))
             {
-                if (_loginForm.DialogResult == DialogResult.OK && CurrentSession.User != null)
+                if (_loginForm.ShowDialog() == DialogResult.OK && CurrentSession.User != null)
                 {
-                    // Chờ LoginForm giải phóng hoàn toàn và thoát khỏi stack trước khi khởi tạo MainForm
-                    if (System.Threading.SynchronizationContext.Current != null)
-                    {
-                        System.Threading.SynchronizationContext.Current.Post(_ => ShowMainForm(), null);
-                    }
-                    else
-                    {
-                        ShowMainForm();
-                    }
+                    ShowMainForm();
                 }
                 else
                 {
                     ExitThread();
                 }
-            };
-            _loginForm.Show();
+            }
         }
 
         private void ShowMainForm()
         {
             _mainForm = new MainForm(CurrentSession.User);
+            this.MainForm = _mainForm;
             _mainForm.FormClosed += (s, e) =>
             {
                 if (_mainForm.DialogResult == DialogResult.Retry)
                 {
                     CurrentSession.Clear();
-                    if (System.Threading.SynchronizationContext.Current != null)
-                    {
-                        System.Threading.SynchronizationContext.Current.Post(_ => ShowLoginForm(), null);
-                    }
-                    else
-                    {
-                        ShowLoginForm();
-                    }
+                    ShowLoginForm();
                 }
                 else
                 {
@@ -79,7 +63,27 @@ namespace BankAccountManagement
                 return;
             }
 
-            Application.Run(new BankAppContext());
+            while (true)
+            {
+                using (var loginForm = new LoginForm())
+                {
+                    DialogResult result = loginForm.ShowDialog();
+                    if (result != DialogResult.OK || CurrentSession.User == null)
+                    {
+                        break;
+                    }
+                }
+
+                using (var mainForm = new MainForm(CurrentSession.User))
+                {
+                    Application.Run(mainForm);
+                    if (mainForm.DialogResult != DialogResult.Retry)
+                    {
+                        break;
+                    }
+                    CurrentSession.Clear();
+                }
+            }
         }
     }
 }
