@@ -21,14 +21,6 @@ namespace BankAccountManagement.Forms
     /// </summary>
     public partial class SignupForm : Form
     {
-        [DllImport("user32.dll")]
-        private static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
-
-        [DllImport("user32.dll")]
-        private static extern bool ReleaseCapture();
-
-        private const int WM_NCLBUTTONDOWN = 0xA1;
-        private const int HT_CAPTION = 0x2;
 
         private bool _passVisible = false;
         private bool _confirmVisible = false;
@@ -141,11 +133,19 @@ namespace BankAccountManagement.Forms
 
         private void SetupEvents()
         {
-            btnClose.Click += (s, e) => { this.DialogResult = DialogResult.Cancel; this.BeginInvoke(new Action(() => this.Close())); };
+            btnClose.Click += (s, e) => { this.DialogResult = DialogResult.Cancel; };
 
-            pnlSide.MouseDown += DragForm;
-            pnlMain.MouseDown += DragForm;
-            lblBrand.MouseDown += DragForm;
+            pnlSide.MouseDown += DragMouseDown;
+            pnlSide.MouseMove += DragMouseMove;
+            pnlSide.MouseUp += DragMouseUp;
+
+            pnlMain.MouseDown += DragMouseDown;
+            pnlMain.MouseMove += DragMouseMove;
+            pnlMain.MouseUp += DragMouseUp;
+
+            lblBrand.MouseDown += DragMouseDown;
+            lblBrand.MouseMove += DragMouseMove;
+            lblBrand.MouseUp += DragMouseUp;
 
             HookFocusLine(txtFullName, pnlNameLine);
             HookFocusLine(txtUsername, pnlUserLine);
@@ -178,11 +178,7 @@ namespace BankAccountManagement.Forms
 
             btnSignup.Click += BtnSignup_Click;
 
-            linkLogin.LinkClicked += (s, e) =>
-            {
-                this.DialogResult = DialogResult.Cancel;
-                this.BeginInvoke(new Action(() => this.Close()));
-            };
+            linkLogin.LinkClicked += (s, e) => { this.DialogResult = DialogResult.Cancel; };
         }
 
         private void OnEnterSignup(object sender, KeyEventArgs e)
@@ -200,13 +196,35 @@ namespace BankAccountManagement.Forms
             txt.Leave += (s, e) => line.BackColor = Color.FromArgb(220, 222, 230);
         }
 
-        private void DragForm(object sender, MouseEventArgs e)
+                private Point _dragStartCursor;
+        private Point _dragStartForm;
+        private bool _isDragging = false;
+
+        private void DragMouseDown(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Left && this.IsHandleCreated && !this.IsDisposed)
+            if (e.Button == MouseButtons.Left)
             {
-                ReleaseCapture();
-                SendMessage(Handle, WM_NCLBUTTONDOWN, HT_CAPTION, 0);
+                _isDragging = true;
+                _dragStartCursor = Cursor.Position;
+                _dragStartForm = this.Location;
             }
+        }
+
+        private void DragMouseMove(object sender, MouseEventArgs e)
+        {
+            if (_isDragging && e.Button == MouseButtons.Left)
+            {
+                Point cur = Cursor.Position;
+                this.Location = new Point(
+                    _dragStartForm.X + (cur.X - _dragStartCursor.X),
+                    _dragStartForm.Y + (cur.Y - _dragStartCursor.Y)
+                );
+            }
+        }
+
+        private void DragMouseUp(object sender, MouseEventArgs e)
+        {
+            _isDragging = false;
         }
 
         private void SetupPlaceholders()
@@ -294,8 +312,8 @@ namespace BankAccountManagement.Forms
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
 
             RegisteredUsername = username;
+
             this.DialogResult = DialogResult.OK;
-            this.BeginInvoke(new Action(() => this.Close()));
         }
 
         private static bool IsValidEmail(string email)

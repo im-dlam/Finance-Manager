@@ -13,6 +13,21 @@ namespace BankAccountManagement.Services
             return DatabaseService.BuildConnectionString(config);
         }
 
+                public bool SetUserStatus(string maNguoiDung, string newStatus)
+        {
+            using (SqlConnection conn = new SqlConnection(GetConnectionString()))
+            {
+                conn.Open();
+                string updateSql = "UPDATE dbo.NguoiDung SET TrangThai = @NewStatus WHERE MaNguoiDung = @Ma";
+                using (SqlCommand cmdUpdate = new SqlCommand(updateSql, conn))
+                {
+                    cmdUpdate.Parameters.AddWithValue("@NewStatus", newStatus);
+                    cmdUpdate.Parameters.AddWithValue("@Ma", maNguoiDung);
+                    return cmdUpdate.ExecuteNonQuery() > 0;
+                }
+            }
+        }
+
         public bool ToggleUserStatus(string maNguoiDung)
         {
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
@@ -28,14 +43,7 @@ namespace BankAccountManagement.Services
                 }
 
                 string newStatus = (currentStatus == "Active") ? "Locked" : "Active";
-
-                string updateSql = "UPDATE dbo.NguoiDung SET TrangThai = @NewStatus WHERE MaNguoiDung = @Ma";
-                using (SqlCommand cmdUpdate = new SqlCommand(updateSql, conn))
-                {
-                    cmdUpdate.Parameters.AddWithValue("@NewStatus", newStatus);
-                    cmdUpdate.Parameters.AddWithValue("@Ma", maNguoiDung);
-                    return cmdUpdate.ExecuteNonQuery() > 0;
-                }
+                return SetUserStatus(maNguoiDung, newStatus);
             }
         }
 
@@ -65,7 +73,8 @@ namespace BankAccountManagement.Services
                 string sql = isAdmin 
                     ? @"SELECT MaNguoiDung, TenDangNhap, HoTen, Quyen, Email, TrangThai, NgayTao 
                         FROM dbo.NguoiDung 
-                        WHERE (TenDangNhap LIKE @Keyword OR HoTen LIKE @Keyword OR Email LIKE @Keyword)
+                        WHERE (TenDangNhap LIKE @Keyword OR HoTen LIKE @Keyword OR Email LIKE @Keyword 
+                               OR CAST(MaNguoiDung AS NVARCHAR) LIKE @Keyword OR Quyen LIKE @Keyword OR TrangThai LIKE @Keyword)
                         ORDER BY MaNguoiDung ASC"
                     : @"SELECT MaKH, HoTen, CMND_CCCD, NgaySinh, GioiTinh, SoDienThoai, Email, DiaChi, TrangThai 
                         FROM dbo.ThongTinKhachHang 
@@ -91,10 +100,10 @@ namespace BankAccountManagement.Services
                                VALUES (@TenDangNhap, '123456', @HoTen, @Quyen, @Email, 'Active', GETDATE())";
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
-                    cmd.Parameters.AddWithValue("@TenDangNhap", tenDangNhap);
-                    cmd.Parameters.AddWithValue("@HoTen", hoTen);
-                    cmd.Parameters.AddWithValue("@Quyen", quyen);
-                    cmd.Parameters.AddWithValue("@Email", email);
+                    cmd.Parameters.Add("@TenDangNhap", SqlDbType.VarChar, 50).Value = tenDangNhap;
+                    cmd.Parameters.Add("@HoTen", SqlDbType.NVarChar, 100).Value = (object)hoTen ?? DBNull.Value;
+                    cmd.Parameters.Add("@Quyen", SqlDbType.VarChar, 20).Value = (object)quyen ?? "Member";
+                    cmd.Parameters.Add("@Email", SqlDbType.VarChar, 100).Value = (object)email ?? DBNull.Value;
                     return cmd.ExecuteNonQuery() > 0;
                 }
             }
@@ -110,11 +119,11 @@ namespace BankAccountManagement.Services
                                WHERE MaNguoiDung = @MaND";
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
-                    cmd.Parameters.AddWithValue("@MaND", maND);
-                    cmd.Parameters.AddWithValue("@TenDangNhap", tenDangNhap);
-                    cmd.Parameters.AddWithValue("@HoTen", hoTen);
-                    cmd.Parameters.AddWithValue("@Quyen", quyen);
-                    cmd.Parameters.AddWithValue("@Email", email);
+                    cmd.Parameters.Add("@MaND", SqlDbType.Int).Value = int.Parse(maND);
+                    cmd.Parameters.Add("@TenDangNhap", SqlDbType.VarChar, 50).Value = tenDangNhap;
+                    cmd.Parameters.Add("@HoTen", SqlDbType.NVarChar, 100).Value = (object)hoTen ?? DBNull.Value;
+                    cmd.Parameters.Add("@Quyen", SqlDbType.VarChar, 20).Value = (object)quyen ?? "Member";
+                    cmd.Parameters.Add("@Email", SqlDbType.VarChar, 100).Value = (object)email ?? DBNull.Value;
                     return cmd.ExecuteNonQuery() > 0;
                 }
             }
