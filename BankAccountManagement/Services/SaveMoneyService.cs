@@ -9,24 +9,31 @@ namespace BankAccountManagement.Services
 {
     /// <summary>
     /// Dịch vụ xử lý toàn bộ nghiệp vụ Gửi Tiết Kiệm Trực Tuyến & Quản lý Huy động vốn:
-    /// - Quản lý kỳ hạn và niêm yết lãi suất ngân hàng
-    /// - Tính toán tiền lãi dự tính và số tiền nhận khi đáo hạn
-    /// - Mở tài khoản tiết kiệm trực tuyến trừ tiền vào tài khoản nguồn
-    /// - Tất toán tài khoản tiết kiệm (đúng hạn hoặc trước hạn) hoàn gốc và lãi về tài khoản
-    /// - Cung cấp dữ liệu thống kê tổng quan và hồ sơ khách hàng cho Quản trị viên (Admin)
+    /// - Quản lý kỳ hạn và niêm yết biểu phí lãi suất ngân hàng chuẩn thị trường.
+    /// - Tính toán tiền lãi dự tính và tổng số tiền thực nhận khi đáo hạn.
+    /// - Mở sổ tiết kiệm trực tuyến: Khóa số dư tài khoản thanh toán và trích tiền tự động.
+    /// - Tất toán sổ tiết kiệm (đúng hạn hoặc trước hạn) hoàn gốc và lãi về tài khoản.
+    /// - Cung cấp dữ liệu thống kê tổng quan và hồ sơ khách hàng cho Quản trị viên (Admin).
     /// </summary>
     public class SaveMoneyService
     {
         private static SaveMoneyService _instance;
+
+        /// <summary>
+        /// Singleton instance của SaveMoneyService dùng xuyên suốt toàn bộ ứng dụng.
+        /// </summary>
         public static SaveMoneyService Instance => _instance ?? (_instance = new SaveMoneyService());
 
         private readonly DatabaseConfig _config;
 
+        /// <summary>
+        /// Danh mục các gói tiết kiệm chuẩn được niêm yết theo kỳ hạn tháng và lãi suất năm (%/năm).
+        /// </summary>
         public static readonly List<SavingsPackage> StandardPackages = new List<SavingsPackage>
         {
             new SavingsPackage { KyHanThang = 1, LaiSuatNam = 3.50m },
-            new SavingsPackage { KyHanThang = 3, LaiSuatNam = 4.75m }, // Khớp ảnh 2 & 3: 4.75%/năm
-            new SavingsPackage { KyHanThang = 6, LaiSuatNam = 6.75m }, // Khớp ảnh 1: 6.75%/năm
+            new SavingsPackage { KyHanThang = 3, LaiSuatNam = 4.75m }, // 4.75%/năm
+            new SavingsPackage { KyHanThang = 6, LaiSuatNam = 6.75m }, // 6.75%/năm
             new SavingsPackage { KyHanThang = 9, LaiSuatNam = 6.85m },
             new SavingsPackage { KyHanThang = 12, LaiSuatNam = 7.20m },
             new SavingsPackage { KyHanThang = 18, LaiSuatNam = 7.40m },
@@ -34,12 +41,20 @@ namespace BankAccountManagement.Services
             new SavingsPackage { KyHanThang = 36, LaiSuatNam = 7.80m }
         };
 
+        /// <summary>
+        /// Khởi tạo dịch vụ tiết kiệm với cấu hình cơ sở dữ liệu mặc định.
+        /// Tự động kiểm tra và đảm bảo bảng SoTietKiem tồn tại trong CSDL.
+        /// </summary>
         public SaveMoneyService()
         {
             _config = DatabaseConfigManager.Load();
             EnsureTableExists();
         }
 
+        /// <summary>
+        /// Tạo chuỗi kết nối SQL Server từ cấu hình hiện tại.
+        /// </summary>
+        /// <returns>Chuỗi kết nối ConnectionString</returns>
         private string GetConnectionString()
         {
             return DatabaseService.BuildConnectionString(_config);
@@ -49,14 +64,18 @@ namespace BankAccountManagement.Services
 
         /// <summary>
         /// Đảm bảo bảng dbo.SoTietKiem luôn tồn tại trong cơ sở dữ liệu hệ thống.
+        /// Tự động thực thi câu lệnh DDL CREATE TABLE nếu bảng chưa có.
         /// </summary>
         public void EnsureTableExists()
         {
             try
             {
+                // BƯỚC 1: Mở kết nối đến SQL Server
                 using (var conn = new SqlConnection(GetConnectionString()))
                 {
                     conn.Open();
+
+                    // BƯỚC 2: Kiểm tra trong INFORMATION_SCHEMA xem bảng SoTietKiem đã tồn tại chưa
                     const string sql = @"
                         IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'SoTietKiem')
                         BEGIN
@@ -79,6 +98,8 @@ namespace BankAccountManagement.Services
                                 GhiChu NVARCHAR(500) NULL
                             );
                         END";
+
+                    // BƯỚC 3: Thực thi câu lệnh tạo bảng
                     using (var cmd = new SqlCommand(sql, conn))
                     {
                         cmd.ExecuteNonQuery();
@@ -95,11 +116,20 @@ namespace BankAccountManagement.Services
 
         #region PACKAGES & CALCULATION
 
+        /// <summary>
+        /// Lấy toàn bộ danh sách các gói gửi tiết kiệm chuẩn đang được niêm yết trong hệ thống.
+        /// </summary>
+        /// <returns>Danh sách các gói tiết kiệm StandardPackages</returns>
         public List<SavingsPackage> GetPackages()
         {
             return StandardPackages;
         }
 
+        /// <summary>
+        /// Tra cứu lãi suất hàng năm (%/năm) tương ứng với kỳ hạn gửi theo tháng.
+        /// </summary>
+        /// <param name="kyHanThang">Kỳ hạn gửi tính bằng tháng (1, 3, 6, 9, 12, 18, 24, 36)</param>
+        /// <returns>Mức lãi suất năm tương ứng hoặc lãi suất mặc định 6.75% nếu không tìm thấy</returns>
         public decimal GetRateByTerm(int kyHanThang)
         {
             var pkg = StandardPackages.Find(p => p.KyHanThang == kyHanThang);
@@ -108,30 +138,40 @@ namespace BankAccountManagement.Services
 
         /// <summary>
         /// Tính toán tiền lãi dự tính và tổng tiền nhận khi đáo hạn theo chuẩn ngân hàng.
+        /// Công thức: Tiền lãi = Số tiền gửi × (% Lãi suất / 100) × (Thời gian gửi / 12 tháng hoặc 365 ngày).
+        /// Tổng đáo hạn = Số tiền gửi + Tiền lãi dự tính.
         /// </summary>
+        /// <param name="soTien">Số tiền gửi tiết kiệm (VND)</param>
+        /// <param name="kyHanThang">Kỳ hạn gửi theo tháng</param>
+        /// <param name="ngayMo">Ngày bắt đầu mở sổ tiết kiệm (mặc định là ngày hôm nay)</param>
+        /// <returns>Đối tượng SavingsCalculationResult chứa kết quả tính toán chi tiết</returns>
         public SavingsCalculationResult CalculateSavings(decimal soTien, int kyHanThang, DateTime? ngayMo = null)
         {
+            // BƯỚC 1: Xác định ngày mở sổ và tính ngày đáo hạn chính xác
             DateTime start = ngayMo ?? DateTime.Today;
             DateTime due = start.AddMonths(kyHanThang);
             decimal rate = GetRateByTerm(kyHanThang);
             int days = (due - start).Days;
 
+            // BƯỚC 2: Tính toán tiền lãi dự tính theo quy tắc tài chính chuẩn
             decimal tienLai;
             if (kyHanThang == 6)
             {
-                // Khớp chính xác Ảnh 1: 10.000.000 * 6.75% * 6/12 = 337.500 đ
+                // Kỳ hạn 6 tháng: Tiền lãi = Vốn * (% Lãi / 100) * (6 / 12)
                 tienLai = Math.Round(soTien * (rate / 100m) * 6m / 12m, 0);
             }
             else if (kyHanThang == 3)
             {
-                // Khớp chính xác Ảnh 2: 10.000.000 * 4.75% * 92/365 = 119.726 đ -> Tổng 10.119.726 đ
+                // Kỳ hạn 3 tháng: Tiền lãi = Vốn * (% Lãi / 100) * (92 ngày / 365 ngày)
                 tienLai = Math.Round(soTien * (rate / 100m) * 92m / 365m, 0);
             }
             else
             {
+                // Các kỳ hạn khác: Tiền lãi tính theo tỷ lệ số tháng / 12 tháng trong năm
                 tienLai = Math.Round(soTien * (rate / 100m) * kyHanThang / 12m, 0);
             }
 
+            // BƯỚC 3: Tính tổng số tiền nhận được khi đến hạn
             decimal tongTien = soTien + tienLai;
 
             return new SavingsCalculationResult
@@ -154,6 +194,8 @@ namespace BankAccountManagement.Services
         /// <summary>
         /// Lấy danh sách các tài khoản ngân hàng hoạt động của khách hàng để trích nợ / nhận tiền tất toán.
         /// </summary>
+        /// <param name="maKH">Mã định danh khách hàng</param>
+        /// <returns>Danh sách tài khoản ngân hàng của khách hàng</returns>
         public async Task<List<TaiKhoan>> GetUserPaymentAccountsAsync(string maKH)
         {
             var list = new List<TaiKhoan>();
@@ -161,15 +203,19 @@ namespace BankAccountManagement.Services
 
             try
             {
+                // BƯỚC 1: Mở kết nối CSDL bất đồng bộ
                 using (var conn = new SqlConnection(GetConnectionString()))
                 {
                     await conn.OpenAsync();
+
+                    // BƯỚC 2: Truy vấn danh sách tài khoản thuộc MaKH và đang ở trạng thái Hoạt động
                     const string sql = @"
                         SELECT SoTaiKhoan, MaKH, MaNganHang, MaLoaiTien, SoDuBanDau, SoDuHienTai, NgayMo, TrangThai
                         FROM dbo.TaiKhoan
                         WHERE MaKH = @MaKH AND (TrangThai = 'Active' OR TrangThai = N'Hoạt động')
                         ORDER BY SoDuHienTai DESC";
 
+                    // BƯỚC 3: Đọc dữ liệu và ánh xạ sang đối tượng Model TaiKhoan
                     using (var cmd = new SqlCommand(sql, conn))
                     {
                         cmd.Parameters.AddWithValue("@MaKH", maKH);
@@ -207,7 +253,15 @@ namespace BankAccountManagement.Services
 
         /// <summary>
         /// Mở tài khoản tiết kiệm mới: Trừ tiền số dư tài khoản thanh toán, lưu thông tin sổ tiết kiệm và ghi nhận giao dịch.
+        /// Sử dụng giao dịch Database Transaction để đảm bảo tính toàn vẹn dữ liệu.
         /// </summary>
+        /// <param name="maKH">Mã khách hàng thực hiện mở sổ</param>
+        /// <param name="soTaiKhoanTrich">Số tài khoản thanh toán nguồn trích nợ</param>
+        /// <param name="soTienGui">Số tiền gửi vào sổ tiết kiệm (Tối thiểu 1.000.000 đ)</param>
+        /// <param name="kyHanThang">Kỳ hạn gửi theo tháng</param>
+        /// <param name="hinhThucDaoHan">Hình thức xử lý khi đáo hạn (Tái tục gốc, Tái tục gốc &amp; lãi, Chuyển về TK nguồn)</param>
+        /// <param name="tenDangNhap">Tên người dùng thực hiện giao dịch</param>
+        /// <returns>Bộ giá trị (Success: Mở thành công hay không, Message: Thông báo kết quả, Savings: Thông tin sổ vừa tạo)</returns>
         public async Task<(bool Success, string Message, SoTietKiem Savings)> OpenSavingsAccountAsync(
             string maKH,
             string soTaiKhoanTrich,
@@ -216,6 +270,7 @@ namespace BankAccountManagement.Services
             string hinhThucDaoHan,
             string tenDangNhap)
         {
+            // BƯỚC 1: Kiểm tra tính hợp lệ của tham số đầu vào
             if (string.IsNullOrWhiteSpace(maKH))
                 return (false, "Không tìm thấy mã khách hàng trong phiên đăng nhập.", null);
 
@@ -228,9 +283,10 @@ namespace BankAccountManagement.Services
             if (kyHanThang <= 0)
                 return (false, "Kỳ hạn gửi tiết kiệm không hợp lệ.", null);
 
+            // BƯỚC 2: Tính toán tiền lãi dự tính và ngày đáo hạn
             var calc = CalculateSavings(soTienGui, kyHanThang);
 
-            // Sinh mã sổ tiết kiệm chuẩn định dạng như ảnh: TK-83102228
+            // BƯỚC 3: Sinh mã sổ tiết kiệm chuẩn định dạng định danh hệ thống (TK-xxxxxxxx)
             string maSoTKTK = "TK-" + (new Random().Next(10000000, 99999999));
 
             try
@@ -242,7 +298,7 @@ namespace BankAccountManagement.Services
                     {
                         try
                         {
-                            // 1. Kiểm tra số dư khả dụng của tài khoản trích
+                            // BƯỚC 4: Khóa dòng và kiểm tra số dư khả dụng của tài khoản trích nợ
                             const string sqlCheck = @"
                                 SELECT SoDuHienTai 
                                 FROM dbo.TaiKhoan WITH (UPDLOCK, ROWLOCK) 
@@ -272,7 +328,7 @@ namespace BankAccountManagement.Services
                                 return (false, $"Số dư khả dụng ({soDuHienTai:N0} đ) không đủ để mở sổ tiết kiệm {soTienGui:N0} đ.", null);
                             }
 
-                            // 2. Trừ số dư tài khoản thanh toán nguồn
+                            // BƯỚC 5: Trừ tiền trực tiếp vào số dư tài khoản thanh toán nguồn
                             const string sqlDeduct = @"
                                 UPDATE dbo.TaiKhoan 
                                 SET SoDuHienTai = SoDuHienTai - @SoTien 
@@ -285,7 +341,7 @@ namespace BankAccountManagement.Services
                                 await cmdDeduct.ExecuteNonQueryAsync();
                             }
 
-                            // 3. Thêm bản ghi Sổ tiết kiệm mới vào dbo.SoTietKiem
+                            // BƯỚC 6: Tạo mới bản ghi Sổ tiết kiệm trong bảng dbo.SoTietKiem
                             const string sqlInsert = @"
                                 INSERT INTO dbo.SoTietKiem 
                                     (MaSoTKTK, MaKH, SoTaiKhoanTrich, SoTienGui, KyHanThang, 
@@ -314,7 +370,7 @@ namespace BankAccountManagement.Services
                                 await cmdInsert.ExecuteNonQueryAsync();
                             }
 
-                            // 4. Ghi nhận giao dịch rút tiền tiết kiệm vào dbo.GiaoDich (MaLoaiGD = 2: Rút tiền / Chi)
+                            // BƯỚC 7: Ghi nhận giao dịch rút tiền tiết kiệm vào bảng dbo.GiaoDich (MaLoaiGD = 2: Rút tiền / Chi)
                             string maGD = "GD" + DateTime.Now.ToString("yyMMddHHmmss") + (new Random().Next(100, 999));
                             string noiDung = $"[Mở sổ tiết kiệm {maSoTKTK}] Kỳ hạn {kyHanThang} tháng, lãi suất {calc.LaiSuatNam:N2}%/năm";
 
@@ -335,9 +391,10 @@ namespace BankAccountManagement.Services
                                 await cmdTx.ExecuteNonQueryAsync();
                             }
 
+                            // BƯỚC 8: Hoàn tất giao dịch cơ sở dữ liệu
                             tran.Commit();
 
-                            // Bắn thông báo cập nhật giao dịch toàn hệ thống
+                            // BƯỚC 9: Bắn thông báo cập nhật giao dịch toàn hệ thống
                             TransactionService.NotifyTransactionChanged();
 
                             var resultItem = new SoTietKiem
@@ -379,10 +436,13 @@ namespace BankAccountManagement.Services
 
         /// <summary>
         /// Tất toán sổ tiết kiệm:
-        /// - Nếu đúng hạn/quá hạn: Hưởng đủ 100% lãi suất kỳ hạn
-        /// - Nếu rút trước hạn: Hưởng lãi suất không kỳ hạn (0.2%/năm) theo số ngày thực gửi
+        /// - Nếu đúng hạn/quá hạn: Hưởng đủ 100% lãi suất kỳ hạn.
+        /// - Nếu rút trước hạn: Hưởng lãi suất không kỳ hạn (0.2%/năm) theo số ngày thực gửi.
         /// Tiền gốc và lãi được hoàn trả trực tiếp vào tài khoản thanh toán nguồn.
         /// </summary>
+        /// <param name="maSoTKTK">Mã sổ tiết kiệm cần tất toán</param>
+        /// <param name="tenDangNhap">Tên người dùng thực hiện tất toán</param>
+        /// <returns>Bộ giá trị (Success: Thành công hay không, Message: Thông báo, RefundTotal: Tổng hoàn trả, RefundInterest: Lãi nhận)</returns>
         public async Task<(bool Success, string Message, decimal RefundTotal, decimal RefundInterest)> SettleSavingsAccountAsync(
             string maSoTKTK,
             string tenDangNhap)
@@ -399,7 +459,7 @@ namespace BankAccountManagement.Services
                     {
                         try
                         {
-                            // 1. Lấy thông tin sổ tiết kiệm và khóa dòng
+                            // BƯỚC 1: Lấy thông tin sổ tiết kiệm và khóa dòng bằng UPDLOCK
                             const string sqlGet = @"
                                 SELECT MaSoTKTK, MaKH, SoTaiKhoanTrich, SoTienGui, KyHanThang, 
                                        LaiSuatNam, TienLaiDuTinh, TongTienDaoHanDuTinh, 
@@ -442,13 +502,13 @@ namespace BankAccountManagement.Services
                                 return (false, "Tài khoản tiết kiệm này đã được tất toán trước đó.", 0, 0);
                             }
 
-                            // 2. Tính toán tiền lãi thực nhận
+                            // BƯỚC 2: Tính toán tiền lãi thực nhận theo thời gian gửi thực tế
                             decimal tienLaiThucNhan = 0;
                             DateTime today = DateTime.Today;
 
                             if (today >= ngayDaoHan.Date)
                             {
-                                // Đúng hạn hoặc sau hạn: Hưởng đủ toàn bộ lãi dự tính kỳ hạn
+                                // Đúng hạn hoặc sau hạn: Hưởng đủ toàn bộ lãi dự tính theo kỳ hạn
                                 tienLaiThucNhan = tienLaiDuTinh;
                             }
                             else
@@ -461,7 +521,7 @@ namespace BankAccountManagement.Services
 
                             decimal tongTienHoanTra = soTienGui + tienLaiThucNhan;
 
-                            // 3. Cập nhật trạng thái sổ tiết kiệm sang 'Đã tất toán'
+                            // BƯỚC 3: Cập nhật trạng thái sổ tiết kiệm sang 'Đã tất toán'
                             const string sqlUpdate = @"
                                 UPDATE dbo.SoTietKiem 
                                 SET TrangThai = N'Đã tất toán', 
@@ -480,7 +540,7 @@ namespace BankAccountManagement.Services
                                 await cmdUpdate.ExecuteNonQueryAsync();
                             }
 
-                            // 4. Cộng hoàn trả Tiền gốc + Tiền lãi vào tài khoản thanh toán nguồn của khách
+                            // BƯỚC 4: Cộng hoàn trả Tiền gốc + Tiền lãi vào tài khoản thanh toán nguồn của khách
                             const string sqlRefund = @"
                                 UPDATE dbo.TaiKhoan 
                                 SET SoDuHienTai = SoDuHienTai + @TongTien 
@@ -493,7 +553,7 @@ namespace BankAccountManagement.Services
                                 await cmdRefund.ExecuteNonQueryAsync();
                             }
 
-                            // 5. Ghi nhận giao dịch hoàn trả tiền tiết kiệm vào dbo.GiaoDich (MaLoaiGD = 1: Nạp tiền / Thu)
+                            // BƯỚC 5: Ghi nhận giao dịch hoàn trả tiền tiết kiệm vào dbo.GiaoDich (MaLoaiGD = 1: Nạp tiền / Thu)
                             string maGD = "GD" + DateTime.Now.ToString("yyMMddHHmmss") + (new Random().Next(100, 999));
                             string desc = $"[Tất toán TKTK {maSoTKTK}] Hoàn gốc: {soTienGui:N0} đ, Lãi nhận: {tienLaiThucNhan:N0} đ";
 
@@ -514,9 +574,10 @@ namespace BankAccountManagement.Services
                                 await cmdTx.ExecuteNonQueryAsync();
                             }
 
+                            // BƯỚC 6: Hoàn tất Transaction
                             tran.Commit();
 
-                            // Bắn thông báo cập nhật số dư & lịch sử giao dịch toàn hệ thống
+                            // BƯỚC 7: Bắn thông báo cập nhật số dư & lịch sử giao dịch toàn hệ thống
                             TransactionService.NotifyTransactionChanged();
 
                             string note = today >= ngayDaoHan.Date
@@ -547,6 +608,8 @@ namespace BankAccountManagement.Services
         /// <summary>
         /// Lấy danh sách các tài khoản tiết kiệm của một khách hàng cụ thể (Phục vụ User View).
         /// </summary>
+        /// <param name="maKH">Mã định danh khách hàng</param>
+        /// <returns>Danh sách các sổ tiết kiệm của khách hàng</returns>
         public async Task<List<SoTietKiem>> GetUserSavingsListAsync(string maKH)
         {
             var list = new List<SoTietKiem>();
@@ -554,9 +617,12 @@ namespace BankAccountManagement.Services
 
             try
             {
+                // BƯỚC 1: Mở kết nối CSDL
                 using (var conn = new SqlConnection(GetConnectionString()))
                 {
                     await conn.OpenAsync();
+
+                    // BƯỚC 2: Truy vấn danh sách sổ tiết kiệm của khách hàng sắp xếp mới nhất lên đầu
                     const string sql = @"
                         SELECT STK.MaSoTKTK, STK.MaKH, KH.HoTen, STK.SoTaiKhoanTrich, 
                                STK.SoTienGui, STK.KyHanThang, STK.LaiSuatNam, 
@@ -569,6 +635,7 @@ namespace BankAccountManagement.Services
                         WHERE STK.MaKH = @MaKH
                         ORDER BY STK.NgayMo DESC";
 
+                    // BƯỚC 3: Đọc dữ liệu và ánh xạ sang Model SoTietKiem
                     using (var cmd = new SqlCommand(sql, conn))
                     {
                         cmd.Parameters.AddWithValue("@MaKH", maKH);
@@ -593,14 +660,21 @@ namespace BankAccountManagement.Services
         /// <summary>
         /// Lấy toàn bộ danh sách tài khoản tiết kiệm trong hệ thống có hỗ trợ lọc và tìm kiếm (Phục vụ Admin View).
         /// </summary>
+        /// <param name="keyword">Từ khóa tìm kiếm (Mã sổ, STK trích, Họ tên, Mã KH, Tên đăng nhập)</param>
+        /// <param name="status">Trạng thái lọc ("Tất cả", "Đang gửi", "Đã tất toán")</param>
+        /// <param name="filterMaKH">Lọc theo một mã khách hàng cụ thể (tùy chọn)</param>
+        /// <returns>Danh sách các sổ tiết kiệm thỏa mãn điều kiện</returns>
         public async Task<List<SoTietKiem>> GetAllSavingsListAsync(string keyword = null, string status = null, string filterMaKH = null)
         {
             var list = new List<SoTietKiem>();
             try
             {
+                // BƯỚC 1: Mở kết nối CSDL
                 using (var conn = new SqlConnection(GetConnectionString()))
                 {
                     await conn.OpenAsync();
+
+                    // BƯỚC 2: Xây dựng câu SQL động kèm các điều kiện lọc
                     string sql = @"
                         SELECT STK.MaSoTKTK, STK.MaKH, KH.HoTen, ND.TenDangNhap, STK.SoTaiKhoanTrich, 
                                STK.SoTienGui, STK.KyHanThang, STK.LaiSuatNam, 
@@ -634,6 +708,7 @@ namespace BankAccountManagement.Services
 
                     sql += " ORDER BY STK.NgayMo DESC";
 
+                    // BƯỚC 3: Gán tham số và thực thi đọc dữ liệu
                     using (var cmd = new SqlCommand(sql, conn))
                     {
                         if (!string.IsNullOrWhiteSpace(filterMaKH))
@@ -661,6 +736,11 @@ namespace BankAccountManagement.Services
             return list;
         }
 
+        /// <summary>
+        /// Ánh xạ một dòng dữ liệu từ SqlDataReader sang đối tượng Model SoTietKiem.
+        /// </summary>
+        /// <param name="reader">SqlDataReader đang trỏ tới bản ghi hiện tại</param>
+        /// <returns>Đối tượng SoTietKiem với các thông tin chi tiết</returns>
         private SoTietKiem MapSavingsReader(SqlDataReader reader)
         {
             var item = new SoTietKiem
@@ -705,14 +785,19 @@ namespace BankAccountManagement.Services
         /// <summary>
         /// Lấy danh sách hồ sơ khách hàng phục vụ cột thông tin bên Admin.
         /// </summary>
+        /// <param name="keyword">Từ khóa tìm kiếm khách hàng (tùy chọn)</param>
+        /// <returns>Danh sách CustomerSavingsProfile chứa thông tin tổng hợp của từng khách hàng</returns>
         public async Task<List<CustomerSavingsProfile>> GetAllCustomersWithSavingsAsync(string keyword = null)
         {
             var list = new List<CustomerSavingsProfile>();
             try
             {
+                // BƯỚC 1: Mở kết nối CSDL
                 using (var conn = new SqlConnection(GetConnectionString()))
                 {
                     await conn.OpenAsync();
+
+                    // BƯỚC 2: Truy vấn thông tin khách hàng kết hợp tổng số tiền gửi, số dư và số sổ tiết kiệm
                     string sql = @"
                         SELECT KH.MaKH, KH.HoTen, KH.CMND_CCCD, KH.SoDienThoai, KH.Email, KH.DiaChi,
                                ND.TenDangNhap,
@@ -738,6 +823,7 @@ namespace BankAccountManagement.Services
 
                     sql += " GROUP BY KH.MaKH, KH.HoTen, KH.CMND_CCCD, KH.SoDienThoai, KH.Email, KH.DiaChi, ND.TenDangNhap ORDER BY TongTienDangGui DESC, KH.HoTen ASC";
 
+                    // BƯỚC 3: Đọc và ánh xạ sang Model CustomerSavingsProfile
                     using (var cmd = new SqlCommand(sql, conn))
                     {
                         if (!string.IsNullOrWhiteSpace(keyword))
@@ -779,14 +865,18 @@ namespace BankAccountManagement.Services
         /// <summary>
         /// Lấy thống kê tổng quan toàn hệ thống về hoạt động huy động vốn tiết kiệm.
         /// </summary>
+        /// <returns>Đối tượng SavingsAdminOverview chứa số liệu tổng hợp</returns>
         public async Task<SavingsAdminOverview> GetAdminOverviewStatisticsAsync()
         {
             var overview = new SavingsAdminOverview();
             try
             {
+                // BƯỚC 1: Mở kết nối CSDL
                 using (var conn = new SqlConnection(GetConnectionString()))
                 {
                     await conn.OpenAsync();
+
+                    // BƯỚC 2: Thực thi truy vấn tính toán các chỉ số huy động vốn
                     const string sql = @"
                         SELECT 
                             COUNT(*) AS TongSoSo,
@@ -797,6 +887,7 @@ namespace BankAccountManagement.Services
                             ISNULL(SUM(CASE WHEN TrangThai = N'Đang gửi' THEN TienLaiDuTinh ELSE 0 END), 0) AS TongTienLaiDuTinh
                         FROM dbo.SoTietKiem";
 
+                    // BƯỚC 3: Đọc và gán số liệu vào Model
                     using (var cmd = new SqlCommand(sql, conn))
                     {
                         using (var reader = await cmd.ExecuteReaderAsync())
@@ -825,8 +916,17 @@ namespace BankAccountManagement.Services
         #endregion
     }
 
+    /// <summary>
+    /// Các phương thức mở rộng (Extension Methods) tiện ích cho SqlDataReader.
+    /// </summary>
     internal static class SqlDataReaderExtensions
     {
+        /// <summary>
+        /// Kiểm tra xem cột có tên chỉ định có tồn tại trong tập kết quả của SqlDataReader hay không.
+        /// </summary>
+        /// <param name="reader">Đối tượng SqlDataReader cần kiểm tra</param>
+        /// <param name="columnName">Tên cột cần tìm</param>
+        /// <returns>True nếu cột tồn tại, ngược lại False</returns>
         public static bool HasColumn(this SqlDataReader reader, string columnName)
         {
             for (int i = 0; i < reader.FieldCount; i++)

@@ -8,18 +8,52 @@ using System.Windows.Forms;
 
 namespace BankAccountManagement.Forms
 {
+    /// <summary>
+    /// Form Bảng điều khiển cá nhân dành cho Khách hàng (Member User Dashboard).
+    /// <para>
+    /// Cung cấp trải nghiệm ngân hàng số hiện đại:
+    /// - Thẻ ATM ảo (Virtual Card) đổi màu theo hạng tài khoản (Kim Cương / Vàng / Bạc / Tiêu Chuẩn), bật/tắt ẩn số dư, sao chép nhanh STK.
+    /// - 4 Tác vụ nhanh: Chuyển khoản, Mở thẻ tín dụng, Gửi tiết kiệm, Đăng ký vay vốn.
+    /// - Quản lý chỉ số chi tiêu thông minh: Theo dõi hạn mức ngày, tuần, cảnh báo vượt mức trực quan bằng thanh tiến độ đổi màu.
+    /// - Theo dõi khoản nợ &amp; kỳ hạn đáo hạn gần nhất, hỗ trợ thanh toán nợ ngay trong một cú nhấp.
+    /// - Danh sách các giao dịch phát sinh gần đây nhất.
+    /// </para>
+    /// </summary>
     public partial class DashboardUserForm : Form
     {
+        #region 1. CÁC BIẾN TRẠNG THÁI VÀ DỊCH VỤ
+
+        /// <summary>Dịch vụ quản lý hạn mức và thống kê chi tiêu.</summary>
         private readonly SpendingService _spendingService = new SpendingService();
+
+        /// <summary>Dịch vụ quản lý các khoản vay và tất toán nợ.</summary>
         private readonly BorrowingService _borrowingService = new BorrowingService();
+
+        /// <summary>Dịch vụ quản lý và tra cứu lịch sử giao dịch.</summary>
         private readonly TransactionService _transactionService = new TransactionService();
 
+        /// <summary>Đối tượng chứa toàn bộ dữ liệu tổng hợp của khách hàng trên trang chủ.</summary>
         private UserHomeSummary _summary = new UserHomeSummary();
+
+        /// <summary>Cờ bật / tắt hiển thị số dư tài khoản trên thẻ ATM ảo (mặc định ẩn ••••••••• để bảo mật).</summary>
         private bool _isBalanceVisible = false;
+
+        /// <summary>Chỉ số tài khoản đang được chọn hiển thị trong trường hợp khách hàng sở hữu nhiều tài khoản.</summary>
         private int _selectedAccountIndex = 0;
+
+        /// <summary>Delegate xử lý sự kiện đổi hạng thành viên thời gian thực.</summary>
         private Action<string> _tierChangedHandler;
+
+        /// <summary>Delegate xử lý sự kiện khi có giao dịch mới phát sinh trong hệ thống.</summary>
         private Action _transactionChangedHandler;
 
+        #endregion
+
+        #region 2. KHỞI TẠO VÀ ĐĂNG KÝ SỰ KIỆN (INITIALIZATION)
+
+        /// <summary>
+        /// Hàm dựng khởi tạo giao diện người dùng, bật DoubleBuffered và đăng ký các sự kiện tương tác.
+        /// </summary>
         public DashboardUserForm()
         {
             InitializeComponent();
@@ -27,7 +61,9 @@ namespace BankAccountManagement.Forms
             this.DoubleBuffered = true;
         }
 
-
+        /// <summary>
+        /// Đăng ký toàn bộ các sự kiện tương tác giao diện và sự kiện toàn cục.
+        /// </summary>
         private void WireEvents()
         {
             this.Load += async (s, e) =>
@@ -48,19 +84,24 @@ namespace BankAccountManagement.Forms
             };
             CurrentSession.OnTierChanged += _tierChangedHandler;
 
+            // Đăng ký nhận sự kiện khi có bất kỳ giao dịch phát sinh để tải lại dữ liệu tức thì
             _transactionChangedHandler = () =>
             {
                 if (this.IsDisposed || !this.IsHandleCreated) return;
                 this.BeginInvoke((Action)(async () => await LoadDashboardDataAsync()));
             };
             TransactionService.OnTransactionChanged += _transactionChangedHandler;
-            this.FormClosed += (s, e) => CurrentSession.OnTierChanged -= _tierChangedHandler;
-            TransactionService.OnTransactionChanged -= _transactionChangedHandler;
+
+            this.FormClosed += (s, e) =>
+            {
+                CurrentSession.OnTierChanged -= _tierChangedHandler;
+                TransactionService.OnTransactionChanged -= _transactionChangedHandler;
+            };
 
             btnToggleBalance.Click += BtnToggleBalance_Click;
             btnCopyStk.Click += BtnCopyStk_Click;
 
-            // Chuyển đổi tài khoản khi click vào dòng thông tin nếu có nhiều tài khoản
+            // Chuyển đổi qua lại giữa các tài khoản nếu khách hàng sở hữu nhiều tài khoản
             lblSwitchInfo.Cursor = Cursors.Hand;
             lblSwitchInfo.Click += (s, e) =>
             {
@@ -71,7 +112,7 @@ namespace BankAccountManagement.Forms
                 }
             };
 
-            // Click vào nhãn hạng để đổi nhanh hạng
+            // Nhấp vào nhãn Hạng thành viên để xem bảng tiêu chuẩn phân hạng và điều kiện nâng cấp
             lblUserTier.Cursor = Cursors.Hand;
             lblUserTier.Click += (s, e) =>
             {
@@ -103,16 +144,13 @@ Tiêu chuẩn phân hạng tài khoản:
                 MessageBox.Show(msg, "Thông tin Hạng Thành Viên", MessageBoxButtons.OK, MessageBoxIcon.Information);
             };
 
-            //btnNavHistory.Click += BtnNavHistory_Click;
-            //btnNavCards.Click += BtnNavCards_Click;
-
             // 4 Nút tác vụ nhanh (Quick Actions)
             btnQuickTransfer.Click += async (s, e) => await OpenQuickTransferDialogAsync();
             btnQuickCards.Click += (s, e) => OpenCreditCardsForm();
             btnQuickSavings.Click += (s, e) => OpenSavingsForm();
             btnQuickLoan.Click += (s, e) => OpenBorrowingForm();
 
-            // Khoản vay
+            // Khoản vay nợ
             btnPayDebt.Click += async (s, e) => await BtnPayDebt_ClickAsync();
             btnViewLoanDetails.Click += (s, e) => OpenBorrowingForm();
             btnRegisterLoan.Click += (s, e) => OpenBorrowingForm();
@@ -122,9 +160,14 @@ Tiêu chuẩn phân hạng tài khoản:
             btnViewAllTransactions.Click += (s, e) => BtnNavHistory_Click(s, e);
         }
 
+        #endregion
+
+        #region 3. THẺ ATM ẢO VÀ CHỦ ĐỀ HẠNG THÀNH VIÊN (VIRTUAL CARD THEMING)
+
         /// <summary>
-        /// Thay đổi phong cách và màu sắc Thẻ ATM ảo (Virtual Card) theo Hạng thành viên được chọn.
+        /// Thay đổi phong cách và màu sắc Thẻ ATM ảo (Virtual Card) theo Hạng thành viên (Kim Cương/Vàng/Bạc/Tiêu Chuẩn).
         /// </summary>
+        /// <param name="tierKey">Mã hoặc tên hạng cần áp dụng.</param>
         public void ApplyTierThemeToCard(string tierKey)
         {
             if (string.IsNullOrWhiteSpace(tierKey))
@@ -132,7 +175,6 @@ Tiêu chuẩn phân hạng tài khoản:
 
             var theme = UserTierTheme.GetTheme(tierKey);
 
-            // Cập nhật giao diện Thẻ ảo (Virtual Card) theo Theme đồng bộ
             pnlVirtualCard.FillColor = theme.CardBackground;
             pnlVirtualCard.BorderColor = theme.CardBorder;
             pnlVirtualCard.BorderSize = theme.CardBorderSize;
@@ -140,7 +182,6 @@ Tiêu chuẩn phân hạng tài khoản:
             lblVCardBrand.ForeColor = theme.PrimaryTextColor;
             lblVCardTier.Text = theme.BadgeText;
             lblVCardTier.ForeColor = theme.PrimaryTextColor;
-            //lblVCardChip.ForeColor = theme.AccentColor;
 
             lblAccountNumber.ForeColor = Color.White;
             btnCopyStk.ForeColor = theme.SecondaryTextColor;
@@ -157,8 +198,12 @@ Tiêu chuẩn phân hạng tài khoản:
             pnlVirtualCard.Invalidate();
         }
 
+        #endregion
+
+        #region 4. TẢI DỮ LIỆU BẤT ĐỒNG BỘ (ASYNC DATA LOADING)
+
         /// <summary>
-        /// Tải toàn bộ dữ liệu trang chủ User, tiến độ chi tiêu và giao dịch gần đây.
+        /// Tải toàn bộ dữ liệu tổng hợp Dashboard bất đồng bộ (Task.Run) để giữ giao diện phản hồi tức thì.
         /// </summary>
         public async Task LoadDashboardDataAsync()
         {
@@ -169,7 +214,7 @@ Tiêu chuẩn phân hạng tài khoản:
 
                 _summary = await _spendingService.GetUserHomeSummaryAsync(maKH, tenDangNhap);
 
-                // Cập nhật hạng thành viên tự động theo khoảng số dư thực tế (chỉ khi không bật test thủ công)
+                // Tự động thăng/hạ hạng tài khoản theo số dư thực tế nếu người dùng không chọn thủ công
                 if (_summary != null && !CurrentSession.IsManualTierOverride)
                 {
                     UserTierTheme.UpdateSessionTierByBalance(_summary.TongSoDu);
@@ -187,24 +232,26 @@ Tiêu chuẩn phân hạng tài khoản:
         }
 
         /// <summary>
-        /// Cập nhật hiển thị thẻ thông tin cá nhân và tài khoản.
+        /// Cập nhật hiển thị tên chủ thẻ, số tài khoản và số dư lên Thẻ ATM ảo.
         /// </summary>
         private void UpdateUserInfoUI()
         {
             if (_summary == null) return;
 
-            // Tên chủ thẻ
-            string hoTen = !string.IsNullOrWhiteSpace(_summary.HoTen) ? _summary.HoTen.Trim() : (!string.IsNullOrWhiteSpace(_summary.TenDangNhap) ? _summary.TenDangNhap.Trim() : "NGƯỜI DÙNG");
+            string hoTen = !string.IsNullOrWhiteSpace(_summary.HoTen)
+                ? _summary.HoTen.Trim()
+                : (!string.IsNullOrWhiteSpace(_summary.TenDangNhap) ? _summary.TenDangNhap.Trim() : "NGƯỜI DÙNG");
             lblUserName.Text = hoTen.ToUpper();
 
-            // Áp dụng theme theo hạng đang chọn
             ApplyTierThemeToCard(CurrentSession.SelectedUserTier);
 
-            // Số tài khoản & Số dư
             UpdateDisplayedAccount();
             UpdateBalanceDisplay();
         }
 
+        /// <summary>
+        /// Cập nhật số tài khoản đang được chọn hiển thị trên thẻ ATM ảo.
+        /// </summary>
         private void UpdateDisplayedAccount()
         {
             if (_summary.DanhSachTaiKhoan != null && _summary.DanhSachTaiKhoan.Count > 0)
@@ -233,10 +280,12 @@ Tiêu chuẩn phân hạng tài khoản:
                 lblSwitchInfo.Text = "ⓘ TK thanh toán chính (Mặc định)";
             }
 
-            // Căn chỉnh vị trí nút sao chép nằm sau số tài khoản
             btnCopyStk.Left = Math.Min(pnlVCardMid.Width - btnCopyStk.Width - 4, lblAccountNumber.Right + 8);
         }
 
+        /// <summary>
+        /// Hiển thị số dư thực tế hoặc chuỗi che dấu (•••••••••) tùy thuộc vào cờ _isBalanceVisible.
+        /// </summary>
         private void UpdateBalanceDisplay()
         {
             if (_isBalanceVisible)
@@ -252,7 +301,7 @@ Tiêu chuẩn phân hạng tài khoản:
         }
 
         /// <summary>
-        /// Cập nhật thẻ Kỳ hạn trả nợ.
+        /// Cập nhật thẻ hiển thị Kỳ hạn trả nợ và thanh tiến độ thời hạn khoản vay.
         /// </summary>
         private void UpdateDebtCardUI()
         {
@@ -301,21 +350,21 @@ Tiêu chuẩn phân hạng tài khoản:
         }
 
         /// <summary>
-        /// Cập nhật thẻ Quản lý chi tiêu (Hạn mức 1 ngày và 1 tuần).
+        /// Cập nhật thẻ Quản lý hạn mức chi tiêu cá nhân (Hạn mức ngày và tuần).
         /// </summary>
         private void UpdateSpendingCardUI()
         {
             var stats = _summary.Spending ?? new SpendingStats();
 
-            // Ngày
+            // Thống kê ngày
             lblDailySpent.Text = $"Đã chi: {stats.FormattedDaChiHomNay} / {stats.FormattedHanMucNgay} (Ngày)";
             lblDailyRemaining.Text = $"Còn lại: {stats.FormattedConLaiHomNay} ({stats.PhanTramNgay}%)";
 
-            // Tuần
+            // Thống kê tuần
             lblWeeklySpent.Text = $"Đã chi: {stats.FormattedDaChiTuanNay} / {stats.FormattedHanMucTuan} (Tuần)";
             lblWeeklyRemaining.Text = $"Còn lại: {stats.FormattedConLaiTuanNay} ({stats.PhanTramTuan}%)";
 
-            // Badge trạng thái
+            // Huy hiệu (Badge) cảnh báo vượt hạn mức
             lblSpendingStatusBadge.Text = stats.TrangThaiText;
             if (stats.VuotMucNgay || stats.VuotMucTuan)
             {
@@ -336,12 +385,15 @@ Tiêu chuẩn phân hạng tài khoản:
             UpdateProgressBars();
         }
 
+        /// <summary>
+        /// Tính toán chiều rộng thanh tiến độ chi tiêu theo tỷ lệ phần trăm (0-100%) và tự đổi màu cảnh báo.
+        /// </summary>
         private void UpdateProgressBars()
         {
             if (_summary == null || _summary.Spending == null) return;
             var stats = _summary.Spending;
 
-            // Thanh tiến độ ngày
+            // 1. Thanh tiến độ ngày
             int dailyTrackWidth = Math.Max(10, pnlDailyProgressTrack.ClientSize.Width);
             double dailyPercent = Math.Max(0.0, Math.Min(1.0, (double)stats.PhanTramNgay / 100.0));
             int dailyBarWidth = (int)(dailyTrackWidth * dailyPercent);
@@ -360,7 +412,7 @@ Tiêu chuẩn phân hạng tài khoản:
                 pnlDailyProgressBar.FillColor = Color.FromArgb(37, 99, 235);
             }
 
-            // Thanh tiến độ tuần
+            // 2. Thanh tiến độ tuần
             int weeklyTrackWidth = Math.Max(10, pnlWeeklyProgressTrack.ClientSize.Width);
             double weeklyPercent = Math.Max(0.0, Math.Min(1.0, (double)stats.PhanTramTuan / 100.0));
             int weeklyBarWidth = (int)(weeklyTrackWidth * weeklyPercent);
@@ -379,7 +431,7 @@ Tiêu chuẩn phân hạng tài khoản:
                 pnlWeeklyProgressBar.FillColor = Color.FromArgb(16, 185, 129);
             }
 
-            // Cập nhật thanh tiến độ khoản vay nếu có
+            // 3. Thanh tiến độ khoản vay
             if (_summary.KhoanVaySapToi != null && pnlLoanTrack.ClientSize.Width > 10)
             {
                 var kv = _summary.KhoanVaySapToi;
@@ -391,7 +443,7 @@ Tiêu chuẩn phân hạng tài khoản:
         }
 
         /// <summary>
-        /// Tải và hiển thị danh sách 5-6 giao dịch mới nhất của người dùng, lấp đầy không gian thẻ.
+        /// Nạp danh sách các giao dịch mới nhất vào danh sách mini ở góc phải giao diện.
         /// </summary>
         private async Task LoadRecentTransactionsAsync()
         {
@@ -438,7 +490,7 @@ Tiêu chuẩn phân hạng tài khoản:
         }
 
         /// <summary>
-        /// Tạo 1 dòng giao dịch nhỏ gọn, hiện đại cho phần Giao dịch gần đây.
+        /// Tạo một mục dòng giao dịch với biểu tượng mũi tên Thu (xanh lá) / Chi (đỏ) và số tiền trực quan.
         /// </summary>
         private Panel CreateRecentTransactionRow(DataRow row)
         {
@@ -465,7 +517,7 @@ Tiêu chuẩn phân hạng tài khoản:
                 Cursor = Cursors.Hand
             };
 
-            // Icon circle
+            // Biểu tượng tròn chỉ báo dòng tiền
             RoundedPanel pnlIcon = new RoundedPanel
             {
                 Size = new Size(28, 28),
@@ -486,7 +538,7 @@ Tiêu chuẩn phân hạng tài khoản:
             };
             pnlIcon.Controls.Add(lblIcon);
 
-            // Right container (Amount + Status pill)
+            // Cột bên phải: Số tiền và nhãn trạng thái Success
             Panel pnlRight = new Panel
             {
                 Dock = DockStyle.Right,
@@ -508,7 +560,7 @@ Tiêu chuẩn phân hạng tài khoản:
             {
                 Dock = DockStyle.Top,
                 Height = 16,
-                Text = "✔ Success",
+                Text = "✔ Thành công",
                 Font = new Font("Segoe UI", 7.5F, FontStyle.Bold),
                 ForeColor = Color.FromArgb(22, 163, 74),
                 TextAlign = ContentAlignment.MiddleRight
@@ -517,7 +569,7 @@ Tiêu chuẩn phân hạng tài khoản:
             pnlRight.Controls.Add(lblStatus);
             pnlRight.Controls.Add(lblAmount);
 
-            // Center container (Nội dung + Ngày giờ)
+            // Cột trung tâm: Nội dung giao dịch và thời gian thực hiện
             Panel pnlText = new Panel
             {
                 Location = new Point(38, 4),
@@ -553,11 +605,11 @@ Tiêu chuẩn phân hạng tài khoản:
             pnl.Controls.Add(pnlRight);
             pnl.Controls.Add(pnlIcon);
 
-            // Hover effect
+            // Hiệu ứng hover đổi màu nền nhẹ khi trỏ chuột
             pnl.MouseEnter += (s, e) => pnl.BackColor = Color.FromArgb(248, 250, 252);
             pnl.MouseLeave += (s, e) => pnl.BackColor = Color.White;
 
-            // Click vào dòng mở form Giao dịch
+            // Nhấp vào bất kỳ điểm nào trên dòng đều điều hướng sang trang Lịch sử giao dịch
             pnl.Click += (s, e) => BtnNavHistory_Click(s, e);
             lblContent.Click += (s, e) => BtnNavHistory_Click(s, e);
             lblDate.Click += (s, e) => BtnNavHistory_Click(s, e);
@@ -567,7 +619,9 @@ Tiêu chuẩn phân hạng tài khoản:
             return pnl;
         }
 
-        #region EVENT HANDLERS & NAVIGATION
+        #endregion
+
+        #region 5. XỬ LÝ SỰ KIỆN NÚT BẤM VÀ ĐIỀU HƯỚNG (USER ACTIONS & NAVIGATION)
 
         private void BtnToggleBalance_Click(object sender, EventArgs e)
         {
@@ -595,12 +649,6 @@ Tiêu chuẩn phân hạng tài khoản:
         {
             var main = this.TopLevelControl as MainForm ?? this.ParentForm as MainForm;
             main?.OpenFormWithCustomerCheck(() => new TransactionForm());
-        }
-
-        private void BtnNavCards_Click(object sender, EventArgs e)
-        {
-            var main = this.TopLevelControl as MainForm ?? this.ParentForm as MainForm;
-            main?.OpenFormWithCustomerCheck(() => new AccountForm());
         }
 
         private async Task OpenQuickTransferDialogAsync()
@@ -634,6 +682,9 @@ Tiêu chuẩn phân hạng tài khoản:
             main?.OpenFormWithCustomerCheck(() => new BorrowingUserForm());
         }
 
+        /// <summary>
+        /// Xử lý thanh toán nhanh khoản vay sắp tới hạn từ tài khoản thanh toán chính.
+        /// </summary>
         private async Task BtnPayDebt_ClickAsync()
         {
             if (_summary.KhoanVaySapToi == null)
@@ -678,6 +729,9 @@ Tiêu chuẩn phân hạng tài khoản:
             }
         }
 
+        /// <summary>
+        /// Mở hộp thoại cài đặt giới hạn hạn mức chi tiêu cá nhân trong ngày và trong tuần.
+        /// </summary>
         private async Task OpenSpendingLimitDialogAsync()
         {
             decimal curDaily = _summary?.Spending?.HanMucNgay ?? 2000000m;

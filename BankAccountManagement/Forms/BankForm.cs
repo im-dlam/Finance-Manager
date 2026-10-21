@@ -1,4 +1,4 @@
-﻿using BankAccountManagement.Models;
+using BankAccountManagement.Models;
 using BankAccountManagement.Services;
 using System;
 using System.Collections.Generic;
@@ -12,11 +12,33 @@ using System.Windows.Forms;
 
 namespace BankAccountManagement.Forms
 {
+    /// <summary>
+    /// Form Quản lý danh mục Ngân hàng đối tác và liên kết hệ thống (Bank Management Form).
+    /// <para>
+    /// Cho phép Quản trị viên (Admin):
+    /// - Xem danh sách các ngân hàng đối tác (Mã ngân hàng, Tên ngân hàng, Chi nhánh, SWIFT Code).
+    /// - Thêm mới đối tác ngân hàng vào hệ thống với mã định danh duy nhất.
+    /// - Chỉnh sửa thông tin chi nhánh, mã giao dịch quốc tế SWIFT Code của ngân hàng.
+    /// - Xóa ngân hàng với cơ chế bảo vệ ràng buộc toàn vẹn khóa ngoại (Foreign Key Constraint 547).
+    /// </para>
+    /// </summary>
     public partial class BankForm : Form
     {
+        #region 1. CÁC BIẾN TRẠNG THÁI VÀ DỊCH VỤ
+
+        /// <summary>Dịch vụ xử lý nghiệp vụ ngân hàng (truy vấn, thêm mới, cập nhật, xóa).</summary>
         private readonly NganHangService _nganHangService = new NganHangService();
+
+        /// <summary>Cờ đánh dấu trạng thái thao tác: true nếu đang thêm ngân hàng mới, false nếu đang chỉnh sửa ngân hàng cũ.</summary>
         private bool _isAddNew = false;
 
+        #endregion
+
+        #region 2. KHỞI TẠO VÀ SỰ KIỆN FORM LOAD
+
+        /// <summary>
+        /// Hàm dựng khởi tạo các điều khiển và đăng ký các sự kiện tương tác người dùng.
+        /// </summary>
         public BankForm()
         {
             InitializeComponent();
@@ -28,9 +50,9 @@ namespace BankAccountManagement.Forms
             dgvBank.CellClick += DgvBank_CellClick;
         }
 
-        // ══════════════════════════════════════════
-        // KHỞI ĐỘNG
-        // ══════════════════════════════════════════
+        /// <summary>
+        /// Sự kiện xảy ra khi mở Form: Thiết lập quyền truy cập, tải danh sách ngân hàng và đặt trạng thái điều khiển ban đầu.
+        /// </summary>
         private void BankForm_Load(object sender, EventArgs e)
         {
             try
@@ -41,11 +63,14 @@ namespace BankAccountManagement.Forms
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi khởi động: " + ex.Message, "Lỗi",
+                MessageBox.Show("Lỗi khởi động giao diện ngân hàng: " + ex.Message, "Lỗi",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
+        /// <summary>
+        /// Phân quyền người dùng: Quản trị viên được dùng đầy đủ tính năng Thêm/Sửa/Xóa.
+        /// </summary>
         private void ApplyRolePermissions()
         {
             if (!CurrentSession.IsAdmin)
@@ -62,9 +87,14 @@ namespace BankAccountManagement.Forms
             }
         }
 
-        // ══════════════════════════════════════════
-        // TẢI DỮ LIỆU LÊN LƯỚI
-        // ══════════════════════════════════════════
+        #endregion
+
+        #region 3. TẢI VÀ HIỂN THỊ DỮ LIỆU LÊN LƯỚI (DATA BINDING)
+
+        /// <summary>
+        /// Tải danh sách ngân hàng từ CSDL và hiển thị lên bảng DataGridView.
+        /// </summary>
+        /// <param name="keyword">Từ khóa tìm kiếm (tùy chọn, để trống sẽ lấy tất cả).</param>
         private void LoadData(string keyword = "")
         {
             try
@@ -78,87 +108,81 @@ namespace BankAccountManagement.Forms
                 for (int i = 0; i < danhSach.Count; i++)
                 {
                     dgvBank.Rows.Add(
-                        i + 1,                        // STT
-                        danhSach[i].MaNganHang,       // MNH
-                        danhSach[i].TenNganHang,      // TNH
-                        danhSach[i].ChiNhanh,         // CN
-                        danhSach[i].SwiftCode         // SC
+                        i + 1,                        // Số thứ tự hiển thị (STT)
+                        danhSach[i].MaNganHang,       // Mã ngân hàng (MNH)
+                        danhSach[i].TenNganHang,      // Tên ngân hàng (TNH)
+                        danhSach[i].ChiNhanh,         // Chi nhánh (CN)
+                        danhSach[i].SwiftCode         // Mã giao dịch quốc tế (SC)
                     );
                 }
                 lblListCount.Text = $"{danhSach.Count} ngân hàng";
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi tải dữ liệu: " + ex.Message, "Lỗi",
+                MessageBox.Show("Lỗi tải danh sách ngân hàng: " + ex.Message, "Lỗi",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        // ══════════════════════════════════════════
-        // TRẠNG THÁI CONTROLS
-        // ══════════════════════════════════════════
+        #endregion
+
+        #region 4. QUẢN LÝ TRẠNG THÁI ĐIỀU KHIỂN (UI STATE MACHINE)
+
+        /// <summary>
+        /// Thiết lập trạng thái ReadOnly và màu nền của các ô TextBox tùy theo chế độ (Xem / Thêm mới / Chỉnh sửa).
+        /// </summary>
+        /// <param name="isEditing">True nếu đang ở trạng thái nhập liệu (Thêm hoặc Sửa), False nếu ở trạng thái chỉ xem.</param>
         private void SetControlState(bool isEditing)
         {
             bool coTheNhapMa = isEditing && _isAddNew;
 
-            // Mã ngân hàng: chỉ nhập khi THÊM MỚI
+            // Mã ngân hàng: Khóa chính (Primary Key), chỉ cho phép nhập khi tạo mới, không cho sửa khi chỉnh sửa bản ghi cũ
             txtBankCode.ReadOnly = !coTheNhapMa;
             txtBankCode.BackColor = coTheNhapMa
-                ? System.Drawing.Color.White
-                : System.Drawing.Color.FromArgb(240, 240, 240);
+                ? Color.White
+                : Color.FromArgb(240, 240, 240);
 
-            // Các ô còn lại
+            // Các ô thông tin bổ sung: Cho phép chỉnh sửa khi isEditing = true
             txtBankName.ReadOnly = !isEditing;
-            txtBankName.BackColor = isEditing
-                ? System.Drawing.Color.White
-                : System.Drawing.Color.FromArgb(240, 240, 240);
+            txtBankName.BackColor = isEditing ? Color.White : Color.FromArgb(240, 240, 240);
 
             txtBranch.ReadOnly = !isEditing;
-            txtBranch.BackColor = isEditing
-                ? System.Drawing.Color.White
-                : System.Drawing.Color.FromArgb(240, 240, 240);
+            txtBranch.BackColor = isEditing ? Color.White : Color.FromArgb(240, 240, 240);
 
             txtSwiftCode.ReadOnly = !isEditing;
-            txtSwiftCode.BackColor = isEditing
-                ? System.Drawing.Color.White
-                : System.Drawing.Color.FromArgb(240, 240, 240);
+            txtSwiftCode.BackColor = isEditing ? Color.White : Color.FromArgb(240, 240, 240);
 
-            // Nút Thêm toggle
+            // Nút "Thêm": Chuyển đổi linh hoạt giữa chức năng Mở form thêm và Lưu thêm mới
             btnAdd.Visible = true;
-            btnAdd.Text = isEditing && _isAddNew
-                ? "💾 Lưu ngân hàng"
-                : "+  Thêm ngân hàng";
+            btnAdd.Text = isEditing && _isAddNew ? "💾 Lưu ngân hàng" : "+  Thêm ngân hàng";
 
             if (CurrentSession.IsAdmin)
             {
-                // Nút Sửa toggle (Chỉ hiển thị cho Admin)
                 btnEdit.Visible = true;
-                btnEdit.Location = new System.Drawing.Point(30, 434);
-                btnEdit.Size = new System.Drawing.Size(172, 42);
-                btnEdit.Text = isEditing && !_isAddNew
-                    ? "💾 Lưu chỉnh sửa"
-                    : "✎  Sửa ngân hàng";
+                btnEdit.Location = new Point(30, 434);
+                btnEdit.Size = new Size(172, 42);
+                btnEdit.Text = isEditing && !_isAddNew ? "💾 Lưu chỉnh sửa" : "✎  Sửa ngân hàng";
 
-                // Nút Xóa
                 btnDelete.Visible = true;
-                btnDelete.Location = new System.Drawing.Point(213, 434);
-                btnDelete.Size = new System.Drawing.Size(172, 42);
+                btnDelete.Location = new Point(213, 434);
+                btnDelete.Size = new Size(172, 42);
             }
             else
             {
-                // Khi là User: chỉ có Thêm và Xóa, ẩn nút Sửa hoàn toàn
                 btnEdit.Visible = false;
-
                 btnDelete.Visible = true;
-                btnDelete.Location = new System.Drawing.Point(30, 434);
-                btnDelete.Size = new System.Drawing.Size(355, 42);
+                btnDelete.Location = new Point(30, 434);
+                btnDelete.Size = new Size(355, 42);
             }
 
-            // Khóa nút khi đang nhập
+            // Khi đang nhập liệu thì khóa nút Xóa để tránh xung đột thao tác
             btnDelete.Enabled = !isEditing;
             btnReset.Enabled = true;
         }
 
+        /// <summary>
+        /// Xóa trắng nội dung trên các ô nhập liệu.
+        /// </summary>
         private void ClearInputs()
         {
             txtBankCode.Clear();
@@ -167,9 +191,13 @@ namespace BankAccountManagement.Forms
             txtSwiftCode.Clear();
         }
 
-        // ══════════════════════════════════════════
-        // CLICK VÀO DÒNG LƯỚI
-        // ══════════════════════════════════════════
+        #endregion
+
+        #region 5. XỬ LÝ SỰ KIỆN TƯƠNG TÁC NGƯỜI DÙNG (USER ACTIONS)
+
+        /// <summary>
+        /// Khi người dùng nhấp vào một dòng trên bảng danh sách, hiển thị thông tin ngân hàng lên các ô nhập liệu.
+        /// </summary>
         private void DgvBank_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0) return;
@@ -180,41 +208,38 @@ namespace BankAccountManagement.Forms
             txtBranch.Text = row.Cells["CN"].Value?.ToString();
             txtSwiftCode.Text = row.Cells["SC"].Value?.ToString();
 
-            // Reset về trạng thái xem
+            // Khôi phục về chế độ xem an toàn
             _isAddNew = false;
             SetControlState(false);
         }
 
-        // ══════════════════════════════════════════
-        // NÚT THÊM / LƯU (toggle)
-        // ══════════════════════════════════════════
+        /// <summary>
+        /// Xử lý nút "Thêm": Nhấp lần 1 để chuyển sang chế độ nhập mới, nhấp lần 2 để lưu bản ghi vào CSDL.
+        /// </summary>
         private void BtnAdd_Click(object sender, EventArgs e)
         {
             if (btnAdd.Text.Contains("Thêm"))
             {
-                // → Chuyển sang chế độ THÊM MỚI
                 _isAddNew = true;
                 ClearInputs();
                 SetControlState(true);
                 txtBankCode.ReadOnly = false;
-                txtBankCode.BackColor = System.Drawing.Color.White;
+                txtBankCode.BackColor = Color.White;
                 txtBankCode.Focus();
             }
             else
             {
-                // → Lưu thêm mới
                 ThucHienLuu();
             }
         }
 
-        // ══════════════════════════════════════════
-        // NÚT SỬA / LƯU (toggle)
-        // ══════════════════════════════════════════
+        /// <summary>
+        /// Xử lý nút "Sửa": Nhấp lần 1 để mở khóa chỉnh sửa tên, chi nhánh; nhấp lần 2 để lưu thay đổi.
+        /// </summary>
         private void BtnEdit_Click(object sender, EventArgs e)
         {
             if (btnEdit.Text.Contains("Sửa"))
             {
-                // → Kiểm tra đã chọn chưa
                 if (string.IsNullOrEmpty(txtBankCode.Text))
                 {
                     MessageBox.Show("Vui lòng chọn ngân hàng từ danh sách để sửa!",
@@ -222,21 +247,19 @@ namespace BankAccountManagement.Forms
                     return;
                 }
 
-                // → Chuyển sang chế độ SỬA
                 _isAddNew = false;
                 SetControlState(true);
                 txtBankName.Focus();
             }
             else
             {
-                // → Lưu chỉnh sửa
                 ThucHienLuu();
             }
         }
 
-        // ══════════════════════════════════════════
-        // NÚT XÓA
-        // ══════════════════════════════════════════
+        /// <summary>
+        /// Xử lý nút "Xóa": Xác nhận xóa ngân hàng và kiểm tra ràng buộc toàn vẹn khóa ngoại CSDL.
+        /// </summary>
         private void BtnDelete_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(txtBankCode.Text))
@@ -264,20 +287,25 @@ namespace BankAccountManagement.Forms
                 }
                 catch (Exception ex)
                 {
+                    // Mã lỗi SQL 547 là lỗi vi phạm ràng buộc khóa ngoại (FOREIGN KEY REFERENCE)
                     if (ex.Message.Contains("547") || ex.Message.Contains("REFERENCE"))
+                    {
                         MessageBox.Show(
-                            "Không thể xóa!\nNgân hàng này đang có tài khoản liên kết.",
-                            "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            "Không thể xóa ngân hàng này!\nĐang có tài khoản hoặc người dùng liên kết với ngân hàng này trong hệ thống.",
+                            "Cảnh báo ràng buộc dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
                     else
+                    {
                         MessageBox.Show("Lỗi: " + ex.Message, "Lỗi",
                             MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
             }
         }
 
-        // ══════════════════════════════════════════
-        // NÚT LÀM MỚI
-        // ══════════════════════════════════════════
+        /// <summary>
+        /// Xử lý nút "Làm mới": Xóa sạch các ô nhập liệu và tải lại danh sách đầy đủ từ CSDL.
+        /// </summary>
         private void BtnReset_Click(object sender, EventArgs e)
         {
             ClearInputs();
@@ -286,12 +314,12 @@ namespace BankAccountManagement.Forms
             SetControlState(false);
         }
 
-        // ══════════════════════════════════════════
-        // XỬ LÝ LƯU (THÊM / SỬA)
-        // ══════════════════════════════════════════
+        /// <summary>
+        /// Kiểm tra tính hợp lệ dữ liệu và gọi Service để lưu bản ghi (Thêm mới hoặc Cập nhật).
+        /// </summary>
         private void ThucHienLuu()
         {
-            // Validate
+            // BƯỚC 1: Kiểm tra tính hợp lệ dữ liệu đầu vào
             if (string.IsNullOrWhiteSpace(txtBankCode.Text))
             {
                 MessageBox.Show("Vui lòng nhập Mã ngân hàng!", "Cảnh báo",
@@ -308,6 +336,7 @@ namespace BankAccountManagement.Forms
                 return;
             }
 
+            // BƯỚC 2: Khởi tạo đối tượng Model NganHang
             NganHang nh = new NganHang
             {
                 MaNganHang = txtBankCode.Text.Trim(),
@@ -316,6 +345,7 @@ namespace BankAccountManagement.Forms
                 SwiftCode = txtSwiftCode.Text.Trim()
             };
 
+            // BƯỚC 3: Gọi Service thực thi và xử lý kết quả trả về
             try
             {
                 bool ok = _isAddNew
@@ -325,7 +355,7 @@ namespace BankAccountManagement.Forms
                 if (ok)
                 {
                     MessageBox.Show(
-                        _isAddNew ? "Thêm ngân hàng thành công!" : "Cập nhật thành công!",
+                        _isAddNew ? "Thêm ngân hàng thành công!" : "Cập nhật ngân hàng thành công!",
                         "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     LoadData();
                     ClearInputs();
@@ -333,7 +363,7 @@ namespace BankAccountManagement.Forms
                 }
                 else
                 {
-                    MessageBox.Show("Lưu thất bại! Mã ngân hàng có thể đã trùng.", "Lỗi",
+                    MessageBox.Show("Lưu thất bại! Mã ngân hàng có thể đã trùng lặp trong hệ thống.", "Lỗi",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
@@ -346,8 +376,8 @@ namespace BankAccountManagement.Forms
 
         private void button1_Click(object sender, EventArgs e)
         {
-
         }
+
+        #endregion
     }
 }
-

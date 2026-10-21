@@ -6,10 +6,16 @@ using System.Windows.Forms;
 
 namespace BankAccountManagement.Forms
 {
+    /// <summary>
+    /// Custom Button bo góc mềm mại (RoundedButton) với hỗ trợ hiệu ứng Hover/Pressed,
+    /// khử răng cưa GDI+ AntiAlias và tối ưu bộ đệm kép chống nháy hình (Flicker-free).
+    /// </summary>
     [ToolboxItem(true)]
     [DefaultProperty("Text")]
     public class RoundedButton : Button
     {
+        #region KHAI BÁO THUỘC TÍNH (PROPERTIES)
+
         private int _borderRadius = 8;
         private int _borderSize = 0;
         private Color _normalColor = Color.FromArgb(37, 99, 235);
@@ -23,13 +29,25 @@ namespace BankAccountManagement.Forms
         private bool _isHovered;
         private bool _isPressed;
 
+        private int _lastWidth = -1;
+        private int _lastHeight = -1;
+
+        /// <summary>Bán kính bo cong góc của nút (mặc định: 8px).</summary>
         [Category("Appearance"), DefaultValue(8)]
         public int BorderRadius
         {
             get => _borderRadius;
-            set { int v = Math.Max(0, value); if (_borderRadius == v) return; _borderRadius = v; UpdateRegion(); Invalidate(); }
+            set
+            {
+                int v = Math.Max(0, value);
+                if (_borderRadius == v) return;
+                _borderRadius = v;
+                UpdateRegion();
+                Invalidate();
+            }
         }
 
+        /// <summary>Độ dày của đường viền (mặc định: 0px - không viền).</summary>
         [Category("Appearance"), DefaultValue(0)]
         public int BorderSize
         {
@@ -44,6 +62,7 @@ namespace BankAccountManagement.Forms
         [Category("Appearance")] public Color HoverBorder { get => _hoverBorder; set { _hoverBorder = value; Invalidate(); } }
         [Category("Appearance")] public Color PressedBorder { get => _pressedBorder; set { _pressedBorder = value; Invalidate(); } }
 
+        /// <summary>Màu chữ của nút bấm.</summary>
         [Category("Appearance")]
         public Color TextColor
         {
@@ -51,45 +70,39 @@ namespace BankAccountManagement.Forms
             set { _textColor = value; ForeColor = value; Invalidate(); }
         }
 
+        #endregion
+
+        #region KHỞI TẠO NÚT (CONSTRUCTOR)
+
         public RoundedButton()
         {
-            // Bật các style để vẽ mượt, không nháy
+            // Bật các cờ điều khiển giao diện: vẽ mượt mà, khử nhấp nháy
             SetStyle(ControlStyles.AllPaintingInWmPaint |
                      ControlStyles.UserPaint |
                      ControlStyles.OptimizedDoubleBuffer |
                      ControlStyles.ResizeRedraw, true);
 
-            // KHÔNG set BackColor = Color.Transparent ở đây nữa
             FlatStyle = FlatStyle.Flat;
             FlatAppearance.BorderSize = 0;
             UseVisualStyleBackColor = false;
             Cursor = Cursors.Hand;
         }
 
+        #endregion
+
+        #region VÙNG HIỂN THỊ (REGION & GEOMETRY)
+
         protected override void OnHandleCreated(EventArgs e) { base.OnHandleCreated(e); UpdateRegion(); }
         protected override void OnSizeChanged(EventArgs e) { base.OnSizeChanged(e); UpdateRegion(); }
 
-        //private void UpdateRegion()
-        //{
-        //    if (Width <= 0 || Height <= 0) return;
-        //    if (_borderRadius <= 0) { Region = null; return; }
-
-        //    using (var path = GetRoundedPath(new RectangleF(0, 0, Width, Height), _borderRadius))
-        //    {
-        //        var old = Region;
-        //        Region = new Region(path);
-        //        old?.Dispose();
-        //    }
-        //}
-
-        private int _lastWidth = -1;
-        private int _lastHeight = -1;
-
+        /// <summary>
+        /// Cập nhật vùng cắt xén (Region) của control khi kích thước thay đổi.
+        /// </summary>
         private void UpdateRegion()
         {
             if (Width <= 0 || Height <= 0) return;
 
-            // Nếu kích thước không đổi, bỏ qua để đỡ tốn CPU
+            // Nếu kích thước không đổi thì bỏ qua để tiết kiệm CPU
             if (_lastWidth == Width && _lastHeight == Height) return;
             _lastWidth = Width;
             _lastHeight = Height;
@@ -103,17 +116,23 @@ namespace BankAccountManagement.Forms
                 old?.Dispose();
             }
         }
+
+        #endregion
+
+        #region XỬ LÝ SỰ KIỆN CHUỘT (MOUSE EVENTS)
+
         protected override void OnMouseEnter(EventArgs e) { _isHovered = true; Invalidate(); base.OnMouseEnter(e); }
         protected override void OnMouseLeave(EventArgs e) { _isHovered = false; _isPressed = false; Invalidate(); base.OnMouseLeave(e); }
         protected override void OnMouseDown(MouseEventArgs e) { if (e.Button == MouseButtons.Left) _isPressed = true; Invalidate(); base.OnMouseDown(e); }
         protected override void OnMouseUp(MouseEventArgs e) { _isPressed = false; Invalidate(); base.OnMouseUp(e); }
         protected override void OnEnabledChanged(EventArgs e) { Invalidate(); base.OnEnabledChanged(e); }
 
-        // Chặn WinForms vẽ nền trắng mặc định
-        protected override void OnPaintBackground(PaintEventArgs pevent)
-        {
-            // Không gọi base.OnPaintBackground(pevent) để tránh nháy trắng
-        }
+        #endregion
+
+        #region VẼ GIAO DIỆN TÙY BIẾN (ONPAINT)
+
+        /// <summary>Chặn WinForms tự ý vẽ nền trắng mặc định để chống nháy hình.</summary>
+        protected override void OnPaintBackground(PaintEventArgs pevent) { }
 
         protected override void OnPaint(PaintEventArgs pevent)
         {
@@ -136,7 +155,6 @@ namespace BankAccountManagement.Forms
             {
                 using (var path = GetRoundedPath(new RectangleF(0, 0, Width, Height), _borderRadius))
                 {
-                    // Chỉ vẽ nền nếu màu không phải là trong suốt hoàn toàn
                     if (fill.A > 0)
                     {
                         using (var brush = new SolidBrush(fill))
@@ -171,6 +189,7 @@ namespace BankAccountManagement.Forms
                 }
             }
 
+            // Vẽ nhãn chữ căn giữa nút
             TextRenderer.DrawText(g, Text, Font,
                 new Rectangle(0, 0, Width, Height), text,
                 TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.EndEllipsis);
@@ -201,5 +220,7 @@ namespace BankAccountManagement.Forms
             if (disposing) Region?.Dispose();
             base.Dispose(disposing);
         }
+
+        #endregion
     }
 }

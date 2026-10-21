@@ -5,43 +5,60 @@ using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Windows.Forms;
 using System.Linq;
+using System.Windows.Forms;
 
 namespace BankAccountManagement
 {
+    /// <summary>
+    /// Form tạo và thực hiện giao dịch tài chính mới (Add Transaction Form).
+    /// <para>
+    /// Hỗ trợ cả 2 chế độ nghiệp vụ:
+    /// - Quản trị viên (Admin): Thực hiện Nạp tiền, Rút tiền, Chuyển khoản hoặc Thanh toán cho bất kỳ tài khoản nào trên toàn hệ thống.
+    /// - Khách hàng (Member):
+    ///   + Tự động cố định tài khoản chuyển tiền chính của bản thân kèm số dư thực tế theo thời gian thực.
+    ///   + Nhập STK người nhận tự động tra cứu tên chủ tài khoản và ngân hàng liên kết.
+    ///   + Kiểm tra số dư nghiêm ngặt (không cho phép giao dịch vượt quá số dư khả dụng).
+    ///   + Thực hiện giao dịch 2 bên (Trừ tiền bên gửi - Tạo giao dịch Chi; Cộng tiền bên nhận - Tạo giao dịch Thu) thông qua TransactionService.TransferMoney.
+    ///   + Hỗ trợ giao dịch đa tiền tệ (VND, USD...) với bảng tỷ giá quy đổi tự động.
+    /// </para>
+    /// </summary>
     public class AddTransactionForm : Form
     {
+        #region 1. CÁC BIẾN THÀNH PHẦN VÀ ĐIỀU KHIỂN
+
         private TransactionService _transactionService;
         private List<CurrencyInfo> _currencies;
 
         private Label lblHeader;
 
-        // 1. Trên số dư là tài khoản ngân hàng của mình (User)
+        // Tài khoản nguồn của người dùng đăng nhập (Member)
         private Label lblMyAccount;
         private ComboBox cboMyAccount;
         private Label lblSoDuThucTe;
         private TextBox txtSoDuThucTe;
 
+        // Mẫu giao dịch trước đó để điền nhanh
         private ComboBox cboRecentTransfers;
         private DateTimePicker dtpNgay;
         private TextBox txtNoiDung;
 
-        // 2. Ngân hàng người nhận (Lấy tất cả ngân hàng của admin)
+        // Thông tin người nhận
         private Label lblNganHang;
         private ComboBox cboNganHang;
         private TextBox txtSoTaiKhoan;
         private TextBox txtNguoiNhan;
 
+        // Loại và Thao tác
         private ComboBox cboThaoTac;
         private Label lblLoaiGD;
         private ComboBox cboLoaiGD;
 
-        // Danh mục cho User
+        // Danh mục chi tiêu cho Khách hàng
         private Label lblDanhMuc;
         private ComboBox cboDanhMuc;
 
-        // 3. Ở dưới trước nhập số tiền có loại tiền là vnd hay usd
+        // Tiền tệ và Quy đổi
         private Label lblLoaiTien;
         private ComboBox cboLoaiTien;
         private TextBox txtSoTien;
@@ -57,8 +74,16 @@ namespace BankAccountManagement
         private string _selectedSenderCurrency = "VND";
         private decimal _selectedSenderQuyDoi = 1m;
 
+        #endregion
+
+        #region 2. KHỞI TẠO VÀ BỐ CỤC GIAO DIỆN (INITIALIZATION & LAYOUT)
+
         public AddTransactionForm() : this(null) { }
 
+        /// <summary>
+        /// Hàm dựng khởi tạo Form với danh sách các loại tiền tệ hỗ trợ.
+        /// </summary>
+        /// <param name="currencies">Danh sách tiền tệ (VND, USD...). Nếu null sẽ tự truy vấn từ TransactionService.</param>
         public AddTransactionForm(List<CurrencyInfo> currencies)
         {
             _transactionService = new TransactionService();
@@ -77,6 +102,9 @@ namespace BankAccountManagement
             LoadActualBalance();
         }
 
+        /// <summary>
+        /// Khởi tạo và căn chỉnh bố cục các điều khiển giao diện hoàn toàn bằng mã C# thuần.
+        /// </summary>
         private void InitializeCustomComponent()
         {
             this.Text = "Thêm giao dịch mới";
@@ -88,19 +116,23 @@ namespace BankAccountManagement
 
             this.SuspendLayout();
 
-            // 1. Header (Blue Header)
-            Panel pnlHeader = new Panel();
-            pnlHeader.BackColor = Color.FromArgb(51, 102, 255);
-            pnlHeader.Dock = DockStyle.Top;
-            pnlHeader.Height = 50;
+            // 1. Tiêu đề trên cùng (Blue Header)
+            Panel pnlHeader = new Panel
+            {
+                BackColor = Color.FromArgb(51, 102, 255),
+                Dock = DockStyle.Top,
+                Height = 50
+            };
             this.Controls.Add(pnlHeader);
 
-            lblHeader = new Label();
-            lblHeader.Text = "Thêm giao dịch mới";
-            lblHeader.ForeColor = Color.White;
-            lblHeader.Font = new Font("Segoe UI", 13, FontStyle.Bold);
-            lblHeader.AutoSize = true;
-            lblHeader.Location = new Point(15, 12);
+            lblHeader = new Label
+            {
+                Text = "Thêm giao dịch mới",
+                ForeColor = Color.White,
+                Font = new Font("Segoe UI", 13, FontStyle.Bold),
+                AutoSize = true,
+                Location = new Point(15, 12)
+            };
             pnlHeader.Controls.Add(lblHeader);
 
             int startY = 62;
@@ -109,119 +141,139 @@ namespace BankAccountManagement
             int inputX = 175;
             int inputWidth = 335;
 
-            // 2. Trên số dư là tài khoản ngân hàng của mình (Chỉ User mới có)
+            // 2. Tài khoản nguồn của chính mình (Chỉ hiển thị cho Member)
             if (!CurrentSession.IsAdmin)
             {
                 lblMyAccount = AddLabel("Tài khoản của mình:", labelX, startY);
-                cboMyAccount = new ComboBox();
-                cboMyAccount.DropDownStyle = ComboBoxStyle.DropDownList;
-                cboMyAccount.Location = new Point(inputX, startY);
-                cboMyAccount.Width = inputWidth;
-                cboMyAccount.Font = new Font("Segoe UI", 9.5F);
+                cboMyAccount = new ComboBox
+                {
+                    DropDownStyle = ComboBoxStyle.DropDownList,
+                    Location = new Point(inputX, startY),
+                    Width = inputWidth,
+                    Font = new Font("Segoe UI", 9.5F)
+                };
                 cboMyAccount.SelectedIndexChanged += CboMyAccount_SelectedIndexChanged;
                 this.Controls.Add(cboMyAccount);
 
                 startY += gapY;
 
                 lblSoDuThucTe = AddLabel("Số dư thực tế:", labelX, startY);
-                txtSoDuThucTe = new TextBox();
-                txtSoDuThucTe.ReadOnly = true;
-                txtSoDuThucTe.BackColor = Color.FromArgb(243, 244, 246);
-                txtSoDuThucTe.ForeColor = Color.FromArgb(16, 185, 129); // Xanh lá cây tươi đậm
-                txtSoDuThucTe.Font = new Font("Segoe UI", 10.5F, FontStyle.Bold);
-                txtSoDuThucTe.Location = new Point(inputX, startY);
-                txtSoDuThucTe.Width = inputWidth;
-                txtSoDuThucTe.Text = "0 VND";
+                txtSoDuThucTe = new TextBox
+                {
+                    ReadOnly = true,
+                    BackColor = Color.FromArgb(243, 244, 246),
+                    ForeColor = Color.FromArgb(16, 185, 129),
+                    Font = new Font("Segoe UI", 10.5F, FontStyle.Bold),
+                    Location = new Point(inputX, startY),
+                    Width = inputWidth,
+                    Text = "0 VND"
+                };
                 this.Controls.Add(txtSoDuThucTe);
 
                 startY += gapY;
             }
 
-            // 3. Chọn nhanh từ giao dịch mẫu đã chuyển thành công trước đó
+            // 3. Mẫu giao dịch chuyển tiền trước đó (chọn nhanh)
             AddLabel("GD mẫu trước:", labelX, startY);
-            cboRecentTransfers = new ComboBox();
-            cboRecentTransfers.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboRecentTransfers.Location = new Point(inputX, startY);
-            cboRecentTransfers.Width = inputWidth;
-            cboRecentTransfers.Font = new Font("Segoe UI", 9.5F);
+            cboRecentTransfers = new ComboBox
+            {
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Location = new Point(inputX, startY),
+                Width = inputWidth,
+                Font = new Font("Segoe UI", 9.5F)
+            };
             cboRecentTransfers.SelectedIndexChanged += CboRecentTransfers_SelectedIndexChanged;
             this.Controls.Add(cboRecentTransfers);
 
-            // 4. Ngày giao dịch
+            // 4. Ngày thực hiện giao dịch
             startY += gapY;
             AddLabel("Ngày giao dịch:", labelX, startY);
-            dtpNgay = new DateTimePicker();
-            dtpNgay.Format = DateTimePickerFormat.Short;
-            dtpNgay.Location = new Point(inputX, startY);
-            dtpNgay.Width = inputWidth;
-            dtpNgay.Font = new Font("Segoe UI", 9.5F);
+            dtpNgay = new DateTimePicker
+            {
+                Format = DateTimePickerFormat.Short,
+                Location = new Point(inputX, startY),
+                Width = inputWidth,
+                Font = new Font("Segoe UI", 9.5F)
+            };
             this.Controls.Add(dtpNgay);
 
-            // 5. Nội dung
+            // 5. Nội dung giao dịch
             startY += gapY;
             AddLabel("Nội dung:", labelX, startY);
-            txtNoiDung = new TextBox();
-            txtNoiDung.Multiline = true;
-            txtNoiDung.Location = new Point(inputX, startY);
-            txtNoiDung.Width = inputWidth;
-            txtNoiDung.Height = 40;
-            txtNoiDung.Font = new Font("Segoe UI", 9.5F);
+            txtNoiDung = new TextBox
+            {
+                Multiline = true,
+                Location = new Point(inputX, startY),
+                Width = inputWidth,
+                Height = 40,
+                Font = new Font("Segoe UI", 9.5F)
+            };
             this.Controls.Add(txtNoiDung);
 
-            // 6. Ngân hàng người nhận (Lấy tất cả ngân hàng của admin)
+            // 6. Ngân hàng người nhận
             startY += 46;
             lblNganHang = AddLabel(CurrentSession.IsAdmin ? "Ngân hàng:" : "Ngân hàng người nhận:", labelX, startY);
-            cboNganHang = new ComboBox();
-            cboNganHang.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboNganHang.Location = new Point(inputX, startY);
-            cboNganHang.Width = inputWidth;
-            cboNganHang.Font = new Font("Segoe UI", 9.5F);
+            cboNganHang = new ComboBox
+            {
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Location = new Point(inputX, startY),
+                Width = inputWidth,
+                Font = new Font("Segoe UI", 9.5F)
+            };
             this.Controls.Add(cboNganHang);
 
-            // 7. Số tài khoản
+            // 7. Số tài khoản người nhận
             startY += gapY;
             AddLabel("Số tài khoản:", labelX, startY);
-            txtSoTaiKhoan = new TextBox();
-            txtSoTaiKhoan.Location = new Point(inputX, startY);
-            txtSoTaiKhoan.Width = inputWidth;
-            txtSoTaiKhoan.Font = new Font("Segoe UI", 9.5F);
+            txtSoTaiKhoan = new TextBox
+            {
+                Location = new Point(inputX, startY),
+                Width = inputWidth,
+                Font = new Font("Segoe UI", 9.5F)
+            };
             txtSoTaiKhoan.TextChanged += TxtSoTaiKhoan_TextChanged;
             txtSoTaiKhoan.Leave += TxtSoTaiKhoan_Leave;
             this.Controls.Add(txtSoTaiKhoan);
 
-            // 8. Tên người nhận
+            // 8. Tên người nhận (tự động tra cứu)
             startY += gapY;
             AddLabel("Tên người nhận:", labelX, startY);
-            txtNguoiNhan = new TextBox();
-            txtNguoiNhan.ReadOnly = true;
-            txtNguoiNhan.BackColor = Color.FromArgb(243, 244, 246);
-            txtNguoiNhan.ForeColor = Color.FromArgb(16, 185, 129);
-            txtNguoiNhan.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
-            txtNguoiNhan.Location = new Point(inputX, startY);
-            txtNguoiNhan.Width = inputWidth;
+            txtNguoiNhan = new TextBox
+            {
+                ReadOnly = true,
+                BackColor = Color.FromArgb(243, 244, 246),
+                ForeColor = Color.FromArgb(16, 185, 129),
+                Font = new Font("Segoe UI", 9.5F, FontStyle.Bold),
+                Location = new Point(inputX, startY),
+                Width = inputWidth
+            };
             this.Controls.Add(txtNguoiNhan);
 
-            // 9. Thao tác
+            // 9. Thao tác (Chuyển khoản, Rút tiền, Nạp tiền...)
             startY += gapY;
             AddLabel("Thao tác:", labelX, startY);
-            cboThaoTac = new ComboBox();
-            cboThaoTac.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboThaoTac.Location = new Point(inputX, startY);
-            cboThaoTac.Width = inputWidth;
-            cboThaoTac.Font = new Font("Segoe UI", 9.5F);
+            cboThaoTac = new ComboBox
+            {
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Location = new Point(inputX, startY),
+                Width = inputWidth,
+                Font = new Font("Segoe UI", 9.5F)
+            };
             cboThaoTac.SelectedIndexChanged += CboThaoTac_SelectedIndexChanged;
             this.Controls.Add(cboThaoTac);
 
-            // 10. Loại giao dịch (Admin) hoặc Danh mục (User)
+            // 10. Loại giao dịch (Admin) hoặc Danh mục chi tiêu (Member)
             if (CurrentSession.IsAdmin)
             {
                 startY += gapY;
                 lblLoaiGD = AddLabel("Loại:", labelX, startY);
-                cboLoaiGD = new ComboBox();
-                cboLoaiGD.DropDownStyle = ComboBoxStyle.DropDownList;
-                cboLoaiGD.Location = new Point(inputX, startY);
-                cboLoaiGD.Width = inputWidth;
-                cboLoaiGD.Font = new Font("Segoe UI", 9.5F);
+                cboLoaiGD = new ComboBox
+                {
+                    DropDownStyle = ComboBoxStyle.DropDownList,
+                    Location = new Point(inputX, startY),
+                    Width = inputWidth,
+                    Font = new Font("Segoe UI", 9.5F)
+                };
                 cboLoaiGD.SelectedIndexChanged += CboLoaiGD_SelectedIndexChanged;
                 this.Controls.Add(cboLoaiGD);
             }
@@ -229,73 +281,85 @@ namespace BankAccountManagement
             {
                 startY += gapY;
                 lblDanhMuc = AddLabel("Danh mục:", labelX, startY);
-                cboDanhMuc = new ComboBox();
-                cboDanhMuc.DropDownStyle = ComboBoxStyle.DropDownList;
-                cboDanhMuc.Location = new Point(inputX, startY);
-                cboDanhMuc.Width = inputWidth;
-                cboDanhMuc.Font = new Font("Segoe UI", 9.5F);
+                cboDanhMuc = new ComboBox
+                {
+                    DropDownStyle = ComboBoxStyle.DropDownList,
+                    Location = new Point(inputX, startY),
+                    Width = inputWidth,
+                    Font = new Font("Segoe UI", 9.5F)
+                };
                 this.Controls.Add(cboDanhMuc);
             }
 
-            // 11. Ở dưới trước nhập số tiền có loại tiền là vnd hay usd (Cả User lẫn Admin)
+            // 11. Loại tiền tệ (VND / USD / EUR...)
             startY += gapY;
             lblLoaiTien = AddLabel("Loại tiền:", labelX, startY);
-            cboLoaiTien = new ComboBox();
-            cboLoaiTien.DropDownStyle = ComboBoxStyle.DropDownList;
-            cboLoaiTien.Location = new Point(inputX, startY);
-            cboLoaiTien.Width = inputWidth;
-            cboLoaiTien.Font = new Font("Segoe UI", 9.5F);
-            cboLoaiTien.SelectedIndexChanged += (s, e) => { UpdateConvertedAmount(); };
+            cboLoaiTien = new ComboBox
+            {
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Location = new Point(inputX, startY),
+                Width = inputWidth,
+                Font = new Font("Segoe UI", 9.5F)
+            };
+            cboLoaiTien.SelectedIndexChanged += (s, e) => UpdateConvertedAmount();
             this.Controls.Add(cboLoaiTien);
 
             // 12. Số tiền gốc
             startY += gapY;
             AddLabel("Số tiền gốc:", labelX, startY);
-            txtSoTien = new TextBox();
-            txtSoTien.Location = new Point(inputX, startY);
-            txtSoTien.Width = inputWidth;
-            txtSoTien.Font = new Font("Segoe UI", 9.5F);
-            txtSoTien.Text = "0";
-            txtSoTien.TextAlign = HorizontalAlignment.Left;
-            txtSoTien.TextChanged += (s, e) => { UpdateConvertedAmount(); };
+            txtSoTien = new TextBox
+            {
+                Location = new Point(inputX, startY),
+                Width = inputWidth,
+                Font = new Font("Segoe UI", 9.5F),
+                Text = "0",
+                TextAlign = HorizontalAlignment.Left
+            };
+            txtSoTien.TextChanged += (s, e) => UpdateConvertedAmount();
             this.Controls.Add(txtSoTien);
 
-            // Label Quy Đổi
+            // 13. Nhãn hiển thị số tiền quy đổi sang VND
             startY += 26;
-            lblQuyDoi = new Label();
-            lblQuyDoi.Text = "Quy đổi: 0 VND";
-            lblQuyDoi.ForeColor = Color.ForestGreen;
-            lblQuyDoi.Font = new Font("Segoe UI", 8.5F, FontStyle.Bold);
-            lblQuyDoi.Location = new Point(inputX, startY);
-            lblQuyDoi.AutoSize = true;
+            lblQuyDoi = new Label
+            {
+                Text = "Quy đổi: 0 VND",
+                ForeColor = Color.ForestGreen,
+                Font = new Font("Segoe UI", 8.5F, FontStyle.Bold),
+                Location = new Point(inputX, startY),
+                AutoSize = true
+            };
             this.Controls.Add(lblQuyDoi);
 
-            // Buttons
+            // 14. Nút bấm Thực hiện & Hủy bỏ
             startY += 30;
-            btnSave = new Button();
-            btnSave.Text = "Thực hiện";
-            btnSave.BackColor = Color.FromArgb(51, 102, 255);
-            btnSave.ForeColor = Color.White;
-            btnSave.FlatStyle = FlatStyle.Flat;
+            btnSave = new Button
+            {
+                Text = "Thực hiện",
+                BackColor = Color.FromArgb(51, 102, 255),
+                ForeColor = Color.White,
+                FlatStyle = FlatStyle.Flat,
+                Size = new Size(105, 36),
+                Location = new Point(300, startY),
+                Font = new Font("Segoe UI", 9.5F, FontStyle.Bold),
+                Cursor = Cursors.Hand
+            };
             btnSave.FlatAppearance.BorderSize = 0;
-            btnSave.Size = new Size(105, 36);
-            btnSave.Location = new Point(300, startY);
-            btnSave.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
-            btnSave.Cursor = Cursors.Hand;
             btnSave.Click += BtnSave_Click;
             this.Controls.Add(btnSave);
 
-            btnCancel = new Button();
-            btnCancel.Text = "Hủy bỏ";
-            btnCancel.BackColor = Color.White;
-            btnCancel.ForeColor = Color.Black;
-            btnCancel.FlatStyle = FlatStyle.Flat;
+            btnCancel = new Button
+            {
+                Text = "Hủy bỏ",
+                BackColor = Color.White,
+                ForeColor = Color.Black,
+                FlatStyle = FlatStyle.Flat,
+                Size = new Size(95, 36),
+                Location = new Point(415, startY),
+                Font = new Font("Segoe UI", 9.5F),
+                Cursor = Cursors.Hand
+            };
             btnCancel.FlatAppearance.BorderColor = Color.LightGray;
-            btnCancel.Size = new Size(95, 36);
-            btnCancel.Location = new Point(415, startY);
-            btnCancel.Font = new Font("Segoe UI", 9.5F);
-            btnCancel.Cursor = Cursors.Hand;
-            btnCancel.Click += (s, e) => { ConfirmCancel(); };
+            btnCancel.Click += (s, e) => ConfirmCancel();
             this.Controls.Add(btnCancel);
 
             this.ResumeLayout(false);
@@ -303,20 +367,29 @@ namespace BankAccountManagement
 
         private Label AddLabel(string text, int x, int y)
         {
-            Label lbl = new Label();
-            lbl.Text = text;
-            lbl.Location = new Point(x, y + 4);
-            lbl.Font = new Font("Segoe UI", 9.5F);
-            lbl.AutoSize = true;
+            Label lbl = new Label
+            {
+                Text = text,
+                Location = new Point(x, y + 4),
+                Font = new Font("Segoe UI", 9.5F),
+                AutoSize = true
+            };
             this.Controls.Add(lbl);
             return lbl;
         }
 
+        #endregion
+
+        #region 3. NẠP DỮ LIỆU DANH MỤC & MẪU (DROPDOWNS & PREFILL)
+
+        /// <summary>
+        /// Nạp các dữ liệu ngân hàng, tài khoản nguồn, danh mục và tiền tệ vào ComboBox.
+        /// </summary>
         private void LoadDropdowns()
         {
             try
             {
-                // 1. Tài khoản của mình (User)
+                // 1. Tài khoản của mình (Khách hàng)
                 if (!CurrentSession.IsAdmin && cboMyAccount != null)
                 {
                     DataTable dtMyAccounts = _transactionService.GetUserAccountsWithBankInfo(CurrentSession.MaKH);
@@ -326,19 +399,18 @@ namespace BankAccountManagement
                     if (dtMyAccounts != null && dtMyAccounts.Rows.Count > 0)
                     {
                         cboMyAccount.SelectedIndex = 0;
-                        // 1 người dùng chỉ có 1 tài khoản ngân hàng: tự động lấy luôn và khóa combobox
                         cboMyAccount.Enabled = false;
                     }
                     UpdateSenderAccountFromSelection();
                 }
 
-                // 2. Ngân hàng người nhận: LẤY TẤT CẢ NGÂN HÀNG CỦA ADMIN
+                // 2. Danh sách tất cả ngân hàng đối tác trong hệ thống
                 DataTable dtAllBanks = _transactionService.GetBanksList();
                 cboNganHang.DataSource = dtAllBanks;
                 cboNganHang.DisplayMember = "HienThi";
                 cboNganHang.ValueMember = "MaNganHang";
 
-                // 3. Thao tác: Admin có "Nạp tiền", User thì bỏ "Nạp tiền"
+                // 3. Danh sách các thao tác khả dụng
                 cboThaoTac.Items.Clear();
                 if (CurrentSession.IsAdmin)
                 {
@@ -351,7 +423,7 @@ namespace BankAccountManagement
                     cboThaoTac.SelectedIndex = 0;
                 }
 
-                // 4. Danh sách loại giao dịch (Chỉ khi là Admin)
+                // 4. Danh sách loại giao dịch (Dành cho Admin)
                 if (CurrentSession.IsAdmin && cboLoaiGD != null)
                 {
                     DataTable dtTypes = _transactionService.GetTransactionTypes();
@@ -371,7 +443,7 @@ namespace BankAccountManagement
                     }
                 }
 
-                // 5. Danh mục (User)
+                // 5. Danh mục phân loại chi tiêu cá nhân (Dành cho Member)
                 if (!CurrentSession.IsAdmin && cboDanhMuc != null)
                 {
                     cboDanhMuc.Items.Clear();
@@ -390,30 +462,27 @@ namespace BankAccountManagement
                     cboDanhMuc.SelectedIndex = 0;
                 }
 
-                // 6. Loại tiền: VND hay USD (CẢ USER VÀ ADMIN ĐỀU CÓ)
+                // 6. Danh sách tiền tệ (VND, USD, EUR...)
                 cboLoaiTien.DataSource = new List<CurrencyInfo>(_currencies);
                 cboLoaiTien.DisplayMember = "MaLoaiTien";
                 cboLoaiTien.ValueMember = "MaLoaiTien";
                 try { cboLoaiTien.SelectedValue = "VND"; } catch { }
 
-                // 7. GD mẫu trước
+                // 7. Tải danh sách giao dịch mẫu gần đây để điền nhanh
                 LoadRecentTransfers();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    "Không thể tải dữ liệu: " + ex.Message,
-                    "Lỗi",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                MessageBox.Show("Không thể tải danh mục giao dịch: " + ex.Message, "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void CboMyAccount_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            UpdateSenderAccountFromSelection();
-        }
+        private void CboMyAccount_SelectedIndexChanged(object sender, EventArgs e) => UpdateSenderAccountFromSelection();
 
+        /// <summary>
+        /// Cập nhật thông tin tài khoản chuyển tiền và số dư thực tế dựa trên tài khoản đang được chọn.
+        /// </summary>
         private void UpdateSenderAccountFromSelection()
         {
             if (CurrentSession.IsAdmin || cboMyAccount == null) return;
@@ -451,7 +520,6 @@ namespace BankAccountManagement
                     txtSoDuThucTe.Text = $"{displayVND:N0} VND";
                 }
 
-                // Nếu đang ở thao tác Rút tiền thì tự động điền STK của chính mình
                 string tt = cboThaoTac?.SelectedItem?.ToString() ?? "";
                 if (tt == "Rút tiền")
                 {
@@ -463,6 +531,9 @@ namespace BankAccountManagement
             }
         }
 
+        /// <summary>
+        /// Lấy lại số dư tài khoản người gửi trực tiếp từ cơ sở dữ liệu để đảm bảo dữ liệu mới nhất.
+        /// </summary>
         private void RefreshSenderBalance()
         {
             if (CurrentSession.IsAdmin || string.IsNullOrEmpty(_selectedSenderAccount)) return;
@@ -503,6 +574,9 @@ namespace BankAccountManagement
             UpdateSenderAccountFromSelection();
         }
 
+        /// <summary>
+        /// Nạp các giao dịch đã thực hiện thành công gần đây để người dùng chọn nhanh.
+        /// </summary>
         private void LoadRecentTransfers()
         {
             try
@@ -518,10 +592,7 @@ namespace BankAccountManagement
                 cboRecentTransfers.ValueMember = "MaGiaoDich";
                 cboRecentTransfers.SelectedIndex = 0;
             }
-            catch
-            {
-                // Bỏ qua nếu lỗi
-            }
+            catch { }
         }
 
         private void CboRecentTransfers_SelectedIndexChanged(object sender, EventArgs e)
@@ -539,7 +610,6 @@ namespace BankAccountManagement
 
                 if (!CurrentSession.IsAdmin)
                 {
-                    // Với User: tìm STK nhận từ nội dung chuyển tiền trước đó
                     string targetStk = "";
                     int idx = noiDung.IndexOf("Chuyển tiền đến ");
                     if (idx >= 0)
@@ -552,7 +622,6 @@ namespace BankAccountManagement
                     txtNoiDung.Text = noiDung;
                     txtSoTien.Text = soTienGoc.ToString("N0");
 
-                    // Chọn tài khoản nguồn của mình
                     if (!string.IsNullOrEmpty(stk) && cboMyAccount != null)
                     {
                         cboMyAccount.SelectedValue = stk;
@@ -584,7 +653,6 @@ namespace BankAccountManagement
                     cboThaoTac.SelectedItem = "Chuyển khoản";
                 }
 
-                // Cập nhật tên người nhận
                 string ownerName = _transactionService.GetAccountOwnerName(txtSoTaiKhoan.Text.Trim());
                 if (!string.IsNullOrEmpty(ownerName))
                 {
@@ -596,6 +664,13 @@ namespace BankAccountManagement
             }
         }
 
+        #endregion
+
+        #region 4. TRA CỨU TỰ ĐỘNG VÀ ĐỒNG BỘ THAO TÁC (AUTO LOOKUP & SYNC)
+
+        /// <summary>
+        /// Tự động tra cứu tên chủ tài khoản và mã ngân hàng khi người dùng gõ số tài khoản.
+        /// </summary>
         private void TxtSoTaiKhoan_TextChanged(object sender, EventArgs e)
         {
             string stk = txtSoTaiKhoan.Text.Trim();
@@ -605,7 +680,6 @@ namespace BankAccountManagement
                 return;
             }
 
-            // Tự động nhận diện tên người nhận
             string ownerName = _transactionService.GetAccountOwnerName(stk);
             if (!string.IsNullOrEmpty(ownerName))
             {
@@ -617,14 +691,12 @@ namespace BankAccountManagement
                 txtNguoiNhan.Text = "";
             }
 
-            // Tự động nhận diện ngân hàng người nhận
             string bankCode = _transactionService.GetAccountBank(stk);
             if (!string.IsNullOrEmpty(bankCode) && cboNganHang != null)
             {
                 cboNganHang.SelectedValue = bankCode;
             }
 
-            // Nếu là Admin thì tự động cập nhật loại tiền tệ
             if (CurrentSession.IsAdmin)
             {
                 CurrencyInfo cur = _transactionService.GetAccountCurrency(stk);
@@ -646,6 +718,9 @@ namespace BankAccountManagement
             }
         }
 
+        /// <summary>
+        /// Đồng bộ thao tác người dùng với loại giao dịch tương ứng trong CSDL.
+        /// </summary>
         private void CboThaoTac_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (_isSyncingType) return;
@@ -662,11 +737,7 @@ namespace BankAccountManagement
                     else if (tt == "Thanh toán")
                         cboLoaiGD.SelectedValue = 2;
                     else if (tt == "Chuyển khoản")
-                    {
-                        // Khi Admin thực hiện thao tác Chuyển khoản đến số tài khoản người nhận,
-                        // đối với tài khoản đích đó thì đây là khoản THU (Nhận chuyển khoản - MaLoaiGD = 4)
                         cboLoaiGD.SelectedValue = 4;
-                    }
                 }
 
                 if (!CurrentSession.IsAdmin)
@@ -709,6 +780,13 @@ namespace BankAccountManagement
             finally { _isSyncingType = false; }
         }
 
+        #endregion
+
+        #region 5. TÍNH TOÁN TIỀN TỆ VÀ QUY ĐỔI REAL-TIME (CURRENCY CALCULATION)
+
+        /// <summary>
+        /// Phân tích cú pháp chuỗi số tiền người dùng nhập vào, xử lý linh hoạt dấu phẩy (,) và dấu chấm (.) ngăn cách hàng nghìn.
+        /// </summary>
         private decimal ParseAmount(string text, string currency)
         {
             if (string.IsNullOrWhiteSpace(text)) return 0m;
@@ -727,8 +805,8 @@ namespace BankAccountManagement
             }
             else if (clean.Contains(","))
             {
-                if (currency.Equals("VND", StringComparison.OrdinalIgnoreCase) || 
-                    currency.Equals("JPY", StringComparison.OrdinalIgnoreCase) || 
+                if (currency.Equals("VND", StringComparison.OrdinalIgnoreCase) ||
+                    currency.Equals("JPY", StringComparison.OrdinalIgnoreCase) ||
                     currency.Equals("KRW", StringComparison.OrdinalIgnoreCase))
                 {
                     clean = clean.Replace(",", "");
@@ -752,8 +830,8 @@ namespace BankAccountManagement
             }
             else if (clean.Contains("."))
             {
-                if (currency.Equals("VND", StringComparison.OrdinalIgnoreCase) || 
-                    currency.Equals("JPY", StringComparison.OrdinalIgnoreCase) || 
+                if (currency.Equals("VND", StringComparison.OrdinalIgnoreCase) ||
+                    currency.Equals("JPY", StringComparison.OrdinalIgnoreCase) ||
                     currency.Equals("KRW", StringComparison.OrdinalIgnoreCase))
                 {
                     clean = clean.Replace(".", "");
@@ -766,6 +844,9 @@ namespace BankAccountManagement
             return 0m;
         }
 
+        /// <summary>
+        /// Cập nhật hiển thị số tiền quy đổi sang VND và kiểm tra cảnh báo vượt quá số dư khả dụng.
+        /// </summary>
         private void UpdateConvertedAmount()
         {
             if (cboLoaiTien == null || txtSoTien == null || lblQuyDoi == null) return;
@@ -809,7 +890,7 @@ namespace BankAccountManagement
             decimal soTienVND = soTienGoc * tyGia;
             lblQuyDoi.Tag = soTienVND;
 
-            // KIỂM TRA SỐ DƯ REAL-TIME CHO USER: MỌI GIAO DỊCH KHÔNG THỂ QUÁ SỐ DƯ TÀI KHOẢN
+            // KIỂM TRA SỐ DƯ REAL-TIME CHO USER: KHÔNG ĐƯỢC PHÉP VƯỢT QUÁ SỐ DƯ
             if (!CurrentSession.IsAdmin && !string.IsNullOrEmpty(_selectedSenderAccount))
             {
                 decimal senderRate = _selectedSenderQuyDoi > 0 ? _selectedSenderQuyDoi : 1m;
@@ -846,13 +927,20 @@ namespace BankAccountManagement
             }
         }
 
+        #endregion
+
+        #region 6. THỰC HIỆN GIAO DỊCH (TRANSACTION EXECUTION)
+
+        /// <summary>
+        /// Xử lý nút "Thực hiện": Xác thực hợp lệ, gọi dịch vụ thực thi giao dịch và đóng Form khi thành công.
+        /// </summary>
         private void BtnSave_Click(object sender, EventArgs e)
         {
             try
             {
                 string tkNhan = txtSoTaiKhoan.Text.Trim();
                 string thaoTac = cboThaoTac.SelectedItem?.ToString() ?? "";
-                
+
                 string currencyCode = "VND";
                 if (cboLoaiTien.SelectedItem is CurrencyInfo ci && !string.IsNullOrEmpty(ci.MaLoaiTien))
                 {
@@ -891,14 +979,12 @@ namespace BankAccountManagement
                 decimal soTienVND = soTienGoc * quyDoi;
 
                 string maGD = "GD" + DateTime.Now.ToString("yyyyMMddHHmmss");
-                string hardcodedTrangThai = "Success";
+                const string hardcodedTrangThai = "Success";
 
-                // ========================================================
-                // 1. KHI ĐĂNG NHẬP LÀ USER (GIAO DỊCH 2 BÊN)
-                // ========================================================
+                // BƯỚC 1: XỬ LÝ CHO KHÁCH HÀNG (MEMBER) - GIAO DỊCH CHUYỂN TIỀN HAI CHIỀU
                 if (!CurrentSession.IsAdmin)
                 {
-                    RefreshSenderBalance(); // Cập nhật số dư mới nhất từ DB
+                    RefreshSenderBalance();
 
                     if (string.IsNullOrEmpty(_selectedSenderAccount))
                     {
@@ -916,10 +1002,9 @@ namespace BankAccountManagement
                         ? _selectedSenderBalance
                         : (_selectedSenderBalance * senderRate);
 
-                    // Kiểm tra số dư tài khoản gửi của User: MỌI GIAO DỊCH KHÔNG THỂ QUÁ SỐ DƯ TÀI KHOẢN
                     if (soTienVND > senderVndBalance)
                     {
-                        MessageBox.Show($"Số tiền giao dịch ({soTienVND:N0} VND) không được vượt quá số dư hiện tại ({senderVndBalance:N0} VND) của tài khoản!", 
+                        MessageBox.Show($"Số tiền giao dịch ({soTienVND:N0} VND) không được vượt quá số dư hiện tại ({senderVndBalance:N0} VND) của tài khoản!",
                             "Cảnh báo số dư", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         txtSoTien.Focus();
                         return;
@@ -928,6 +1013,7 @@ namespace BankAccountManagement
                     string danhMuc = cboDanhMuc?.SelectedItem?.ToString() ?? "Chi tiêu khác";
                     string noiDungUser = txtNoiDung.Text.Trim();
 
+                    // Xử lý rút tiền mặt
                     if (thaoTac == "Rút tiền")
                     {
                         string noiDungRut = $"[{danhMuc}] Rút tiền mặt tại ATM" + (string.IsNullOrWhiteSpace(noiDungUser) ? "" : $" - {noiDungUser}");
@@ -947,7 +1033,7 @@ namespace BankAccountManagement
                         return;
                     }
 
-                    // Chuyển khoản hoặc Thanh toán
+                    // Xử lý chuyển khoản hoặc thanh toán
                     if (string.IsNullOrWhiteSpace(tkNhan))
                     {
                         MessageBox.Show("Vui lòng nhập số tài khoản người nhận!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -991,9 +1077,7 @@ namespace BankAccountManagement
                     return;
                 }
 
-                // ========================================================
-                // 2. KHI ĐĂNG NHẬP LÀ ADMIN (GIỮ NGUYÊN FULL QUYỀN)
-                // ========================================================
+                // BƯỚC 2: XỬ LÝ CHO QUẢN TRỊ VIÊN (ADMIN) - GIAO DỊCH ĐƠN PHƯƠNG
                 if (string.IsNullOrWhiteSpace(tkNhan))
                 {
                     MessageBox.Show("Vui lòng nhập số tài khoản!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -1021,8 +1105,6 @@ namespace BankAccountManagement
                     else if (thaoTac == "Chuyển khoản" || thaoTac == "Thanh toán") maLoai = 4;
                 }
 
-                // Khi Admin chuyển tiền tới tài khoản này, tài khoản này là bên nhận tiền (Thu),
-                // vì vậy nếu thao tác là Chuyển khoản và maLoai đang là 3 (Chi) thì phải đổi thành 4 (Nhận chuyển khoản - Thu)
                 if ((thaoTac == "Chuyển khoản" || thaoTac == "Thanh toán") && maLoai == 3)
                 {
                     maLoai = 4;
@@ -1064,6 +1146,10 @@ namespace BankAccountManagement
             }
         }
 
+        #endregion
+
+        #region 7. VẼ BO TRÒN VIỀN FORM (GDI+ DRAWING)
+
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);
@@ -1080,5 +1166,7 @@ namespace BankAccountManagement
                 e.Graphics.DrawPath(pen, path);
             }
         }
+
+        #endregion
     }
 }
