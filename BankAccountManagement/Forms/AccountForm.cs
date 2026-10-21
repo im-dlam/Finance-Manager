@@ -2,11 +2,13 @@ using BankAccountManagement.Models;
 using BankAccountManagement.Services;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Data.SqlClient;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace BankAccountManagement.Forms
@@ -83,11 +85,18 @@ namespace BankAccountManagement.Forms
 
         private void AccountForm_Load(object sender, EventArgs e)
         {
-            lblSubtitle.Text = CurrentSession.IsAdmin
-                ? "Theo dõi và quản lý tài khoản ngân hàng của khách hàng"
-                : "Quản lý tài khoản ngân hàng của bạn";
-
-            Console.WriteLine($"CurrentSession.IsAdmin: {CurrentSession.IsAdmin}");
+            if (CurrentSession.IsAdmin)
+            {
+                lblSubtitle.Text = "Theo dõi và quản lý tài khoản ngân hàng của khách hàng";
+            }
+            else if (!string.IsNullOrWhiteSpace(CurrentSession.MaKH))
+            {
+                lblSubtitle.Text = "Quản lý tài khoản ngân hàng của bạn";
+            }
+            else
+            {
+                lblSubtitle.Text = "Bạn chưa hoàn tất hồ sơ khách hàng. Vui lòng cập nhật thông tin cá nhân.";
+            }
 
             try
             {
@@ -104,32 +113,37 @@ namespace BankAccountManagement.Forms
         }
 
         /// <summary>
-        /// Admin và Member hợp lệ đều được quản lý tài khoản theo phạm vi của mình.
+        /// Admin được thêm/sửa/đóng tài khoản.
+        /// Member chỉ xem tài khoản duy nhất của mình (quy tắc 1 người dùng = 1 tài khoản ngân hàng).
         /// </summary>
         private void ApplyRolePermissions()
         {
-            bool canManage = CanManageAccounts;
-            btnAdd.Visible = canManage;
-            btnEdit.Visible = canManage;
-            btnDelete.Visible = canManage;
+            btnAdd.Visible = CurrentSession.IsAdmin;
+            btnEdit.Visible = CurrentSession.IsAdmin;
+            btnDelete.Visible = CurrentSession.IsAdmin;
         }
 
-        private bool CanManageAccounts => CurrentSession.IsAdmin ||
-            (CurrentSession.IsMember && !string.IsNullOrWhiteSpace(CurrentSession.MaKH));
+        private bool CanManageAccounts => CurrentSession.IsAdmin;
         // ==========================================================
         //  ĐỔ DỮ LIỆU COMBOBOX
         // ==========================================================
         private void LoadComboBoxData()
         {
-            if (!CanManageAccounts)
-                throw new UnauthorizedAccessException("Phiên đăng nhập không có mã khách hàng hoặc quyền hợp lệ.");
-
             DataTable dtKH;
             if (!CurrentSession.IsAdmin)
             {
-                // Member: Chỉ tải duy nhất thông tin của chính mình
-                dtKH = GetDataTable(
-                    $"SELECT MaKH, HoTen FROM dbo.ThongTinKhachHang WHERE MaKH = '{CurrentSession.MaKH.Replace("'", "''")}'");
+                if (!string.IsNullOrWhiteSpace(CurrentSession.MaKH))
+                {
+                    // Member: Chỉ tải duy nhất thông tin của chính mình
+                    dtKH = GetDataTable(
+                        $"SELECT MaKH, HoTen FROM dbo.ThongTinKhachHang WHERE MaKH = '{CurrentSession.MaKH.Replace("'", "''")}'");
+                }
+                else
+                {
+                    dtKH = new DataTable();
+                    dtKH.Columns.Add("MaKH", typeof(string));
+                    dtKH.Columns.Add("HoTen", typeof(string));
+                }
             }
             else
             {
@@ -266,18 +280,6 @@ namespace BankAccountManagement.Forms
             try
             {
                 var all = _AccountService.GetActiveTaiKhoan() ?? new List<TaiKhoan>();
-
-                // ⭐ Phân quyền: Admin thấy hết, Member chỉ của mình
-                if (!CurrentSession.IsAdmin)
-                {
-                    string myMaKH = CurrentSession.MaKH;
-                    all = all.Where(tk =>
-                        !string.IsNullOrEmpty(myMaKH) &&
-                        string.Equals(tk.MaKH, myMaKH, StringComparison.OrdinalIgnoreCase)
-                    ).ToList();
-                }
-
-                _allAccounts = all;
 
                 // ⭐ Phân quyền: Admin thấy hết, Member chỉ của mình
                 if (!CurrentSession.IsAdmin)

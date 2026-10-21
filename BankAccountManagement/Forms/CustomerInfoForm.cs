@@ -1,9 +1,10 @@
-﻿using BankAccountManagement.Models;
+using BankAccountManagement.Models;
 using BankAccountManagement.Services;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace BankAccountManagement.Forms
@@ -121,7 +122,7 @@ namespace BankAccountManagement.Forms
         private void BtnCancel_Click(object sender, EventArgs e)
         {
             var confirm = MessageBox.Show(
-                "Hủy nhập thông tin? Bạn sẽ không thể sử dụng dịch vụ cho đến khi hoàn tất.",
+                "Hủy nhập thông tin? Bạn sẽ không thể sử dụng đầy đủ các tính năng cho đến khi hoàn tất hồ sơ.",
                 "Xác nhận",
                 MessageBoxButtons.YesNo,
                 MessageBoxIcon.Question);
@@ -129,6 +130,15 @@ namespace BankAccountManagement.Forms
             if (confirm != DialogResult.Yes) return;
 
             this.DialogResult = DialogResult.Cancel;
+            if (!this.TopLevel)
+            {
+                var main = this.TopLevelControl as MainForm ?? this.ParentForm as MainForm;
+                if (main != null)
+                {
+                    main.LoadMultiForm(new DashboardUserForm());
+                    return;
+                }
+            }
             this.Close();
         }
 
@@ -142,74 +152,167 @@ namespace BankAccountManagement.Forms
             txtFullName.Text = CurrentSession.User?.HoTen ?? "";
             txtEmail.Text = CurrentSession.User?.Email ?? "";
 
+            // Nếu user đã có MaKH hoặc thông tin cũ, prefill các trường chưa bị dummy
+            if (!string.IsNullOrWhiteSpace(CurrentSession.User?.MaKH))
+            {
+                try
+                {
+                    var profile = CustomerService.GetCustomerProfile(CurrentSession.User.MaKH);
+                    if (profile != null)
+                    {
+                        if (!string.IsNullOrWhiteSpace(profile.HoTen))
+                            txtFullName.Text = profile.HoTen;
+
+                        if (!string.IsNullOrWhiteSpace(profile.Email))
+                            txtEmail.Text = profile.Email;
+
+                        if (!string.IsNullOrWhiteSpace(profile.CMND_CCCD) && !profile.CMND_CCCD.StartsWith("001200"))
+                            txtCccd.Text = profile.CMND_CCCD;
+
+                        if (!string.IsNullOrWhiteSpace(profile.SoDienThoai) && profile.SoDienThoai != "0901234567")
+                            txtPhone.Text = profile.SoDienThoai;
+
+                        if (!string.IsNullOrWhiteSpace(profile.DiaChi) && profile.DiaChi != "Hà Nội")
+                            txtAddress.Text = profile.DiaChi;
+
+                        if (profile.NgaySinh.HasValue && profile.NgaySinh.Value.Year > 1900)
+                            dtpDob.Value = profile.NgaySinh.Value;
+
+                        if (!string.IsNullOrWhiteSpace(profile.GioiTinh))
+                        {
+                            int idx = cboGender.FindStringExact(profile.GioiTinh);
+                            if (idx >= 0) cboGender.SelectedIndex = idx;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine("[CustomerInfoForm] Prefill error: " + ex.Message);
+                }
+            }
+
             if (string.IsNullOrWhiteSpace(txtFullName.Text))
                 txtFullName.Focus();
             else if (string.IsNullOrWhiteSpace(txtEmail.Text))
                 txtEmail.Focus();
-            else
+            else if (string.IsNullOrWhiteSpace(txtCccd.Text))
                 txtCccd.Focus();
+            else if (string.IsNullOrWhiteSpace(txtPhone.Text))
+                txtPhone.Focus();
+            else
+                txtAddress.Focus();
         }
 
-        // ============================================================
-        //  SAVE
-        // ============================================================
-        private void BtnSave_Click(object sender, EventArgs e)
+        private async void BtnSave_Click(object sender, EventArgs e)
         {
             string hoTen = txtFullName.Text.Trim();
             string cccd = txtCccd.Text.Trim();
             DateTime ngaySinh = dtpDob.Value;
-            string gioiTinh = cboGender.SelectedItem?.ToString() ?? "";
+            string gioiTinh = cboGender.SelectedItem?.ToString() ?? string.Empty;
             string sdt = txtPhone.Text.Trim();
             string email = txtEmail.Text.Trim();
             string diaChi = txtAddress.Text.Trim();
 
+            // Validate dữ liệu
             if (string.IsNullOrWhiteSpace(hoTen))
-            { ShowError("⚠  Vui lòng nhập họ và tên."); txtFullName.Focus(); return; }
-
-            if (string.IsNullOrWhiteSpace(cccd))
-            { ShowError("⚠  Vui lòng nhập CMND/CCCD."); txtCccd.Focus(); return; }
-
-            if (!Regex.IsMatch(cccd, @"^\d{9,12}$"))
-            { ShowError("⚠  CMND/CCCD phải là 9-12 chữ số."); txtCccd.Focus(); return; }
-
-            if (ngaySinh > DateTime.Now.AddYears(-16))
-            { ShowError("⚠  Bạn phải đủ 16 tuổi."); dtpDob.Focus(); return; }
-
-            if (string.IsNullOrWhiteSpace(gioiTinh))
-            { ShowError("⚠  Vui lòng chọn giới tính."); cboGender.Focus(); return; }
-
-            if (string.IsNullOrWhiteSpace(sdt))
-            { ShowError("⚠  Vui lòng nhập số điện thoại."); txtPhone.Focus(); return; }
-
-            if (!Regex.IsMatch(sdt, @"^0\d{9,10}$"))
-            { ShowError("⚠  Số điện thoại không hợp lệ (VD: 0901234567)."); txtPhone.Focus(); return; }
-
-            if (string.IsNullOrWhiteSpace(email) || !IsValidEmail(email))
-            { ShowError("⚠  Email không hợp lệ."); txtEmail.Focus(); return; }
-
-            if (string.IsNullOrWhiteSpace(diaChi))
-            { ShowError("⚠  Vui lòng nhập địa chỉ."); txtAddress.Focus(); return; }
-
-            AuthResult result = CustomerService.SaveCustomerInfo(
-                hoTen, cccd, ngaySinh, gioiTinh, sdt, email, diaChi);
-
-            if (!result.Success)
             {
-                ShowError("✖  " + result.Message);
+                ShowError("Vui lòng nhập họ và tên.");
+                txtFullName.Focus();
                 return;
             }
 
-            HideError();
+            if (!Regex.IsMatch(cccd, @"^\d{9,12}$"))
+            {
+                ShowError("CMND/CCCD phải có từ 9 đến 12 chữ số.");
+                txtCccd.Focus();
+                return;
+            }
 
-            MessageBox.Show(result.Message, "Bank Management",
-                MessageBoxButtons.OK, MessageBoxIcon.Information);
+            if (ngaySinh > DateTime.Now.AddYears(-16))
+            {
+                ShowError("Bạn phải đủ 16 tuổi.");
+                dtpDob.Focus();
+                return;
+            }
 
-            // Báo cho MainForm biết đã save xong :))
-            SaveSuccess?.Invoke(this, EventArgs.Empty);
-            this.DialogResult = DialogResult.OK;
-            this.Close();
+            if (string.IsNullOrWhiteSpace(gioiTinh))
+            {
+                ShowError("Vui lòng chọn giới tính.");
+                cboGender.Focus();
+                return;
+            }
+
+            if (!Regex.IsMatch(sdt, @"^0\d{9,10}$"))
+            {
+                ShowError("Số điện thoại không hợp lệ.");
+                txtPhone.Focus();
+                return;
+            }
+
+            if (!IsValidEmail(email))
+            {
+                ShowError("Email không hợp lệ.");
+                txtEmail.Focus();
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(diaChi))
+            {
+                ShowError("Vui lòng nhập địa chỉ.");
+                txtAddress.Focus();
+                return;
+            }
+
+            // Lưu dữ liệu mà không làm đơ giao diện
+            btnSave.Enabled = false;
+            UseWaitCursor = true;
+
+            try
+            {
+                AuthResult result = await Task.Run(() =>
+                    CustomerService.SaveCustomerInfo(
+                        hoTen,
+                        cccd,
+                        ngaySinh,
+                        gioiTinh,
+                        sdt,
+                        email,
+                        diaChi
+                    )
+                );
+
+                if (!result.Success)
+                {
+                    ShowError(result.Message);
+                    return;
+                }
+
+                HideError();
+
+                MessageBox.Show(
+                    result.Message,
+                    "Bank Management",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information
+                );
+
+                SaveSuccess?.Invoke(this, EventArgs.Empty);
+                DialogResult = DialogResult.OK;
+                Close();
+            }
+            catch (Exception ex)
+            {
+                ShowError($"Không thể lưu thông tin khách hàng: {ex.Message}");
+            }
+            finally
+            {
+                if (!IsDisposed && !Disposing)
+                {
+                    btnSave.Enabled = true;
+                    UseWaitCursor = false;
+                }
+            }
         }
-
         private static bool IsValidEmail(string email)
             => Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.IgnoreCase);
 

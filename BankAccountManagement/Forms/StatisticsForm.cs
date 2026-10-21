@@ -1,4 +1,4 @@
-﻿using System.Drawing;using BankAccountManagement.Models;
+﻿using BankAccountManagement.Models;
 using BankAccountManagement.Models.Statistics;
 using BankAccountManagement.Services;
 
@@ -20,14 +20,145 @@ namespace BankAccountManagement.Forms
         /// <summary>
         /// khai báo một trường riêng tư _statisticService kiểu StatisticService để quản lý các chức năng thống kê.
         /// </summary>
-        private readonly StatisticService _statisticService; 
+        private readonly StatisticService _statisticService;
+        private System.Windows.Forms.Timer _autoRefreshTimer;
+        private bool _isRefreshing = false;
+
         public StatisticsForm()
         {
             InitializeComponent();
 
             DatabaseConfig config = DatabaseConfigManager.Load();
+            _statisticService = new StatisticService(config);
 
-            _statisticService = new StatisticService(config); // Khởi tạo đối tượng StatisticService với cấu hình cơ sở dữ liệu
+            buttonRefresh.Click += ButtonRefresh_Click;
+
+            // ⭐ Lắng nghe sự kiện thêm/thay đổi giao dịch để cập nhật tức thời
+            TransactionService.OnTransactionChanged += OnTransactionChangedHandler;
+
+            this.VisibleChanged += async (s, e) =>
+            {
+                if (this.Visible && !this.Disposing && !this.IsDisposed)
+                {
+                    await RefreshAllStatsAsync(false);
+                }
+            };
+
+            this.Activated += async (s, e) =>
+            {
+                if (this.Visible && !this.Disposing && !this.IsDisposed)
+                {
+                    await RefreshAllStatsAsync(false);
+                }
+            };
+
+            // ⭐ Tự động đồng bộ ngầm định kỳ mỗi 3 giây
+            _autoRefreshTimer = new System.Windows.Forms.Timer();
+            _autoRefreshTimer.Interval = 3000;
+            _autoRefreshTimer.Tick += AutoRefreshTimer_Tick;
+            _autoRefreshTimer.Start();
+        }
+
+        private async void AutoRefreshTimer_Tick(object sender, EventArgs e)
+        {
+            if (this.IsDisposed || this.Disposing || !this.Visible || !this.IsHandleCreated) return;
+            await RefreshAllStatsAsync(false);
+        }
+
+        private void OnTransactionChangedHandler()
+        {
+            if (this.IsDisposed || this.Disposing || !this.IsHandleCreated) return;
+
+            try
+            {
+                this.BeginInvoke((Action)(async () =>
+                {
+                    if (!this.IsDisposed && !this.Disposing && this.IsHandleCreated)
+                    {
+                        await RefreshAllStatsAsync(false);
+                    }
+                }));
+            }
+            catch { }
+        }
+
+        /// <summary>
+        /// Dọn dẹp an toàn các timer và event handler khi form bị dispose hoặc close.
+        /// </summary>
+        public void CleanupResources()
+        {
+            try
+            {
+                TransactionService.OnTransactionChanged -= OnTransactionChangedHandler;
+                if (_autoRefreshTimer != null)
+                {
+                    _autoRefreshTimer.Stop();
+                    _autoRefreshTimer.Tick -= AutoRefreshTimer_Tick;
+                    _autoRefreshTimer.Dispose();
+                    _autoRefreshTimer = null;
+                }
+            }
+            catch { }
+        }
+
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            CleanupResources();
+            base.OnFormClosed(e);
+        }
+
+        /// <summary>
+        /// Cập nhật toàn bộ số liệu và biểu đồ thống kê tức thời.
+        /// </summary>
+        public async Task RefreshAllStatsAsync(bool updateDatePickers = false)
+        {
+            if (this.IsDisposed || this.Disposing || _isRefreshing) return;
+            _isRefreshing = true;
+
+            try
+            {
+                if (updateDatePickers)
+                {
+                    if (this.IsDisposed || this.Disposing || dateFrom == null || dateTo == null) return;
+
+                    int currentYear = DateTime.Now.Year;
+                    int currentQuarter = (DateTime.Now.Month - 1) / 3 + 1;
+                    int currentStartMonth = (currentQuarter - 1) * 3 + 1;
+                    DateTime quarterStart = new DateTime(currentYear, currentStartMonth, 1);
+
+                    dateFrom.Value = quarterStart;
+                    dateTo.Value = DateTime.Today;
+                }
+
+                if (this.IsDisposed || this.Disposing || dateFrom == null || dateTo == null) return;
+                DateTime fromDate = dateFrom.Value.Date;
+                DateTime toDate = dateTo.Value.Date;
+
+                await LoadSummaryAsync(fromDate, toDate);
+                if (this.IsDisposed || this.Disposing) return;
+
+                await LoadTransactionChartAsync();
+                if (this.IsDisposed || this.Disposing) return;
+
+                await LoadAccountTypeChartAsync();
+                if (this.IsDisposed || this.Disposing) return;
+
+                await LoadTopAccountsAsync();
+                if (this.IsDisposed || this.Disposing) return;
+
+                if (labelUpdatedAt != null && !labelUpdatedAt.IsDisposed)
+                {
+                    labelUpdatedAt.Text = $"Cập nhật lúc: {DateTime.Now:HH:mm:ss dd/MM/yyyy}";
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[StatisticsForm] Refresh error: {ex.Message}");
+            }
+            finally
+            {
+                _isRefreshing = false;
+            }
         }
 
         /// <summary>
@@ -37,84 +168,78 @@ namespace BankAccountManagement.Forms
         /// <param name="e"></param>
         private async void StatisticsForm_Load(object sender, EventArgs e)
         {
+            // Thiết lập mặc định từ đầu quý hiện tại đến hôm nay
+            int currentYear = DateTime.Now.Year;
+            int currentQuarter = (DateTime.Now.Month - 1) / 3 + 1;
+            int currentStartMonth = (currentQuarter - 1) * 3 + 1;
+            DateTime quarterStart = new DateTime(currentYear, currentStartMonth, 1);
+
+            dateFrom.Value = quarterStart;
+            dateTo.Value = DateTime.Today;
+
             ConfigureTransactionChart();
-
             ConfigureAccountTypeChart();
-
             ConfigureTopAccountsGrid();
 
-            await LoadTransactionChartAsync();
-
-            await LoadAccountTypeChartAsync();
-
-            await LoadTopAccountsAsync();
-
-            // Load the summary data for the initial date range
-            DateTime fromDate = dateFrom.Value.Date;
-            DateTime toDate = dateTo.Value.Date;
-            await LoadSummaryAsync(fromDate, toDate);
+            await RefreshAllStatsAsync(false);
         }
 
         /// <summary>
-        /// Tạo một phương thức bất đồng bộ LoadTransactionChartAsync để tải dữ liệu thống kê giao dịch và hiển thị trên biểu đồ.
+        /// Tải dữ liệu thống kê giao dịch theo quý (hiển thị 3 tháng của quý đó).
+        /// 1 năm có 4 quý:
+        /// Quý 1: T1, T2, T3
+        /// Quý 2: T4, T5, T6
+        /// Quý 3: T7, T8, T9
+        /// Quý 4: T10, T11, T12
+        /// Sang tháng mới thuộc quý mới thì chuyển sang quý mới.
         /// </summary>
-        /// <returns></returns>
         private async Task LoadTransactionChartAsync()
         {
-            DateTime fromDate =
-                dateFrom.Value.Date;
+            if (this.IsDisposed || this.Disposing || chartTransactions == null || chartTransactions.IsDisposed) return;
+            if (dateTo == null || dateTo.IsDisposed) return;
 
-            DateTime toDate =
-                dateTo.Value.Date;
+            DateTime refDate = dateTo.Value.Date;
+            int year = refDate.Year;
+            int quarter = (refDate.Month - 1) / 3 + 1;
+            int startMonth = (quarter - 1) * 3 + 1; // 1, 4, 7, 10
+
+            DateTime quarterStart = new DateTime(year, startMonth, 1);
+            DateTime quarterEnd = quarterStart.AddMonths(3).AddDays(-1);
 
             List<TransactionStatistic> data =
-                await _statisticService
-                    .GetTransactionsByMonthAsync(
-                        fromDate,
-                        toDate);
+                await _statisticService.GetTransactionsByMonthAsync(quarterStart, quarterEnd);
+
+            // ⭐ CRITICAL CHECK AFTER AWAIT: If form or chart was disposed while query was running in background!
+            if (this.IsDisposed || this.Disposing || chartTransactions == null || chartTransactions.IsDisposed) return;
+            if (chartTransactions.Series == null || chartTransactions.Titles == null) return;
 
             chartTransactions.Series.Clear();
-
-            if (data.Count == 0)
-            {
-                chartTransactions.Titles.Clear();
-
-                Title title =
-                    new Title("Không có dữ liệu giao dịch");
-
-                title.Font =
-                    new Font("Segoe UI", 11, FontStyle.Regular);
-
-                title.ForeColor =
-                    Color.Gray;
-
-                title.Docking =
-                    Docking.Top;
-
-                chartTransactions.Titles.Add(title);
-
-                return;
-            }
-
             chartTransactions.Titles.Clear();
 
-            Series series =
-                new Series("Giao dịch")
-                {
-                    ChartType =
-                        SeriesChartType.Column,
-
-                    IsValueShownAsLabel = true
-                };
-
-            foreach (TransactionStatistic item in data)
+            if (labelChartBarTitle != null && !labelChartBarTitle.IsDisposed)
             {
-                series.Points.AddXY(
-                    item.MonthLabel,
-                    item.TransactionCount);
+                labelChartBarTitle.Text = $"Giao dịch theo quý (Quý {quarter}/{year})";
             }
 
+            Series series = new Series("Giao dịch")
+            {
+                ChartType = SeriesChartType.Column,
+                IsValueShownAsLabel = true,
+                CustomProperties = "PointWidth=0.55"
+            };
+
+            for (int m = startMonth; m < startMonth + 3; m++)
+            {
+                var item = data?.FirstOrDefault(x => x.Year == year && x.Month == m);
+                int count = item != null ? item.TransactionCount : 0;
+                series.Points.AddXY($"T{m}/{year}", count);
+            }
+
+            if (this.IsDisposed || chartTransactions.IsDisposed || chartTransactions.Series == null) return;
+
             chartTransactions.Series.Add(series);
+            chartTransactions.Invalidate();
+            chartTransactions.Update();
         }
 
         /// <summary>
@@ -125,21 +250,30 @@ namespace BankAccountManagement.Forms
         /// <returns></returns>
         private async Task LoadSummaryAsync(DateTime fromDate, DateTime toDate)
         {
-            StatisticSummary summary  = await _statisticService.GetSummaryAsync(fromDate,toDate);
+            if (this.IsDisposed || this.Disposing) return;
 
-            lblTotalAccounts.Text = summary.TotalAccounts.ToString("N0");
+            StatisticSummary summary = await _statisticService.GetSummaryAsync(fromDate, toDate);
 
-            lblTotalBalance.Text = summary.TotalBalance.ToString("N0");
+            if (this.IsDisposed || this.Disposing || summary == null) return;
 
-            lblTotalTransactions.Text = summary.TotalTransactions.ToString("N0");
+            if (lblTotalAccounts != null && !lblTotalAccounts.IsDisposed)
+                lblTotalAccounts.Text = summary.TotalAccounts.ToString("N0");
 
-            lblTotalCustomers.Text = summary.TotalCustomers.ToString("N0");
+            if (lblTotalBalance != null && !lblTotalBalance.IsDisposed)
+                lblTotalBalance.Text = summary.TotalBalance.ToString("N0");
+
+            if (lblTotalTransactions != null && !lblTotalTransactions.IsDisposed)
+                lblTotalTransactions.Text = summary.TotalTransactions.ToString("N0");
+
+            if (lblTotalCustomers != null && !lblTotalCustomers.IsDisposed)
+                lblTotalCustomers.Text = summary.TotalCustomers.ToString("N0");
         }
 
         private async void buttonViewStats_Click(object sender, EventArgs e)
         {
-            DateTime fromDate = dateFrom.Value.Date;
+            if (this.IsDisposed || this.Disposing) return;
 
+            DateTime fromDate = dateFrom.Value.Date;
             DateTime toDate = dateTo.Value.Date;
 
             if (fromDate > toDate)
@@ -153,13 +287,13 @@ namespace BankAccountManagement.Forms
                 return;
             }
 
-            await LoadSummaryAsync(
-                fromDate,
-                toDate);
-            // Load the transaction chart after loading the summary
-            await LoadTransactionChartAsync();
-            await LoadAccountTypeChartAsync();
-            await LoadTransactionChartAsync();
+            await RefreshAllStatsAsync(false);
+        }
+
+        private async void ButtonRefresh_Click(object sender, EventArgs e)
+        {
+            if (this.IsDisposed || this.Disposing) return;
+            await RefreshAllStatsAsync(true);
         }
 
 
@@ -213,22 +347,30 @@ namespace BankAccountManagement.Forms
 
         /// <summary>
         /// Load dữ liệu thống kê loại tài khoản từ dịch vụ thống kê và hiển thị trên biểu đồ loại tài khoản.
+        /// Chỉ hiển thị loại tiền nào có tài khoản thực tế (VND, USD, Euro...).
         /// </summary>
         /// <returns></returns>
         private async Task LoadAccountTypeChartAsync()
         {
+            if (this.IsDisposed || this.Disposing || chartAccountTypes == null || chartAccountTypes.IsDisposed) return;
+
             List<AccountTypeStatistic> data =
                 await _statisticService
                     .GetAccountTypesAsync();
 
-            chartAccountTypes.Series.Clear();
+            if (this.IsDisposed || this.Disposing || chartAccountTypes == null || chartAccountTypes.IsDisposed) return;
+            if (chartAccountTypes.Series == null || chartAccountTypes.Titles == null) return;
 
+            chartAccountTypes.Series.Clear();
             chartAccountTypes.Titles.Clear();
+
+            // ⭐ Chỉ hiển thị các loại tiền thực tế có tài khoản (AccountCount > 0)
+            data = data?.Where(item => item.AccountCount > 0).ToList() ?? new List<AccountTypeStatistic>();
 
             if (data.Count == 0)
             {
                 Title title =
-                    new Title("Không có dữ liệu loại tài khoản");
+                    new Title("Không có dữ liệu loại tiền");
 
                 title.Font =
                     new Font("Segoe UI", 11, FontStyle.Regular);
@@ -241,16 +383,24 @@ namespace BankAccountManagement.Forms
 
                 chartAccountTypes.Titles.Add(title);
 
+                if (labelDonutCenter1 != null && !labelDonutCenter1.IsDisposed)
+                    labelDonutCenter1.Text = "0";
+
                 return;
             }
 
-            Series series = new Series("Loại tiền")
-                {
-                    ChartType =
-                        SeriesChartType.Doughnut,
+            int totalAccounts = data.Sum(x => x.AccountCount);
+            if (labelDonutCenter1 != null && !labelDonutCenter1.IsDisposed)
+                labelDonutCenter1.Text = totalAccounts.ToString();
 
-                    IsValueShownAsLabel = true
-                };
+            Series series = new Series("Loại tiền")
+            {
+                ChartType =
+                    SeriesChartType.Doughnut,
+
+                IsValueShownAsLabel = true
+            };
+            series["DoughnutRadius"] = "60";
 
             foreach (AccountTypeStatistic item in data)
             {
@@ -266,7 +416,11 @@ namespace BankAccountManagement.Forms
                 series.Points.Add(point);
             }
 
+            if (this.IsDisposed || chartAccountTypes.IsDisposed || chartAccountTypes.Series == null) return;
+
             chartAccountTypes.Series.Add(series);
+            chartAccountTypes.Invalidate();
+            chartAccountTypes.Update();
         }
 
         /// <summary>
@@ -275,13 +429,17 @@ namespace BankAccountManagement.Forms
         /// <returns></returns>
         private async Task LoadTopAccountsAsync()
         {
+            if (this.IsDisposed || this.Disposing || dgvTopAccounts == null || dgvTopAccounts.IsDisposed) return;
+
             List<TopAccountStatistic> data =
                 await _statisticService
                     .GetTopAccountsAsync(10);
 
+            if (this.IsDisposed || this.Disposing || dgvTopAccounts == null || dgvTopAccounts.IsDisposed) return;
+
             dgvTopAccounts.DataSource = null;
 
-            if (data.Count == 0)
+            if (data == null || data.Count == 0)
             {
                 dgvTopAccounts.Rows.Clear();
 
@@ -309,10 +467,13 @@ namespace BankAccountManagement.Forms
             dgvTopAccounts.DataSource = data;
 
             ConfigureTopAccountsGrid();
+            dgvTopAccounts.Refresh();
         }
 
         /// <summary>
-        /// Cấu hình DataGridView hiển thị top 10 tài khoản có số dư cao nhất, bao gồm việc thiết lập các thuộc tính như chế độ đọc, không cho phép thêm hoặc xóa hàng, ẩn tiêu đề hàng, và định dạng các cột.
+        /// Cấu hình DataGridView hiển thị top tài khoản (Admin) hoặc số dư các ngân hàng (User).
+        /// Với User: Tiêu đề là 'Số dư các ngân hàng', cột 'Ngân hàng', và cột 'Số dư (Thu - Chi)'.
+        /// Số dư dương hiển thị màu xanh, số dư âm hiển thị màu đỏ.
         /// </summary>
         private void ConfigureTopAccountsGrid()
         {
@@ -343,7 +504,7 @@ namespace BankAccountManagement.Forms
 
             dgvTopAccounts.Columns[0]
                 .HeaderText = "STT";
-            dgvTopAccounts.Columns[0].Width = 30;
+            dgvTopAccounts.Columns[0].FillWeight = 12;
 
 
             // Số tài khoản
@@ -352,23 +513,57 @@ namespace BankAccountManagement.Forms
 
             dgvTopAccounts.Columns[1]
                 .HeaderText = "Số tài khoản";
-            dgvTopAccounts.Columns[1].Width = 50;
+            dgvTopAccounts.Columns[1].FillWeight = 28;
 
 
-            // Chủ tài khoản
-            dgvTopAccounts.Columns[2]
-                .DataPropertyName = "AccountHolder";
+            if (!CurrentSession.IsAdmin)
+            {
+                labelTopTitle.Text = "Số dư các ngân hàng";
 
-            dgvTopAccounts.Columns[2]
-                .HeaderText = "Chủ tài khoản";
+                // Ngân hàng
+                dgvTopAccounts.Columns[2]
+                    .DataPropertyName = "AccountHolder";
+
+                dgvTopAccounts.Columns[2]
+                    .HeaderText = "Ngân hàng";
+                dgvTopAccounts.Columns[2].FillWeight = 30;
 
 
-            // Số dư
-            dgvTopAccounts.Columns[3]
-                .DataPropertyName = "Balance";
+                // Số dư (Tổng thu - Tổng chi)
+                dgvTopAccounts.Columns[3]
+                    .DataPropertyName = "Balance";
 
-            dgvTopAccounts.Columns[3]
-                .HeaderText = "Số dư";
+                dgvTopAccounts.Columns[3]
+                    .HeaderText = "Số dư (Thu - Chi)";
+                dgvTopAccounts.Columns[3].FillWeight = 30;
+
+                if (linkViewAll != null)
+                    linkViewAll.Visible = false;
+            }
+            else
+            {
+                labelTopTitle.Text = "Top tài khoản theo số dư";
+
+                // Chủ tài khoản
+                dgvTopAccounts.Columns[2]
+                    .DataPropertyName = "AccountHolder";
+
+                dgvTopAccounts.Columns[2]
+                    .HeaderText = "Chủ tài khoản";
+                dgvTopAccounts.Columns[2].FillWeight = 30;
+
+
+                // Số dư
+                dgvTopAccounts.Columns[3]
+                    .DataPropertyName = "Balance";
+
+                dgvTopAccounts.Columns[3]
+                    .HeaderText = "Số dư";
+                dgvTopAccounts.Columns[3].FillWeight = 30;
+
+                if (linkViewAll != null)
+                    linkViewAll.Visible = true;
+            }
 
             dgvTopAccounts.Columns[3]
                 .DefaultCellStyle.Format = "N0";
@@ -376,10 +571,6 @@ namespace BankAccountManagement.Forms
             dgvTopAccounts.Columns[3]
                 .DefaultCellStyle.Alignment =
                     DataGridViewContentAlignment.MiddleRight;
-
-            dgvTopAccounts.Columns[3]
-                .DefaultCellStyle.ForeColor =
-                    Color.SeaGreen;
 
             dgvTopAccounts.Columns[3]
                 .DefaultCellStyle.Font =
@@ -392,7 +583,9 @@ namespace BankAccountManagement.Forms
         }
 
         /// <summary>
-        /// Format đúng loại tiền tệ cho cột số dư trong DataGridView, bao gồm việc hiển thị số dư với định dạng số và thêm ký hiệu tiền tệ tương ứng.
+        /// Format đúng loại tiền tệ cho cột số dư trong DataGridView.
+        /// Admin: Màu xanh SeaGreen.
+        /// User: Số dư là Tổng thu - Tổng chi. Dương: màu xanh (+), Âm: màu đỏ (-).
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -427,11 +620,34 @@ namespace BankAccountManagement.Forms
             string currency =
                 currencyValue?.ToString() ?? string.Empty;
 
-            e.Value =
-                $"{balance:N0} {currency}";
+            if (CurrentSession.IsAdmin)
+            {
+                e.Value =
+                    $"{balance:N0} {currency}";
 
-            e.CellStyle.ForeColor =
-                Color.SeaGreen;
+                e.CellStyle.ForeColor =
+                    Color.SeaGreen;
+            }
+            else
+            {
+                // Khi là User: số dư là tổng thu - tổng chi
+                // Nếu âm thì là âm màu đỏ, nếu dương thì là màu xanh
+                if (balance > 0)
+                {
+                    e.Value = $"+{balance:N0} {currency}";
+                    e.CellStyle.ForeColor = Color.FromArgb(16, 185, 129); // Màu xanh
+                }
+                else if (balance < 0)
+                {
+                    e.Value = $"{balance:N0} {currency}"; // Đã có dấu '-' tự nhiên
+                    e.CellStyle.ForeColor = Color.FromArgb(239, 68, 68); // Màu đỏ
+                }
+                else
+                {
+                    e.Value = $"0 {currency}";
+                    e.CellStyle.ForeColor = Color.FromArgb(100, 116, 139); // Màu xám
+                }
+            }
 
             e.CellStyle.Font =
                 new Font(

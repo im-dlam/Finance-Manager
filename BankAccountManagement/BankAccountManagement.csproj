@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -12,6 +12,7 @@
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
+    <CodePage>65001</CodePage>
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
   </PropertyGroup>
@@ -70,6 +71,36 @@
     <Compile Include="Forms\BankForm.Designer.cs">
       <DependentUpon>BankForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\BorrowingForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\BorrowingForm.Designer.cs">
+      <DependentUpon>BorrowingForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\BorrowingUserForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\BorrowingUserForm.Designer.cs">
+      <DependentUpon>BorrowingUserForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\BorrowingAdminForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\BorrowingAdminForm.Designer.cs">
+      <DependentUpon>BorrowingAdminForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\CreditCardForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\CreditCardForm.Designer.cs">
+      <DependentUpon>CreditCardForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\CreditCardUserForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\CreditCardUserForm.Designer.cs">
+      <DependentUpon>CreditCardUserForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\CustomerForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -88,6 +119,12 @@
     <Compile Include="Forms\DashboardForm.Designer.cs">
       <DependentUpon>DashboardForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\DashboardUserForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\DashboardUserForm.Designer.cs">
+      <DependentUpon>DashboardUserForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\LoginForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -100,11 +137,62 @@
     <Compile Include="Forms\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\SaveMoneyForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\SaveMoneyForm.Designer.cs">
+      <DependentUpon>SaveMoneyForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\SaveMoneyUserForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\SaveMoneyUserForm.Designer.cs">
+      <DependentUpon>SaveMoneyUserForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\SaveMoneyAdminForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\SaveMoneyAdminForm.Designer.cs">
+      <DependentUpon>SaveMoneyAdminForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\SettingsForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Forms\SettingsForm.Designer.cs">
       <DependentUpon>SettingsForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\ShopForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ShopForm.Designer.cs">
+      <DependentUpon>ShopForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\CartDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ProductDetailDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ShopCheckoutDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\SpendingLimitDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\SpendingLimitDialog.Designer.cs">
+      <DependentUpon>SpendingLimitDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\ShopAdminForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ShopAdminForm.Designer.cs">
+      <DependentUpon>ShopAdminForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\ShopUserForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ShopUserForm.Designer.cs">
+      <DependentUpon>ShopUserForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\SignupForm.cs">
       <SubType>Form</SubType>
@@ -134,9 +222,16 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Models\AuthResult.cs" />
+    <Compile Include="Models\BorrowingLoan.cs" />
+    <Compile Include="Models\SoTietKiem.cs" />
+    <Compile Include="Models\CartItem.cs" />
+    <Compile Include="Models\CreditCardInfo.cs" />
     <Compile Include="Models\CurrencyInfo.cs" />
     <Compile Include="Models\DatabaseConfig.cs" />
+    <Compile Include="Models\FinancialAppraisal.cs" />
     <Compile Include="Models\NganHang.cs" />
+    <Compile Include="Models\Product.cs" />
+    <Compile Include="Models\SpendingLimit.cs" />
     <Compile Include="Models\Statistics\AccountTypeStatistic.cs" />
     <Compile Include="Models\Statistics\StatisticSummary.cs" />
     <Compile Include="Models\Statistics\TopAccountStatistic.cs" />
@@ -146,7 +241,9 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\AuthService.cs" />
+    <Compile Include="Services\BorrowingService.cs" />
     <Compile Include="Services\CategoryService.cs" />
+    <Compile Include="Services\CreditService.cs" />
     <Compile Include="Services\CurrentSession.cs" />
     <Compile Include="Services\DashboardService.cs" />
     <Compile Include="Services\DatabaseConfigManager.cs" />
@@ -154,6 +251,11 @@
     <Compile Include="Services\DatabaseService.cs" />
     <Compile Include="Services\AccountService.cs" />
     <Compile Include="Services\NganHangService.cs" />
+    <Compile Include="Services\ProductService.cs" />
+    <Compile Include="Services\SaveMoneyService.cs" />
+    <Compile Include="Services\SpendingService.cs" />
+    <Compile Include="Services\ShoppingCartService.cs" />
+    <Compile Include="Services\ShopService.cs" />
     <Compile Include="Services\StartupService.cs" />
     <Compile Include="Services\StatisticService.cs" />
     <Compile Include="Services\TransactionService.cs" />
@@ -162,6 +264,18 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\BankForm.resx">
       <DependentUpon>BankForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\BorrowingAdminForm.resx">
+      <DependentUpon>BorrowingAdminForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\BorrowingForm.resx">
+      <DependentUpon>BorrowingForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\CreditCardForm.resx">
+      <DependentUpon>CreditCardForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\CreditCardUserForm.resx">
+      <DependentUpon>CreditCardUserForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\CustomerForm.resx">
       <DependentUpon>CustomerForm.cs</DependentUpon>
@@ -178,8 +292,14 @@
     <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Forms\SaveMoneyForm.resx">
+      <DependentUpon>SaveMoneyForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\SettingsForm.resx">
       <DependentUpon>SettingsForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ShopForm.resx">
+      <DependentUpon>ShopForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\SignupForm.resx">
       <DependentUpon>SignupForm.cs</DependentUpon>

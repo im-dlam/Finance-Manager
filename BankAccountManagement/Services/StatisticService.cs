@@ -1,4 +1,4 @@
-﻿using BankAccountManagement.Models;
+using BankAccountManagement.Models;
 using BankAccountManagement.Models.Statistics;
 
 using System;
@@ -74,7 +74,7 @@ namespace BankAccountManagement.Services
                         SELECT COUNT(*)
                         FROM GiaoDich GD
                         INNER JOIN TaiKhoan TK2 ON TK2.SoTaiKhoan = GD.SoTaiKhoan
-                        WHERE GD.TrangThai = N'Success'
+                        WHERE (GD.TrangThai = 'Success' OR GD.TrangThai = N'Hoàn tất' OR GD.TrangThai = N'Thành công')
                           AND GD.NgayGiaoDich >= @FromDate
                           AND GD.NgayGiaoDich < DATEADD(DAY, 1, @ToDate)
                           AND (@IsAdmin = 1 OR TK2.MaKH = @MaKH)
@@ -102,7 +102,9 @@ namespace BankAccountManagement.Services
                     using (SqlDataReader reader = await command.ExecuteReaderAsync())
                     {
                         if (!await reader.ReadAsync())
+                        {
                             return new StatisticSummary();
+                        }
 
                         return new StatisticSummary
                         {
@@ -130,7 +132,7 @@ namespace BankAccountManagement.Services
                     COUNT(*)               AS SoLuong
                 FROM GiaoDich GD
                 INNER JOIN TaiKhoan TK ON TK.SoTaiKhoan = GD.SoTaiKhoan
-                WHERE GD.TrangThai = N'Success'
+                WHERE (GD.TrangThai = 'Success' OR GD.TrangThai = N'Hoàn tất' OR GD.TrangThai = N'Thành công')
                   AND GD.NgayGiaoDich >= @FromDate
                   AND GD.NgayGiaoDich < DATEADD(DAY, 1, @ToDate)
                   AND (@IsAdmin = 1 OR TK.MaKH = @MaKH)
@@ -174,7 +176,7 @@ namespace BankAccountManagement.Services
         }
 
         // ============================================================
-        //  3. TÀI KHOẢN THEO LOẠI TIỀN
+        //  3. TÀI KHOẢN THEO LOẠI TIỀN (Chỉ hiển thị loại tiền có tài khoản thực tế)
         // ============================================================
         public async Task<List<AccountTypeStatistic>> GetAccountTypesAsync()
         {
@@ -183,13 +185,14 @@ namespace BankAccountManagement.Services
                     LT.TenLoaiTien,
                     COUNT(TK.SoTaiKhoan) AS SoLuong
                 FROM LoaiTien LT
-                LEFT JOIN TaiKhoan TK
+                INNER JOIN TaiKhoan TK
                     ON LT.MaLoaiTien = TK.MaLoaiTien
-                   AND TK.TrangThai = N'Active'
-                   AND (@IsAdmin = 1 OR TK.MaKH = @MaKH)
+                WHERE TK.TrangThai = N'Active'
+                  AND (@IsAdmin = 1 OR TK.MaKH = @MaKH)
                 GROUP BY
                     LT.MaLoaiTien,
                     LT.TenLoaiTien
+                HAVING COUNT(TK.SoTaiKhoan) > 0
                 ORDER BY
                     SoLuong DESC;
             ";
@@ -223,12 +226,17 @@ namespace BankAccountManagement.Services
         }
 
         // ============================================================
-        //  4. TOP TÀI KHOẢN SỐ DƯ CAO NHẤT
-        //  ⭐ Đổi KhachHang → ThongTinKhachHang
+        //  4. TOP TÀI KHOẢN SỐ DƯ CAO NHẤT (Admin) / SỐ DƯ CÁC NGÂN HÀNG (User)
         // ============================================================
         public async Task<List<TopAccountStatistic>> GetTopAccountsAsync(int limit = 10)
         {
-            // ⭐ Đã đổi LEFT JOIN KhachHang KH → LEFT JOIN ThongTinKhachHang KH
+            if (!IsAdmin)
+            {
+                // Khi là User: lấy danh sách các ngân hàng của User với số dư = Tổng thu - Tổng chi
+                return await GetUserBankBalancesAsync(MaKH);
+            }
+
+            // ⭐ Admin: Lấy top tài khoản theo số dư cao nhất toàn hệ thống
             string sql = @"
                 SELECT TOP (@Limit)
                     ROW_NUMBER() OVER (
@@ -236,9 +244,13 @@ namespace BankAccountManagement.Services
                     ) AS STT,
 
                     TK.SoTaiKhoan,
+
                     KH.HoTen,
+
                     TK.SoDuHienTai,
+
                     TK.SoDuHienTai * LT.QuyDoi AS SoDuVND,
+
                     LT.TenLoaiTien AS LoaiTien
 
                 FROM TaiKhoan TK
@@ -246,11 +258,10 @@ namespace BankAccountManagement.Services
                 INNER JOIN LoaiTien LT
                     ON TK.MaLoaiTien = LT.MaLoaiTien
 
-                LEFT JOIN ThongTinKhachHang KH          -- ⭐ ĐỔI TÊN BẢNG
+                LEFT JOIN ThongTinKhachHang KH
                     ON TK.MaKH = KH.MaKH
 
                 WHERE TK.TrangThai = N'Active'
-                  AND (@IsAdmin = 1 OR TK.MaKH = @MaKH)
 
                 ORDER BY TK.SoDuHienTai * LT.QuyDoi DESC;
             ";
@@ -264,8 +275,6 @@ namespace BankAccountManagement.Services
                 using (SqlCommand command = new SqlCommand(sql, connection))
                 {
                     command.Parameters.AddWithValue("@Limit", limit);
-                    command.Parameters.AddWithValue("@IsAdmin", IsAdmin ? 1 : 0);
-                    command.Parameters.AddWithValue("@MaKH", MaKH);
 
                     using (SqlDataReader reader = await command.ExecuteReaderAsync())
                     {
@@ -283,7 +292,64 @@ namespace BankAccountManagement.Services
 
                                 Balance = Convert.ToDecimal(reader["SoDuHienTai"]),
 
-                                AccountCurrency = reader["LoaiTien"].ToString()
+                                AccountCurrency = reader["LoaiTien"].ToString(),
+
+                                BalanceVND = Convert.ToDecimal(reader["SoDuVND"])
+                            });
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        // ============================================================
+        //  5. SỐ DƯ CÁC NGÂN HÀNG CHO USER (TỔNG THU - TỔNG CHI)
+        // ============================================================
+        public async Task<List<TopAccountStatistic>> GetUserBankBalancesAsync(string maKH)
+        {
+            string sql = @"
+                SELECT 
+                    TK.SoTaiKhoan,
+                    NH.TenNganHang,
+                    ISNULL(LT.TenLoaiTien, N'VND') AS LoaiTien,
+                    ISNULL(SUM(CASE WHEN L.PhanLoai = 'INCOME' THEN G.SoTien ELSE 0 END), 0) AS TongThu,
+                    ISNULL(SUM(CASE WHEN L.PhanLoai = 'EXPENSE' THEN G.SoTien ELSE 0 END), 0) AS TongChi,
+                    ISNULL(SUM(CASE WHEN L.PhanLoai = 'INCOME' THEN G.SoTien WHEN L.PhanLoai = 'EXPENSE' THEN -G.SoTien ELSE 0 END), 0) AS SoDuThuChi
+                FROM dbo.TaiKhoan TK
+                INNER JOIN dbo.NganHang NH ON TK.MaNganHang = NH.MaNganHang
+                LEFT JOIN dbo.LoaiTien LT ON TK.MaLoaiTien = LT.MaLoaiTien
+                LEFT JOIN dbo.GiaoDich G ON TK.SoTaiKhoan = G.SoTaiKhoan AND (G.TrangThai = 'Success' OR G.TrangThai = N'Hoàn tất' OR G.TrangThai = N'Thành công')
+                LEFT JOIN dbo.LoaiGiaoDich L ON G.MaLoaiGD = L.MaLoaiGD
+                WHERE TK.MaKH = @MaKH AND TK.TrangThai = 'Active'
+                GROUP BY TK.SoTaiKhoan, NH.TenNganHang, LT.TenLoaiTien
+                ORDER BY NH.TenNganHang;
+            ";
+
+            var result = new List<TopAccountStatistic>();
+
+            using (SqlConnection connection = DatabaseService.CreateConnection(_databaseConfig))
+            {
+                await connection.OpenAsync();
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("@MaKH", maKH ?? "");
+
+                    using (SqlDataReader reader = await command.ExecuteReaderAsync())
+                    {
+                        int stt = 1;
+                        while (await reader.ReadAsync())
+                        {
+                            decimal soDuThuChi = Convert.ToDecimal(reader["SoDuThuChi"]);
+                            result.Add(new TopAccountStatistic
+                            {
+                                Rank = stt++,
+                                AccountNumber = reader["SoTaiKhoan"].ToString(),
+                                AccountHolder = reader["TenNganHang"].ToString(),
+                                Balance = soDuThuChi,
+                                AccountCurrency = reader["LoaiTien"].ToString(),
+                                BalanceVND = soDuThuChi
                             });
                         }
                     }

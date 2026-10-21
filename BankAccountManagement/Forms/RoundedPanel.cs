@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -57,12 +57,19 @@ namespace BankAccountManagement.Forms
             {
                 using (GraphicsPath path = new GraphicsPath())
                 {
-                    int radius = _borderRadius;
-                    path.AddArc(0, 0, radius, radius, 180, 90);
-                    path.AddArc(Width - radius - 1, 0, radius, radius, 270, 90);
-                    path.AddArc(Width - radius - 1, Height - radius - 1, radius, radius, 0, 90);
-                    path.AddArc(0, Height - radius - 1, radius, radius, 90, 90);
-                    path.CloseFigure();
+                    if (Width == Height && _borderRadius >= Width / 2)
+                    {
+                        path.AddEllipse(0, 0, Width - 1, Height - 1);
+                    }
+                    else
+                    {
+                        int radius = _borderRadius;
+                        path.AddArc(0, 0, radius, radius, 180, 90);
+                        path.AddArc(Width - radius - 1, 0, radius, radius, 270, 90);
+                        path.AddArc(Width - radius - 1, Height - radius - 1, radius, radius, 0, 90);
+                        path.AddArc(0, Height - radius - 1, radius, radius, 90, 90);
+                        path.CloseFigure();
+                    }
                     
                     this.Region = new Region(path);
 
@@ -70,6 +77,11 @@ namespace BankAccountManagement.Forms
                     {
                         using (Pen pen = new Pen(_borderColor, _borderSize))
                         {
+                            try
+                            {
+                                pen.Alignment = PenAlignment.Inset;
+                            }
+                            catch { }
                             e.Graphics.DrawPath(pen, path);
                         }
                     }
@@ -82,6 +94,11 @@ namespace BankAccountManagement.Forms
                 {
                     using (Pen pen = new Pen(_borderColor, _borderSize))
                     {
+                        try
+                        {
+                            pen.Alignment = PenAlignment.Inset;
+                        }
+                        catch { }
                         e.Graphics.DrawRectangle(pen, 0, 0, this.Width - 1, this.Height - 1);
                     }
                 }
