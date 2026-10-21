@@ -345,62 +345,6 @@ namespace BankAccountManagement.Services
                                 cmd.ExecuteNonQuery();
                             }
 
-                            // ---------- 3.1. INSERT / UPDATE dbo.KhachHang ----------
-                            using (var cmdKh = new SqlCommand(@"
-                                IF EXISTS (SELECT 1 FROM dbo.KhachHang WHERE MaKH = @MaKH)
-                                BEGIN
-                                    UPDATE dbo.KhachHang
-                                    SET HoTen = @HoTen, CMND_CCCD = @CCCD, NgaySinh = @NgaySinh, GioiTinh = @GioiTinh,
-                                        SoDienThoai = @SDT, Email = @Email, DiaChi = @DiaChi, TrangThai = N'Active'
-                                    WHERE MaKH = @MaKH;
-                                END
-                                ELSE
-                                BEGIN
-                                    INSERT INTO dbo.KhachHang
-                                        (MaKH, HoTen, CMND_CCCD, NgaySinh, GioiTinh,
-                                         SoDienThoai, Email, DiaChi, TrangThai, NgayTao)
-                                    VALUES
-                                        (@MaKH, @HoTen, @CCCD, @NgaySinh, @GioiTinh,
-                                         @SDT, @Email, @DiaChi, N'Active', GETDATE());
-                                END
-                            ", conn, tran))
-                            {
-                                cmdKh.Parameters.AddWithValue("@MaKH", maKH);
-                                cmdKh.Parameters.AddWithValue("@HoTen", hoTen);
-                                cmdKh.Parameters.AddWithValue("@CCCD", cccd);
-                                cmdKh.Parameters.AddWithValue("@NgaySinh", ngaySinh);
-                                cmdKh.Parameters.AddWithValue("@GioiTinh", (object)gioiTinh ?? DBNull.Value);
-                                cmdKh.Parameters.AddWithValue("@SDT", (object)sdt ?? DBNull.Value);
-                                cmdKh.Parameters.AddWithValue("@Email", (object)email ?? DBNull.Value);
-                                cmdKh.Parameters.AddWithValue("@DiaChi", (object)diaChi ?? DBNull.Value);
-                                cmdKh.ExecuteNonQuery();
-                            }
-
-                            // ---------- 3.2. INSERT dbo.TaiKhoan nếu chưa có tài khoản ----------
-                            using (var cmdAcc = new SqlCommand(@"
-                                IF NOT EXISTS (SELECT 1 FROM dbo.TaiKhoan WHERE MaKH = @MaKH)
-                                BEGIN
-                                    DECLARE @NewAcc VARCHAR(30);
-                                    SELECT @NewAcc = '1000' + RIGHT('000000' + CAST(ISNULL(MAX(CAST(RIGHT(SoTaiKhoan, 6) AS BIGINT)), 1000) + 1 AS VARCHAR(10)), 6)
-                                    FROM dbo.TaiKhoan;
-
-                                    IF @NewAcc IS NULL OR LEN(@NewAcc) < 10
-                                        SET @NewAcc = '1000' + CAST(ABS(CHECKSUM(NEWID())) % 900000 + 100000 AS VARCHAR(10));
-
-                                    INSERT INTO dbo.TaiKhoan (SoTaiKhoan, MaKH, MaNganHang, MaLoaiTien, SoDuBanDau, SoDuHienTai, NgayMo, TrangThai)
-                                    VALUES (@NewAcc, @MaKH, 'NH01', 'VND', 50000000, 50000000, GETDATE(), 'Active');
-
-                                    INSERT INTO dbo.GiaoDich (MaGiaoDich, SoTaiKhoan, MaLoaiGD, SoTien, NgayGiaoDich, NoiDung, TrangThai, LoaiTien, SoTienGoc, MaLoaiTien)
-                                    VALUES ('GD' + CONVERT(VARCHAR(20), GETDATE(), 112) + REPLACE(CONVERT(VARCHAR(20), GETDATE(), 108), ':', '') + '_' + CAST(@MaNguoiDung AS VARCHAR(10)),
-                                            @NewAcc, 1, 50000000, GETDATE(), N'Nạp tiền khởi tạo số dư mở tài khoản', N'Thành công', 'VND', 50000000, 'VND');
-                                END
-                            ", conn, tran))
-                            {
-                                cmdAcc.Parameters.AddWithValue("@MaKH", maKH);
-                                cmdAcc.Parameters.AddWithValue("@MaNguoiDung", CurrentSession.MaNguoiDung);
-                                cmdAcc.ExecuteNonQuery();
-                            }
-
                             // ---------- 4. UPDATE NguoiDung.MaKH để link ----------
                             using (var cmd = new SqlCommand(@"
                                 UPDATE dbo.NguoiDung

@@ -2,6 +2,7 @@ using BankAccountManagement.Models;
 using System;
 using System.Data;
 using System.Data.SqlClient;
+using System.Drawing.Printing;
 
 namespace BankAccountManagement.Services
 {
@@ -118,8 +119,10 @@ namespace BankAccountManagement.Services
                         reader.Close();
 
                         // Đảm bảo mỗi Member đã có hồ sơ KH hợp lệ luôn có đúng 1 tài khoản ngân hàng hoạt động
+                        //Console.WriteLine($"[AuthService] Đăng nhập: {user.TenDangNhap}, Quyen: {user.IsAdmin}, MaKH: {user.MaKH}, HasCompleteProfile: {user.HasCompleteProfile}");
                         if (!user.IsAdmin)
                         {
+
                             EnsureMemberHasAccount(conn, user);
                         }
 
@@ -209,65 +212,174 @@ namespace BankAccountManagement.Services
         /// Đảm bảo mỗi Member đã có hồ sơ KH hợp lệ luôn có đúng 1 tài khoản ngân hàng hoạt động.
         /// Lưu ý: KHÔNG tự tạo MaKH hay dữ liệu giả lập cho Member chưa hoàn tất hồ sơ.
         /// </summary>
+
         private static void EnsureMemberHasAccount(SqlConnection conn, User user)
         {
-            try
+            if (conn == null)
+                throw new ArgumentNullException(nameof(conn));
+
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
+
+            if (string.IsNullOrWhiteSpace(user.MaKH) || !user.HasCompleteProfile)
+                return;
+
+            using (SqlTransaction tran = conn.BeginTransaction(
+                System.Data.IsolationLevel.Serializable))
             {
-                // Chỉ kiểm tra/tạo tài khoản ngân hàng nếu user ĐÃ có MaKH và ĐÃ có hồ sơ khách hàng thật
-                if (string.IsNullOrWhiteSpace(user.MaKH) || !user.HasCompleteProfile)
+                try
                 {
-                    return;
-                }
+                    string maKH = user.MaKH.Trim();
 
-                string maKH = user.MaKH;
-
-                // 2. Kiểm tra xem tài khoản ngân hàng Active đã tồn tại chưa
-                bool hasAccount = false;
-                using (var cmdAcc = new SqlCommand("SELECT 1 FROM dbo.TaiKhoan WHERE MaKH = @MaKH AND TrangThai IN ('Active', N'Hoạt động')", conn))
-                {
-                    cmdAcc.Parameters.AddWithValue("@MaKH", maKH);
-                    hasAccount = cmdAcc.ExecuteScalar() != null;
-                }
-
-                if (!hasAccount)
-                {
-                    string newAccountNum = "100000" + (1000 + user.MaNguoiDung);
-                    using (var cmdMax = new SqlCommand("SELECT ISNULL(MAX(TRY_CAST(SoTaiKhoan AS BIGINT)), 1000001000) FROM dbo.TaiKhoan WHERE ISNUMERIC(SoTaiKhoan) = 1", conn))
+                    // 1. Xác nhận hồ sơ khách hàng thực sự tồn tại và đang hoạt động.
+                    using (var cmd = new SqlCommand(@"
+                SELECT COUNT(1)
+                FROM dbo.ThongTinKhachHang WITH (UPDLOCK, HOLDLOCK)
+                WHERE MaKH = @MaKH
+                  AND TrangThai = N'Active';",
+                        conn, tran))
                     {
-                        object maxObj = cmdMax.ExecuteScalar();
-                        if (maxObj != null && long.TryParse(maxObj.ToString(), out long maxVal))
+                        cmd.Parameters.AddWithValue("@MaKH", maKH);
+
+                        if (Convert.ToInt32(cmd.ExecuteScalar()) == 0)
                         {
-                            newAccountNum = (maxVal + 1).ToString();
+                            tran.Commit();
+                            return;
                         }
                     }
 
-                    using (var cmdCreateAcc = new SqlCommand(@"
-                        INSERT INTO dbo.TaiKhoan (SoTaiKhoan, MaKH, MaNganHang, MaLoaiTien, SoDuBanDau, SoDuHienTai, NgayMo, TrangThai)
-                        VALUES (@STK, @MaKH, 'NH01', 'VND', 50000000, 50000000, GETDATE(), 'Active');
-                    ", conn))
+                    // 2. Không tạo thêm nếu khách hàng đã có tài khoản hoạt động.
+                    using (var cmd = new SqlCommand(@"
+                SELECT TOP (1) 1
+                FROM dbo.TaiKhoan WITH (UPDLOCK, HOLDLOCK)
+                WHERE MaKH = @MaKH
+                  AND TrangThai IN ('Active', N'Hoạt động');",
+                        conn, tran))
                     {
-                        cmdCreateAcc.Parameters.AddWithValue("@STK", newAccountNum);
-                        cmdCreateAcc.Parameters.AddWithValue("@MaKH", maKH);
-                        cmdCreateAcc.ExecuteNonQuery();
+                        cmd.Parameters.AddWithValue("@MaKH", maKH);
+
+                        if (cmd.ExecuteScalar() != null)
+                        {
+                            tran.Commit();
+                            return;
+                        }
                     }
 
-                    string maGD = "GD" + DateTime.Now.ToString("yyyyMMddHHmmss") + "_" + user.MaNguoiDung;
-                    using (var cmdGD = new SqlCommand(@"
-                        INSERT INTO dbo.GiaoDich (MaGiaoDich, SoTaiKhoan, MaLoaiGD, SoTien, NgayGiaoDich, NoiDung, TrangThai, LoaiTien, SoTienGoc, MaLoaiTien)
-                        VALUES (@MaGD, @STK, 1, 50000000, GETDATE(), N'Nạp tiền khởi tạo số dư mở tài khoản', N'Thành công', 'VND', 50000000, 'VND');
-                    ", conn))
+                    // 3. Lấy mã ngân hàng mặc định có thật trong database.
+                    string maNganHang;
+
+                    using (var cmd = new SqlCommand(@"
+                SELECT TOP (1) MaNganHang
+                FROM dbo.NganHang
+                ORDER BY CASE WHEN MaNganHang = 'NH01' THEN 0 ELSE 1 END,
+                         MaNganHang;",
+                        conn, tran))
                     {
-                        cmdGD.Parameters.AddWithValue("@MaGD", maGD);
-                        cmdGD.Parameters.AddWithValue("@STK", newAccountNum);
-                        cmdGD.ExecuteNonQuery();
+                        object result = cmd.ExecuteScalar();
+
+                        if (result == null || result == DBNull.Value)
+                            throw new InvalidOperationException(
+                                "Chưa có ngân hàng nào được cấu hình trong hệ thống.");
+
+                        maNganHang = result.ToString();
                     }
+
+                    // 4. Lấy loại tiền VND từ database.
+                    string maLoaiTien;
+
+                    using (var cmd = new SqlCommand(@"
+                SELECT TOP (1) MaLoaiTien
+                FROM dbo.LoaiTien
+                WHERE MaLoaiTien = 'VND';",
+                        conn, tran))
+                    {
+                        object result = cmd.ExecuteScalar();
+
+                        if (result == null || result == DBNull.Value)
+                            throw new InvalidOperationException(
+                                "Chưa cấu hình loại tiền VND trong hệ thống.");
+
+                        maLoaiTien = result.ToString();
+                    }
+
+                    // 5. Sinh số tài khoản mới.
+                    // HOLDLOCK giúp bảo vệ khoảng dữ liệu trong transaction,
+                    // nhưng database vẫn cần UNIQUE constraint cho SoTaiKhoan.
+                    long maxSoTaiKhoan;
+
+                    using (var cmd = new SqlCommand(@"
+                SELECT ISNULL(
+                    MAX(TRY_CONVERT(BIGINT, SoTaiKhoan)),
+                    1000001000
+                )
+                FROM dbo.TaiKhoan WITH (UPDLOCK, HOLDLOCK)
+                WHERE TRY_CONVERT(BIGINT, SoTaiKhoan) IS NOT NULL;",
+                        conn, tran))
+                    {
+                        maxSoTaiKhoan = Convert.ToInt64(cmd.ExecuteScalar());
+                    }
+
+                    if (maxSoTaiKhoan == long.MaxValue)
+                        throw new InvalidOperationException(
+                            "Không thể sinh số tài khoản mới.");
+
+                    string soTaiKhoan = (maxSoTaiKhoan + 1).ToString();
+
+                    // 6. Mở tài khoản với số dư bằng 0.
+                    using (var cmd = new SqlCommand(@"
+                INSERT INTO dbo.TaiKhoan
+                (
+                    SoTaiKhoan,
+                    MaKH,
+                    MaNganHang,
+                    MaLoaiTien,
+                    SoDuBanDau,
+                    SoDuHienTai,
+                    NgayMo,
+                    TrangThai
+                )
+                VALUES
+                (
+                    @SoTaiKhoan,
+                    @MaKH,
+                    @MaNganHang,
+                    @MaLoaiTien,
+                    0,
+                    0,
+                    GETDATE(),
+                    'Active'
+                );",
+                        conn, tran))
+                    {
+                        cmd.Parameters.AddWithValue("@SoTaiKhoan", soTaiKhoan);
+                        cmd.Parameters.AddWithValue("@MaKH", maKH);
+                        cmd.Parameters.AddWithValue("@MaNganHang", maNganHang);
+                        cmd.Parameters.AddWithValue("@MaLoaiTien", maLoaiTien);
+
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    // Không tạo giao dịch nạp tiền ở đây.
+                    // Chỉ ghi giao dịch khi có nghiệp vụ nạp tiền thực sự.
+
+                    tran.Commit();
+                }
+                catch
+                {
+                    try
+                    {
+                        tran.Rollback();
+                    }
+                    catch
+                    {
+                        // Giữ nguyên ngoại lệ gốc.
+                    }
+
+                    throw;
                 }
             }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine("EnsureMemberHasAccount error: " + ex.Message);
-            }
         }
+
 
         // ==========================================================
         //  PRIVATE HELPERS
