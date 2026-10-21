@@ -1,6 +1,6 @@
 -- ============================================================
 -- BANK MANAGEMENT - DATABASE SCHEMA
--- Version: 3.1 (Pure DDL - Full Relational FKs - No Seed Data)
+-- Version: 3.0 (Pure DDL - No Seed Data)
 -- Compatible with SQL Server 2016 / 2019 / 2022 / Express
 -- Compatible with ADO.NET SqlCommand (No GO statements)
 -- ============================================================
@@ -24,13 +24,6 @@ BEGIN
         CONSTRAINT CK_LoaiTien_QuyDoi CHECK (QuyDoi > 0)
     );
 END;
-ELSE
-BEGIN
-    IF COL_LENGTH(N'dbo.LoaiTien', N'QuyDoi') IS NULL
-    BEGIN
-        ALTER TABLE dbo.LoaiTien ADD QuyDoi DECIMAL(18,6) NOT NULL CONSTRAINT DF_LoaiTien_QuyDoi DEFAULT 1;
-    END;
-END;
 
 -- ============================================================
 -- 2. NGÂN HÀNG (Banks)
@@ -50,26 +43,6 @@ END;
 -- ============================================================
 -- 3. KHÁCH HÀNG (Core Customers)
 -- ============================================================
-IF OBJECT_ID(N'dbo.KhachHang', N'U') IS NULL
-BEGIN
-    CREATE TABLE dbo.KhachHang (
-        MaKH         VARCHAR(20)   NOT NULL,
-        HoTen        NVARCHAR(100) NOT NULL,
-        CMND_CCCD    VARCHAR(20)   NOT NULL,
-        NgaySinh     DATE          NULL,
-        GioiTinh     NVARCHAR(10)  NULL,
-        SoDienThoai  VARCHAR(15)   NULL,
-        Email        VARCHAR(100)  NULL,
-        DiaChi       NVARCHAR(255) NULL,
-        TrangThai    NVARCHAR(50)  NULL
-            CONSTRAINT DF_KhachHang_TrangThai DEFAULT N'Active',
-        NgayTao      DATETIME      NULL
-            CONSTRAINT DF_KhachHang_NgayTao DEFAULT GETDATE(),
-
-        CONSTRAINT PK_KhachHang PRIMARY KEY (MaKH),
-        CONSTRAINT UQ_KhachHang_CMND UNIQUE (CMND_CCCD)
-    );
-END;
 
 -- ============================================================
 -- 4. THÔNG TIN KHÁCH HÀNG (Detailed Customer Profiles)
@@ -92,8 +65,7 @@ BEGIN
 
         CONSTRAINT PK_ThongTinKhachHang PRIMARY KEY (MaKH),
         CONSTRAINT UQ_ThongTinKhachHang_CMND UNIQUE (CMND_CCCD),
-        CONSTRAINT CK_ThongTinKhachHang_TrangThai CHECK (TrangThai IN (N'Active', N'Locked')),
-        CONSTRAINT FK_ThongTinKhachHang_KhachHang FOREIGN KEY (MaKH) REFERENCES dbo.KhachHang(MaKH)
+        CONSTRAINT CK_ThongTinKhachHang_TrangThai CHECK (TrangThai IN (N'Active', N'Locked'))
     );
 END;
 
@@ -119,25 +91,11 @@ BEGIN
 
         CONSTRAINT PK_NguoiDung PRIMARY KEY (MaNguoiDung),
         CONSTRAINT UQ_NguoiDung_TenDangNhap UNIQUE (TenDangNhap),
+        CONSTRAINT FK_NguoiDung_ThongTinKhachHang FOREIGN KEY (MaKH)
+            REFERENCES dbo.ThongTinKhachHang(MaKH),
         CONSTRAINT CK_NguoiDung_Quyen CHECK (Quyen IN ('Admin', 'Member')),
-        CONSTRAINT CK_NguoiDung_TrangThai CHECK (TrangThai IN (N'Active', N'Locked')),
-        CONSTRAINT FK_NguoiDung_KhachHang FOREIGN KEY (MaKH) REFERENCES dbo.KhachHang(MaKH)
+        CONSTRAINT CK_NguoiDung_TrangThai CHECK (TrangThai IN (N'Active', N'Locked'))
     );
-END;
-ELSE
-BEGIN
-    IF COL_LENGTH(N'dbo.NguoiDung', N'MaKH') IS NULL
-        ALTER TABLE dbo.NguoiDung ADD MaKH VARCHAR(20) NULL;
-    IF COL_LENGTH(N'dbo.NguoiDung', N'HoTen') IS NULL
-        ALTER TABLE dbo.NguoiDung ADD HoTen NVARCHAR(100) NULL;
-    IF COL_LENGTH(N'dbo.NguoiDung', N'Email') IS NULL
-        ALTER TABLE dbo.NguoiDung ADD Email VARCHAR(100) NULL;
-    IF COL_LENGTH(N'dbo.NguoiDung', N'TrangThai') IS NULL
-        ALTER TABLE dbo.NguoiDung ADD TrangThai NVARCHAR(50) NOT NULL CONSTRAINT DF_NguoiDung_TrangThai DEFAULT N'Active';
-    IF COL_LENGTH(N'dbo.NguoiDung', N'NgayTao') IS NULL
-        ALTER TABLE dbo.NguoiDung ADD NgayTao DATETIME NOT NULL CONSTRAINT DF_NguoiDung_NgayTao DEFAULT GETDATE();
-    IF COL_LENGTH(N'dbo.NguoiDung', N'LanDangNhap') IS NULL
-        ALTER TABLE dbo.NguoiDung ADD LanDangNhap DATETIME NULL;
 END;
 
 -- ============================================================
@@ -160,7 +118,7 @@ BEGIN
             CONSTRAINT DF_TaiKhoan_TrangThai DEFAULT 'Active',
 
         CONSTRAINT PK_TaiKhoan PRIMARY KEY (SoTaiKhoan),
-        CONSTRAINT FK_TaiKhoan_KhachHang FOREIGN KEY (MaKH) REFERENCES dbo.KhachHang(MaKH),
+        CONSTRAINT FK_TaiKhoan_KhachHang FOREIGN KEY (MaKH) REFERENCES dbo.ThongTinKhachHang(MaKH),
         CONSTRAINT FK_TaiKhoan_NganHang FOREIGN KEY (MaNganHang) REFERENCES dbo.NganHang(MaNganHang),
         CONSTRAINT FK_TaiKhoan_LoaiTien FOREIGN KEY (MaLoaiTien) REFERENCES dbo.LoaiTien(MaLoaiTien),
         CONSTRAINT CK_TaiKhoan_SoDuHienTai CHECK (SoDuHienTai >= 0)
@@ -183,7 +141,7 @@ BEGIN
 END;
 
 -- ============================================================
--- 8. GIAO DỊCH (Transactions - Includes LoaiTien & FKs)
+-- 8. GIAO DỊCH (Transactions - Includes LoaiTien)
 -- ============================================================
 IF OBJECT_ID(N'dbo.GiaoDich', N'U') IS NULL
 BEGIN
@@ -252,8 +210,10 @@ BEGIN
         NguoiDuyet   NVARCHAR(50)  NULL,
 
         CONSTRAINT PK_KhoanVay PRIMARY KEY (MaKhoanVay),
-        CONSTRAINT FK_KhoanVay_KhachHang FOREIGN KEY (MaKH) REFERENCES dbo.KhachHang(MaKH),
-        CONSTRAINT FK_KhoanVay_TaiKhoan FOREIGN KEY (SoTaiKhoan) REFERENCES dbo.TaiKhoan(SoTaiKhoan)
+        CONSTRAINT FK_KhoanVay_KhachHang FOREIGN KEY (MaKH)
+            REFERENCES dbo.ThongTinKhachHang(MaKH),
+        CONSTRAINT FK_KhoanVay_TaiKhoan FOREIGN KEY (SoTaiKhoan)
+            REFERENCES dbo.TaiKhoan(SoTaiKhoan)
     );
 END;
 
@@ -284,13 +244,15 @@ BEGIN
         GhiChu                NVARCHAR(500) NULL,
 
         CONSTRAINT PK_SoTietKiem PRIMARY KEY (MaSoTKTK),
-        CONSTRAINT FK_SoTietKiem_KhachHang FOREIGN KEY (MaKH) REFERENCES dbo.KhachHang(MaKH),
-        CONSTRAINT FK_SoTietKiem_TaiKhoan FOREIGN KEY (SoTaiKhoanTrich) REFERENCES dbo.TaiKhoan(SoTaiKhoan)
+        CONSTRAINT FK_SoTietKiem_KhachHang FOREIGN KEY (MaKH)
+            REFERENCES dbo.ThongTinKhachHang(MaKH),
+        CONSTRAINT FK_SoTietKiem_TaiKhoan FOREIGN KEY (SoTaiKhoanTrich)
+            REFERENCES dbo.TaiKhoan(SoTaiKhoan)
     );
 END;
 
 -- ============================================================
--- 11. HẠN MỨC CHI TIÊU (Spending Limits - MaKH VARCHAR(20))
+-- 11. HẠN MỨC CHI TIÊU (Spending Limits)
 -- ============================================================
 IF OBJECT_ID(N'dbo.HanMucChiTieu', N'U') IS NULL
 BEGIN
@@ -300,13 +262,14 @@ BEGIN
             CONSTRAINT DF_HanMucChiTieu_HanMucNgay DEFAULT 2000000,
         HanMucTuan       DECIMAL(18,2) NOT NULL
             CONSTRAINT DF_HanMucChiTieu_HanMucTuan DEFAULT 10000000,
-        CanhBaoVuotMuc   BIT           NULL
+        CanhBaoVuotMuc   BIT           NOT NULL
             CONSTRAINT DF_HanMucChiTieu_CanhBao DEFAULT 1,
         NgayCapNhat      DATETIME      NOT NULL
             CONSTRAINT DF_HanMucChiTieu_NgayCapNhat DEFAULT GETDATE(),
 
         CONSTRAINT PK_HanMucChiTieu PRIMARY KEY (MaKH),
-        CONSTRAINT FK_HanMucChiTieu_KhachHang FOREIGN KEY (MaKH) REFERENCES dbo.KhachHang(MaKH)
+        CONSTRAINT FK_HanMucChiTieu_KhachHang FOREIGN KEY (MaKH)
+            REFERENCES dbo.ThongTinKhachHang(MaKH)
     );
 END;
 
@@ -355,53 +318,7 @@ BEGIN
 END;
 
 -- ============================================================
--- 14. MIGRATION & RÀNG BUỘC KHÓA NGOẠI (Foreign Keys for existing DBs)
--- ============================================================
--- 14.1. Chuẩn hóa HanMucChiTieu.MaKH về VARCHAR(20) nếu đang là VARCHAR(30)
-IF EXISTS (
-    SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS 
-    WHERE TABLE_NAME = 'HanMucChiTieu' AND COLUMN_NAME = 'MaKH' AND CHARACTER_MAXIMUM_LENGTH > 20
-)
-BEGIN
-    DECLARE @pkHanMuc NVARCHAR(200);
-    SELECT @pkHanMuc = name FROM sys.key_constraints 
-    WHERE parent_object_id = OBJECT_ID(N'dbo.HanMucChiTieu') AND type = 'PK';
-    IF @pkHanMuc IS NOT NULL
-        EXEC('ALTER TABLE dbo.HanMucChiTieu DROP CONSTRAINT [' + @pkHanMuc + ']');
-
-    ALTER TABLE dbo.HanMucChiTieu ALTER COLUMN MaKH VARCHAR(20) NOT NULL;
-
-    IF NOT EXISTS (SELECT 1 FROM sys.key_constraints WHERE parent_object_id = OBJECT_ID(N'dbo.HanMucChiTieu') AND type = 'PK')
-        ALTER TABLE dbo.HanMucChiTieu ADD CONSTRAINT PK_HanMucChiTieu PRIMARY KEY (MaKH);
-END;
-
--- 14.2. Bổ sung các ràng buộc khóa ngoại nếu chưa tồn tại
-IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_ThongTinKhachHang_KhachHang')
-    ALTER TABLE dbo.ThongTinKhachHang ADD CONSTRAINT FK_ThongTinKhachHang_KhachHang FOREIGN KEY (MaKH) REFERENCES dbo.KhachHang(MaKH);
-
-IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_NguoiDung_KhachHang')
-    ALTER TABLE dbo.NguoiDung ADD CONSTRAINT FK_NguoiDung_KhachHang FOREIGN KEY (MaKH) REFERENCES dbo.KhachHang(MaKH);
-
-IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_KhoanVay_KhachHang')
-    ALTER TABLE dbo.KhoanVay ADD CONSTRAINT FK_KhoanVay_KhachHang FOREIGN KEY (MaKH) REFERENCES dbo.KhachHang(MaKH);
-
-IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_KhoanVay_TaiKhoan')
-    ALTER TABLE dbo.KhoanVay ADD CONSTRAINT FK_KhoanVay_TaiKhoan FOREIGN KEY (SoTaiKhoan) REFERENCES dbo.TaiKhoan(SoTaiKhoan);
-
-IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_SoTietKiem_KhachHang')
-    ALTER TABLE dbo.SoTietKiem ADD CONSTRAINT FK_SoTietKiem_KhachHang FOREIGN KEY (MaKH) REFERENCES dbo.KhachHang(MaKH);
-
-IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_SoTietKiem_TaiKhoan')
-    ALTER TABLE dbo.SoTietKiem ADD CONSTRAINT FK_SoTietKiem_TaiKhoan FOREIGN KEY (SoTaiKhoanTrich) REFERENCES dbo.TaiKhoan(SoTaiKhoan);
-
-IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_HanMucChiTieu_KhachHang')
-    ALTER TABLE dbo.HanMucChiTieu ADD CONSTRAINT FK_HanMucChiTieu_KhachHang FOREIGN KEY (MaKH) REFERENCES dbo.KhachHang(MaKH);
-
-IF NOT EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_GiaoDich_LoaiTien')
-    ALTER TABLE dbo.GiaoDich ADD CONSTRAINT FK_GiaoDich_LoaiTien FOREIGN KEY (MaLoaiTien) REFERENCES dbo.LoaiTien(MaLoaiTien);
-
--- ============================================================
--- 15. INDEXES FOR PERFORMANCE
+-- 14. INDEXES FOR PERFORMANCE
 -- ============================================================
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ThongTinKhachHang_SoDienThoai' AND object_id = OBJECT_ID(N'dbo.ThongTinKhachHang'))
     CREATE INDEX IX_ThongTinKhachHang_SoDienThoai ON dbo.ThongTinKhachHang(SoDienThoai);
@@ -409,11 +326,11 @@ IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ThongTinKhachHang_SoD
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_ThongTinKhachHang_Email' AND object_id = OBJECT_ID(N'dbo.ThongTinKhachHang'))
     CREATE INDEX IX_ThongTinKhachHang_Email ON dbo.ThongTinKhachHang(Email);
 
-IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_KhachHang_SoDienThoai' AND object_id = OBJECT_ID(N'dbo.KhachHang'))
-    CREATE INDEX IX_KhachHang_SoDienThoai ON dbo.KhachHang(SoDienThoai);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_KhoanVay_MaKH' AND object_id = OBJECT_ID(N'dbo.KhoanVay'))
+    CREATE INDEX IX_KhoanVay_MaKH ON dbo.KhoanVay(MaKH);
 
-IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_KhachHang_Email' AND object_id = OBJECT_ID(N'dbo.KhachHang'))
-    CREATE INDEX IX_KhachHang_Email ON dbo.KhachHang(Email);
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_SoTietKiem_MaKH' AND object_id = OBJECT_ID(N'dbo.SoTietKiem'))
+    CREATE INDEX IX_SoTietKiem_MaKH ON dbo.SoTietKiem(MaKH);
 
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_NguoiDung_Quyen_TrangThai' AND object_id = OBJECT_ID(N'dbo.NguoiDung'))
     CREATE INDEX IX_NguoiDung_Quyen_TrangThai ON dbo.NguoiDung(Quyen, TrangThai);

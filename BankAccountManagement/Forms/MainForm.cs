@@ -279,6 +279,7 @@ namespace BankAccountManagement
             }
         }
 
+
         public void OpenFormWithCustomerCheck(Func<Form> formFactory)
         {
             if (CurrentSession.IsAdmin)
