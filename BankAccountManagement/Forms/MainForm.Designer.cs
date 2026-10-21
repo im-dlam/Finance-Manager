@@ -1,4 +1,4 @@
-﻿namespace BankAccountManagement
+namespace BankAccountManagement
 {
     partial class MainForm
     {
@@ -46,6 +46,10 @@
             this.btnNotifications = new System.Windows.Forms.Button();
             this.panel7 = new System.Windows.Forms.Panel();
             this.pnMain = new System.Windows.Forms.Panel();
+            this.btnCreditCard = new System.Windows.Forms.Button();
+            this.btnSaveMoney = new System.Windows.Forms.Button();
+            this.btnShop = new System.Windows.Forms.Button();
+            this.btnBorrowing = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.pnTitlebar.SuspendLayout();
@@ -55,6 +59,10 @@
             // panel1
             // 
             this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(122)))));
+            this.panel1.Controls.Add(this.btnCreditCard);
+            this.panel1.Controls.Add(this.btnBorrowing);
+            this.panel1.Controls.Add(this.btnShop);
+            this.panel1.Controls.Add(this.btnSaveMoney);
             this.panel1.Controls.Add(this.btnSettings);
             this.panel1.Controls.Add(this.btnStatistic);
             this.panel1.Controls.Add(this.btnBanks);
@@ -68,20 +76,21 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Left;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(186, 604);
+            this.panel1.Size = new System.Drawing.Size(186, 637);
             this.panel1.TabIndex = 0;
             // 
             // btnSettings
             // 
+            this.btnSettings.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.btnSettings.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnSettings.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.btnSettings.Dock = System.Windows.Forms.DockStyle.None;
             this.btnSettings.FlatAppearance.BorderSize = 0;
             this.btnSettings.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSettings.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnSettings.ForeColor = System.Drawing.Color.White;
             this.btnSettings.Image = ((System.Drawing.Image)(resources.GetObject("btnSettings.Image")));
             this.btnSettings.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnSettings.Location = new System.Drawing.Point(15, 564);
+            this.btnSettings.Location = new System.Drawing.Point(15, 597);
             this.btnSettings.Name = "btnSettings";
             this.btnSettings.Size = new System.Drawing.Size(156, 40);
             this.btnSettings.TabIndex = 11;
@@ -99,11 +108,11 @@
             this.btnStatistic.ForeColor = System.Drawing.Color.White;
             this.btnStatistic.Image = ((System.Drawing.Image)(resources.GetObject("btnStatistic.Image")));
             this.btnStatistic.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnStatistic.Location = new System.Drawing.Point(17, 336);
+            this.btnStatistic.Location = new System.Drawing.Point(15, 530);
             this.btnStatistic.Name = "btnStatistic";
             this.btnStatistic.Size = new System.Drawing.Size(154, 40);
             this.btnStatistic.TabIndex = 10;
-            this.btnStatistic.Text = "   Báo cáo";
+            this.btnStatistic.Text = "   Thống kê";
             this.btnStatistic.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.btnStatistic.UseVisualStyleBackColor = true;
             this.btnStatistic.Click += new System.EventHandler(this.btnStatistic_Click);
@@ -203,7 +212,7 @@
             this.panel4.Dock = System.Windows.Forms.DockStyle.Right;
             this.panel4.Location = new System.Drawing.Point(171, 100);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(15, 504);
+            this.panel4.Size = new System.Drawing.Size(15, 537);
             this.panel4.TabIndex = 4;
             // 
             // panel3
@@ -211,7 +220,7 @@
             this.panel3.Dock = System.Windows.Forms.DockStyle.Left;
             this.panel3.Location = new System.Drawing.Point(0, 100);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(15, 504);
+            this.panel3.Size = new System.Drawing.Size(15, 537);
             this.panel3.TabIndex = 3;
             // 
             // panel2
@@ -281,9 +290,81 @@
             this.pnMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnMain.Location = new System.Drawing.Point(186, 40);
             this.pnMain.Name = "pnMain";
-            this.pnMain.Size = new System.Drawing.Size(1033, 564);
+            this.pnMain.Size = new System.Drawing.Size(1033, 597);
             this.pnMain.TabIndex = 3;
             this.pnMain.Paint += new System.Windows.Forms.PaintEventHandler(this.pnMain_Paint);
+            // 
+            // btnCreditCard
+            // 
+            this.btnCreditCard.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnCreditCard.FlatAppearance.BorderSize = 0;
+            this.btnCreditCard.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnCreditCard.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnCreditCard.ForeColor = System.Drawing.Color.White;
+            this.btnCreditCard.Image = ((System.Drawing.Image)(resources.GetObject("btnCreditCard.Image")));
+            this.btnCreditCard.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnCreditCard.Location = new System.Drawing.Point(16, 336);
+            this.btnCreditCard.Name = "btnCreditCard";
+            this.btnCreditCard.Size = new System.Drawing.Size(154, 40);
+            this.btnCreditCard.TabIndex = 12;
+            this.btnCreditCard.Text = "   Thẻ";
+            this.btnCreditCard.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.btnCreditCard.UseVisualStyleBackColor = true;
+            this.btnCreditCard.Click += new System.EventHandler(this.btnCreditCard_Click);
+            // 
+            // btnSaveMoney
+            // 
+            this.btnSaveMoney.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnSaveMoney.FlatAppearance.BorderSize = 0;
+            this.btnSaveMoney.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSaveMoney.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnSaveMoney.ForeColor = System.Drawing.Color.White;
+            this.btnSaveMoney.Image = ((System.Drawing.Image)(resources.GetObject("btnSaveMoney.Image")));
+            this.btnSaveMoney.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnSaveMoney.Location = new System.Drawing.Point(16, 484);
+            this.btnSaveMoney.Name = "btnSaveMoney";
+            this.btnSaveMoney.Size = new System.Drawing.Size(153, 40);
+            this.btnSaveMoney.TabIndex = 13;
+            this.btnSaveMoney.Text = "   Tài khoản tiết kiệm";
+            this.btnSaveMoney.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.btnSaveMoney.UseVisualStyleBackColor = true;
+            this.btnSaveMoney.Click += new System.EventHandler(this.btnSaveMoney_Click);
+            // 
+            // btnShop
+            // 
+            this.btnShop.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnShop.FlatAppearance.BorderSize = 0;
+            this.btnShop.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnShop.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnShop.ForeColor = System.Drawing.Color.White;
+            this.btnShop.Image = ((System.Drawing.Image)(resources.GetObject("btnShop.Image")));
+            this.btnShop.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnShop.Location = new System.Drawing.Point(15, 382);
+            this.btnShop.Name = "btnShop";
+            this.btnShop.Size = new System.Drawing.Size(155, 40);
+            this.btnShop.TabIndex = 14;
+            this.btnShop.Text = "   Mua sắm";
+            this.btnShop.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.btnShop.UseVisualStyleBackColor = true;
+            this.btnShop.Click += new System.EventHandler(this.btnShop_Click);
+            // 
+            // btnBorrowing
+            // 
+            this.btnBorrowing.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnBorrowing.FlatAppearance.BorderSize = 0;
+            this.btnBorrowing.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnBorrowing.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnBorrowing.ForeColor = System.Drawing.Color.White;
+            this.btnBorrowing.Image = ((System.Drawing.Image)(resources.GetObject("btnBorrowing.Image")));
+            this.btnBorrowing.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnBorrowing.Location = new System.Drawing.Point(15, 428);
+            this.btnBorrowing.Name = "btnBorrowing";
+            this.btnBorrowing.Size = new System.Drawing.Size(153, 40);
+            this.btnBorrowing.TabIndex = 15;
+            this.btnBorrowing.Text = "   Vay nhanh";
+            this.btnBorrowing.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
+            this.btnBorrowing.UseVisualStyleBackColor = true;
+            this.btnBorrowing.Click += new System.EventHandler(this.btnBorrowing_Click);
             // 
             // MainForm
             // 
@@ -291,12 +372,15 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(1219, 604);
+            this.ClientSize = new System.Drawing.Size(1280, 720);
             this.Controls.Add(this.pnMain);
             this.Controls.Add(this.pnTitlebar);
             this.Controls.Add(this.panel1);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Sizable;
+            this.MinimumSize = new System.Drawing.Size(1150, 650);
+            this.MaximizeBox = true;
             this.Name = "MainForm";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Bank Manager";
             this.panel1.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
@@ -326,6 +410,10 @@
         private System.Windows.Forms.Panel panel6;
         private System.Windows.Forms.Panel panel7;
         private System.Windows.Forms.Button btnNotifications;
+        private System.Windows.Forms.Button btnBorrowing;
+        private System.Windows.Forms.Button btnShop;
+        private System.Windows.Forms.Button btnSaveMoney;
+        private System.Windows.Forms.Button btnCreditCard;
     }
 }
 

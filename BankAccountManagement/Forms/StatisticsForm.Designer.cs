@@ -4,14 +4,15 @@
     {
         private System.ComponentModel.IContainer components = null;
 
-                protected override void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
             if (disposing)
             {
+                CleanupResources();
+                if (components != null)
+                {
+                    components.Dispose();
+                }
                 if (chartTransactions != null) { chartTransactions.Dispose(); }
                 if (chartAccountTypes != null) { chartAccountTypes.Dispose(); }
             }
@@ -615,7 +616,7 @@
             this.labelChartBarTitle.Name = "labelChartBarTitle";
             this.labelChartBarTitle.Size = new System.Drawing.Size(152, 20);
             this.labelChartBarTitle.TabIndex = 0;
-            this.labelChartBarTitle.Text = "Giao dịch theo tháng";
+            this.labelChartBarTitle.Text = "Giao dịch theo quý";
             // 
             // panelChartDonut
             // 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Data;
 using System.Data.SqlClient;
 using BankAccountManagement.Models;
@@ -11,6 +11,21 @@ namespace BankAccountManagement.Services
         {
             DatabaseConfig config = DatabaseConfigManager.Load();
             return DatabaseService.BuildConnectionString(config);
+        }
+
+                public bool SetUserStatus(string maNguoiDung, string newStatus)
+        {
+            using (SqlConnection conn = new SqlConnection(GetConnectionString()))
+            {
+                conn.Open();
+                string updateSql = "UPDATE dbo.NguoiDung SET TrangThai = @NewStatus WHERE MaNguoiDung = @Ma";
+                using (SqlCommand cmdUpdate = new SqlCommand(updateSql, conn))
+                {
+                    cmdUpdate.Parameters.AddWithValue("@NewStatus", newStatus);
+                    cmdUpdate.Parameters.AddWithValue("@Ma", maNguoiDung);
+                    return cmdUpdate.ExecuteNonQuery() > 0;
+                }
+            }
         }
 
         public bool ToggleUserStatus(string maNguoiDung)
@@ -28,14 +43,7 @@ namespace BankAccountManagement.Services
                 }
 
                 string newStatus = (currentStatus == "Active") ? "Locked" : "Active";
-
-                string updateSql = "UPDATE dbo.NguoiDung SET TrangThai = @NewStatus WHERE MaNguoiDung = @Ma";
-                using (SqlCommand cmdUpdate = new SqlCommand(updateSql, conn))
-                {
-                    cmdUpdate.Parameters.AddWithValue("@NewStatus", newStatus);
-                    cmdUpdate.Parameters.AddWithValue("@Ma", maNguoiDung);
-                    return cmdUpdate.ExecuteNonQuery() > 0;
-                }
+                return SetUserStatus(maNguoiDung, newStatus);
             }
         }
 
@@ -65,7 +73,8 @@ namespace BankAccountManagement.Services
                 string sql = isAdmin 
                     ? @"SELECT MaNguoiDung, TenDangNhap, HoTen, Quyen, Email, TrangThai, NgayTao 
                         FROM dbo.NguoiDung 
-                        WHERE (TenDangNhap LIKE @Keyword OR HoTen LIKE @Keyword OR Email LIKE @Keyword)
+                        WHERE (TenDangNhap LIKE @Keyword OR HoTen LIKE @Keyword OR Email LIKE @Keyword 
+                               OR CAST(MaNguoiDung AS NVARCHAR) LIKE @Keyword OR Quyen LIKE @Keyword OR TrangThai LIKE @Keyword)
                         ORDER BY MaNguoiDung ASC"
                     : @"SELECT MaKH, HoTen, CMND_CCCD, NgaySinh, GioiTinh, SoDienThoai, Email, DiaChi, TrangThai 
                         FROM dbo.ThongTinKhachHang 
@@ -91,10 +100,10 @@ namespace BankAccountManagement.Services
                                VALUES (@TenDangNhap, '123456', @HoTen, @Quyen, @Email, 'Active', GETDATE())";
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
-                    cmd.Parameters.AddWithValue("@TenDangNhap", tenDangNhap);
-                    cmd.Parameters.AddWithValue("@HoTen", hoTen);
-                    cmd.Parameters.AddWithValue("@Quyen", quyen);
-                    cmd.Parameters.AddWithValue("@Email", email);
+                    cmd.Parameters.Add("@TenDangNhap", SqlDbType.VarChar, 50).Value = tenDangNhap;
+                    cmd.Parameters.Add("@HoTen", SqlDbType.NVarChar, 100).Value = (object)hoTen ?? DBNull.Value;
+                    cmd.Parameters.Add("@Quyen", SqlDbType.VarChar, 20).Value = (object)quyen ?? "Member";
+                    cmd.Parameters.Add("@Email", SqlDbType.VarChar, 100).Value = (object)email ?? DBNull.Value;
                     return cmd.ExecuteNonQuery() > 0;
                 }
             }
@@ -110,11 +119,11 @@ namespace BankAccountManagement.Services
                                WHERE MaNguoiDung = @MaND";
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
-                    cmd.Parameters.AddWithValue("@MaND", maND);
-                    cmd.Parameters.AddWithValue("@TenDangNhap", tenDangNhap);
-                    cmd.Parameters.AddWithValue("@HoTen", hoTen);
-                    cmd.Parameters.AddWithValue("@Quyen", quyen);
-                    cmd.Parameters.AddWithValue("@Email", email);
+                    cmd.Parameters.Add("@MaND", SqlDbType.Int).Value = int.Parse(maND);
+                    cmd.Parameters.Add("@TenDangNhap", SqlDbType.VarChar, 50).Value = tenDangNhap;
+                    cmd.Parameters.Add("@HoTen", SqlDbType.NVarChar, 100).Value = (object)hoTen ?? DBNull.Value;
+                    cmd.Parameters.Add("@Quyen", SqlDbType.VarChar, 20).Value = (object)quyen ?? "Member";
+                    cmd.Parameters.Add("@Email", SqlDbType.VarChar, 100).Value = (object)email ?? DBNull.Value;
                     return cmd.ExecuteNonQuery() > 0;
                 }
             }
@@ -223,6 +232,43 @@ namespace BankAccountManagement.Services
             return dt;
         }
     
+        public static CustomerProfile GetCustomerProfile(string maKH)
+        {
+            if (string.IsNullOrWhiteSpace(maKH)) return null;
+
+            DatabaseConfig config = DatabaseConfigManager.Load();
+            using (var conn = DatabaseService.CreateConnection(config))
+            {
+                conn.Open();
+                const string sql = @"
+                    SELECT TOP 1 MaKH, HoTen, CMND_CCCD, NgaySinh, GioiTinh, SoDienThoai, Email, DiaChi, TrangThai
+                    FROM dbo.ThongTinKhachHang
+                    WHERE MaKH = @MaKH";
+
+                using (var cmd = new SqlCommand(sql, conn))
+                {
+                    cmd.Parameters.AddWithValue("@MaKH", maKH);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (!reader.Read()) return null;
+
+                        return new CustomerProfile
+                        {
+                            MaKH = reader.GetString(reader.GetOrdinal("MaKH")),
+                            HoTen = reader.IsDBNull(reader.GetOrdinal("HoTen")) ? null : reader.GetString(reader.GetOrdinal("HoTen")),
+                            CMND_CCCD = reader.IsDBNull(reader.GetOrdinal("CMND_CCCD")) ? null : reader.GetString(reader.GetOrdinal("CMND_CCCD")),
+                            NgaySinh = reader.IsDBNull(reader.GetOrdinal("NgaySinh")) ? (DateTime?)null : reader.GetDateTime(reader.GetOrdinal("NgaySinh")),
+                            GioiTinh = reader.IsDBNull(reader.GetOrdinal("GioiTinh")) ? null : reader.GetString(reader.GetOrdinal("GioiTinh")),
+                            SoDienThoai = reader.IsDBNull(reader.GetOrdinal("SoDienThoai")) ? null : reader.GetString(reader.GetOrdinal("SoDienThoai")),
+                            Email = reader.IsDBNull(reader.GetOrdinal("Email")) ? null : reader.GetString(reader.GetOrdinal("Email")),
+                            DiaChi = reader.IsDBNull(reader.GetOrdinal("DiaChi")) ? null : reader.GetString(reader.GetOrdinal("DiaChi")),
+                            TrangThai = reader.IsDBNull(reader.GetOrdinal("TrangThai")) ? null : reader.GetString(reader.GetOrdinal("TrangThai"))
+                        };
+                    }
+                }
+            }
+        }
+
         public static AuthResult SaveCustomerInfo(
             string hoTen,
             string cccd,
@@ -237,7 +283,7 @@ namespace BankAccountManagement.Services
                 return AuthResult.Fail("Bạn chưa đăng nhập.");
 
             if (CurrentSession.HasCustomerInfo)
-                return AuthResult.Fail("Bạn đã có hồ sơ khách hàng rồi.");
+                return AuthResult.Fail("Bạn đã có hồ sơ khách hàng hoàn tất rồi.");
 
             DatabaseConfig config = DatabaseConfigManager.Load();
 
@@ -250,35 +296,52 @@ namespace BankAccountManagement.Services
                     {
                         try
                         {
+                            string currentMaKH = CurrentSession.User?.MaKH;
+
                             // ---------- 1. Kiểm tra trùng CCCD ----------
                             using (var cmd = new SqlCommand(
-                                "SELECT 1 FROM dbo.ThongTinKhachHang WHERE CMND_CCCD = @C",
+                                "SELECT 1 FROM dbo.ThongTinKhachHang WHERE CMND_CCCD = @C AND (@CurrentMaKH IS NULL OR MaKH <> @CurrentMaKH)",
                                 conn, tran))
                             {
                                 cmd.Parameters.AddWithValue("@C", cccd);
+                                cmd.Parameters.AddWithValue("@CurrentMaKH", (object)currentMaKH ?? DBNull.Value);
                                 if (cmd.ExecuteScalar() != null)
-                                    return AuthResult.Fail("CMND/CCCD đã được đăng ký.");
+                                    return AuthResult.Fail("CMND/CCCD đã được đăng ký bởi khách hàng khác.");
                             }
 
-                            // ---------- 2. Sinh MaKH mới ----------
-                            string maKH;
-                            using (var cmd = new SqlCommand(@"
-                        SELECT ISNULL(MAX(CAST(SUBSTRING(MaKH, 3, 10) AS INT)), 0) + 1
-                        FROM   dbo.ThongTinKhachHang
-                        WHERE  MaKH LIKE 'KH%'", conn, tran))
+                            // ---------- 2. Sinh MaKH mới nếu chưa có ----------
+                            string maKH = currentMaKH;
+                            if (string.IsNullOrWhiteSpace(maKH))
                             {
-                                int next = (int)cmd.ExecuteScalar();
-                                maKH = "KH" + next.ToString("D6");
+                                using (var cmd = new SqlCommand(@"
+                                    SELECT ISNULL(MAX(CAST(SUBSTRING(MaKH, 3, 10) AS INT)), 0) + 1
+                                    FROM   dbo.ThongTinKhachHang
+                                    WHERE  MaKH LIKE 'KH%'", conn, tran))
+                                {
+                                    int next = (int)cmd.ExecuteScalar();
+                                    maKH = "KH" + next.ToString("D6");
+                                }
                             }
 
-                            // ---------- 3. INSERT ThongTinKhachHang ----------
+                            // ---------- 3. INSERT / UPDATE ThongTinKhachHang ----------
                             using (var cmd = new SqlCommand(@"
-                        INSERT INTO dbo.ThongTinKhachHang
-                            (MaKH, HoTen, CMND_CCCD, NgaySinh, GioiTinh,
-                             SoDienThoai, Email, DiaChi, TrangThai)
-                        VALUES
-                            (@MaKH, @HoTen, @CCCD, @NgaySinh, @GioiTinh,
-                             @SDT, @Email, @DiaChi, N'Active')", conn, tran))
+                                IF EXISTS (SELECT 1 FROM dbo.ThongTinKhachHang WHERE MaKH = @MaKH)
+                                BEGIN
+                                    UPDATE dbo.ThongTinKhachHang
+                                    SET HoTen = @HoTen, CMND_CCCD = @CCCD, NgaySinh = @NgaySinh, GioiTinh = @GioiTinh,
+                                        SoDienThoai = @SDT, Email = @Email, DiaChi = @DiaChi, TrangThai = N'Active'
+                                    WHERE MaKH = @MaKH;
+                                END
+                                ELSE
+                                BEGIN
+                                    INSERT INTO dbo.ThongTinKhachHang
+                                        (MaKH, HoTen, CMND_CCCD, NgaySinh, GioiTinh,
+                                         SoDienThoai, Email, DiaChi, TrangThai)
+                                    VALUES
+                                        (@MaKH, @HoTen, @CCCD, @NgaySinh, @GioiTinh,
+                                         @SDT, @Email, @DiaChi, N'Active');
+                                END
+                            ", conn, tran))
                             {
                                 cmd.Parameters.AddWithValue("@MaKH", maKH);
                                 cmd.Parameters.AddWithValue("@HoTen", hoTen);
@@ -293,11 +356,16 @@ namespace BankAccountManagement.Services
 
                             // ---------- 4. UPDATE NguoiDung.MaKH để link ----------
                             using (var cmd = new SqlCommand(@"
-                        UPDATE dbo.NguoiDung
-                        SET    MaKH = @MaKH
-                        WHERE  MaNguoiDung = @MaNguoiDung", conn, tran))
+                                UPDATE dbo.NguoiDung
+                                SET    MaKH = @MaKH,
+                                       HoTen = @HoTen,
+                                       Email = @Email,
+                                       LanDangNhap = ISNULL(LanDangNhap, GETDATE())
+                                WHERE  MaNguoiDung = @MaNguoiDung", conn, tran))
                             {
                                 cmd.Parameters.AddWithValue("@MaKH", maKH);
+                                cmd.Parameters.AddWithValue("@HoTen", hoTen);
+                                cmd.Parameters.AddWithValue("@Email", (object)email ?? DBNull.Value);
                                 cmd.Parameters.AddWithValue("@MaNguoiDung", CurrentSession.MaNguoiDung);
 
                                 int rows = cmd.ExecuteNonQuery();
@@ -308,10 +376,7 @@ namespace BankAccountManagement.Services
                             tran.Commit();
 
                             // ---------- 5. Cập nhật session ----------
-                            // MaKH là string trong schema hiện tại
-                            CurrentSession.User.MaKH = maKH;
-                            CurrentSession.User.HoTen = hoTen;
-                            CurrentSession.User.Email = email;
+                            CurrentSession.MarkCustomerInfoCompleted(maKH, hoTen, email);
 
                             return AuthResult.Ok(
                                 $"Lưu hồ sơ thành công! Mã khách hàng của bạn: {maKH}");
@@ -333,6 +398,18 @@ namespace BankAccountManagement.Services
                 return AuthResult.Fail("Lỗi hệ thống: " + ex.Message);
             }
         }
-    
+    }
+
+    public class CustomerProfile
+    {
+        public string MaKH { get; set; }
+        public string HoTen { get; set; }
+        public string CMND_CCCD { get; set; }
+        public DateTime? NgaySinh { get; set; }
+        public string GioiTinh { get; set; }
+        public string SoDienThoai { get; set; }
+        public string Email { get; set; }
+        public string DiaChi { get; set; }
+        public string TrangThai { get; set; }
     }
 }

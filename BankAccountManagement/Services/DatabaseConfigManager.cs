@@ -1,4 +1,4 @@
-﻿using BankAccountManagement.Models;
+using BankAccountManagement.Models;
 using System;
 using System.IO;
 using System.Text;
@@ -32,7 +32,23 @@ namespace BankAccountManagement.Services
                 WindowsAuthentication = true
             };
 
-            if (!File.Exists(ConfigFilePath))
+            string resolvedPath = ConfigFilePath;
+            if (!File.Exists(resolvedPath))
+            {
+                try
+                {
+                    string asmDir = Path.GetDirectoryName(typeof(DatabaseConfigManager).Assembly.Location);
+                    if (!string.IsNullOrEmpty(asmDir))
+                    {
+                        string asmConfig = Path.Combine(asmDir, "Config", "database.ini");
+                        if (File.Exists(asmConfig))
+                            resolvedPath = asmConfig;
+                    }
+                }
+                catch { }
+            }
+
+            if (!File.Exists(resolvedPath))
             {
                 try
                 {
@@ -41,6 +57,7 @@ namespace BankAccountManagement.Services
                     {
                         Directory.CreateDirectory(ConfigDirectory);
                         File.Copy(sourceConfigPath, ConfigFilePath, true);
+                        resolvedPath = ConfigFilePath;
                     }
                     else
                     {
@@ -54,7 +71,7 @@ namespace BankAccountManagement.Services
             }
 
             string[] lines = File.ReadAllLines(
-                ConfigFilePath,
+                resolvedPath,
                 Encoding.UTF8);
 
             foreach (string rawLine in lines)

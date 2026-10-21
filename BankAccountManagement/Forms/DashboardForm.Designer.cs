@@ -2,8 +2,15 @@
 {
     partial class DashboardForm
     {
+        /// <summary>
+        /// Required designer variable.
+        /// </summary>
         private System.ComponentModel.IContainer components = null;
 
+        /// <summary>
+        /// Clean up any resources being used.
+        /// </summary>
+        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
                 protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -20,6 +27,10 @@
 
         #region Windows Form Designer generated code
 
+        /// <summary>
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
+        /// </summary>
         private void InitializeComponent()
         {
             System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
@@ -210,6 +221,7 @@
             this.roundedPanel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
             this.roundedPanel1.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
             this.roundedPanel1.BorderRadius = 16;
+            this.roundedPanel1.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
             this.roundedPanel1.Controls.Add(this.pictureBox1);
             this.roundedPanel1.Controls.Add(this.label2);
             this.roundedPanel1.Controls.Add(this.label3);
@@ -280,6 +292,7 @@
             this.roundedPanel2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(163)))), ((int)(((byte)(74)))));
             this.roundedPanel2.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(163)))), ((int)(((byte)(74)))));
             this.roundedPanel2.BorderRadius = 16;
+            this.roundedPanel2.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(163)))), ((int)(((byte)(74)))));
             this.roundedPanel2.Controls.Add(this.pictureBox2);
             this.roundedPanel2.Controls.Add(this.label5);
             this.roundedPanel2.Controls.Add(this.label6);
@@ -349,6 +362,7 @@
             this.roundedPanel3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(147)))), ((int)(((byte)(51)))), ((int)(((byte)(234)))));
             this.roundedPanel3.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(147)))), ((int)(((byte)(51)))), ((int)(((byte)(234)))));
             this.roundedPanel3.BorderRadius = 16;
+            this.roundedPanel3.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(147)))), ((int)(((byte)(51)))), ((int)(((byte)(234)))));
             this.roundedPanel3.Controls.Add(this.pictureBox3);
             this.roundedPanel3.Controls.Add(this.label8);
             this.roundedPanel3.Controls.Add(this.label9);
@@ -418,6 +432,7 @@
             this.roundedPanel4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(88)))), ((int)(((byte)(12)))));
             this.roundedPanel4.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(88)))), ((int)(((byte)(12)))));
             this.roundedPanel4.BorderRadius = 16;
+            this.roundedPanel4.FillColor = System.Drawing.Color.FromArgb(((int)(((byte)(234)))), ((int)(((byte)(88)))), ((int)(((byte)(12)))));
             this.roundedPanel4.Controls.Add(this.pictureBox4);
             this.roundedPanel4.Controls.Add(this.label11);
             this.roundedPanel4.Controls.Add(this.label12);

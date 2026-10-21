@@ -7,7 +7,9 @@
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
+            {
                 components.Dispose();
+            }
             base.Dispose(disposing);
         }
 
@@ -59,7 +61,6 @@
             this.pnlSide.Size = new System.Drawing.Size(420, 600);
             this.pnlSide.TabIndex = 0;
             this.pnlSide.Paint += new System.Windows.Forms.PaintEventHandler(this.PnlSide_Paint);
-            this.pnlSide.MouseDown += new System.Windows.Forms.MouseEventHandler(this.DragForm);
             // 
             // lblSideLogo
             // 
@@ -126,7 +127,6 @@
             this.pnlMain.Name = "pnlMain";
             this.pnlMain.Size = new System.Drawing.Size(540, 600);
             this.pnlMain.TabIndex = 1;
-            this.pnlMain.MouseDown += new System.Windows.Forms.MouseEventHandler(this.DragForm);
             // 
             // btnClose
             // 
