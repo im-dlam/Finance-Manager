@@ -16,14 +16,6 @@ namespace BankAccountManagement.Forms
     /// </summary>
     public partial class LoginForm : Form
     {
-        [DllImport("user32.dll")]
-        private static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
-
-        [DllImport("user32.dll")]
-        private static extern bool ReleaseCapture();
-
-        private const int WM_NCLBUTTONDOWN = 0xA1;
-        private const int HT_CAPTION = 0x2;
 
         private bool _passwordVisible = false;
 
@@ -104,12 +96,19 @@ namespace BankAccountManagement.Forms
 
         private void SetupEvents()
         {
-            btnClose.Click += (s, e) => { this.DialogResult = DialogResult.Cancel;
-                this.Close(); };
+            btnClose.Click += (s, e) => { this.DialogResult = DialogResult.Cancel; };
 
-            pnlSide.MouseDown += DragForm;
-            pnlMain.MouseDown += DragForm;
-            lblBrand.MouseDown += DragForm;
+            pnlSide.MouseDown += DragMouseDown;
+            pnlSide.MouseMove += DragMouseMove;
+            pnlSide.MouseUp += DragMouseUp;
+
+            pnlMain.MouseDown += DragMouseDown;
+            pnlMain.MouseMove += DragMouseMove;
+            pnlMain.MouseUp += DragMouseUp;
+
+            lblBrand.MouseDown += DragMouseDown;
+            lblBrand.MouseMove += DragMouseMove;
+            lblBrand.MouseUp += DragMouseUp;
 
             txtUsername.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) { e.SuppressKeyPress = true; btnLogin.PerformClick(); } };
             txtPassword.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) { e.SuppressKeyPress = true; btnLogin.PerformClick(); } };
@@ -132,13 +131,15 @@ namespace BankAccountManagement.Forms
                 this.Hide();
                 using (var signup = new SignupForm())
                 {
-                    if (signup.ShowDialog() == DialogResult.OK && !string.IsNullOrWhiteSpace(signup.RegisteredUsername))
+                    if (signup.ShowDialog(this) == DialogResult.OK && !string.IsNullOrWhiteSpace(signup.RegisteredUsername))
                     {
                         txtUsername.Text = signup.RegisteredUsername;
                         txtUsername.ForeColor = Color.FromArgb(40, 45, 60);
                         this.ActiveControl = txtPassword;
                     }
+                    GC.KeepAlive(signup);
                 }
+                Application.DoEvents();
                 this.Show();
             };
 
@@ -146,13 +147,35 @@ namespace BankAccountManagement.Forms
             SetPlaceholder(txtPassword, "Enter your password", isPassword: true);
         }
 
-        private void DragForm(object sender, MouseEventArgs e)
+                private Point _dragStartCursor;
+        private Point _dragStartForm;
+        private bool _isDragging = false;
+
+        private void DragMouseDown(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Left && this.IsHandleCreated && !this.IsDisposed)
+            if (e.Button == MouseButtons.Left)
             {
-                ReleaseCapture();
-                SendMessage(Handle, WM_NCLBUTTONDOWN, HT_CAPTION, 0);
+                _isDragging = true;
+                _dragStartCursor = Cursor.Position;
+                _dragStartForm = this.Location;
             }
+        }
+
+        private void DragMouseMove(object sender, MouseEventArgs e)
+        {
+            if (_isDragging && e.Button == MouseButtons.Left)
+            {
+                Point cur = Cursor.Position;
+                this.Location = new Point(
+                    _dragStartForm.X + (cur.X - _dragStartCursor.X),
+                    _dragStartForm.Y + (cur.Y - _dragStartCursor.Y)
+                );
+            }
+        }
+
+        private void DragMouseUp(object sender, MouseEventArgs e)
+        {
+            _isDragging = false;
         }
 
         private void SetPlaceholder(TextBox txt, string placeholder, bool isPassword = false)
@@ -213,15 +236,6 @@ namespace BankAccountManagement.Forms
             HideError();
 
             this.DialogResult = DialogResult.OK;
-            // Trì hoãn việc đóng Form sang chu kỳ message tiếp theo bằng BeginInvoke
-            // nhằm đảm bảo sự kiện click và WndProc của Button hoàn tất giải phóng ngăn chặn lỗi CallbackOnCollectedDelegate
-            this.BeginInvoke((Action)(() =>
-            {
-                if (!this.IsDisposed)
-                {
-                    this.Close();
-                }
-            }));
         }
 
         private void ResetLoginForm()

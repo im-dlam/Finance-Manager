@@ -172,7 +172,6 @@ namespace BankAccountManagement.Forms
             this.pnlMain.Name = "pnlMain";
             this.pnlMain.Size = new System.Drawing.Size(540, 800);
             this.pnlMain.TabIndex = 1;
-            this.pnlMain.MouseDown += new System.Windows.Forms.MouseEventHandler(this.DragForm);
             // 
             // btnClose
             // 
