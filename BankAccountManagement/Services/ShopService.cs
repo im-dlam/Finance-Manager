@@ -8,47 +8,65 @@ using System.Threading.Tasks;
 namespace BankAccountManagement.Services
 {
     /// <summary>
-    /// Service trung tâm xử lý toàn bộ nghiệp vụ Mua sắm (Shopping):
-    /// - Quản lý sản phẩm (CRUD, tìm kiếm, lọc)
-    /// - Quản lý giỏ hàng và phiên mua sắm
-    /// - Xử lý thanh toán đơn hàng, trích xuất số dư tài khoản và lưu lịch sử giao dịch
+    /// Dịch vụ trung tâm xử lý toàn bộ nghiệp vụ Cửa hàng Mua sắm trực tuyến (Shopping &amp; E-Commerce Service):
+    /// - Quản lý danh mục sản phẩm hàng hóa (CRUD, tìm kiếm, lọc theo trạng thái).
+    /// - Quản lý giỏ hàng và đồng bộ phiên mua sắm.
+    /// - Xử lý quy trình thanh toán đơn hàng an toàn tuyệt đối bằng giao tác SQL Transaction (ACID).
+    /// - Khóa dòng chống xung đột (Row-level locking UPDLOCK), trừ tiền tài khoản, trừ tồn kho và ghi lịch sử giao dịch.
     /// </summary>
     public class ShopService
     {
+        /// <summary>
+        /// Đối tượng cấu hình kết nối cơ sở dữ liệu.
+        /// </summary>
         private readonly DatabaseConfig _config;
 
+        /// <summary>
+        /// Khởi tạo ShopService sử dụng cấu hình mặc định đọc từ tệp database.ini.
+        /// </summary>
         public ShopService()
         {
             _config = DatabaseConfigManager.Load();
         }
 
+        /// <summary>
+        /// Khởi tạo ShopService với cấu hình cơ sở dữ liệu tùy biến truyền vào.
+        /// </summary>
+        /// <param name="config">Cấu hình kết nối SQL Server.</param>
         public ShopService(DatabaseConfig config)
         {
             _config = config ?? DatabaseConfigManager.Load();
         }
 
+        /// <summary>
+        /// Lấy chuỗi kết nối chuẩn tới CSDL SQL Server từ cấu hình nội bộ.
+        /// </summary>
+        /// <returns>Chuỗi connection string hợp lệ.</returns>
         private string GetConnectionString()
         {
             return DatabaseService.BuildConnectionString(_config);
         }
 
         // =====================================================================
-        // 1. CÁC PHƯƠNG THỨC XỬ LÝ SẢN PHẨM (PRODUCTS)
+        //  1. CÁC PHƯƠNG THỨC QUẢN LÝ SẢN PHẨM HÀNG HÓA (PRODUCTS CRUD)
         // =====================================================================
 
         /// <summary>
         /// Lấy toàn bộ danh sách sản phẩm từ bảng dbo.SanPham trong cơ sở dữ liệu.
         /// </summary>
-        /// <param name="activeOnly">Nếu là true: chỉ lọc các sản phẩm đang có trạng thái 'Active' / 'Hoạt động' (dành cho người dùng thông thường).</param>
-        /// <returns>Danh sách các đối tượng <see cref="Product"/> đã được sắp xếp giảm dần theo mã sản phẩm.</returns>
+        /// <param name="activeOnly">Nếu là True: chỉ lọc các sản phẩm có trạng thái 'Active' / 'Hoạt động' (dành cho User mua sắm).</param>
+        /// <returns>Danh sách các đối tượng <see cref="Product"/> được sắp xếp giảm dần theo MaSP.</returns>
         public async Task<List<Product>> GetAllProductsAsync(bool activeOnly = false)
         {
             var list = new List<Product>();
             try
             {
+                // BƯỚC 1: Khởi tạo kết nối bất đồng bộ tới CSDL
                 using (var conn = new SqlConnection(GetConnectionString()))
                 {
                     await conn.OpenAsync();
+
+                    // BƯỚC 2: Xây dựng câu truy vấn có điều kiện lọc trạng thái nếu cần
                     string sql = @"
                         SELECT MaSP, TenSP, GiaBan, HinhAnh, MoTa, ThongSo, SoLuongTon, TrangThai, NgayTao
                         FROM dbo.SanPham ";
@@ -60,6 +78,7 @@ namespace BankAccountManagement.Services
 
                     sql += " ORDER BY MaSP DESC";
 
+                    // BƯỚC 3: Đọc dữ liệu qua SqlDataReaderAsync và ánh xạ vào List
                     using (var cmd = new SqlCommand(sql, conn))
                     using (var reader = await cmd.ExecuteReaderAsync())
                     {
@@ -79,9 +98,10 @@ namespace BankAccountManagement.Services
 
         /// <summary>
         /// Tìm kiếm sản phẩm theo từ khóa (tên sản phẩm, mô tả hoặc mã số sản phẩm).
+        /// Áp dụng Parameterized Query (@Keyword) để chống tấn công SQL Injection.
         /// </summary>
-        /// <param name="keyword">Từ khóa tìm kiếm do người dùng nhập vào ô tra cứu.</param>
-        /// <param name="activeOnly">Nếu là true: chỉ tìm các sản phẩm đang có trạng thái hoạt động.</param>
+        /// <param name="keyword">Từ khóa tìm kiếm do người dùng nhập vào.</param>
+        /// <param name="activeOnly">Nếu là True: chỉ tìm các sản phẩm đang ở trạng thái hoạt động.</param>
         /// <returns>Danh sách sản phẩm thỏa mãn điều kiện tìm kiếm.</returns>
         public async Task<List<Product>> SearchProductsAsync(string keyword, bool activeOnly = false)
         {
@@ -91,6 +111,7 @@ namespace BankAccountManagement.Services
                 using (var conn = new SqlConnection(GetConnectionString()))
                 {
                     await conn.OpenAsync();
+
                     string sql = @"
                         SELECT MaSP, TenSP, GiaBan, HinhAnh, MoTa, ThongSo, SoLuongTon, TrangThai, NgayTao
                         FROM dbo.SanPham
@@ -161,7 +182,7 @@ namespace BankAccountManagement.Services
         }
 
         /// <summary>
-        /// Thêm mới một sản phẩm vào cơ sở dữ liệu (chức năng quản trị viên).
+        /// Thêm mới một sản phẩm vào cơ sở dữ liệu (chức năng quản trị viên ShopAdminForm).
         /// </summary>
         /// <param name="p">Đối tượng sản phẩm chứa đầy đủ các trường thông tin cần lưu.</param>
         /// <returns>True nếu ghi nhận dữ liệu thành công; ngược lại trả về False.</returns>
@@ -277,11 +298,11 @@ namespace BankAccountManagement.Services
         }
 
         // =====================================================================
-        // 2. CÁC PHƯƠNG THỨC THANH TOÁN & GIAO DỊCH NGÂN HÀNG
+        //  2. THANH TOÁN ĐƠN HÀNG & GIAO TÁC NGÂN HÀNG (TRANSACTION ENGINE)
         // =====================================================================
 
         /// <summary>
-        /// Lấy danh sách các tài khoản thanh toán đang ở trạng thái hoạt động của khách hàng.
+        /// Lấy danh sách các tài khoản thanh toán đang ở trạng thái hoạt động của khách hàng để phục vụ chọn tài khoản thanh toán.
         /// </summary>
         /// <param name="maKH">Mã định danh khách hàng cần tra cứu tài khoản.</param>
         /// <returns>Danh sách các đối tượng <see cref="TaiKhoan"/> có số dư hiện tại và thông tin ngân hàng.</returns>
@@ -336,20 +357,19 @@ namespace BankAccountManagement.Services
         }
 
         /// <summary>
-        /// Thực hiện quy trình thanh toán đơn hàng bằng tài khoản ngân hàng trong một SQL Transaction toàn vẹn:
-        /// <list type="bullet">
-        ///   <item><description>Khóa dòng và kiểm tra số dư thực tế của tài khoản nguồn.</description></item>
-        ///   <item><description>Chặn thanh toán và Rollback nếu số dư tài khoản nhỏ hơn tổng giá trị đơn hàng.</description></item>
-        ///   <item><description>Khấu trừ số dư tài khoản trực tiếp (SoDuHienTai = SoDuHienTai - totalAmount).</description></item>
-        ///   <item><description>Tạo bản ghi lịch sử giao dịch chi tiêu trong bảng dbo.GiaoDich kèm danh sách sản phẩm.</description></item>
-        ///   <item><description>Tự động cập nhật giảm số lượng hàng tồn kho (SoLuongTon) trong bảng dbo.SanPham.</description></item>
-        /// </list>
+        /// Thực hiện quy trình thanh toán đơn hàng bằng tài khoản ngân hàng trong một SQL Transaction toàn vẹn (ACID):
+        /// - BƯỚC 1: Khóa dòng (Row Lock &amp; Update Lock) kiểm tra số dư thực tế của tài khoản nguồn.
+        /// - BƯỚC 2: Kiểm tra số dư; nếu không đủ tiền thì lập tức Rollback và trả về thông báo lỗi.
+        /// - BƯỚC 3: Trích nợ khấu trừ số dư tài khoản (SoDuHienTai = SoDuHienTai - totalAmount).
+        /// - BƯỚC 4: Tạo mã giao dịch và ghi nhận lịch sử vào bảng dbo.GiaoDich (Loại 2: Rút tiền/Chi tiêu).
+        /// - BƯỚC 5: Cập nhật giảm số lượng hàng tồn kho (SoLuongTon) trong bảng dbo.SanPham.
+        /// - BƯỚC 6: Commit giao tác vĩnh viễn và phát tín hiệu thông báo cho toàn hệ thống.
         /// </summary>
         /// <param name="soTaiKhoan">Số tài khoản ngân hàng của khách hàng dùng để trích tiền.</param>
         /// <param name="totalAmount">Tổng số tiền cần thanh toán cho đơn hàng (VNĐ).</param>
-        /// <param name="note">Nội dung ghi chú giao dịch (nếu để trống, hệ thống sẽ tự động tổng hợp danh sách tên sản phẩm).</param>
+        /// <param name="note">Nội dung ghi chú giao dịch (nếu để trống, hệ thống sẽ tự động ghép tên các mặt hàng).</param>
         /// <param name="cartItems">Danh sách các mặt hàng và số lượng mua trong giỏ hàng.</param>
-        /// <returns>Bộ giá trị Tuple gồm: (Success: trạng thái thành công, Message: thông báo kết quả/lỗi, TransactionId: mã giao dịch GDxxx, NewBalance: số dư sau khi trừ tiền).</returns>
+        /// <returns>Bộ giá trị Tuple: (Success, Message, TransactionId, NewBalance).</returns>
         public async Task<(bool Success, string Message, string TransactionId, decimal NewBalance)> ProcessPaymentAsync(
             string soTaiKhoan, decimal totalAmount, string note, List<CartItem> cartItems)
         {
@@ -368,11 +388,13 @@ namespace BankAccountManagement.Services
                 using (var conn = new SqlConnection(GetConnectionString()))
                 {
                     await conn.OpenAsync();
+
+                    // Khởi tạo Transaction để đảm bảo tính nguyên tử: toàn bộ thành công hoặc hoàn tác toàn bộ
                     using (var tran = conn.BeginTransaction())
                     {
                         try
                         {
-                            // 1. Kiểm tra tài khoản và số dư thực tế
+                            // BƯỚC 1: Kiểm tra tài khoản và số dư thực tế kèm cơ chế khóa dòng UPDLOCK, ROWLOCK
                             decimal currentBalance = 0m;
                             const string checkSql = @"
                                 SELECT SoDuHienTai, TrangThai
@@ -403,6 +425,7 @@ namespace BankAccountManagement.Services
                                 }
                             }
 
+                            // BƯỚC 2: Kiểm tra số dư có đủ thanh toán đơn hàng hay không
                             if (currentBalance < totalAmount)
                             {
                                 tran.Rollback();
@@ -411,7 +434,7 @@ namespace BankAccountManagement.Services
 
                             decimal newBalance = currentBalance - totalAmount;
 
-                            // 2. Trừ số dư tài khoản
+                            // BƯỚC 3: Khấu trừ số dư tài khoản
                             const string deductSql = @"
                                 UPDATE dbo.TaiKhoan
                                 SET SoDuHienTai = @NewBalance
@@ -424,7 +447,7 @@ namespace BankAccountManagement.Services
                                 await cmdDeduct.ExecuteNonQueryAsync();
                             }
 
-                            // 3. Tạo mã giao dịch và ghi nhận vào bảng GiaoDich (MaLoaiGD = 2: Rút tiền/Chi tiêu)
+                            // BƯỚC 4: Tạo mã giao dịch duy nhất và ghi nhận vào bảng GiaoDich (MaLoaiGD = 2: Chi tiêu)
                             string maGD = "GD" + DateTime.Now.ToString("yyMMddHHmmss") + (new Random().Next(100, 999));
                             string desc = !string.IsNullOrWhiteSpace(note) ? note : "";
                             if (string.IsNullOrWhiteSpace(desc))
@@ -466,7 +489,7 @@ namespace BankAccountManagement.Services
                                 await cmdTx.ExecuteNonQueryAsync();
                             }
 
-                            // 4. Cập nhật giảm số lượng tồn kho sản phẩm
+                            // BƯỚC 5: Cập nhật giảm số lượng hàng tồn kho của từng sản phẩm trong giỏ
                             if (cartItems != null)
                             {
                                 const string stockSql = @"
@@ -488,17 +511,19 @@ namespace BankAccountManagement.Services
                                 }
                             }
 
+                            // BƯỚC 6: Commit hoàn tất toàn bộ các bước an toàn
                             tran.Commit();
 
-                            // Báo hiệu cập nhật giao dịch cho toàn bộ hệ thống
+                            // Phát tín hiệu thông báo cập nhật giao dịch cho toàn bộ hệ thống
                             TransactionService.NotifyTransactionChanged();
 
                             return (true, "Thanh toán đơn hàng thành công!", maGD, newBalance);
                         }
-                        catch (Exception ex)
+                        catch
                         {
+                            // Nếu có lỗi, Rollback toàn bộ để phục hồi số dư và tồn kho
                             tran.Rollback();
-                            throw ex;
+                            throw;
                         }
                     }
                 }
@@ -511,7 +536,7 @@ namespace BankAccountManagement.Services
         }
 
         // =====================================================================
-        // 3. TIỆN ÍCH GIỎ HÀNG NHANH (CONVENIENCE CART APIS)
+        //  3. TIỆN ÍCH GIỎ HÀNG NHANH (CONVENIENCE CART WRAPPERS)
         // =====================================================================
 
         /// <summary>Danh sách các mặt hàng đang có trong giỏ hàng hiện tại.</summary>
@@ -560,6 +585,11 @@ namespace BankAccountManagement.Services
             ShoppingCartService.Clear();
         }
 
+        /// <summary>
+        /// Phương thức hỗ trợ đọc dữ liệu từ SqlDataReader và chuyển đổi thành đối tượng <see cref="Product"/>.
+        /// </summary>
+        /// <param name="reader">Dòng dữ liệu SqlDataReader đang trỏ tới.</param>
+        /// <returns>Đối tượng Product hoàn chỉnh.</returns>
         private Product ReadProductFromReader(SqlDataReader reader)
         {
             return new Product

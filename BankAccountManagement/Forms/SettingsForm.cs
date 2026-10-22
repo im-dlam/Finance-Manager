@@ -1,4 +1,4 @@
-﻿using BankAccountManagement.Models;
+using BankAccountManagement.Models;
 using BankAccountManagement.Services;
 using System;
 using System.Data.SqlClient;
@@ -7,60 +7,46 @@ using System.Windows.Forms;
 
 namespace BankAccountManagement.Forms
 {
+    /// <summary>
+    /// Form thiết lập kết nối Cơ sở dữ liệu SQL Server (SettingsForm).
+    /// Cung cấp các tính năng:
+    /// - Đọc và lưu thông tin file cấu hình `Config/database.ini`.
+    /// - Hỗ trợ 2 chế độ xác thực: Windows Authentication và SQL Server Authentication (User/Password).
+    /// - Kiểm tra thử kết nối (Test Connection Async) trước khi lưu.
+    /// - Khởi tạo tự động Database, chạy file schema tạo bảng và dữ liệu mẫu nếu chưa có.
+    /// </summary>
     public partial class SettingsForm : Form
     {
+        #region KHỞI TẠO & NẠP CẤU HÌNH CŨ
+
+        /// <summary>
+        /// Khởi tạo màn hình cài đặt cấu hình CSDL.
+        /// </summary>
         public SettingsForm()
         {
             InitializeComponent();
 
+            // Tải cấu hình đang lưu trong database.ini lên các trường nhập liệu
             LoadDatabaseConfig();
+
+            // Cập nhật trạng thái hiển thị của ô Username/Password theo checkbox Windows Auth
             UpdateAuthenticationControls();
         }
 
         /// <summary>
-        /// Xử lý khi thay đổi trạng thái Windows Authentication.
-        /// </summary>
-        private void checkboxWindowAuthen_CheckedChanged(
-            object sender,
-            EventArgs e)
-        {
-            UpdateAuthenticationControls();
-        }
-
-        /// <summary>
-        /// Cập nhật trạng thái Username và Password
-        /// dựa trên phương thức xác thực.
-        /// </summary>
-        private void UpdateAuthenticationControls()
-        {
-            bool useWindowsAuthentication =
-                checkboxWindowAuthen.Checked;
-
-            txtUsername.Enabled =
-                !useWindowsAuthentication;
-
-            txtPassword.Enabled =
-                !useWindowsAuthentication;
-        }
-
-        /// <summary>
-        /// Đọc cấu hình database từ database.ini
-        /// và hiển thị lên giao diện.
+        /// Đọc cấu hình database từ file database.ini và hiển thị lên giao diện.
         /// </summary>
         private void LoadDatabaseConfig()
         {
             try
             {
-                DatabaseConfig config =
-                    DatabaseConfigManager.Load();
+                DatabaseConfig config = DatabaseConfigManager.Load();
 
                 txtServer.Text = config.Server;
                 txtDatabase.Text = config.Database;
                 txtUsername.Text = config.Username;
                 txtPassword.Text = config.Password;
-
-                checkboxWindowAuthen.Checked =
-                    config.WindowsAuthentication;
+                checkboxWindowAuthen.Checked = config.WindowsAuthentication;
             }
             catch (Exception ex)
             {
@@ -72,90 +58,88 @@ namespace BankAccountManagement.Forms
             }
         }
 
+        #endregion
+
+        #region CHUYỂN ĐỔI CHẾ ĐỘ XÁC THỰC (AUTHENTICATION MODE)
+
         /// <summary>
-        /// Lấy cấu hình database từ các trường nhập liệu
-        /// trên SettingsForm.
+        /// Xử lý khi người dùng tích chọn hoặc bỏ chọn Windows Authentication.
+        /// </summary>
+        private void checkboxWindowAuthen_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateAuthenticationControls();
+        }
+
+        /// <summary>
+        /// Ẩn/Hiện (Enable/Disable) ô Username và Password tùy theo chế độ xác thực:
+        /// - Windows Auth: Đăng nhập bằng tài khoản Windows hiện tại (không cần user/pass).
+        /// - SQL Server Auth: Yêu cầu bắt buộc phải có user (sa) và mật khẩu.
+        /// </summary>
+        private void UpdateAuthenticationControls()
+        {
+            bool useWindowsAuthentication = checkboxWindowAuthen.Checked;
+            txtUsername.Enabled = !useWindowsAuthentication;
+            txtPassword.Enabled = !useWindowsAuthentication;
+        }
+
+        #endregion
+
+        #region KIỂM TRA TÍNH HỢP LỆ DỮ LIỆU (VALIDATION)
+
+        /// <summary>
+        /// Lấy đối tượng DatabaseConfig từ các trường người dùng nhập trên giao diện.
         /// </summary>
         private DatabaseConfig GetDatabaseConfig()
         {
             return new DatabaseConfig
             {
                 Server = txtServer.Text.Trim(),
-
                 Database = txtDatabase.Text.Trim(),
-
                 Username = txtUsername.Text.Trim(),
-
                 Password = txtPassword.Text,
-
-                WindowsAuthentication =
-                    checkboxWindowAuthen.Checked
+                WindowsAuthentication = checkboxWindowAuthen.Checked
             };
         }
 
         /// <summary>
-        /// Kiểm tra thông tin cấu hình trước khi
-        /// test connection hoặc lưu cấu hình.
+        /// Kiểm tra các trường thông tin bắt buộc trước khi test kết nối hoặc lưu file.
         /// </summary>
-        private bool ValidateConfig(
-            DatabaseConfig config)
+        private bool ValidateConfig(DatabaseConfig config)
         {
-            // Server
+            // 1. Kiểm tra Server name
             if (string.IsNullOrWhiteSpace(config.Server))
             {
-                MessageBox.Show(
-                    "Vui lòng nhập Server.",
-                    "Thiếu thông tin",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
-
+                MessageBox.Show("Vui lòng nhập tên SQL Server (ví dụ: .\\SQLEXPRESS hoặc localhost).",
+                    "Thiếu thông tin", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtServer.Focus();
-
                 return false;
             }
 
-            // Database
+            // 2. Kiểm tra Database name
             if (string.IsNullOrWhiteSpace(config.Database))
             {
-                MessageBox.Show(
-                    "Vui lòng nhập Database.",
-                    "Thiếu thông tin",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning);
-
+                MessageBox.Show("Vui lòng nhập tên Cơ sở dữ liệu (ví dụ: BankM36).",
+                    "Thiếu thông tin", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 txtDatabase.Focus();
-
                 return false;
             }
 
-            // SQL Server Authentication
+            // 3. Nếu dùng SQL Server Authentication: bắt buộc phải có Username và Password
             if (!config.WindowsAuthentication)
             {
-                // Username
                 if (string.IsNullOrWhiteSpace(config.Username))
                 {
-                    MessageBox.Show(
-                        "Vui lòng nhập Username.",
-                        "Thiếu thông tin",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning);
-
+                    MessageBox.Show("Vui lòng nhập Username khi dùng SQL Server Authentication.",
+                        "Thiếu thông tin", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     txtUsername.Focus();
-
                     return false;
                 }
 
-                // Password
                 if (string.IsNullOrWhiteSpace(config.Password))
                 {
-                    MessageBox.Show(
-                        "Vui lòng nhập Password.",
-                        "Thiếu thông tin",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Warning);
-
+                    MessageBox.Show("Vui lòng nhập Password cho tài khoản SQL Server.",
+                        "Thiếu thông tin", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     txtPassword.Focus();
-
                     return false;
                 }
             }
@@ -163,31 +147,28 @@ namespace BankAccountManagement.Forms
             return true;
         }
 
+        #endregion
+
+        #region KIỂM TRA KẾT NỐI & LƯU CẤU HÌNH (CONNECTION & SAVE)
+
         /// <summary>
-        /// Kiểm tra kết nối cơ sở dữ liệu.
+        /// Kiểm tra kết nối thử tới SQL Server bất đồng bộ (Async/Await) để tránh treo đơ giao diện.
         /// </summary>
-        private async void btnCheckConnect_Click(
-            object sender,
-            EventArgs e)
+        private async void btnCheckConnect_Click(object sender, EventArgs e)
         {
-            DatabaseConfig config =
-                GetDatabaseConfig();
+            DatabaseConfig config = GetDatabaseConfig();
+            if (!ValidateConfig(config)) return;
 
-            if (!ValidateConfig(config))
-            {
-                return;
-            }
-
-            // Disable button trong lúc đang test.
+            // Khóa nút trong lúc đang kết nối
             btnCheckConnect.Enabled = false;
 
             try
             {
-                await DatabaseService.TestConnectionAsync(
-                    config);
+                // Thử mở kết nối tới database
+                await DatabaseService.TestConnectionAsync(config);
 
                 MessageBox.Show(
-                    "Kết nối cơ sở dữ liệu thành công.",
+                    "Kết nối cơ sở dữ liệu thành công!",
                     "Kết nối CSDL",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
@@ -195,7 +176,7 @@ namespace BankAccountManagement.Forms
             catch (SqlException ex)
             {
                 MessageBox.Show(
-                    $"Không thể kết nối cơ sở dữ liệu.\n\n{ex.Message}",
+                    $"Không thể kết nối cơ sở dữ liệu.\n\nChi tiết: {ex.Message}",
                     "Kết nối thất bại",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
@@ -203,41 +184,32 @@ namespace BankAccountManagement.Forms
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Đã xảy ra lỗi.\n\n{ex.Message}",
+                    $"Đã xảy ra lỗi ngoài ý muốn.\n\nChi tiết: {ex.Message}",
                     "Lỗi",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
             }
             finally
             {
-                // Luôn enable lại button,
-                // kể cả khi connection bị lỗi.
                 btnCheckConnect.Enabled = true;
             }
         }
 
-
         /// <summary>
-        /// Lưu cấu hình cơ sở dữ liệu vào database.ini.
+        /// Lưu cấu hình hiện tại vào tệp tin Config/database.ini.
         /// </summary>
         private void btnSaveConfig_Click(object sender, EventArgs e)
         {
             DatabaseConfig config = GetDatabaseConfig();
-
-            if (!ValidateConfig(config))
-            {
-                return;
-            }
+            if (!ValidateConfig(config)) return;
 
             try
             {
                 DatabaseConfigManager.Save(config);
-
-                string path =
-                    DatabaseConfigManager.GetConfigFilePath();
+                string path = DatabaseConfigManager.GetConfigFilePath();
 
                 MessageBox.Show(
-                    $"Đã lưu cấu hình thành công.\n\nFile:\n{path}",
+                    $"Đã lưu cấu hình thành công.\n\nFile lưu tại:\n{path}",
                     "Lưu cấu hình",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information);
@@ -252,81 +224,73 @@ namespace BankAccountManagement.Forms
             }
         }
 
+        #endregion
+
+        #region KHỞI TẠO DATABASE TỰ ĐỘNG (CREATE DATABASE & SCHEMA)
+
+        /// <summary>
+        /// Tạo mới database, khởi chạy schema tạo bảng và seed dữ liệu khởi tạo.
+        /// </summary>
         private async void btnCreateDatabase_Click(object sender, EventArgs e)
         {
             DatabaseConfig config = GetDatabaseConfig();
-
-            if (!ValidateConfig(config))
-            {
-                return;
-            }
+            if (!ValidateConfig(config)) return;
 
             DialogResult result = MessageBox.Show(
-                $"Bạn có muốn tạo database '{config.Database}' không?",
-                "Create Database",
+                $"Bạn có chắc chắn muốn tạo mới database '{config.Database}' trên server '{config.Server}' không?",
+                "Tạo cơ sở dữ liệu",
                 MessageBoxButtons.YesNo,
-                MessageBoxIcon.Question
-            );
+                MessageBoxIcon.Question);
 
-            if (result != DialogResult.Yes)
-            {
-                return;
-            }
+            if (result != DialogResult.Yes) return;
 
             try
             {
                 btnCreateDatabase.Enabled = false;
                 Cursor = Cursors.WaitCursor;
 
-                // Kiểm tra database đã tồn tại chưa
-                bool exists =
-                    await DatabaseService.DatabaseExistsAsync(config);
-
+                // BƯỚC 1: Kiểm tra xem database đã có sẵn chưa
+                bool exists = await DatabaseService.DatabaseExistsAsync(config);
                 if (exists)
                 {
                     MessageBox.Show(
-                        $"Database '{config.Database}' đã tồn tại.",
+                        $"Database '{config.Database}' đã tồn tại trên SQL Server.",
                         "Thông báo",
                         MessageBoxButtons.OK,
-                        MessageBoxIcon.Information
-                    );
-
+                        MessageBoxIcon.Information);
                     return;
                 }
 
-                // Tạo database
+                // BƯỚC 2: Tạo database mới trên master
                 await DatabaseService.CreateDatabaseAsync(config);
 
-                // Tạo bảng và index
+                // BƯỚC 3: Đọc file schema SQL và thực thi tạo toàn bộ bảng, khóa chính, khóa ngoại
                 await DatabaseService.InitializeDatabaseAsync(config);
 
-                // Lưu cấu hình
+                // BƯỚC 4: Lưu lại file cấu hình
                 DatabaseConfigManager.Save(config);
 
                 MessageBox.Show(
-                    $"Database '{config.Database}' và các bảng đã được tạo thành công.",
+                    $"Database '{config.Database}' và toàn bộ các bảng quan hệ đã được tạo thành công!",
                     "Thành công",
                     MessageBoxButtons.OK,
-                    MessageBoxIcon.Information
-                );
+                    MessageBoxIcon.Information);
             }
             catch (SqlException ex)
             {
                 MessageBox.Show(
-                    $"Không thể tạo database.\n\n{ex.Message}",
+                    $"Lỗi SQL Server khi tạo database:\n\n{ex.Message}",
                     "SQL Server Error",
                     MessageBoxButtons.OK,
-                    MessageBoxIcon.Error
-                );
+                    MessageBoxIcon.Error);
             }
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Không thể khởi tạo database.\n\n{ex.Message}",
+                    $"Không thể khởi tạo database:\n\n{ex.Message}",
                     "Lỗi",
                     MessageBoxButtons.OK,
-                    MessageBoxIcon.Error
-                );
+                    MessageBoxIcon.Error);
             }
             finally
             {
@@ -335,5 +299,6 @@ namespace BankAccountManagement.Forms
             }
         }
 
+        #endregion
     }
 }

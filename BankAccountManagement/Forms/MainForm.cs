@@ -13,23 +13,63 @@ using System.Windows.Forms;
 
 namespace BankAccountManagement
 {
+    /// <summary>
+    /// Form giao diện chính (Main Shell Form) của toàn bộ ứng dụng.
+    /// <para>
+    /// Đóng vai trò là cửa sổ điều hướng trung tâm (SPA - Single Page Application container trong WinForms):
+    /// - Quản lý thanh điều hướng Sidebar bên trái (Menu động theo phân quyền Admin / Member).
+    /// - Quản lý thanh Topbar tiêu đề &amp; bộ chuyển đổi hạng tài khoản (User Tier Theme).
+    /// - Quản lý vùng nội dung trung tâm (pnMain) để nhúng động các Form con (Sub-forms) như Dashboard, Account, Customer,...
+    /// - Lắng nghe các sự kiện tài chính toàn cục để tự động đồng bộ giao diện và cập nhật cấp độ khách hàng theo thời gian thực.
+    /// </para>
+    /// </summary>
     public partial class MainForm : Form
     {
+        #region 1. CÁC BIẾN TRẠNG THÁI VÀ GIAO DIỆN
+
+        /// <summary>Nút menu đang được chọn (active) hiện tại trên Sidebar.</summary>
         private Button _activeMenuButton;
+
+        /// <summary>Hộp chọn hạng thành viên trên Topbar (chỉ hiển thị cho Member để đổi giao diện màu sắc).</summary>
         private ComboBox cboMainTierSelector;
+
+        /// <summary>Nhãn thông báo đổi hạng thành viên trên Topbar.</summary>
         private Label lblMainTier;
+
+        /// <summary>Bảng màu chủ đề giao diện hiện tại tương ứng với hạng khách hàng.</summary>
         private UserTierTheme _currentTheme;
+
+        /// <summary>Cờ đánh dấu đang trong quá trình đồng bộ chọn hạng ComboBox để tránh vòng lặp đệ quy sự kiện.</summary>
         private bool _isSyncingTier = false;
 
-        // --- MENU ACTIVE INDICATOR & ANIMATION ---
+        /// <summary>Thanh chỉ báo (Indicator) bo góc màu nổi bật chạy dọc theo nút menu đang active.</summary>
         private RoundedPanel _pnlMenuIndicator;
+
+        /// <summary>Bộ đếm thời gian (Timer) thực hiện hiệu ứng chuyển động mượt (Lerp animation) cho Indicator.</summary>
         private Timer _indicatorAnimTimer;
+
+        /// <summary>Tọa độ trục Y hiện tại của Indicator trên giao diện.</summary>
         private float _currentIndicatorY = 0f;
+
+        /// <summary>Tọa độ trục Y mục tiêu mà Indicator cần lướt tới.</summary>
         private float _targetIndicatorY = 0f;
+
+        /// <summary>Phông chữ chuẩn cho các nút menu chưa active.</summary>
         private static readonly Font _fontRegular = new Font("Segoe UI Semibold", 9.5F, FontStyle.Regular);
+
+        /// <summary>Phông chữ in đậm nổi bật cho nút menu đang được chọn active.</summary>
         private static readonly Font _fontBold = new Font("Segoe UI Semibold", 9.5F, FontStyle.Bold);
 
+        #endregion
 
+        #region 2. KHỞI TẠO VÀ VÒNG ĐỜI (CONSTRUCTOR & LIFECYCLE)
+
+        /// <summary>
+        /// Kích hoạt kỹ thuật DoubleBuffered cho một Control bất kỳ thông qua Reflection
+        /// nhằm chống hiện tượng chớp nháy (flickering) khi vẽ lại giao diện.
+        /// </summary>
+        /// <param name="control">Điều khiển cần bật DoubleBuffered.</param>
+        /// <param name="enable">True để bật (mặc định), False để tắt.</param>
         public static void SetDoubleBuffered(Control control, bool enable = true)
         {
             if (control == null) return;
@@ -43,30 +83,37 @@ namespace BankAccountManagement
         }
 
         /// <summary>
-        /// Khởi tạo MainForm với user đã đăng nhập.
+        /// Hàm dựng chính của MainForm. Khởi tạo cấu trúc giao diện, phân quyền người dùng và áp dụng chủ đề màu sắc.
         /// </summary>
-        /// <param name="user">User hiện tại (bắt buộc, không được null).</param>
+        /// <param name="user">Thực thể người dùng hiện tại đã đăng nhập thành công từ LoginForm.</param>
         public MainForm(User user)
         {
             InitializeComponent();
             this.StartPosition = FormStartPosition.CenterScreen;
-            _activeMenuButton = btnDashboards;
-            InitializeMenuIndicator();
+
+            // BƯỚC 1: Bật kỹ thuật Double Buffering cho cửa sổ chính và các Panel quan trọng để chống nhấp nháy
             this.DoubleBuffered = true;
             SetDoubleBuffered(pnMain, true);
             SetDoubleBuffered(panel1, true);
             SetDoubleBuffered(pnTitlebar, true);
 
+            // BƯỚC 2: Khởi tạo thanh trượt chỉ báo Menu Indicator
+            _activeMenuButton = btnDashboards;
+            InitializeMenuIndicator();
 
+            // BƯỚC 3: Khởi tạo hộp chọn cấp bậc thành viên (User Tier Selector) trên Topbar
             InitializeTopBarTierSelector();
+
+            // BƯỚC 4: Đăng ký lắng nghe các sự kiện hệ thống (Giao dịch mới, Đổi hạng)
             TransactionService.OnTransactionChanged += OnSystemTransactionOccurred;
             this.FormClosed += (s, e) => TransactionService.OnTransactionChanged -= OnSystemTransactionOccurred;
 
-            // Lắng nghe sự kiện đổi hạng toàn cục
+            // Lắng nghe sự kiện người dùng đổi hạng tài khoản
             CurrentSession.OnTierChanged += tierKey =>
             {
                 if (this.IsDisposed || !this.IsHandleCreated) return;
-                if (CurrentSession.IsAdmin) return; // Admin luon giu mau tieu chuan, khong doi mau
+                if (CurrentSession.IsAdmin) return; // Admin luôn giữ giao diện chuẩn công vụ, không đổi màu
+
                 this.BeginInvoke((Action)(() =>
                 {
                     ApplyTierTheme(UserTierTheme.GetTheme(tierKey));
@@ -74,7 +121,7 @@ namespace BankAccountManagement
                 }));
             };
 
-            // Vẽ viền tinh tế cho Sidebar và Topbar
+            // BƯỚC 5: Đăng ký hiệu ứng vẽ viền tinh tế cho Sidebar và Topbar
             panel1.Paint += (s, e) =>
             {
                 if (_currentTheme != null)
@@ -97,14 +144,13 @@ namespace BankAccountManagement
                 }
             };
 
-            // Áp dụng màu giao diện ngay khi khởi động: Admin dùng màu tiêu chuẩn, Member dùng theo hạng
+            // BƯỚC 6: Áp dụng chủ đề giao diện ban đầu (Admin dùng tiêu chuẩn, Member xác định theo số dư tài khoản)
             if (CurrentSession.IsAdmin)
             {
                 ApplyTierTheme(UserTierTheme.GetTheme("Standard"));
             }
             else
             {
-                // Cập nhật hạng ban đầu theo số dư tài khoản thực tế
                 decimal initBal = CurrentSession.GetUserTotalBalance();
                 UserTierTheme.UpdateSessionTierByBalance(initBal);
 
@@ -114,6 +160,7 @@ namespace BankAccountManagement
                 ApplyTierTheme(UserTierTheme.GetTheme(initTier));
             }
 
+            // BƯỚC 7: Nạp màn hình khởi đầu mặc định tương ứng với vai trò của người dùng
             if (CurrentSession.IsMember)
             {
                 if (CurrentSession.NeedsCustomerInfo)
@@ -129,12 +176,32 @@ namespace BankAccountManagement
             {
                 LoadMultiForm(new DashboardForm());
             }
+
+            // BƯỚC 8: Áp dụng phân quyền hiển thị các nút chức năng trên Sidebar
             ApplyRolePermissions();
         }
 
+        /// <summary>
+        /// Xử lý dọn dẹp tài nguyên Form con và bộ đếm Timer khi đóng cửa sổ chính.
+        /// </summary>
+        protected override void OnFormClosed(FormClosedEventArgs e)
+        {
+            _indicatorAnimTimer?.Stop();
+            _indicatorAnimTimer?.Dispose();
+            DisposeChildForms();
+            base.OnFormClosed(e);
+        }
+
+        #endregion
+
+        #region 3. QUẢN LÝ THEME & CẤP BẬC THÀNH VIÊN (TIER THEMING)
+
+        /// <summary>
+        /// Khởi tạo ComboBox chọn hạng tài khoản trên Topbar dành riêng cho khách hàng.
+        /// </summary>
         private void InitializeTopBarTierSelector()
         {
-            // BÊN ADMIN: Không tạo hộp chọn đổi màu/hạng, giữ nguyên màu chuẩn
+            // Nếu là Quản trị viên (Admin), ẩn bộ đổi màu này để giữ phong cách làm việc chuyên nghiệp
             if (CurrentSession.IsAdmin)
             {
                 panel6.Width = 60;
@@ -174,11 +241,13 @@ namespace BankAccountManagement
 
             SyncTopBarTierSelector(CurrentSession.SelectedUserTier);
 
+            // Khi người dùng tự tay chọn thay đổi chủ đề hạng từ danh sách thả xuống
             cboMainTierSelector.SelectedIndexChanged += (s, e) =>
             {
                 if (_isSyncingTier) return;
                 int idx = cboMainTierSelector.SelectedIndex;
-                if (idx == 4) // Tự động (Theo số dư)
+
+                if (idx == 4) // Lựa chọn: "Tự động (Theo số dư)"
                 {
                     CurrentSession.IsManualTierOverride = false;
                     decimal bal = CurrentSession.GetUserTotalBalance();
@@ -186,7 +255,7 @@ namespace BankAccountManagement
                     return;
                 }
 
-                // Người dùng chủ động test đổi hạng qua ComboBox
+                // Người dùng chủ động ép chọn một hạng nhất định để trải nghiệm giao diện
                 CurrentSession.IsManualTierOverride = true;
                 if (idx == 0) CurrentSession.SelectedUserTier = "Hạng Kim Cương";
                 else if (idx == 1) CurrentSession.SelectedUserTier = "Hạng Vàng";
@@ -200,6 +269,10 @@ namespace BankAccountManagement
             cboMainTierSelector.BringToFront();
         }
 
+        /// <summary>
+        /// Đồng bộ vị trí lựa chọn trong ComboBox với tên hạng hiện tại của phiên đăng nhập.
+        /// </summary>
+        /// <param name="tierKey">Tên hạng (ví dụ: Kim Cương, Vàng, Bạc, Tiêu Chuẩn).</param>
         private void SyncTopBarTierSelector(string tierKey)
         {
             if (cboMainTierSelector == null) return;
@@ -222,6 +295,11 @@ namespace BankAccountManagement
             }
         }
 
+        /// <summary>
+        /// Áp dụng bộ màu sắc chủ đề (Theme) lên thanh Sidebar và Topbar.
+        /// Không làm biến dạng màu nền nội dung công việc trung tâm của các Form con.
+        /// </summary>
+        /// <param name="theme">Đối tượng chứa các mã màu của hạng tài khoản tương ứng.</param>
         public void ApplyTierTheme(UserTierTheme theme)
         {
             if (theme == null) return;
@@ -233,7 +311,7 @@ namespace BankAccountManagement
             panel3.BackColor = theme.SidebarBg;
             panel4.BackColor = theme.SidebarBg;
 
-            // 2. Logo / Tiêu đề "Bank Manager"
+            // 2. Logo thương hiệu
             label1.ForeColor = theme.SidebarLogoColor;
 
             // 3. THANH TIÊU ĐỀ TRÊN CÙNG (TOPBAR) - ĐỔI MÀU THEO HẠNG
@@ -261,13 +339,18 @@ namespace BankAccountManagement
             }
             RefreshSidebarButtonStyles();
 
-            // 5. Vẽ lại viền Menu & Topbar
+            // 5. Yêu cầu vẽ lại viền phân cách
             panel1.Invalidate();
             pnTitlebar.Invalidate();
-
-            // LƯU Ý: Phần nội dung (pnMain và các Form con) GIỮ NGUYÊN GIAO DIỆN GỐC, KHÔNG ĐỔI MÀU
         }
 
+        #endregion
+
+        #region 4. HIỆU ỨNG VÀ TRÌNH BÀY MENU SIDEBAR (ANIMATION & STYLING)
+
+        /// <summary>
+        /// Khởi tạo con trỏ chỉ báo Menu động (_pnlMenuIndicator) và Timer chuyển động nội suy.
+        /// </summary>
         private void InitializeMenuIndicator()
         {
             if (_pnlMenuIndicator != null) return;
@@ -290,6 +373,7 @@ namespace BankAccountManagement
             panel1.Controls.Add(_pnlMenuIndicator);
             _pnlMenuIndicator.BringToFront();
 
+            // Timer chạy ở tần số ~60FPS (khoảng 16ms/tick) để tạo chuyển động trượt êm ái
             _indicatorAnimTimer = new Timer { Interval = 16 };
             _indicatorAnimTimer.Tick += (s, e) =>
             {
@@ -301,12 +385,16 @@ namespace BankAccountManagement
                 }
                 else
                 {
+                    // Thuật toán Lerp (Linear Interpolation) làm mềm gia tốc chuyển động
                     _currentIndicatorY += diff * 0.28f;
                 }
                 _pnlMenuIndicator.Top = (int)Math.Round(_currentIndicatorY);
             };
         }
 
+        /// <summary>
+        /// Làm mới màu sắc và kiểu chữ (Bold / Regular) cho tất cả các nút bấm trên Sidebar theo trạng thái Active.
+        /// </summary>
         private void RefreshSidebarButtonStyles()
         {
             if (_currentTheme == null) return;
@@ -335,6 +423,11 @@ namespace BankAccountManagement
             }
         }
 
+        /// <summary>
+        /// Thiết lập vùng bo tròn (Rounded Region) cho nút bấm thông qua GraphicsPath.
+        /// </summary>
+        /// <param name="btn">Nút bấm cần bo góc.</param>
+        /// <param name="radius">Bán kính bo tròn góc (pixel).</param>
         private void ApplyRoundedButtonRegion(Button btn, int radius)
         {
             if (btn == null || btn.Width <= 0 || btn.Height <= 0) return;
@@ -358,6 +451,10 @@ namespace BankAccountManagement
             catch { }
         }
 
+        /// <summary>
+        /// Kích hoạt một nút menu trên Sidebar, cập nhật giao diện và dịch chuyển con trỏ chỉ báo.
+        /// </summary>
+        /// <param name="btn">Nút bấm được người dùng nhấp chọn.</param>
         private void SetActiveMenuButton(Button btn)
         {
             if (btn == null) return;
@@ -386,132 +483,11 @@ namespace BankAccountManagement
             }
         }
 
-        private int GetMenuIndexForButton(Button btn)
-        {
-            Button[] list = CurrentSession.IsAdmin
-                ? new Button[] { btnDashboards, btnAccounts, btnTransactions, btnCustomers, btnBanks, btnCreditCard, btnShop, btnBorrowing, btnSaveMoney, btnStatistic, btnSettings }
-                : new Button[] { btnDashboards, btnAccounts, btnTransactions, btnCreditCard, btnShop, btnBorrowing, btnSaveMoney, btnStatistic, btnSettings };
-            for (int i = 0; i < list.Length; i++)
-            {
-                if (list[i] == btn) return i;
-            }
-            return 0;
-        }
-
-        private int GetMenuIndexForForm(Form form)
-        {
-            if (form is DashboardUserForm || form is DashboardForm) return GetMenuIndexForButton(btnDashboards);
-            if (form is AccountForm) return GetMenuIndexForButton(btnAccounts);
-            if (form is TransactionForm || form is AddTransactionForm) return GetMenuIndexForButton(btnTransactions);
-            if (form is CustomerForm) return GetMenuIndexForButton(btnCustomers);
-            if (form is BankForm) return GetMenuIndexForButton(btnBanks);
-            if (form is CreditCardForm || form is CreditCardUserForm) return GetMenuIndexForButton(btnCreditCard);
-            if (form is ShopForm || form is ShopAdminForm || form is ShopUserForm) return GetMenuIndexForButton(btnShop);
-            if (form is BorrowingForm || form is BorrowingAdminForm || form is BorrowingUserForm) return GetMenuIndexForButton(btnBorrowing);
-            if (form is SaveMoneyForm || form is SaveMoneyAdminForm || form is SaveMoneyUserForm) return GetMenuIndexForButton(btnSaveMoney);
-            if (form is StatisticsForm) return GetMenuIndexForButton(btnStatistic);
-            if (form is SettingsForm) return GetMenuIndexForButton(btnSettings);
-            return 0;
-        }
-
         /// <summary>
-        /// Hiển thị Form con bên trong pnMain tức thì ("bấm phát hiện luôn"),
-        /// đồng thời thanh menu lướt indicator mượt mà theo màu hạng tài khoản.
-        /// </summary>
-        public void LoadMultiForm(Form form)
-        {
-            if (form == null) return;
-
-            // 1. Đồng bộ highlight và lướt indicator trên menu bên trái
-            SyncActiveMenuButtonForForm(form);
-
-            // 2. Nạp form mới vào pnMain tức thì, tránh nhấp nháy bằng Suspend/Resume
-            pnMain.SuspendLayout();
-            try
-            {
-                DisposeCurrentForm();
-
-                form.TopLevel = false;
-                form.FormBorderStyle = FormBorderStyle.None;
-                form.MinimumSize = Size.Empty;
-                form.MaximumSize = Size.Empty;
-                form.Dock = DockStyle.Fill;
-                pnMain.Controls.Add(form);
-                pnMain.Tag = form;
-                form.Show();
-            }
-            finally
-            {
-                pnMain.ResumeLayout(true);
-            }
-
-            try
-            {
-                form.Focus();
-            }
-            catch { }
-        }
-
-        private void SyncActiveMenuButtonForForm(Form form)
-        {
-            if (form is DashboardUserForm || form is DashboardForm) SetActiveMenuButton(btnDashboards);
-            else if (form is AccountForm) SetActiveMenuButton(btnAccounts);
-            else if (form is TransactionForm || form is AddTransactionForm) SetActiveMenuButton(btnTransactions);
-            else if (form is CustomerForm) SetActiveMenuButton(btnCustomers);
-            else if (form is BankForm) SetActiveMenuButton(btnBanks);
-            else if (form is CreditCardForm || form is CreditCardUserForm) SetActiveMenuButton(btnCreditCard);
-            else if (form is ShopForm || form is ShopAdminForm || form is ShopUserForm) SetActiveMenuButton(btnShop);
-            else if (form is BorrowingForm || form is BorrowingAdminForm || form is BorrowingUserForm) SetActiveMenuButton(btnBorrowing);
-            else if (form is SaveMoneyForm || form is SaveMoneyAdminForm || form is SaveMoneyUserForm) SetActiveMenuButton(btnSaveMoney);
-            else if (form is StatisticsForm) SetActiveMenuButton(btnStatistic);
-            else if (form is SettingsForm) SetActiveMenuButton(btnSettings);
-        }
-
-        /// <summary>
-        /// Dispose form hiện tại trong pnMain (nếu có).
-        /// An toàn với try/catch - không throw ra ngoài.
-        /// </summary>
-        private void DisposeCurrentForm()
-        {
-            if (pnMain.Controls.Count == 0) return;
-
-            var oldControls = new System.Collections.Generic.List<Control>();
-            foreach (Control c in pnMain.Controls)
-            {
-                oldControls.Add(c);
-            }
-
-            foreach (var ctrl in oldControls)
-            {
-                if (ctrl.IsDisposed) continue;
-
-                try
-                {
-                    pnMain.Controls.Remove(ctrl);
-                    if (ctrl is StatisticsForm sf)
-                    {
-                        sf.CleanupResources();
-                    }
-                    if (ctrl is Form f)
-                    {
-                        f.Close();
-                    }
-                    ctrl.Dispose();
-                }
-                catch (Exception ex)
-                {
-                    System.Diagnostics.Debug.WriteLine(
-                        $"[LoadMultiForm] Dispose error: {ex.Message}");
-                }
-            }
-        }
-        /// <summary>
-        /// Phân quyền dựa trên vai trò của người dùng hiện tại (Admin/Member).
+        /// Phân quyền hiển thị danh mục chức năng dựa vào vai trò tài khoản (Admin vs Member).
         /// </summary>
         private void ApplyRolePermissions()
         {
-            Console.WriteLine($"CurrentSession.IsAdmin: {CurrentSession.IsAdmin}");
-
             if (CurrentSession.IsAdmin)
             {
                 btnCustomers.Visible = true;
@@ -519,14 +495,13 @@ namespace BankAccountManagement
                 btnStatistic.Text = "   Báo cáo";
                 ArrangeSidebarMenu(isAdmin: true);
 
-                // Admin không đổi màu giao diện: xóa/ẩn hộp chọn đổi hạng và cố định màu tiêu chuẩn
                 if (lblMainTier != null) lblMainTier.Visible = false;
                 if (cboMainTierSelector != null) cboMainTierSelector.Visible = false;
                 ApplyTierTheme(UserTierTheme.GetTheme("Standard"));
                 return;
             }
 
-            // Member — ẩn menu quản trị khách hàng và ngân hàng
+            // Với khách hàng Member: ẩn danh mục quản lý khách hàng và liên kết ngân hàng hệ thống
             btnCustomers.Visible = false;
             btnCustomers.Height = 0;
 
@@ -535,15 +510,15 @@ namespace BankAccountManagement
 
             btnStatistic.Text = "   Thống kê";
 
-            // Kéo các nút chức năng ở dưới lên liền mạch
+            // Sắp xếp lại danh sách các nút để không để lại khoảng trống màu đen trên Sidebar
             ArrangeSidebarMenu(isAdmin: false);
         }
 
         /// <summary>
-        /// Sắp xếp vị trí các nút menu bên trái theo thứ tự và khoảng cách chuẩn (46px),
-        /// loại bỏ hoàn toàn khoảng cách trống khi ẩn các mục quản trị ở phía Member.
+        /// Sắp xếp vị trí tọa độ các nút menu theo chiều dọc với khoảng cách chuẩn hóa,
+        /// bảo đảm giao diện gọn gàng, liền mạch không có khoảng cách rỗng.
         /// </summary>
-        /// <param name="isAdmin">True nếu là tài khoản Quản trị viên, False nếu là Khách hàng (Member).</param>
+        /// <param name="isAdmin">True nếu là Quản trị viên, False nếu là Khách hàng.</param>
         private void ArrangeSidebarMenu(bool isAdmin)
         {
             int currentTop = 86;
@@ -551,7 +526,7 @@ namespace BankAccountManagement
             const int spacing = 4;
             const int buttonWidth = 154;
             const int buttonLeft = 16;
-            int step = buttonHeight + spacing; // 42px
+            int step = buttonHeight + spacing; // 42px mỗi nút
 
             Button[] menuButtons = isAdmin
                 ? new Button[]
@@ -590,6 +565,7 @@ namespace BankAccountManagement
                 currentTop += step;
             }
 
+            // Nút "Cài đặt" luôn được cố định ở đáy thanh Sidebar
             if (btnSettings != null)
             {
                 btnSettings.Dock = DockStyle.None;
@@ -601,6 +577,7 @@ namespace BankAccountManagement
                 ApplyRoundedButtonRegion(btnSettings, 8);
             }
 
+            // Định vị lại con trỏ chỉ báo nếu nút đang chọn đã đổi vị trí
             if (_activeMenuButton != null && _pnlMenuIndicator != null)
             {
                 _targetIndicatorY = _activeMenuButton.Top + (_activeMenuButton.Height - _pnlMenuIndicator.Height) / 2;
@@ -610,6 +587,167 @@ namespace BankAccountManagement
                 _pnlMenuIndicator.BringToFront();
             }
         }
+
+        #endregion
+
+        #region 5. QUẢN LÝ VÀ NHÚNG FORM CON (SUB-FORM SPA NAVIGATION)
+
+        /// <summary>
+        /// Nạp và hiển thị một Form con vào Panel nội dung trung tâm (pnMain).
+        /// <para>
+        /// Sử dụng kỹ thuật nhúng TopLevel = false, loại bỏ viền FormBorderStyle.None,
+        /// và dọn dẹp sạch tài nguyên Form cũ trước đó để tránh rò rỉ bộ nhớ.
+        /// </para>
+        /// </summary>
+        /// <param name="form">Đối tượng Form con cần hiển thị.</param>
+        public void LoadMultiForm(Form form)
+        {
+            if (form == null) return;
+
+            // BƯỚC 1: Đồng bộ nút menu và thanh lướt Indicator trên Sidebar tương ứng với Form con
+            SyncActiveMenuButtonForForm(form);
+
+            // BƯỚC 2: Tạm ngưng bố cục Panel để loại bỏ hiện tượng chớp hình (flicker)
+            pnMain.SuspendLayout();
+            try
+            {
+                // Hủy giải phóng an toàn Form đang hiển thị trước đó
+                DisposeCurrentForm();
+
+                // Cấu hình Form con hoạt động như một UserControl bên trong pnMain
+                form.TopLevel = false;
+                form.FormBorderStyle = FormBorderStyle.None;
+                form.MinimumSize = Size.Empty;
+                form.MaximumSize = Size.Empty;
+                form.Dock = DockStyle.Fill;
+
+                pnMain.Controls.Add(form);
+                pnMain.Tag = form;
+                form.Show();
+            }
+            finally
+            {
+                pnMain.ResumeLayout(true);
+            }
+
+            try
+            {
+                form.Focus();
+            }
+            catch { }
+        }
+
+        /// <summary>
+        /// Tự động xác định và đồng bộ nút Sidebar active tương ứng với loại Form đang hiển thị.
+        /// </summary>
+        private void SyncActiveMenuButtonForForm(Form form)
+        {
+            if (form is DashboardUserForm || form is DashboardForm) SetActiveMenuButton(btnDashboards);
+            else if (form is AccountForm) SetActiveMenuButton(btnAccounts);
+            else if (form is TransactionForm || form is AddTransactionForm) SetActiveMenuButton(btnTransactions);
+            else if (form is CustomerForm) SetActiveMenuButton(btnCustomers);
+            else if (form is BankForm) SetActiveMenuButton(btnBanks);
+            else if (form is CreditCardForm || form is CreditCardUserForm) SetActiveMenuButton(btnCreditCard);
+            else if (form is ShopForm || form is ShopAdminForm || form is ShopUserForm) SetActiveMenuButton(btnShop);
+            else if (form is BorrowingForm || form is BorrowingAdminForm || form is BorrowingUserForm) SetActiveMenuButton(btnBorrowing);
+            else if (form is SaveMoneyForm || form is SaveMoneyAdminForm || form is SaveMoneyUserForm) SetActiveMenuButton(btnSaveMoney);
+            else if (form is StatisticsForm) SetActiveMenuButton(btnStatistic);
+            else if (form is SettingsForm) SetActiveMenuButton(btnSettings);
+        }
+
+        /// <summary>
+        /// Đóng và giải phóng tài nguyên (Dispose) Form hiện tại đang nhúng trong vùng pnMain.
+        /// </summary>
+        private void DisposeCurrentForm()
+        {
+            if (pnMain.Controls.Count == 0) return;
+
+            var oldControls = new System.Collections.Generic.List<Control>();
+            foreach (Control c in pnMain.Controls)
+            {
+                oldControls.Add(c);
+            }
+
+            foreach (var ctrl in oldControls)
+            {
+                if (ctrl.IsDisposed) continue;
+
+                try
+                {
+                    pnMain.Controls.Remove(ctrl);
+                    if (ctrl is StatisticsForm sf)
+                    {
+                        sf.CleanupResources();
+                    }
+                    if (ctrl is Form f)
+                    {
+                        f.Close();
+                    }
+                    ctrl.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[LoadMultiForm] Dispose error: {ex.Message}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Giải phóng toàn bộ các Form con đang nhúng trong pnMain khi MainForm đóng hoàn toàn.
+        /// </summary>
+        private void DisposeChildForms()
+        {
+            if (pnMain == null || pnMain.IsDisposed) return;
+            if (pnMain.Controls.Count == 0) return;
+
+            var children = new System.Collections.Generic.List<Control>();
+            foreach (Control c in pnMain.Controls) children.Add(c);
+
+            pnMain.Controls.Clear();
+
+            foreach (var ctrl in children)
+            {
+                try { ctrl.Dispose(); }
+                catch { }
+            }
+        }
+
+        /// <summary>
+        /// Kiểm tra xem thông tin khách hàng đã được hoàn tất hồ sơ hay chưa.
+        /// <para>
+        /// Nếu người dùng chưa cập nhật thông tin cá nhân (CCCD, địa chỉ, SĐT...), 
+        /// điều hướng sang màn hình CustomerInfoForm trước; sau khi lưu hồ sơ xong sẽ tự mở Form đích mong muốn.
+        /// </para>
+        /// </summary>
+        /// <param name="formFactory">Hàm lambda khởi tạo Form đích sau khi hồ sơ hợp lệ.</param>
+        public void OpenFormWithCustomerCheck(Func<Form> formFactory)
+        {
+            if (CurrentSession.IsAdmin)
+            {
+                LoadMultiForm(formFactory());
+                return;
+            }
+
+            if (!CurrentSession.NeedsCustomerInfo)
+            {
+                LoadMultiForm(formFactory());
+                return;
+            }
+
+            // Chuyển hướng sang màn hình hoàn thiện hồ sơ thông tin khách hàng
+            var infoForm = new CustomerInfoForm();
+            infoForm.SaveSuccess += (s, args) =>
+            {
+                System.Diagnostics.Debug.WriteLine("[MainForm] SaveSuccess — hồ sơ hoàn tất, mở form đích");
+                LoadMultiForm(formFactory());
+            };
+
+            LoadMultiForm(infoForm);
+        }
+
+        #endregion
+
+        #region 6. XỬ LÝ SỰ KIỆN CLICK MENU SIDEBAR (MENU ACTIONS)
 
         private void btnDashboards_Click(object sender, EventArgs e)
         {
@@ -648,84 +786,6 @@ namespace BankAccountManagement
             if (!CurrentSession.IsAdmin) return;
             SetActiveMenuButton(btnBanks);
             LoadMultiForm(new BankForm());
-        }
-
-        private void btnStatistic_Click(object sender, EventArgs e)
-        {
-            SetActiveMenuButton(btnStatistic);
-            LoadMultiForm(new StatisticsForm());
-        }
-
-        private void btnSettings_Click(object sender, EventArgs e)
-        {
-            SetActiveMenuButton(btnSettings);
-            LoadMultiForm(new SettingsForm());
-        }
-
-        private void pnMain_Paint(object sender, PaintEventArgs e)
-        {
-        }
-        
-        /// <summary>
-        /// Dọn dẹp form con trong pnMain TRƯỚC KHI MainForm đóng.
-        /// </summary>
-        protected override void OnFormClosed(FormClosedEventArgs e)
-        {
-            _indicatorAnimTimer?.Stop();
-            _indicatorAnimTimer?.Dispose();
-            DisposeChildForms();
-            base.OnFormClosed(e);
-        }
-
-        /// <summary>
-        /// Dispose tất cả form con đang nhúng trong pnMain.
-        /// </summary>
-        private void DisposeChildForms()
-        {
-            if (pnMain == null || pnMain.IsDisposed)
-                return;
-
-            if (pnMain.Controls.Count == 0)
-                return;
-
-            var children = new System.Collections.Generic.List<Control>();
-            foreach (Control c in pnMain.Controls)
-                children.Add(c);
-
-            pnMain.Controls.Clear();
-
-            foreach (var ctrl in children)
-            {
-                try { ctrl.Dispose(); }
-                catch { }
-            }
-        }
-
-        public void OpenFormWithCustomerCheck(Func<Form> formFactory)
-        {
-            if (CurrentSession.IsAdmin)
-            {
-                LoadMultiForm(formFactory());
-                return;
-            }
-
-            if (!CurrentSession.NeedsCustomerInfo)
-            {
-                LoadMultiForm(formFactory());
-                return;
-            }
-
-            var infoForm = new CustomerInfoForm();
-
-            infoForm.SaveSuccess += (s, args) =>
-            {
-                System.Diagnostics.Debug.WriteLine(
-                    "[MainForm] SaveSuccess — mở form đích");
-
-                LoadMultiForm(formFactory());
-            };
-
-            LoadMultiForm(infoForm);
         }
 
         private void btnCreditCard_Click(object sender, EventArgs e)
@@ -779,6 +839,31 @@ namespace BankAccountManagement
                 OpenFormWithCustomerCheck(() => new SaveMoneyUserForm());
             }
         }
+
+        private void btnStatistic_Click(object sender, EventArgs e)
+        {
+            SetActiveMenuButton(btnStatistic);
+            LoadMultiForm(new StatisticsForm());
+        }
+
+        private void btnSettings_Click(object sender, EventArgs e)
+        {
+            SetActiveMenuButton(btnSettings);
+            LoadMultiForm(new SettingsForm());
+        }
+
+        private void pnMain_Paint(object sender, PaintEventArgs e)
+        {
+        }
+
+        #endregion
+
+        #region 7. ĐỒNG BỘ GIAO DỊCH VÀ CẬP NHẬT THEO THỜI GIAN THỰC
+
+        /// <summary>
+        /// Xử lý sự kiện khi có bất kỳ giao dịch tài chính phát sinh trong toàn bộ hệ thống.
+        /// Tự động cập nhật tổng số dư thực tế và nâng/hạ hạng tài khoản nếu đạt ngưỡng mới.
+        /// </summary>
         private void OnSystemTransactionOccurred()
         {
             if (!CurrentSession.IsMember || this.IsDisposed || !this.IsHandleCreated) return;
@@ -788,6 +873,7 @@ namespace BankAccountManagement
                 UserTierTheme.UpdateSessionTierByBalance(totalBal);
             }));
         }
-    }
 
+        #endregion
+    }
 }

@@ -3,46 +3,71 @@ using BankAccountManagement.Services;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace BankAccountManagement.Forms
 {
     /// <summary>
-    /// Form đăng ký tài khoản mới cho ứng dụng Bank Management.
-    /// Kế thừa <see cref="Form"/> và dùng chung style với <see cref="LoginForm"/>:
-    /// panel trái gradient tím-hồng, panel phải chứa form nhập liệu bo góc.
-    /// 
-    /// Chức năng chính:
-    /// - Thu thập: họ tên, username, ngân hàng mở tài khoản, email, mật khẩu, xác nhận mật khẩu.
-    /// - Kiểm tra dữ liệu đầu vào (validate) trước khi cho phép đăng ký.
-    /// - Cho phép ẩn/hiện mật khẩu, kéo form, quay lại form Login.
+    /// Form đăng ký tài khoản người dùng mới (SignupForm).
+    /// Giao diện đồng bộ với LoginForm:
+    /// - Panel trái (pnlSide): Gradient tím-hồng và logo thương hiệu.
+    /// - Panel phải (pnlMain): Các trường nhập liệu (Họ tên, Username, Chọn ngân hàng, Email, Mật khẩu, Xác nhận mật khẩu).
     /// </summary>
     public partial class SignupForm : Form
     {
-        [DllImport("user32.dll")]
-        private static extern int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+        #region BIẾN TRẠNG THÁI (STATE VARIABLES)
 
-        [DllImport("user32.dll")]
-        private static extern bool ReleaseCapture();
-
-        private const int WM_NCLBUTTONDOWN = 0xA1;
-        private const int HT_CAPTION = 0x2;
-
+        /// <summary>Cờ theo dõi trạng thái ẩn/hiện mật khẩu.</summary>
         private bool _passVisible = false;
+
+        /// <summary>Cờ theo dõi trạng thái ẩn/hiện ô xác nhận mật khẩu.</summary>
         private bool _confirmVisible = false;
+
+        /// <summary>Tên đăng nhập vừa được đăng ký thành công (dùng để điền sẵn vào LoginForm khi quay lại).</summary>
         public string RegisteredUsername { get; private set; }
 
+        /// <summary>Tọa độ con trỏ chuột khi bắt đầu kéo form.</summary>
+        private Point _dragStartCursor;
+
+        /// <summary>Tọa độ form trên màn hình khi bắt đầu kéo.</summary>
+        private Point _dragStartForm;
+
+        /// <summary>Cờ đánh dấu đang trong trạng thái kéo form.</summary>
+        private bool _isDragging = false;
+
+        #endregion
+
+        #region KHỞI TẠO FORM (CONSTRUCTOR)
+
+        /// <summary>
+        /// Khởi tạo màn hình đăng ký tài khoản.
+        /// </summary>
+        /// <param name="preselectedBank">Mã ngân hàng được chọn mặc định (nếu có).</param>
         public SignupForm(string preselectedBank = null)
         {
             InitializeComponent();
+
+            // BƯỚC 1: Bo góc mềm mại cho các panel nhập liệu và form
             ApplyRoundedCorners();
+
+            // BƯỚC 2: Tải danh sách ngân hàng đang hoạt động vào ComboBox
             LoadBanks(preselectedBank);
+
+            // BƯỚC 3: Thiết lập các sự kiện bàn phím, nút bấm, kéo form
             SetupEvents();
+
+            // BƯỚC 4: Cài đặt chữ gợi ý mờ (Placeholder) cho các ô nhập liệu
             SetupPlaceholders();
         }
 
+        #endregion
+
+        #region BO TRÒN GÓC GIAO DIỆN (ROUNDED CORNERS)
+
+        /// <summary>
+        /// Áp dụng đường viền bo góc cho Form và tất cả các ô nhập liệu.
+        /// </summary>
         private void ApplyRoundedCorners()
         {
             SetRoundedRegion(pnlName, 10);
@@ -55,14 +80,22 @@ namespace BankAccountManagement.Forms
             SetRoundedRegion(this, 16);
         }
 
+        /// <summary>
+        /// Cắt vùng hiển thị của control theo hình chữ nhật bo tròn.
+        /// </summary>
         private static void SetRoundedRegion(Control ctrl, int radius)
         {
             if (ctrl.Width <= 0 || ctrl.Height <= 0) return;
 
             using (var path = RoundedPath(ctrl.ClientRectangle, radius))
+            {
                 ctrl.Region = new Region(path);
+            }
         }
 
+        /// <summary>
+        /// Tạo đường viền hình học (GraphicsPath) bo cong 4 góc.
+        /// </summary>
         private static GraphicsPath RoundedPath(Rectangle rect, int radius)
         {
             var path = new GraphicsPath();
@@ -75,11 +108,19 @@ namespace BankAccountManagement.Forms
             return path;
         }
 
+        #endregion
+
+        #region VẼ ĐỒ HỌA TRANG TRÍ (CUSTOM PAINTING)
+
+        /// <summary>
+        /// Sự kiện vẽ nền trang trí cho panel thương hiệu bên trái.
+        /// </summary>
         private void PnlSide_Paint(object sender, PaintEventArgs e)
         {
             Graphics g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias;
 
+            // 1. Nền Gradient đường chéo từ màu tím sang hồng tím
             using (var brush = new LinearGradientBrush(
                 pnlSide.ClientRectangle,
                 Color.FromArgb(150, 0, 252),
@@ -89,6 +130,7 @@ namespace BankAccountManagement.Forms
                 g.FillRectangle(brush, pnlSide.ClientRectangle);
             }
 
+            // 2. Các bong bóng bán trong suốt trang trí
             using (var c1 = new SolidBrush(Color.FromArgb(30, 255, 255, 255)))
                 g.FillEllipse(c1, -80, -80, 300, 300);
 
@@ -98,6 +140,7 @@ namespace BankAccountManagement.Forms
             using (var c3 = new SolidBrush(Color.FromArgb(20, 255, 255, 255)))
                 g.FillEllipse(c3, 300, -80, 220, 220);
 
+            // 3. Đường gạch chéo thương hiệu
             using (var pen = new Pen(Color.FromArgb(15, 255, 255, 255), 60))
             {
                 pen.StartCap = LineCap.Round;
@@ -106,6 +149,13 @@ namespace BankAccountManagement.Forms
             }
         }
 
+        #endregion
+
+        #region TẢI DANH SÁCH NGÂN HÀNG (LOAD BANKS)
+
+        /// <summary>
+        /// Nạp danh sách các ngân hàng từ Database vào ComboBox để người dùng lựa chọn ngân hàng mở tài khoản.
+        /// </summary>
         private void LoadBanks(string preselectedBank = null)
         {
             try
@@ -115,12 +165,14 @@ namespace BankAccountManagement.Forms
                 cboBank.ValueMember = "MaNganHang";
                 cboBank.DataSource = banks;
 
+                // Nếu có chỉ định sẵn ngân hàng
                 if (!string.IsNullOrWhiteSpace(preselectedBank))
                 {
                     cboBank.SelectedValue = preselectedBank;
                 }
                 else if (cboBank.Items.Count > 0)
                 {
+                    // Ưu tiên chọn ngân hàng Quân đội (MB) nếu có, ngược lại chọn ngân hàng đầu tiên
                     int mbIndex = -1;
                     for (int i = 0; i < banks.Count; i++)
                     {
@@ -135,18 +187,36 @@ namespace BankAccountManagement.Forms
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("LoadBanks error: " + ex.Message);
+                System.Diagnostics.Debug.WriteLine("[SignupForm] LoadBanks error: " + ex.Message);
             }
         }
 
+        #endregion
+
+        #region ĐĂNG KÝ SỰ KIỆN GIAO DIỆN (EVENT SETUP)
+
+        /// <summary>
+        /// Gắn các sự kiện bàn phím, click và điều hướng cho giao diện.
+        /// </summary>
         private void SetupEvents()
         {
-            btnClose.Click += (s, e) => { this.DialogResult = DialogResult.Cancel; this.BeginInvoke(new Action(() => this.Close())); };
+            // 1. Nút Đóng Form (✕)
+            btnClose.Click += (s, e) => { this.DialogResult = DialogResult.Cancel; };
 
-            pnlSide.MouseDown += DragForm;
-            pnlMain.MouseDown += DragForm;
-            lblBrand.MouseDown += DragForm;
+            // 2. Kéo thả cửa sổ bằng chuột thuần (Managed Dragging)
+            pnlSide.MouseDown += DragMouseDown;
+            pnlSide.MouseMove += DragMouseMove;
+            pnlSide.MouseUp += DragMouseUp;
 
+            pnlMain.MouseDown += DragMouseDown;
+            pnlMain.MouseMove += DragMouseMove;
+            pnlMain.MouseUp += DragMouseUp;
+
+            lblBrand.MouseDown += DragMouseDown;
+            lblBrand.MouseMove += DragMouseMove;
+            lblBrand.MouseUp += DragMouseUp;
+
+            // 3. Hiệu ứng đổi màu viền chân ô nhập khi focus
             HookFocusLine(txtFullName, pnlNameLine);
             HookFocusLine(txtUsername, pnlUserLine);
             HookFocusLine(txtEmail, pnlEmailLine);
@@ -156,12 +226,14 @@ namespace BankAccountManagement.Forms
             cboBank.Enter += (s, e) => pnlBankLine.BackColor = Color.FromArgb(150, 0, 252);
             cboBank.Leave += (s, e) => pnlBankLine.BackColor = Color.FromArgb(220, 222, 230);
 
+            // 4. Nhấn Enter tại bất kỳ ô nào cũng kích hoạt đăng ký
             txtFullName.KeyDown += OnEnterSignup;
             txtUsername.KeyDown += OnEnterSignup;
             txtEmail.KeyDown += OnEnterSignup;
             txtPassword.KeyDown += OnEnterSignup;
             txtConfirm.KeyDown += OnEnterSignup;
 
+            // 5. Nút ẩn/hiện mật khẩu
             btnTogglePass.Click += (s, e) =>
             {
                 _passVisible = !_passVisible;
@@ -169,6 +241,7 @@ namespace BankAccountManagement.Forms
                 btnTogglePass.Text = _passVisible ? "🙈" : "👁";
             };
 
+            // 6. Nút ẩn/hiện xác nhận mật khẩu
             btnToggleConfirm.Click += (s, e) =>
             {
                 _confirmVisible = !_confirmVisible;
@@ -176,20 +249,18 @@ namespace BankAccountManagement.Forms
                 btnToggleConfirm.Text = _confirmVisible ? "🙈" : "👁";
             };
 
+            // 7. Nút Đăng ký tài khoản
             btnSignup.Click += BtnSignup_Click;
 
-            linkLogin.LinkClicked += (s, e) =>
-            {
-                this.DialogResult = DialogResult.Cancel;
-                this.BeginInvoke(new Action(() => this.Close()));
-            };
+            // 8. Liên kết quay lại màn hình Đăng nhập (Sign in)
+            linkLogin.LinkClicked += (s, e) => { this.DialogResult = DialogResult.Cancel; };
         }
 
         private void OnEnterSignup(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
-                e.SuppressKeyPress = true;
+                e.SuppressKeyPress = true; // Ngăn tiếng chuông bíp mặc định của Windows
                 btnSignup.PerformClick();
             }
         }
@@ -200,14 +271,40 @@ namespace BankAccountManagement.Forms
             txt.Leave += (s, e) => line.BackColor = Color.FromArgb(220, 222, 230);
         }
 
-        private void DragForm(object sender, MouseEventArgs e)
+        #endregion
+
+        #region KÉO THẢ FORM THUẦN MANAGED (WINDOW DRAGGING)
+
+        private void DragMouseDown(object sender, MouseEventArgs e)
         {
-            if (e.Button == MouseButtons.Left && this.IsHandleCreated && !this.IsDisposed)
+            if (e.Button == MouseButtons.Left)
             {
-                ReleaseCapture();
-                SendMessage(Handle, WM_NCLBUTTONDOWN, HT_CAPTION, 0);
+                _isDragging = true;
+                _dragStartCursor = Cursor.Position;
+                _dragStartForm = this.Location;
             }
         }
+
+        private void DragMouseMove(object sender, MouseEventArgs e)
+        {
+            if (_isDragging && e.Button == MouseButtons.Left)
+            {
+                Point cur = Cursor.Position;
+                this.Location = new Point(
+                    _dragStartForm.X + (cur.X - _dragStartCursor.X),
+                    _dragStartForm.Y + (cur.Y - _dragStartCursor.Y)
+                );
+            }
+        }
+
+        private void DragMouseUp(object sender, MouseEventArgs e)
+        {
+            _isDragging = false;
+        }
+
+        #endregion
+
+        #region XỬ LÝ CHỮ GỢI Ý (PLACEHOLDER)
 
         private void SetupPlaceholders()
         {
@@ -254,8 +351,16 @@ namespace BankAccountManagement.Forms
 
         private string GetValue(TextBox txt) => IsPlaceholder(txt) ? "" : txt.Text.Trim();
 
+        #endregion
+
+        #region XỬ LÝ ĐĂNG KÝ (SIGNUP LOGIC)
+
+        /// <summary>
+        /// Xử lý xác thực dữ liệu và đăng ký tài khoản người dùng mới.
+        /// </summary>
         private void BtnSignup_Click(object sender, EventArgs e)
         {
+            // BƯỚC 1: Lấy các giá trị người dùng nhập vào
             string fullName = GetValue(txtFullName);
             string username = GetValue(txtUsername);
             string email = GetValue(txtEmail);
@@ -263,24 +368,50 @@ namespace BankAccountManagement.Forms
             string confirm = IsPlaceholder(txtConfirm) ? "" : txtConfirm.Text;
             string bankCode = cboBank.SelectedValue?.ToString() ?? "NH01";
 
+            // BƯỚC 2: Kiểm tra tính hợp lệ dữ liệu đầu vào (Validation)
             if (string.IsNullOrWhiteSpace(fullName))
-            { ShowError("⚠  Vui lòng nhập họ tên."); txtFullName.Focus(); return; }
+            {
+                ShowError("⚠  Vui lòng nhập họ tên.");
+                txtFullName.Focus();
+                return;
+            }
 
             if (string.IsNullOrWhiteSpace(username) || username.Length < 4)
-            { ShowError("⚠  Tên đăng nhập phải có ít nhất 4 ký tự."); txtUsername.Focus(); return; }
+            {
+                ShowError("⚠  Tên đăng nhập phải có ít nhất 4 ký tự.");
+                txtUsername.Focus();
+                return;
+            }
 
             if (string.IsNullOrWhiteSpace(email) || !IsValidEmail(email))
-            { ShowError("⚠  Email không hợp lệ."); txtEmail.Focus(); return; }
+            {
+                ShowError("⚠  Email không hợp lệ.");
+                txtEmail.Focus();
+                return;
+            }
 
             if (string.IsNullOrWhiteSpace(password) || password.Length < 6)
-            { ShowError("⚠  Mật khẩu phải có ít nhất 6 ký tự."); txtPassword.Focus(); return; }
+            {
+                ShowError("⚠  Mật khẩu phải có ít nhất 6 ký tự.");
+                txtPassword.Focus();
+                return;
+            }
 
             if (password != confirm)
-            { ShowError("✖  Mật khẩu xác nhận không khớp."); txtConfirm.SelectAll(); txtConfirm.Focus(); return; }
+            {
+                ShowError("✖  Mật khẩu xác nhận không khớp.");
+                txtConfirm.SelectAll();
+                txtConfirm.Focus();
+                return;
+            }
 
             if (!chkTerms.Checked)
-            { ShowError("⚠  Bạn phải đồng ý với Điều khoản dịch vụ."); return; }
+            {
+                ShowError("⚠  Bạn phải đồng ý với Điều khoản dịch vụ.");
+                return;
+            }
 
+            // BƯỚC 3: Gọi AuthService để ghi nhận thông tin vào Cơ sở dữ liệu SQL Server
             AuthResult result = AuthService.Register(fullName, username, email, password, bankCode);
 
             if (!result.Success)
@@ -289,15 +420,21 @@ namespace BankAccountManagement.Forms
                 return;
             }
 
+            // BƯỚC 4: Đăng ký thành công -> Thông báo và đóng form về LoginForm
             HideError();
             MessageBox.Show(result.Message, "Bank Management",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
 
+            // Ghi nhớ tên đăng nhập để LoginForm tự động điền sẵn
             RegisteredUsername = username;
+
+            // Đóng hộp thoại trả về OK
             this.DialogResult = DialogResult.OK;
-            this.BeginInvoke(new Action(() => this.Close()));
         }
 
+        /// <summary>
+        /// Kiểm tra định dạng địa chỉ Email bằng biểu thức chính quy (Regex).
+        /// </summary>
         private static bool IsValidEmail(string email)
         {
             return Regex.IsMatch(email,
@@ -316,5 +453,7 @@ namespace BankAccountManagement.Forms
             lblError.Visible = false;
             lblError.Text = "";
         }
+
+        #endregion
     }
 }

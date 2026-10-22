@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -12,31 +12,47 @@ using BankAccountManagement.Services;
 
 namespace BankAccountManagement.Forms
 {
+    /// <summary>
+    /// Form Bảng điều khiển tổng quan dành cho Quản trị viên (Admin Dashboard Form).
+    /// <para>
+    /// Hiển thị các chỉ số thống kê vĩ mô của toàn hệ thống ngân hàng:
+    /// - 4 thẻ tóm tắt (KPI Cards): Tổng số tài khoản, Tổng số khách hàng, Tổng số ngân hàng liên kết, Tổng số giao dịch.
+    /// - Biểu đồ cột (Column Chart): Thống kê số lượng tài khoản mở mới theo từng tháng trong năm.
+    /// - Biểu đồ tròn (Pie Chart): Tỷ lệ phân bổ tài khoản theo từng ngân hàng đối tác.
+    /// </para>
+    /// </summary>
     public partial class DashboardForm : Form
     {
-        private DashboardService _dashboardService;
+        #region 1. KHỞI TẠO VÀ SỰ KIỆN FORM LOAD
 
+        /// <summary>Dịch vụ xử lý thống kê số liệu tổng quan bảng điều khiển.</summary>
+        private readonly DashboardService _dashboardService;
+
+        /// <summary>
+        /// Hàm dựng khởi tạo giao diện và kết nối dịch vụ DashboardService.
+        /// </summary>
         public DashboardForm()
         {
             InitializeComponent();
             _dashboardService = new DashboardService();
-            // Automatically bind the Load event to avoid messing with the Designer file
             this.Load += DashboardForm_Load;
         }
 
+        /// <summary>
+        /// Tải dữ liệu tổng quan và vẽ các biểu đồ thống kê khi Form xuất hiện.
+        /// </summary>
         private void DashboardForm_Load(object sender, EventArgs e)
         {
             string maKH = null;
 
             if (CurrentSession.IsMember)
             {
-                // 1. Đổi tiêu đề phụ khi là User
+                // Giao diện Khách hàng (Member): Đổi tiêu đề phụ và thu gọn 3 thẻ KPI
                 if (lblSubtitle != null)
                 {
-                    lblSubtitle.Text = "Tổng quan quản lý tài khoản";
+                    lblSubtitle.Text = "Tổng quan quản lý tài khoản cá nhân";
                 }
 
-                // 2. Chia đều 3 panel (bỏ Tổng khách hàng - roundedPanel2) kể cả khi phóng to
                 if (pnlCards != null)
                 {
                     pnlCards.SuspendLayout();
@@ -70,12 +86,11 @@ namespace BankAccountManagement.Forms
                     pnlCards.ResumeLayout();
                 }
 
-                // 3. Lấy MaKH của tài khoản đang đăng nhập
                 maKH = CurrentSession.MaKH;
             }
             else
             {
-                // Admin: Giữ nguyên 4 panel và tiêu đề gốc
+                // Giao diện Quản trị viên (Admin): Đầy đủ 4 thẻ KPI bao quát toàn bộ hệ thống
                 if (lblSubtitle != null)
                 {
                     lblSubtitle.Text = "Tổng quan hệ thống quản lý tài khoản ngân hàng";
@@ -122,17 +137,24 @@ namespace BankAccountManagement.Forms
                 maKH = null;
             }
 
-            // Truyền maKH vào các hàm load dữ liệu
+            // Nạp dữ liệu vào 4 thẻ tóm tắt và 2 biểu đồ phân tích
             LoadSummaryData(maKH);
             LoadBarChart(maKH);
             LoadPieChart(maKH);
         }
 
+        #endregion
+
+        #region 2. TẢI DỮ LIỆU THẺ CHỈ SỐ KPI (SUMMARY CARDS)
+
+        /// <summary>
+        /// Nạp các chỉ số tổng quan từ cơ sở dữ liệu lên 4 thẻ hiển thị.
+        /// </summary>
+        /// <param name="maKH">Mã khách hàng (để lọc dữ liệu cá nhân nếu là Member, null nếu là Admin xem toàn hệ thống).</param>
         private void LoadSummaryData(string maKH = null)
         {
             try
             {
-                // Truyền maKH xuống service
                 DataTable dt = _dashboardService.GetDashboardSummary(maKH);
                 if (dt != null && dt.Rows.Count > 0)
                 {
@@ -148,20 +170,30 @@ namespace BankAccountManagement.Forms
             }
         }
 
+        #endregion
+
+        #region 3. VẼ BIỂU ĐỒ CỘT THỐNG KÊ THEO THÁNG (COLUMN CHART)
+
+        /// <summary>
+        /// Vẽ biểu đồ cột biểu diễn số lượng tài khoản được mở mới theo các tháng trong năm.
+        /// </summary>
+        /// <param name="maKH">Mã khách hàng cần lọc (null nếu xem toàn hệ thống).</param>
         private void LoadBarChart(string maKH = null)
         {
             try
             {
                 DataTable dt = _dashboardService.GetAccountByMonth(maKH);
-                
+
                 chart1.Series.Clear();
                 chart1.Titles.Clear();
-                
-                Series series = new Series("Tài khoản mở mới");
-                series.ChartType = SeriesChartType.Column;
-                series.Color = Color.FromArgb(66, 133, 244); // Google Blue
+
+                Series series = new Series("Tài khoản mở mới")
+                {
+                    ChartType = SeriesChartType.Column,
+                    Color = Color.FromArgb(66, 133, 244) // Google Blue hiện đại
+                };
                 chart1.Series.Add(series);
-                
+
                 chart1.ChartAreas[0].AxisX.MajorGrid.Enabled = false;
                 chart1.ChartAreas[0].AxisY.MajorGrid.Enabled = false;
 
@@ -180,8 +212,8 @@ namespace BankAccountManagement.Forms
                     chart1.ChartAreas[0].AxisX.Title = "Tháng";
                     chart1.ChartAreas[0].AxisY.Title = "Số lượng tài khoản";
                     chart1.ChartAreas[0].AxisX.Interval = 1;
-                    
-                    // Ép trục Y hiển thị số tự nhiên nếu dữ liệu quá ít (vd: 1, 2, 3...)
+
+                    // Nếu số lượng nhỏ, định dạng bước nhảy trục Y là số nguyên (1, 2, 3...)
                     if (maxSoLuong < 10)
                         chart1.ChartAreas[0].AxisY.Interval = 1;
                 }
@@ -203,17 +235,27 @@ namespace BankAccountManagement.Forms
             }
         }
 
+        #endregion
+
+        #region 4. VẼ BIỂU ĐỒ TRÒN THỐNG KÊ THEO NGÂN HÀNG (PIE CHART)
+
+        /// <summary>
+        /// Vẽ biểu đồ tròn phân tích tỷ lệ phần trăm phân bổ tài khoản theo từng ngân hàng đối tác.
+        /// </summary>
+        /// <param name="maKH">Mã khách hàng cần lọc (null nếu xem toàn hệ thống).</param>
         private void LoadPieChart(string maKH = null)
         {
             try
             {
                 DataTable dt = _dashboardService.GetAccountByBank(maKH);
-                
+
                 chart2.Series.Clear();
                 chart2.Titles.Clear();
 
-                Series series = new Series("Tỉ lệ");
-                series.ChartType = SeriesChartType.Pie;
+                Series series = new Series("Tỉ lệ")
+                {
+                    ChartType = SeriesChartType.Pie
+                };
                 chart2.Series.Add(series);
 
                 if (dt != null && dt.Rows.Count > 0)
@@ -225,7 +267,7 @@ namespace BankAccountManagement.Forms
                         series.Points.AddXY(nganHang, soLuong);
                     }
 
-                    // Cấu hình hiển thị % và Legend
+                    // Cấu hình nhãn tỷ lệ phần trăm (%) trên từng miếng bánh và hiển thị chú giải (Legend)
                     series.IsValueShownAsLabel = true;
                     series.Label = "#PERCENT{P0}";
                     series.LegendText = "#VALX (#VAL)";
@@ -244,6 +286,10 @@ namespace BankAccountManagement.Forms
             }
         }
 
+        #endregion
+
+        #region 5. CÁC PHƯƠNG THỨC RỖNG TƯƠNG THÍCH DESIGNER
+
         private void DashboardForm_Load_1(object sender, EventArgs e) { }
         private void label1_Click(object sender, EventArgs e) { }
         private void label2_Click(object sender, EventArgs e) { }
@@ -251,5 +297,7 @@ namespace BankAccountManagement.Forms
         private void roundedPanel2_Paint(object sender, PaintEventArgs e) { }
         private void roundedPanel3_Paint(object sender, PaintEventArgs e) { }
         private void roundedPanel4_Paint(object sender, PaintEventArgs e) { }
+
+        #endregion
     }
 }

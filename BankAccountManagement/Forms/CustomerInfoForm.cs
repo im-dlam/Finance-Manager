@@ -1,18 +1,37 @@
-using BankAccountManagement.Models;
-using BankAccountManagement.Services;
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using BankAccountManagement.Models;
+using BankAccountManagement.Services;
 
 namespace BankAccountManagement.Forms
 {
+    /// <summary>
+    /// Form giao diện nhập và hoàn tất thông tin định danh khách hàng (KYC Profile).
+    /// <para>
+    /// Được kích hoạt khi người dùng lần đầu tiên đăng nhập vào hệ thống mà chưa có thông tin nhân thân
+    /// (CCCD/CMND, Ngày sinh, Địa chỉ, Số điện thoại) trong bảng ThongTinKhachHang.
+    /// </para>
+    /// </summary>
     public partial class CustomerInfoForm : Form
     {
+        #region SỰ KIỆN TÙY BIẾN (CUSTOM EVENTS)
+
+        /// <summary>
+        /// Sự kiện bắn ra khi người dùng lưu thông tin hồ sơ khách hàng thành công.
+        /// </summary>
         public event EventHandler SaveSuccess;
 
+        #endregion
+
+        #region KHỞI TẠO VÀ CẤU HÌNH BAN ĐẦU (INITIALIZATION & SETUP)
+
+        /// <summary>
+        /// Khởi tạo Form hoàn tất hồ sơ khách hàng, cài đặt hiệu ứng tương tác focus và nạp dữ liệu từ phiên hiện tại.
+        /// </summary>
         public CustomerInfoForm()
         {
             InitializeComponent();
@@ -21,13 +40,13 @@ namespace BankAccountManagement.Forms
             PrefillFromSession();
         }
 
-        // ============================================================
-        //  HEADER GRADIENT
-        // ============================================================
+        #endregion
 
-        // ============================================================
-        //  INPUT BOX PAINT — vẽ border 1px xung quanh ô input
-        // ============================================================
+        #region TÙY BIẾN ĐỒ HỌA GDI+ & HIỆU ỨNG FOCUS (GDI+ DRAWING & FOCUS EFFECTS)
+
+        /// <summary>
+        /// Sự kiện vẽ khung viền bo góc và đường phân cách icon cho từng ô nhập liệu (Input Box).
+        /// </summary>
         private void InputBox_Paint(object sender, PaintEventArgs e)
         {
             var box = sender as Panel;
@@ -45,13 +64,23 @@ namespace BankAccountManagement.Forms
             var rect = new Rectangle(0, 0, box.Width - 1, box.Height - 1);
             using (var pen = new Pen(borderColor, borderWidth))
             using (var path = RoundedPath(rect, 8))
+            {
                 g.DrawPath(pen, path);
+            }
 
-            // Vẽ đường kẻ dọc phân cách icon và input
+            // Vẽ đường kẻ dọc mảnh phân cách giữa biểu tượng (icon) và ô nhập văn bản
             using (var sepPen = new Pen(Color.FromArgb(226, 232, 240), 1))
+            {
                 g.DrawLine(sepPen, 42, 8, 42, box.Height - 8);
+            }
         }
 
+        /// <summary>
+        /// Tạo đường viền hình chữ nhật bo góc mềm mại bằng <see cref="GraphicsPath"/>.
+        /// </summary>
+        /// <param name="rect">Khuôn chữ nhật bao quanh.</param>
+        /// <param name="radius">Bán kính bo tròn góc.</param>
+        /// <returns>Đối tượng <see cref="GraphicsPath"/> bo tròn 4 góc.</returns>
         private static GraphicsPath RoundedPath(Rectangle rect, int radius)
         {
             int d = radius * 2;
@@ -64,9 +93,9 @@ namespace BankAccountManagement.Forms
             return path;
         }
 
-        // ============================================================
-        //  FOCUS EFFECTS
-        // ============================================================
+        /// <summary>
+        /// Đăng ký hiệu ứng đổi màu viền phát sáng khi người dùng trỏ chuột hoặc gõ vào ô nhập liệu (Focus Effects).
+        /// </summary>
         private void SetupFocusEffects()
         {
             HookFocus(txtFullName, pnlFullNameBox);
@@ -96,9 +125,13 @@ namespace BankAccountManagement.Forms
             dtp.Leave += (s, e) => { box.Tag = null; box.Invalidate(); };
         }
 
-        // ============================================================
-        //  EVENTS
-        // ============================================================
+        #endregion
+
+        #region ĐĂNG KÝ SỰ KIỆN & ĐIỀU HƯỚNG (EVENT HANDLERS & NAVIGATION)
+
+        /// <summary>
+        /// Đăng ký các sự kiện bàn phím Enter và thao tác nút bấm Lưu / Hủy.
+        /// </summary>
         private void SetupEvents()
         {
             txtFullName.KeyDown += OnEnterSave;
@@ -110,6 +143,9 @@ namespace BankAccountManagement.Forms
             btnCancel.Click += BtnCancel_Click;
         }
 
+        /// <summary>
+        /// Tự động thực hiện lưu khi người dùng nhấn Enter trên các ô nhập văn bản.
+        /// </summary>
         private void OnEnterSave(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
@@ -119,6 +155,9 @@ namespace BankAccountManagement.Forms
             }
         }
 
+        /// <summary>
+        /// Xử lý khi người dùng chọn nút Hủy bỏ. Cảnh báo hạn chế tính năng nếu chưa hoàn thiện hồ sơ.
+        /// </summary>
         private void BtnCancel_Click(object sender, EventArgs e)
         {
             var confirm = MessageBox.Show(
@@ -142,9 +181,13 @@ namespace BankAccountManagement.Forms
             this.Close();
         }
 
-        // ============================================================
-        //  PREFILL
-        // ============================================================
+        #endregion
+
+        #region TỰ ĐỘNG ĐIỀN THÔNG TIN TỪ PHIÊN ĐĂNG NHẬP (PREFILL FROM SESSION)
+
+        /// <summary>
+        /// Nạp sẵn Họ tên và Email đã biết từ tài khoản người dùng đăng nhập hiện tại.
+        /// </summary>
         private void PrefillFromSession()
         {
             if (!CurrentSession.IsLoggedIn) return;
@@ -152,7 +195,7 @@ namespace BankAccountManagement.Forms
             txtFullName.Text = CurrentSession.User?.HoTen ?? "";
             txtEmail.Text = CurrentSession.User?.Email ?? "";
 
-            // Nếu user đã có MaKH hoặc thông tin cũ, prefill các trường chưa bị dummy
+            // Nếu người dùng đã có MaKH, nạp lại thông tin cũ để người dùng chỉ cần kiểm tra lại
             if (!string.IsNullOrWhiteSpace(CurrentSession.User?.MaKH))
             {
                 try
@@ -191,6 +234,7 @@ namespace BankAccountManagement.Forms
                 }
             }
 
+            // Đặt con trỏ chuột vào ô trống đầu tiên cần bổ sung
             if (string.IsNullOrWhiteSpace(txtFullName.Text))
                 txtFullName.Focus();
             else if (string.IsNullOrWhiteSpace(txtEmail.Text))
@@ -203,6 +247,13 @@ namespace BankAccountManagement.Forms
                 txtAddress.Focus();
         }
 
+        #endregion
+
+        #region XÁC THỰC & LƯU HỒ SƠ BẤT ĐỒNG BỘ (VALIDATION & ASYNC SAVE)
+
+        /// <summary>
+        /// Xác thực dữ liệu nhập liệu theo biểu thức chính quy (Regex) và thực thi lưu hồ sơ bằng phương thức bất đồng bộ Task.Run.
+        /// </summary>
         private async void BtnSave_Click(object sender, EventArgs e)
         {
             string hoTen = txtFullName.Text.Trim();
@@ -213,7 +264,7 @@ namespace BankAccountManagement.Forms
             string email = txtEmail.Text.Trim();
             string diaChi = txtAddress.Text.Trim();
 
-            // Validate dữ liệu
+            // 1. Kiểm tra họ và tên
             if (string.IsNullOrWhiteSpace(hoTen))
             {
                 ShowError("Vui lòng nhập họ và tên.");
@@ -221,6 +272,7 @@ namespace BankAccountManagement.Forms
                 return;
             }
 
+            // 2. Kiểm tra độ dài và định dạng số CCCD/CMND (9 đến 12 chữ số)
             if (!Regex.IsMatch(cccd, @"^\d{9,12}$"))
             {
                 ShowError("CMND/CCCD phải có từ 9 đến 12 chữ số.");
@@ -228,13 +280,15 @@ namespace BankAccountManagement.Forms
                 return;
             }
 
+            // 3. Kiểm tra độ tuổi tối thiểu theo quy định mở tài khoản ngân hàng (ít nhất 16 tuổi)
             if (ngaySinh > DateTime.Now.AddYears(-16))
             {
-                ShowError("Bạn phải đủ 16 tuổi.");
+                ShowError("Bạn phải đủ 16 tuổi theo quy định mở tài khoản.");
                 dtpDob.Focus();
                 return;
             }
 
+            // 4. Kiểm tra giới tính
             if (string.IsNullOrWhiteSpace(gioiTinh))
             {
                 ShowError("Vui lòng chọn giới tính.");
@@ -242,33 +296,37 @@ namespace BankAccountManagement.Forms
                 return;
             }
 
+            // 5. Kiểm tra định dạng số điện thoại Việt Nam (bắt đầu bằng 0, gồm 10 hoặc 11 chữ số)
             if (!Regex.IsMatch(sdt, @"^0\d{9,10}$"))
             {
-                ShowError("Số điện thoại không hợp lệ.");
+                ShowError("Số điện thoại không hợp lệ (cần bắt đầu bằng số 0 và có 10-11 số).");
                 txtPhone.Focus();
                 return;
             }
 
+            // 6. Kiểm tra cấu trúc địa chỉ Email hợp lệ
             if (!IsValidEmail(email))
             {
-                ShowError("Email không hợp lệ.");
+                ShowError("Địa chỉ Email không đúng định dạng hợp lệ.");
                 txtEmail.Focus();
                 return;
             }
 
+            // 7. Kiểm tra địa chỉ cư trú
             if (string.IsNullOrWhiteSpace(diaChi))
             {
-                ShowError("Vui lòng nhập địa chỉ.");
+                ShowError("Vui lòng nhập địa chỉ cư trú.");
                 txtAddress.Focus();
                 return;
             }
 
-            // Lưu dữ liệu mà không làm đơ giao diện
+            // Khóa nút Lưu và chuyển con trỏ chuột sang trạng thái chờ (Wait Cursor) để tránh submit nhiều lần
             btnSave.Enabled = false;
             UseWaitCursor = true;
 
             try
             {
+                // Thực thi lưu hồ sơ dưới luồng nền (Background Task) để giữ giao diện luôn mượt mà
                 AuthResult result = await Task.Run(() =>
                     CustomerService.SaveCustomerInfo(
                         hoTen,
@@ -291,7 +349,7 @@ namespace BankAccountManagement.Forms
 
                 MessageBox.Show(
                     result.Message,
-                    "Bank Management",
+                    "Thông báo hoàn tất",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Information
                 );
@@ -313,10 +371,16 @@ namespace BankAccountManagement.Forms
                 }
             }
         }
+
+        /// <summary>
+        /// Kiểm tra tính hợp lệ của địa chỉ Email bằng Regular Expression.
+        /// </summary>
         private static bool IsValidEmail(string email)
             => Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.IgnoreCase);
 
         private void ShowError(string msg) { lblError.Text = msg; lblError.Visible = true; }
         private void HideError() { lblError.Text = ""; lblError.Visible = false; }
+
+        #endregion
     }
 }

@@ -1,4 +1,4 @@
-﻿using BankAccountManagement.Forms;
+using BankAccountManagement.Forms;
 using BankAccountManagement.Models;
 using System;
 using System.Data;
@@ -9,61 +9,60 @@ using System.Windows.Forms;
 namespace BankAccountManagement.Services
 {
     /// <summary>
-    /// Service bootstrap ứng dụng: đảm bảo database sẵn sàng trước khi mở LoginForm.
+    /// Dịch vụ khởi động hệ thống (Bootstrap Startup Service):
+    /// Đảm bảo môi trường máy chủ và cơ sở dữ liệu sẵn sàng hoạt động trước khi ứng dụng mở Form Đăng nhập (LoginForm).
     /// 
-    /// Chiến lược:
-    /// 1. Đọc config cũ (nếu có). Nếu kết nối OK → dùng luôn.
-    /// 2. Nếu config hỏng/chưa có → tự dò SQL Server trên máy.
-    ///    Ưu tiên SQL Server thật (SQLEXPRESS, MSSQLSERVER) trước,
-    ///    LocalDB chỉ dùng khi không có gì khác.
-    /// 3. Tạo config mới: Windows Auth + Database = "BankM36".
-    /// 4. Tạo DB + chạy schema + seed admin + lưu config.
-    /// 5. Nếu auto-detect thất bại → mở SettingsForm cho admin nhập tay.
+    /// Chiến lược kiểm tra và khởi động tự động:
+    /// - Bước 1: Đọc tệp cấu hình database.ini đã lưu trước đó. Nếu kết nối thành công tới Database thì sử dụng ngay.
+    /// - Bước 2: Nếu tệp cấu hình chưa có hoặc máy chủ cũ không phản hồi, tự động quét tìm SQL Server đang chạy trên máy (Auto-detect).
+    ///   Ưu tiên các phiên bản SQL Server thật (.\SQLEXPRESS, MSSQLSERVER) trước, sau đó mới thử tới LocalDB.
+    /// - Bước 3: Tạo cấu hình chuẩn với chế độ Windows Authentication và tên cơ sở dữ liệu mặc định "BankM36".
+    /// - Bước 4: Tự động khởi tạo Database, thực thi kịch bản DatabaseSchema.sql tạo các bảng và tài khoản Quản trị viên (admin).
+    /// - Bước 5: Nếu tất cả các nỗ lực tự động đều thất bại, hiển thị hộp thoại SettingsForm để người dùng nhập thông tin kết nối thủ công.
     /// </summary>
     public static class StartupService
     {
-        /// <summary>Tên database mặc định – cố định cho đồ án.</summary>
+        /// <summary>
+        /// Tên cơ sở dữ liệu mặc định được quy ước cố định cho toàn bộ đồ án.
+        /// </summary>
         private const string DefaultDatabaseName = "BankM36";
 
         // ============================================================
-        //  ENTRY POINT
+        //  ĐIỂM VÀO CHÍNH CỦA QUÁ TRÌNH KHỞI ĐỘNG (BOOTSTRAP ENTRY POINT)
         // ============================================================
 
         /// <summary>
-        /// Đảm bảo database sẵn sàng. Trả về true nếu OK để mở LoginForm.
+        /// Điểm vào chính kiểm tra và khởi tạo cơ sở dữ liệu tự động.
         /// </summary>
+        /// <returns>True nếu cơ sở dữ liệu đã sẵn sàng để mở màn hình Đăng nhập; False nếu thất bại hoặc người dùng hủy.</returns>
         public static bool EnsureDatabaseReady()
         {
-            // ============================================================
-            //  BƯỚC 1: Thử config hiện tại (nếu có)
-            // ============================================================
+            // BƯỚC 1: Thử nghiệm thông số kết nối từ tệp cấu hình hiện tại (nếu có)
             DatabaseConfig existingConfig = DatabaseConfigManager.Load();
 
             if (!string.IsNullOrWhiteSpace(existingConfig.Server)
                 && !string.IsNullOrWhiteSpace(existingConfig.Database))
             {
-                // ⚠ Sửa lỗi config cũ: (localdb) một mình là SAI cú pháp
-                if (existingConfig.Server.Trim().Equals("(localdb)",
-                        StringComparison.OrdinalIgnoreCase))
+                // Sửa lỗi định dạng cấu hình cũ: "(localdb)" đơn lẻ là sai cú pháp kết nối của SQL Server
+                if (existingConfig.Server.Trim().Equals("(localdb)", StringComparison.OrdinalIgnoreCase))
                 {
                     existingConfig.Server = @"(localdb)\MSSQLLocalDB";
                 }
 
+                // Nếu cấu hình cũ dùng tốt thì tiếp tục vào ứng dụng
                 if (TryUseExistingConfig(existingConfig))
                     return true;
 
-                // Config hỏng → tiếp tục auto-detect
+                // Nếu cấu hình cũ không thể kết nối được thì tiếp tục bước tự động dò tìm máy chủ
             }
 
-            // ============================================================
-            //  BƯỚC 2: Auto-detect SQL Server
-            // ============================================================
+            // BƯỚC 2: Tự động quét và tìm kiếm phiên bản SQL Server đang hoạt động trên máy tính
             string detectedServer = AutoDetectServer();
 
             if (string.IsNullOrEmpty(detectedServer))
             {
                 MessageBox.Show(
-                    "Không tìm thấy SQL Server đang chạy trên máy.\n\n" +
+                    "Không tìm thấy SQL Server đang chạy trên máy tính của bạn.\n\n" +
                     "Vui lòng mở phần cài đặt để nhập thông tin kết nối thủ công.",
                     "Không tìm thấy SQL Server",
                     MessageBoxButtons.OK,
@@ -72,9 +71,7 @@ namespace BankAccountManagement.Services
                 return ShowSettingsAndWait();
             }
 
-            // ============================================================
-            //  BƯỚC 3: Tạo config mới với server vừa detect được
-            // ============================================================
+            // BƯỚC 3: Tạo đối tượng cấu hình mới với Server vừa tìm được
             var newConfig = new DatabaseConfig
             {
                 Server = detectedServer,
@@ -84,34 +81,28 @@ namespace BankAccountManagement.Services
                 WindowsAuthentication = true
             };
 
-            // ============================================================
-            //  BƯỚC 4: Tạo DB + chạy schema + seed + lưu config
-            // ============================================================
+            // BƯỚC 4: Tạo cơ sở dữ liệu, chạy kịch bản schema và lưu cấu hình vào database.ini
             return BootstrapDatabase(newConfig);
         }
 
         // ============================================================
-        //  DANH SÁCH INSTANCE ƯU TIÊN
+        //  DANH SÁCH INSTANCE MÁY CHỦ ƯU TIÊN (SERVER DISCOVERY LIST)
         // ============================================================
 
         /// <summary>
-        /// Trả về danh sách các instance SQL Server cần thử, theo thứ tự ưu tiên.
-        /// 
-        /// Nguyên tắc:
-        /// - Ưu tiên SQL Server thật (Express / Full) trước.
-        /// - LocalDB chỉ để CUỐI vì là loại lightweight, không phải SQL Server chuẩn.
-        /// - Thêm tên máy thật (Environment.MachineName) để cover trường hợp
-        ///   SQL Server cấu hình với tên máy riêng.
+        /// Tạo danh sách các tên thể hiện (Instance) SQL Server phổ biến theo thứ tự ưu tiên giảm dần.
+        /// - Ưu tiên 1: SQL Server thật (Express hoặc Bản Full).
+        /// - Ưu tiên 2: Địa chỉ mạng máy tính cục bộ (localhost, tên máy tính).
+        /// - Ưu tiên 3: Phiên bản nhẹ LocalDB (chỉ dùng dự phòng khi không cài SQL Server chuẩn).
         /// </summary>
+        /// <returns>Mảng danh sách các chuỗi tên Server Instance.</returns>
         private static string[] GetCommonInstances()
         {
             string machineName = Environment.MachineName;
 
             return new[]
             {
-                // ============================================================
-                //  ƯU TIÊN 1: SQL Server thật – named instance phổ biến
-                // ============================================================
+                // ƯU TIÊN 1: SQL Server thật – Named Instance phổ biến nhất trên môi trường học tập và phát triển
                 @".\SQLEXPRESS",
                 $@"{machineName}\SQLEXPRESS",
                 @".\MSSQLSERVER2019",
@@ -119,9 +110,7 @@ namespace BankAccountManagement.Services
                 @".\MSSQLSERVER",
                 $@"{machineName}\MSSQLSERVER",
 
-                // ============================================================
-                //  ƯU TIÊN 2: Localhost variants – trỏ tới default instance
-                // ============================================================
+                // ƯU TIÊN 2: Localhost variants – trỏ tới Default Instance của SQL Server
                 @"localhost\SQLEXPRESS",
                 @"(local)\SQLEXPRESS",
                 @"localhost",
@@ -129,87 +118,89 @@ namespace BankAccountManagement.Services
                 @".",
                 machineName,
 
-                // ============================================================
-                //  ƯU TIÊN 3: LocalDB – chỉ dùng khi không có gì khác
-                // ============================================================
+                // ƯU TIÊN 3: LocalDB – phiên bản nhẹ đính kèm của Visual Studio
                 @"(localdb)\MSSQLLocalDB"
             };
         }
 
         // ============================================================
-        //  XỬ LÝ CONFIG CŨ
+        //  KIỂM TRA CẤU HÌNH CŨ (VALIDATE EXISTING CONFIG)
         // ============================================================
 
         /// <summary>
-        /// Kiểm tra config hiện tại có dùng được không.
-        /// - Nếu kết nối OK và DB đã có → true luôn.
-        /// - Nếu kết nối OK nhưng chưa có DB → tạo.
-        /// - Nếu kết nối fail → false (để gọi auto-detect).
+        /// Thử kiểm tra xem cấu hình cơ sở dữ liệu hiện tại có hoạt động được hay không.
+        /// - Nếu kết nối được và CSDL đã có sẵn: Trả về True ngay.
+        /// - Nếu kết nối được máy chủ nhưng chưa có CSDL: Tự động khởi tạo và chạy kịch bản bảng.
+        /// - Nếu kết nối thất bại: Trả về False để chuyển sang bước quét máy chủ tự động.
         /// </summary>
+        /// <param name="config">Cấu hình CSDL cần kiểm tra.</param>
+        /// <returns>True nếu CSDL hoạt động bình thường; False nếu cấu hình lỗi.</returns>
         private static bool TryUseExistingConfig(DatabaseConfig config)
         {
             try
             {
-                DatabaseService.TestConnectionAsync(config)
-                    .GetAwaiter().GetResult();
+                // BƯỚC 1: Thử nghiệm kết nối tới máy chủ
+                DatabaseService.TestConnectionAsync(config).GetAwaiter().GetResult();
 
-                bool dbExists = DatabaseService.DatabaseExistsAsync(config)
-                    .GetAwaiter().GetResult();
+                // BƯỚC 2: Kiểm tra xem CSDL đã tồn tại chưa
+                bool dbExists = DatabaseService.DatabaseExistsAsync(config).GetAwaiter().GetResult();
 
                 if (dbExists)
                     return true;
 
-                // Chưa có DB → tạo
+                // BƯỚC 3: Nếu kết nối được nhưng CSDL chưa có, tiến hành tạo mới
                 return BootstrapDatabase(config);
             }
             catch
             {
-                // Config hỏng → để caller chạy auto-detect
+                // Cấu hình không thể kết nối được -> trả về false để hệ thống tự động dò tìm
                 return false;
             }
         }
 
         // ============================================================
-        //  TẠO DATABASE + SCHEMA + LƯU CONFIG
+        //  KHỞI TẠO CƠ SỞ DỮ LIỆU TỰ ĐỘNG (DATABASE BOOTSTRAPPER)
         // ============================================================
 
         /// <summary>
-        /// Tạo database, chạy file schema, seed admin và lưu config.
-        /// Trả về true nếu thành công.
+        /// Tự động tạo mới cơ sở dữ liệu, chạy tệp kịch bản Schema, nạp dữ liệu ban đầu và lưu lại cấu hình.
         /// </summary>
+        /// <param name="config">Cấu hình kết nối cơ sở dữ liệu hợp lệ.</param>
+        /// <returns>True nếu khởi tạo thành công trọn vẹn; False nếu phát sinh lỗi.</returns>
         private static bool BootstrapDatabase(DatabaseConfig config)
         {
             try
             {
+                // Hiển thị con trỏ chuột dạng chờ (Wait Cursor) trong khi khởi tạo CSDL
                 Cursor.Current = Cursors.WaitCursor;
 
-                bool dbExists = DatabaseService.DatabaseExistsAsync(config)
-                    .GetAwaiter().GetResult();
+                // BƯỚC 1: Kiểm tra lại sự tồn tại của Database
+                bool dbExists = DatabaseService.DatabaseExistsAsync(config).GetAwaiter().GetResult();
 
+                // BƯỚC 2: Nếu chưa có CSDL thì thực thi lệnh tạo CSDL và chạy kịch bản tạo bảng
                 if (!dbExists)
                 {
-                    DatabaseService.CreateDatabaseAsync(config)
-                        .GetAwaiter().GetResult();
-
-                    DatabaseService.InitializeDatabaseAsync(config)
-                        .GetAwaiter().GetResult();
+                    DatabaseService.CreateDatabaseAsync(config).GetAwaiter().GetResult();
+                    DatabaseService.InitializeDatabaseAsync(config).GetAwaiter().GetResult();
                 }
 
+                // BƯỚC 3: Lưu lại cấu hình kết nối chuẩn vào tệp database.ini
                 DatabaseConfigManager.Save(config);
 
+                // Khôi phục lại con trỏ chuột bình thường
                 Cursor.Current = Cursors.Default;
-
                 return true;
             }
             catch (Exception ex)
             {
                 Cursor.Current = Cursors.Default;
 
+                // BƯỚC 4: Hiển thị thông báo lỗi chi tiết và hỏi người dùng có muốn cấu hình thủ công không
                 DialogResult choice = MessageBox.Show(
-                    $"Không thể khởi tạo database tự động.\n\n" +
-                    $"Chi tiết: {ex.Message}\n\n" +
-                    "Bạn có muốn mở phần cài đặt để nhập thông tin thủ công không?",
-                    "Lỗi khởi tạo",
+                    $"Không thể khởi tạo cơ sở dữ liệu tự động.\n\n" +
+                    $"Chi tiết lỗi: {ex.Message}\n\n" +
+                    "Bạn có muốn mở phần Cài đặt để nhập thông tin kết nối thủ công không?",
+                    "Lỗi khởi tạo cơ sở dữ liệu",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Error);
 
@@ -221,31 +212,31 @@ namespace BankAccountManagement.Services
         }
 
         // ============================================================
-        //  AUTO-DETECT SQL SERVER
+        //  TỰ ĐỘNG DÒ TÌM SQL SERVER (AUTO-DETECT ENGINE)
         // ============================================================
 
         /// <summary>
-        /// Dò tìm SQL Server đang chạy. Thử 2 chiến lược:
-        /// 1. List ưu tiên (nhanh, cover 95% trường hợp).
-        /// 2. SqlDataSourceEnumerator – quét UDP cả LAN (dùng backup).
+        /// Dò tìm phiên bản SQL Server đang hoạt động trên máy tính.
+        /// Áp dụng 2 chiến lược:
+        /// 1. Kiểm tra danh sách các Instance phổ biến nhất (Nhanh chóng, chính xác đến 95%).
+        /// 2. Quét thông qua SqlDataSourceEnumerator (Dự phòng quét qua giao thức UDP).
         /// </summary>
-        /// <returns>Tên instance kết nối được, hoặc null nếu không tìm thấy.</returns>
+        /// <returns>Tên chuỗi máy chủ kết nối được, hoặc null nếu không tìm thấy.</returns>
         private static string AutoDetectServer()
         {
             string[] candidates = GetCommonInstances();
 
-            // ---- Chiến lược 1: Thử list ưu tiên ----
+            // ---- CHIẾN LƯỢC 1: Thử lần lượt trong danh sách các Instance phổ biến nhất ----
             foreach (string instance in candidates)
             {
                 if (CanConnect(instance))
                 {
-                    System.Diagnostics.Debug.WriteLine(
-                        $"[AutoDetect] Chọn SQL Server: {instance}");
+                    System.Diagnostics.Debug.WriteLine($"[AutoDetect] Đã tìm thấy SQL Server: {instance}");
                     return instance;
                 }
             }
 
-            // ---- Chiến lược 2: Quét qua SqlDataSourceEnumerator ----
+            // ---- CHIẾN LƯỢC 2: Quét toàn mạng thông qua SqlDataSourceEnumerator ----
             try
             {
                 DataTable sources = SqlDataSourceEnumerator.Instance.GetDataSources();
@@ -262,43 +253,46 @@ namespace BankAccountManagement.Services
                         ? serverName
                         : $"{serverName}\\{instanceName}";
 
-                    // Bỏ qua nếu đã thử trong list cứng
+                    // Bỏ qua nếu đã thử qua trong danh sách candidates ở Chiến lược 1
                     if (Array.IndexOf(candidates, fullName) >= 0)
                         continue;
 
                     if (CanConnect(fullName))
                     {
-                        System.Diagnostics.Debug.WriteLine(
-                            $"[AutoDetect] Tìm được qua enumerator: {fullName}");
+                        System.Diagnostics.Debug.WriteLine($"[AutoDetect] Tìm thấy máy chủ qua Enumerator: {fullName}");
                         return fullName;
                     }
                 }
             }
             catch
             {
-                // SQL Browser service có thể không chạy → bỏ qua
+                // Bỏ qua lỗi trong trường hợp dịch vụ SQL Browser trên Windows không được bật
             }
 
             return null;
         }
 
         /// <summary>
-        /// Thử mở kết nối tới instance với timeout 2 giây.
-        /// Windows Authentication, không cần username/password.
+        /// Thử mở kết nối tới một máy chủ SQL Server với thời gian chờ giới hạn 2 giây.
+        /// Dùng chế độ Windows Authentication (Integrated Security).
         /// </summary>
+        /// <param name="serverInstance">Tên máy chủ hoặc Instance cần thử kết nối.</param>
+        /// <returns>True nếu kết nối thành công; False nếu không thể kết nối.</returns>
         private static bool CanConnect(string serverInstance)
         {
             try
             {
+                // BƯỚC 1: Tạo cấu hình kết nối thử nghiệm nhanh vào database hệ thống master
                 var builder = new SqlConnectionStringBuilder
                 {
                     DataSource = serverInstance,
                     InitialCatalog = "master",
-                    IntegratedSecurity = true,      // Windows Authentication
-                    ConnectTimeout = 2,
+                    IntegratedSecurity = true, // Windows Authentication
+                    ConnectTimeout = 2,        // Thời gian chờ ngắn 2s để quét nhanh
                     TrustServerCertificate = true
                 };
 
+                // BƯỚC 2: Thử mở kết nối
                 using (var conn = new SqlConnection(builder.ConnectionString))
                 {
                     conn.Open();
@@ -312,18 +306,21 @@ namespace BankAccountManagement.Services
         }
 
         // ============================================================
-        //  FALLBACK: MỞ SETTINGS
+        //  CƠ CHẾ DỰ PHÒNG: MỞ HỘP THOẠI CÀI ĐẶT (FALLBACK SETTINGS DIALOG)
         // ============================================================
 
         /// <summary>
-        /// Mở SettingsForm dạng dialog và chờ admin đóng.
-        /// Trả về true nếu file config tồn tại sau khi form đóng.
+        /// Mở hộp thoại SettingsForm dạng Modal Dialog để người dùng nhập thông tin kết nối thủ công.
+        /// Áp dụng cơ chế an toàn bộ nhớ GC.KeepAlive theo chuẩn kiến trúc đồ án.
         /// </summary>
+        /// <returns>True nếu tệp cấu hình database.ini đã được lưu thành công sau khi đóng form; ngược lại là False.</returns>
         private static bool ShowSettingsAndWait()
         {
             using (var settings = new SettingsForm())
             {
                 settings.ShowDialog();
+                // Giữ nguyên cơ chế an toàn bộ nhớ không để GC thu dọn trước khi form đóng
+                GC.KeepAlive(settings);
             }
 
             return DatabaseConfigManager.Exists();

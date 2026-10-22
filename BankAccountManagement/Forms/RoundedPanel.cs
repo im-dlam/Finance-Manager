@@ -6,12 +6,19 @@ using System.Windows.Forms;
 
 namespace BankAccountManagement.Forms
 {
+    /// <summary>
+    /// Custom Panel bo góc mềm mại (RoundedPanel) hoặc dạng hình tròn (IsCircle).
+    /// Hỗ trợ vẽ viền tùy biến, màu nền phẳng hiện đại, chống nháy hình bằng DoubleBuffer
+    /// và ghi nhớ kích thước (caching) để giảm tải tính toán đồ họa GDI+.
+    /// </summary>
     [ToolboxItem(true)]
     public class RoundedPanel : Panel
     {
+        #region CÁC TRƯỜNG THÀNH VIÊN (FIELDS)
+
         private int _borderRadius = 16;
         private int _borderSize = 1;
-        private Color _borderColor = Color.FromArgb(226, 232, 240);   
+        private Color _borderColor = Color.FromArgb(226, 232, 240);
         private Color _fillColor = Color.White;
         private bool _isCircle = false;
 
@@ -19,6 +26,11 @@ namespace BankAccountManagement.Forms
         private int _lastHeight = -1;
         private int _lastRadius = -1;
 
+        #endregion
+
+        #region THUỘC TÍNH TÙY CHỈNH (CUSTOM PROPERTIES)
+
+        /// <summary>Xác định panel có vẽ thành hình tròn hoàn hảo hay không.</summary>
         [Category("Appearance")]
         public bool IsCircle
         {
@@ -26,6 +38,7 @@ namespace BankAccountManagement.Forms
             set { if (_isCircle == value) return; _isCircle = value; UpdateRegion(); Invalidate(); }
         }
 
+        /// <summary>Bán kính bo cong góc của panel (mặc định: 16px).</summary>
         [Category("Appearance")]
         public int BorderRadius
         {
@@ -40,6 +53,7 @@ namespace BankAccountManagement.Forms
             }
         }
 
+        /// <summary>Độ dày của đường viền (mặc định: 1px).</summary>
         [Category("Appearance")]
         public int BorderSize
         {
@@ -47,6 +61,7 @@ namespace BankAccountManagement.Forms
             set { _borderSize = Math.Max(0, value); Invalidate(); }
         }
 
+        /// <summary>Màu sắc của đường viền.</summary>
         [Category("Appearance")]
         public Color BorderColor
         {
@@ -54,6 +69,7 @@ namespace BankAccountManagement.Forms
             set { _borderColor = value; Invalidate(); }
         }
 
+        /// <summary>Màu nền tô bên trong panel.</summary>
         [Category("Appearance")]
         public Color FillColor
         {
@@ -61,6 +77,7 @@ namespace BankAccountManagement.Forms
             set { _fillColor = value; base.BackColor = value; Invalidate(); }
         }
 
+        /// <summary>Ghi đè thuộc tính BackColor để đồng bộ với FillColor.</summary>
         [Category("Appearance")]
         public override Color BackColor
         {
@@ -76,6 +93,10 @@ namespace BankAccountManagement.Forms
             }
         }
 
+        #endregion
+
+        #region KHỞI TẠO (CONSTRUCTOR)
+
         public RoundedPanel()
         {
             SetStyle(ControlStyles.AllPaintingInWmPaint |
@@ -85,6 +106,10 @@ namespace BankAccountManagement.Forms
             this.DoubleBuffered = true;
             this.BackColor = _fillColor;
         }
+
+        #endregion
+
+        #region VÙNG CẮT XÉN GIAO DIỆN (REGION MANAGEMENT)
 
         protected override void OnHandleCreated(EventArgs e)
         {
@@ -98,6 +123,9 @@ namespace BankAccountManagement.Forms
             UpdateRegion();
         }
 
+        /// <summary>
+        /// Cập nhật vùng hiển thị (Region) của panel theo hình tròn hoặc chữ nhật bo góc.
+        /// </summary>
         private void UpdateRegion()
         {
             if (Width <= 0 || Height <= 0) return;
@@ -126,6 +154,7 @@ namespace BankAccountManagement.Forms
             }
         }
 
+        /// <summary>Tạo đường viền hình học (GraphicsPath) tương ứng với cấu hình bo góc.</summary>
         private GraphicsPath GetPath(bool isCircle)
         {
             GraphicsPath path = new GraphicsPath();
@@ -145,6 +174,10 @@ namespace BankAccountManagement.Forms
             }
             return path;
         }
+
+        #endregion
+
+        #region VẼ ĐỒ HỌA TÙY BIẾN (ONPAINT)
 
         protected override void OnPaintBackground(PaintEventArgs pevent)
         {
@@ -203,5 +236,7 @@ namespace BankAccountManagement.Forms
             }
             base.Dispose(disposing);
         }
+
+        #endregion
     }
 }

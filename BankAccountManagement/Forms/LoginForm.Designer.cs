@@ -6,16 +6,11 @@
 
         protected override void Dispose(bool disposing)
         {
-            try
+            if (disposing && (components != null))
             {
-                if (disposing && (components != null))
-                    components.Dispose();
-                base.Dispose(disposing);
+                components.Dispose();
             }
-            catch (System.Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"[LoginForm] Dispose warning: {ex.Message}");
-            }
+            base.Dispose(disposing);
         }
 
         #region Windows Form Designer generated code
@@ -66,7 +61,6 @@
             this.pnlSide.Size = new System.Drawing.Size(420, 600);
             this.pnlSide.TabIndex = 0;
             this.pnlSide.Paint += new System.Windows.Forms.PaintEventHandler(this.PnlSide_Paint);
-            this.pnlSide.MouseDown += new System.Windows.Forms.MouseEventHandler(this.DragForm);
             // 
             // lblSideLogo
             // 
@@ -133,7 +127,6 @@
             this.pnlMain.Name = "pnlMain";
             this.pnlMain.Size = new System.Drawing.Size(540, 600);
             this.pnlMain.TabIndex = 1;
-            this.pnlMain.MouseDown += new System.Windows.Forms.MouseEventHandler(this.DragForm);
             // 
             // btnClose
             // 

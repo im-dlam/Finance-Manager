@@ -12,16 +12,39 @@ using System.Windows.Forms;
 
 namespace BankAccountManagement
 {
+    /// <summary>
+    /// Form Quản lý Lịch sử giao dịch tài chính (Transaction History Form).
+    /// <para>
+    /// Các chức năng chính:
+    /// - Xem danh sách biến động số dư: Thu (+) màu xanh lá cây, Chi (-) màu đỏ tươi.
+    /// - Hỗ trợ đa tiền tệ (VND, USD, EUR, JPY, GBP, CNY...) với quy đổi tỷ giá thời gian thực.
+    /// - Tìm kiếm và lọc giao dịch theo từ khóa, số tài khoản đích, và loại giao dịch (Nạp tiền, Chuyển khoản, Rút tiền, Thanh toán nợ...).
+    /// - Thống kê tức thì: Tổng tiền Thu vào, Tổng tiền Chi ra, và Tổng số lượt giao dịch phát sinh.
+    /// - Xuất danh sách giao dịch ra tệp tin CSV chuẩn mã hóa UTF-8.
+    /// - Nút "Thực hiện giao dịch mới" kích hoạt Form AddTransactionForm kèm hiệu ứng làm tối nền (Dimming Overlay).
+    /// </para>
+    /// </summary>
     public partial class TransactionForm : Form
     {
-        private TransactionService _transactionService;
+        #region 1. CÁC BIẾN VÀ DỊCH VỤ
 
+        /// <summary>Dịch vụ xử lý nghiệp vụ truy vấn, thống kê và thêm mới giao dịch.</summary>
+        private readonly TransactionService _transactionService;
+
+        #endregion
+
+        #region 2. KHỞI TẠO VÀ CẤU HÌNH BẢNG (INITIALIZATION & COLUMN SETUP)
+
+        /// <summary>
+        /// Hàm dựng khởi tạo các điều khiển, ánh xạ cột dữ liệu DataPropertyName và đăng ký các sự kiện.
+        /// </summary>
         public TransactionForm()
         {
             InitializeComponent();
 
             _transactionService = new TransactionService();
 
+            // Cấu hình DataGridView không tự sinh cột lộn xộn
             dataGridViewTransactions.AutoGenerateColumns = false;
 
             if (dataGridViewTransactions.Columns.Count >= 7)
@@ -31,21 +54,26 @@ namespace BankAccountManagement
                 dataGridViewTransactions.Columns["dataGridViewTextBoxColumn3"].DataPropertyName = "SoTaiKhoan";
                 dataGridViewTransactions.Columns["dataGridViewTextBoxColumn4"].DataPropertyName = "Loai";
 
+                // Bổ sung 2 cột Tiền gốc và Loại tiền tệ (nếu chưa có trong thiết kế Designer)
                 if (!dataGridViewTransactions.Columns.Contains("colTienGoc"))
                 {
-                    DataGridViewTextBoxColumn colGoc = new DataGridViewTextBoxColumn();
-                    colGoc.Name = "colTienGoc";
-                    colGoc.HeaderText = "Tiền gốc";
-                    colGoc.DataPropertyName = "SoTienGoc";
-                    colGoc.Width = 110;
+                    DataGridViewTextBoxColumn colGoc = new DataGridViewTextBoxColumn
+                    {
+                        Name = "colTienGoc",
+                        HeaderText = "Tiền gốc",
+                        DataPropertyName = "SoTienGoc",
+                        Width = 110
+                    };
                     colGoc.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
                     dataGridViewTransactions.Columns.Insert(4, colGoc);
 
-                    DataGridViewTextBoxColumn colLoai = new DataGridViewTextBoxColumn();
-                    colLoai.Name = "colLoaiTien";
-                    colLoai.HeaderText = "Loại tiền";
-                    colLoai.DataPropertyName = "LoaiTien";
-                    colLoai.Width = 85;
+                    DataGridViewTextBoxColumn colLoai = new DataGridViewTextBoxColumn
+                    {
+                        Name = "colLoaiTien",
+                        HeaderText = "Loại tiền",
+                        DataPropertyName = "LoaiTien",
+                        Width = 85
+                    };
                     colLoai.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
                     dataGridViewTransactions.Columns.Insert(5, colLoai);
                 }
@@ -61,6 +89,7 @@ namespace BankAccountManagement
                 dataGridViewTransactions.Columns["dataGridViewTextBoxColumn6"].DataPropertyName = "TrangThai";
                 dataGridViewTransactions.Columns["dataGridViewTextBoxColumn6"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
+                // Đăng ký sự kiện tô màu và định dạng số tiền trên ô bảng
                 dataGridViewTransactions.CellFormatting += dataGridViewTransactions_CellFormatting;
             }
 
@@ -79,31 +108,24 @@ namespace BankAccountManagement
             this.Load += TransactionForm_Load;
         }
 
-        private void CardBorder_Paint(object sender, PaintEventArgs e)
+        /// <summary>
+        /// Tải dữ liệu ban đầu khi mở màn hình Lịch sử giao dịch.
+        /// </summary>
+        private void TransactionForm_Load(object sender, EventArgs e)
         {
-            if (sender is Control ctrl)
-            {
-                using (Pen pen = new Pen(Color.FromArgb(226, 232, 240), 1))
-                {
-                    Rectangle rect = ctrl.ClientRectangle;
-                    rect.Width -= 1;
-                    rect.Height -= 1;
-                    e.Graphics.DrawRectangle(pen, rect);
-                }
-            }
+            textSearch.Text = "";
+            LoadComboBoxes();
+            LoadData();
+            LoadStatistics();
         }
 
-        private void PanelBottomBorder_Paint(object sender, PaintEventArgs e)
-        {
-            if (sender is Control ctrl)
-            {
-                using (Pen pen = new Pen(Color.FromArgb(226, 232, 240), 1))
-                {
-                    e.Graphics.DrawLine(pen, 0, ctrl.Height - 1, ctrl.Width, ctrl.Height - 1);
-                }
-            }
-        }
+        #endregion
 
+        #region 3. NẠP DỮ LIỆU BỘ LỌC COMBOBOX (FILTER DATA)
+
+        /// <summary>
+        /// Nạp danh sách tài khoản và các loại giao dịch vào bộ chọn lọc trên giao diện.
+        /// </summary>
         private void LoadComboBoxes()
         {
             try
@@ -126,7 +148,7 @@ namespace BankAccountManagement
                 }
                 else
                 {
-                    // Đối với User (Member): Cố định hiển thị tài khoản của chính mình
+                    // Đối với Khách hàng (Member): Cố định hiển thị tài khoản của chính mình
                     comboAccount.DataSource = dtAccounts;
                     comboAccount.DisplayMember = "HienThi";
                     comboAccount.ValueMember = "SoTaiKhoan";
@@ -157,14 +179,14 @@ namespace BankAccountManagement
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    "Lỗi khi tải bộ lọc giao dịch:\n" + ex.Message,
-                    "Lỗi",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
+                MessageBox.Show("Lỗi khi tải bộ lọc giao dịch:\n" + ex.Message, "Lỗi",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
+        /// <summary>
+        /// Lấy số tài khoản được chọn trong ComboBox để lọc kết quả truy vấn.
+        /// </summary>
         private string GetFilterAccount()
         {
             if (!CurrentSession.IsAdmin)
@@ -190,6 +212,13 @@ namespace BankAccountManagement
             return text;
         }
 
+        #endregion
+
+        #region 4. TRUY VẤN VÀ THỐNG KÊ GIAO DỊCH (QUERY & STATS)
+
+        /// <summary>
+        /// Tải danh sách giao dịch từ CSDL theo các điều kiện lọc và gán nguồn vào DataGridView.
+        /// </summary>
         private void LoadData()
         {
             try
@@ -211,7 +240,7 @@ namespace BankAccountManagement
                     dataGridViewTransactions.Columns["SoTien"].DefaultCellStyle.Format = "N0";
                 }
 
-                // Căn chỉnh giao diện Grid
+                // Ẩn các cột trung gian không cần trình chiếu cho người dùng
                 foreach (DataGridViewColumn col in dataGridViewTransactions.Columns)
                 {
                     if (col.Name == "PhanLoai" || col.Name == "MaLoaiTien") col.Visible = false;
@@ -229,6 +258,9 @@ namespace BankAccountManagement
             }
         }
 
+        /// <summary>
+        /// Nạp tổng tiền Thu, Tổng tiền Chi và Tổng số lượng giao dịch vào các thẻ tóm tắt trên cùng.
+        /// </summary>
         private void LoadStatistics()
         {
             try
@@ -253,22 +285,16 @@ namespace BankAccountManagement
             catch { }
         }
 
-        private void buttonSearch_Click(object sender, EventArgs e)
-        {
-            LoadData();
-            LoadStatistics();
-        }
+        #endregion
 
-        private void buttonRefresh_Click(object sender, EventArgs e)
-        {
-            textSearch.Text = "";
-            if (comboAccount.Items.Count > 0) comboAccount.SelectedIndex = 0;
-            if (comboType.Items.Count > 0) comboType.SelectedIndex = 0;
+        #region 5. ĐỊNH DẠNG Ô VÀ MÀU SẮC TRỰC QUAN (CELL FORMATTING)
 
-            LoadData();
-            LoadStatistics();
-        }
-
+        /// <summary>
+        /// Tùy biến hiển thị cho từng ô dữ liệu trên bảng:
+        /// - Phân loại Thu (xanh lá) / Chi (đỏ).
+        /// - Tiền tệ quy đổi kèm ký hiệu (+ / -) và đơn vị (₫).
+        /// - Trạng thái: ● Thành công (xanh), ● Đang chờ (vàng cam), ● Thất bại (đỏ).
+        /// </summary>
         private void dataGridViewTransactions_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
         {
             if (e.RowIndex < 0 || e.Value == null) return;
@@ -276,7 +302,7 @@ namespace BankAccountManagement
             string colName = dataGridViewTransactions.Columns[e.ColumnIndex].Name;
             var row = dataGridViewTransactions.Rows[e.RowIndex];
 
-            // Cột Loại giao dịch: Thu xanh, Chi đỏ
+            // 1. Cột Loại giao dịch (Thu / Chi)
             if (colName == "dataGridViewTextBoxColumn4")
             {
                 string loai = e.Value?.ToString() ?? "";
@@ -291,7 +317,7 @@ namespace BankAccountManagement
                     e.CellStyle.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
                 }
             }
-            // Định dạng tiền gốc (VND, JPY, KRW hiển thị N0; USD, EUR, v.v. hiển thị N2 nếu có lẻ)
+            // 2. Cột Tiền gốc ngoại tệ
             else if (colName == "colTienGoc" && decimal.TryParse(e.Value.ToString(), out decimal tienGoc))
             {
                 string loaiTien = row.Cells["colLoaiTien"].Value?.ToString() ?? "VND";
@@ -307,7 +333,7 @@ namespace BankAccountManagement
                 }
                 e.FormattingApplied = true;
             }
-            // Định dạng số tiền quy đổi (VND) kèm dấu +/- và màu sắc trực quan
+            // 3. Cột Tiền quy đổi VND
             else if (colName == "dataGridViewTextBoxColumn5" && decimal.TryParse(e.Value.ToString(), out decimal quyDoi))
             {
                 string loai = row.Cells["dataGridViewTextBoxColumn4"].Value?.ToString() ?? "";
@@ -329,13 +355,13 @@ namespace BankAccountManagement
                 }
                 e.FormattingApplied = true;
             }
-            // Đảm bảo cột Loại tiền luôn hiển thị rõ VND / USD nếu null hoặc rỗng
+            // 4. Cột Đơn vị tiền tệ
             else if (colName == "colLoaiTien" && (e.Value == null || string.IsNullOrWhiteSpace(e.Value.ToString())))
             {
                 e.Value = "VND";
                 e.FormattingApplied = true;
             }
-            // Cột Trạng thái giao dịch
+            // 5. Cột Trạng thái giao dịch
             else if (colName == "dataGridViewTextBoxColumn6")
             {
                 string status = e.Value?.ToString() ?? "";
@@ -363,11 +389,29 @@ namespace BankAccountManagement
             }
         }
 
-        private void dataGridViewTransactions_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        #endregion
+
+        #region 6. XỬ LÝ SỰ KIỆN NÚT BẤM (BUTTON ACTIONS)
+
+        private void buttonSearch_Click(object sender, EventArgs e)
         {
-            // Optional: Handle cell clicks if needed
+            LoadData();
+            LoadStatistics();
         }
 
+        private void buttonRefresh_Click(object sender, EventArgs e)
+        {
+            textSearch.Text = "";
+            if (comboAccount.Items.Count > 0) comboAccount.SelectedIndex = 0;
+            if (comboType.Items.Count > 0) comboType.SelectedIndex = 0;
+
+            LoadData();
+            LoadStatistics();
+        }
+
+        /// <summary>
+        /// Xuất danh sách giao dịch đang hiển thị ra tệp tin CSV với chuẩn mã hóa UTF-8.
+        /// </summary>
         private void buttonExport_Click(object sender, EventArgs e)
         {
             try
@@ -387,6 +431,7 @@ namespace BankAccountManagement
                     {
                         StringBuilder sb = new StringBuilder();
 
+                        // Dòng tiêu đề cột (Header row)
                         for (int i = 0; i < dataGridViewTransactions.Columns.Count; i++)
                         {
                             if (dataGridViewTransactions.Columns[i].Visible)
@@ -396,6 +441,7 @@ namespace BankAccountManagement
                         }
                         sb.AppendLine();
 
+                        // Các dòng dữ liệu bản ghi (Data rows)
                         foreach (DataGridViewRow row in dataGridViewTransactions.Rows)
                         {
                             if (!row.IsNewRow)
@@ -423,21 +469,25 @@ namespace BankAccountManagement
             }
         }
 
+        /// <summary>
+        /// Mở Form tạo giao dịch mới (AddTransactionForm) với hiệu ứng làm mờ tối nền (Modal Overlay).
+        /// </summary>
         private void buttonAdd_Click(object sender, EventArgs e)
         {
             Form mainForm = Application.OpenForms["MainForm"];
             if (mainForm == null) mainForm = this.FindForm() ?? this;
+
             List<CurrencyInfo> currencies = _transactionService.GetCurrencies();
+
+            // Tạo một Form overlay màu đen trong suốt (Opacity 65%) phủ kín cửa sổ chính
             using (Form overlay = new Form())
             {
                 overlay.StartPosition = FormStartPosition.Manual;
                 overlay.FormBorderStyle = FormBorderStyle.None;
                 overlay.Opacity = 0.65d;
                 overlay.BackColor = Color.Black;
-
                 overlay.Size = mainForm.Size;
                 overlay.Location = mainForm.Location;
-
                 overlay.ShowInTaskbar = false;
                 overlay.Show(mainForm);
 
@@ -457,12 +507,35 @@ namespace BankAccountManagement
             }
         }
 
-        private void TransactionForm_Load(object sender, EventArgs e)
+        private void dataGridViewTransactions_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
-            textSearch.Text = "";
-            LoadComboBoxes();
-            LoadData();
-            LoadStatistics();
         }
+
+        private void CardBorder_Paint(object sender, PaintEventArgs e)
+        {
+            if (sender is Control ctrl)
+            {
+                using (Pen pen = new Pen(Color.FromArgb(226, 232, 240), 1))
+                {
+                    Rectangle rect = ctrl.ClientRectangle;
+                    rect.Width -= 1;
+                    rect.Height -= 1;
+                    e.Graphics.DrawRectangle(pen, rect);
+                }
+            }
+        }
+
+        private void PanelBottomBorder_Paint(object sender, PaintEventArgs e)
+        {
+            if (sender is Control ctrl)
+            {
+                using (Pen pen = new Pen(Color.FromArgb(226, 232, 240), 1))
+                {
+                    e.Graphics.DrawLine(pen, 0, ctrl.Height - 1, ctrl.Width, ctrl.Height - 1);
+                }
+            }
+        }
+
+        #endregion
     }
 }

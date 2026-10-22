@@ -1,4 +1,4 @@
-﻿using BankAccountManagement.Models;
+using BankAccountManagement.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -7,10 +7,19 @@ using System.Threading.Tasks;
 namespace BankAccountManagement.Services
 {
     /// <summary>
-    /// Service quản lý chi tiêu (hạn mức ngày, tuần) và cung cấp dữ liệu trang chủ User.
+    /// Dịch vụ quản lý Hạn mức chi tiêu và Thống kê trang chủ người dùng (Spending &amp; Dashboard Service).
+    /// Chịu trách nhiệm:
+    /// - Quản lý cài đặt hạn mức chi tiêu cá nhân theo Ngày và theo Tuần (bảng dbo.HanMucChiTieu).
+    /// - Tính toán tổng số tiền đã chi tiêu thực tế trong ngày và trong tuần từ lịch sử giao dịch.
+    /// - Cung cấp dữ liệu cảnh báo vượt hạn mức chi tiêu trực quan.
+    /// - Tổng hợp thông tin tổng thể trang chủ phía khách hàng (số dư, tài khoản chính, khoản vay sắp đáo hạn).
     /// </summary>
     public class SpendingService
     {
+        /// <summary>
+        /// Tạo chuỗi kết nối chuẩn tới cơ sở dữ liệu SQL Server.
+        /// </summary>
+        /// <returns>Chuỗi connection string hợp lệ.</returns>
         private string GetConnectionString()
         {
             var config = DatabaseConfigManager.Load();
@@ -18,7 +27,8 @@ namespace BankAccountManagement.Services
         }
 
         /// <summary>
-        /// Khởi tạo và tự động đảm bảo bảng dbo.HanMucChiTieu tồn tại.
+        /// Đảm bảo bảng dbo.HanMucChiTieu luôn tồn tại trong CSDL.
+        /// Nếu bảng chưa có, hệ thống sẽ tự động thực thi kịch bản CREATE TABLE.
         /// </summary>
         public async Task EnsureTableExistsAsync()
         {
@@ -52,10 +62,14 @@ namespace BankAccountManagement.Services
         }
 
         /// <summary>
-        /// Lấy thông tin hạn mức chi tiêu của khách hàng.
+        /// Lấy thông tin cấu hình hạn mức chi tiêu của một khách hàng.
+        /// Nếu khách hàng chưa cài đặt, trả về đối tượng mặc định (2 triệu/ngày, 10 triệu/tuần).
         /// </summary>
+        /// <param name="maKH">Mã khách hàng cần tra cứu.</param>
+        /// <returns>Đối tượng <see cref="SpendingLimit"/>.</returns>
         public async Task<SpendingLimit> GetSpendingLimitAsync(string maKH)
         {
+            // BƯỚC 1: Đảm bảo bảng lưu trữ tồn tại
             await EnsureTableExistsAsync();
 
             var limit = new SpendingLimit { MaKH = maKH };
@@ -63,6 +77,7 @@ namespace BankAccountManagement.Services
 
             try
             {
+                // BƯỚC 2: Truy vấn dữ liệu hạn mức từ bảng dbo.HanMucChiTieu
                 using (var conn = new SqlConnection(GetConnectionString()))
                 {
                     await conn.OpenAsync();
@@ -96,11 +111,17 @@ namespace BankAccountManagement.Services
         }
 
         /// <summary>
-        /// Lưu hoặc cập nhật hạn mức chi tiêu cho khách hàng.
+        /// Lưu hoặc cập nhật hạn mức chi tiêu cho khách hàng (mẫu Upsert: IF EXISTS UPDATE ELSE INSERT).
         /// </summary>
+        /// <param name="maKH">Mã khách hàng cần thiết lập.</param>
+        /// <param name="hanMucNgay">Hạn mức chi tiêu trong 1 ngày (VNĐ).</param>
+        /// <param name="hanMucTuan">Hạn mức chi tiêu trong 1 tuần (VNĐ).</param>
+        /// <param name="canhBao">Cờ bật cảnh báo khi vượt hạn mức.</param>
+        /// <returns>Tuple (Success: trạng thái, Message: thông báo).</returns>
         public async Task<(bool Success, string Message)> SaveSpendingLimitAsync(
             string maKH, decimal hanMucNgay, decimal hanMucTuan, bool canhBao)
         {
+            // BƯỚC 1: Kiểm tra tính hợp lệ nghiệp vụ
             if (string.IsNullOrWhiteSpace(maKH))
             {
                 return (false, "Không xác định được mã khách hàng.");
@@ -120,6 +141,7 @@ namespace BankAccountManagement.Services
 
             try
             {
+                // BƯỚC 2: Thực thi câu lệnh Upsert vào bảng CSDL
                 using (var conn = new SqlConnection(GetConnectionString()))
                 {
                     await conn.OpenAsync();
@@ -159,10 +181,14 @@ namespace BankAccountManagement.Services
         }
 
         /// <summary>
-        /// Thống kê chi tiêu thực tế của khách hàng trong ngày hôm nay và tuần này.
+        /// Thống kê số tiền chi tiêu thực tế của khách hàng trong ngày hôm nay và trong tuần hiện tại.
+        /// Tổng hợp toàn bộ các giao dịch mang tính chất chi tiêu (Rút tiền, Chuyển khoản, Mua sắm hàng hóa).
         /// </summary>
+        /// <param name="maKH">Mã khách hàng cần thống kê.</param>
+        /// <returns>Đối tượng <see cref="SpendingStats"/> chứa số liệu chi tiêu và tỷ lệ phần trăm tiến độ.</returns>
         public async Task<SpendingStats> GetSpendingStatsAsync(string maKH)
         {
+            // BƯỚC 1: Lấy thông số hạn mức đã cài đặt của khách hàng
             var limit = await GetSpendingLimitAsync(maKH);
             var stats = new SpendingStats
             {
@@ -173,10 +199,11 @@ namespace BankAccountManagement.Services
 
             if (string.IsNullOrWhiteSpace(maKH)) return stats;
 
+            // BƯỚC 2: Xác định mốc thời gian ngày hôm nay và ngày mai
             DateTime today = DateTime.Today;
             DateTime tomorrow = today.AddDays(1);
 
-            // Xác định đầu tuần (Thứ 2)
+            // BƯỚC 3: Xác định ngày đầu tuần (Thứ Hai) theo lịch dương
             int diff = (7 + (today.DayOfWeek - DayOfWeek.Monday)) % 7;
             DateTime startOfWeek = today.AddDays(-1 * diff);
 
@@ -186,7 +213,7 @@ namespace BankAccountManagement.Services
                 {
                     await conn.OpenAsync();
 
-                    // 1. Tính tổng tiền đã chi hôm nay
+                    // BƯỚC 4: Tính tổng số tiền đã chi tiêu trong ngày hôm nay (00:00:00 -> 23:59:59)
                     const string sqlToday = @"
                         SELECT ISNULL(SUM(G.SoTien), 0)
                         FROM dbo.GiaoDich G
@@ -209,7 +236,7 @@ namespace BankAccountManagement.Services
                         stats.DaChiHomNay = res != null && res != DBNull.Value ? Convert.ToDecimal(res) : 0m;
                     }
 
-                    // 2. Tính tổng tiền đã chi tuần này (từ Thứ 2 đến hết hôm nay)
+                    // BƯỚC 5: Tính tổng số tiền đã chi tiêu trong tuần này (từ Thứ Hai đầu tuần tới hết hôm nay)
                     const string sqlWeek = @"
                         SELECT ISNULL(SUM(G.SoTien), 0)
                         FROM dbo.GiaoDich G
@@ -242,8 +269,10 @@ namespace BankAccountManagement.Services
         }
 
         /// <summary>
-        /// Lấy khoản vay sắp tới đến hạn của khách hàng (nếu có).
+        /// Tìm khoản vay sắp tới hạn thanh toán gần nhất của khách hàng (nếu có hồ sơ Đã duyệt hoặc Chờ duyệt).
         /// </summary>
+        /// <param name="maKH">Mã khách hàng cần kiểm tra nợ vay.</param>
+        /// <returns>Đối tượng <see cref="BorrowingLoan"/> nếu có khoản vay; ngược lại là null.</returns>
         public async Task<BorrowingLoan> GetUpcomingLoanAsync(string maKH)
         {
             if (string.IsNullOrWhiteSpace(maKH)) return null;
@@ -253,6 +282,8 @@ namespace BankAccountManagement.Services
                 using (var conn = new SqlConnection(GetConnectionString()))
                 {
                     await conn.OpenAsync();
+
+                    // BƯỚC 1: Lấy bản ghi khoản vay có ngày đáo hạn gần nhất, ưu tiên hồ sơ Đã duyệt lên trước
                     const string sql = @"
                         SELECT TOP 1 
                             KV.MaKhoanVay, KV.MaKH, KV.SoTaiKhoan, KV.SoTienVay, KV.ThoiGianVay, 
@@ -306,8 +337,15 @@ namespace BankAccountManagement.Services
         }
 
         /// <summary>
-        /// Lấy toàn bộ thông tin tổng hợp cho trang chủ phía User.
+        /// Tổng hợp toàn bộ dữ liệu thông tin tài chính phục vụ hiển thị trang chủ người dùng (User Dashboard):
+        /// - Danh sách tài khoản thanh toán và tổng số dư khả dụng.
+        /// - Xác định số tài khoản chính và phân hạng thành viên (Standard, Silver, Gold, Diamond).
+        /// - Khoản nợ vay sắp tới hạn thanh toán.
+        /// - Tiến độ chi tiêu ngày và tuần so với hạn mức cài đặt.
         /// </summary>
+        /// <param name="maKH">Mã khách hàng.</param>
+        /// <param name="tenDangNhap">Tên tài khoản người dùng đăng nhập.</param>
+        /// <returns>Đối tượng <see cref="UserHomeSummary"/> tổng hợp đầy đủ số liệu.</returns>
         public async Task<UserHomeSummary> GetUserHomeSummaryAsync(string maKH, string tenDangNhap)
         {
             var summary = new UserHomeSummary
@@ -323,7 +361,7 @@ namespace BankAccountManagement.Services
                 {
                     await conn.OpenAsync();
 
-                    // 1. Lấy thông tin tài khoản ngân hàng và tổng số dư
+                    // BƯỚC 1: Lấy danh sách các tài khoản ngân hàng và tính tổng số dư khả dụng
                     const string sqlAccounts = @"
                         SELECT SoTaiKhoan, MaKH, MaNganHang, MaLoaiTien, SoDuBanDau, SoDuHienTai, NgayMo, TrangThai
                         FROM dbo.TaiKhoan
@@ -355,7 +393,7 @@ namespace BankAccountManagement.Services
                         summary.SoTaiKhoanChinh = summary.DanhSachTaiKhoan[0].SoTaiKhoan;
                     }
 
-                    // 2. Tên người dùng chính xác từ ThongTinKhachHang nếu có
+                    // BƯỚC 2: Truy vấn họ tên chính xác của khách hàng từ ThongTinKhachHang hoặc NguoiDung
                     const string sqlName = @"
                         SELECT TOP 1 ISNULL(KH.HoTen, ND.HoTen) AS HoTen
                         FROM dbo.NguoiDung ND
@@ -374,16 +412,13 @@ namespace BankAccountManagement.Services
                     }
                 }
 
-                // 3. Phân hạng thành viên theo tổng số dư (Diamond: >= 1 tỷ, Gold: 500tr - 1 tỷ, Silver: 200 - 500tr, Standard: < 200tr)
+                // BƯỚC 3: Xác định phân hạng thành viên tự động dựa trên tổng số dư
                 summary.HangThanhVien = UserTierTheme.DetermineTierByBalance(summary.TongSoDu);
 
-
-
-
-                // 4. Lấy khoản vay sắp tới
+                // BƯỚC 4: Lấy thông tin khoản vay sắp tới hạn
                 summary.KhoanVaySapToi = await GetUpcomingLoanAsync(maKH);
 
-                // 5. Lấy thống kê chi tiêu
+                // BƯỚC 5: Lấy thống kê chi tiêu ngày và tuần
                 summary.Spending = await GetSpendingStatsAsync(maKH);
             }
             catch (Exception ex)

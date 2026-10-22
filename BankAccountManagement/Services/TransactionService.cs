@@ -7,16 +7,26 @@ using System.Data.SqlClient;
 namespace BankAccountManagement.Services
 {
     /// <summary>
-    /// Service quản lý giao dịch.
-    /// 
-    /// Phân quyền:
-    /// - Admin:  thấy TẤT CẢ giao dịch.
-    /// - Member: CHỈ thấy giao dịch của tài khoản mình sở hữu.
+    /// Dịch vụ quản lý Giao dịch tài chính (Financial Transaction Service).
+    /// Đây là trung tâm điều phối toàn bộ các nghiệp vụ tiền tệ trong hệ thống ngân hàng:
+    /// - Quản lý giao dịch Thu/Chi/Chuyển tiền với cơ chế phân quyền bảo mật:
+    ///   + Quản trị viên (Admin): Giám sát toàn bộ các luồng tiền và giao dịch trên toàn hệ thống.
+    ///   + Khách hàng (Member): Chỉ xem và thực hiện giao dịch trên các tài khoản thuộc quyền sở hữu của chính mình.
+    /// - Thực hiện chuyển khoản hai chiều (Transfer Money) trong một giao tác an toàn <see cref="SqlTransaction"/> (ACID).
+    /// - Kiểm tra số dư với cơ chế khóa dòng bi quan (Pessimistic Locking: WITH UPDLOCK) chống chi vượt số dư (Overdraft Protection).
+    /// - Tự động quy đổi tỷ giá ngoại tệ (VND, USD) theo thời gian thực.
     /// </summary>
     public class TransactionService
     {
+        /// <summary>
+        /// Sự kiện phát tín hiệu khi có bất kỳ giao dịch tài chính nào hoàn tất thành công.
+        /// Giúp các Form giao diện (Dashboard, History, Account) tự động nạp lại số dư và lịch sử mới nhất.
+        /// </summary>
         public static event Action OnTransactionChanged;
 
+        /// <summary>
+        /// Kích hoạt sự kiện OnTransactionChanged an toàn có bẫy lỗi.
+        /// </summary>
         public static void NotifyTransactionChanged()
         {
             try
@@ -29,14 +39,22 @@ namespace BankAccountManagement.Services
             }
         }
 
+        /// <summary>
+        /// Khởi tạo dịch vụ TransactionService và đảm bảo cấu trúc bảng GiaoDich đã sẵn sàng.
+        /// </summary>
         public TransactionService()
         {
             EnsureTableSchema();
         }
 
+        /// <summary>Cờ đánh dấu cấu trúc bảng đã được kiểm tra kiểm định.</summary>
         private static bool _schemaChecked = false;
         private static readonly object _schemaLock = new object();
 
+        /// <summary>
+        /// Kiểm tra và tự động cập nhật các cột mở rộng cho bảng dbo.GiaoDich (LoaiTien, SoTienGoc, MaLoaiTien)
+        /// đồng thời tự động bổ sung giao dịch nạp tiền khởi tạo cho các tài khoản có số dư ban đầu nhưng chưa có bản ghi giao dịch.
+        /// </summary>
         public void EnsureTableSchema()
         {
             if (_schemaChecked) return;
@@ -98,23 +116,35 @@ namespace BankAccountManagement.Services
             }
         }
 
+        /// <summary>
+        /// Tạo chuỗi kết nối tới CSDL SQL Server dựa trên cấu hình database.ini.
+        /// </summary>
         private string GetConnectionString()
         {
             return DatabaseService.BuildConnectionString(DatabaseConfigManager.Load());
         }
 
         // ============================================================
-        //  WHERE CLAUSE DÙNG CHUNG cho phân quyền
-        //  Trả về mệnh đề WHERE để filter theo user hiện tại.
-        //  Admin → "" (không filter)
-        //  Member → " AND TK.MaKH = @MaKH"
+        //  CƠ CHẾ LỌC PHÂN QUYỀN TRUY VẤN (DATA SECURITY GUARDS)
         // ============================================================
+
+        /// <summary>
+        /// Sinh mệnh đề WHERE lọc dữ liệu theo phân quyền của người dùng hiện tại:
+        /// - Admin: Chuỗi rỗng "" (xem tất cả).
+        /// - Member: Lọc theo MaKH hoặc các tài khoản gắn với Username của người dùng.
+        /// </summary>
+        /// <param name="tableAlias">Bí danh đại diện bảng TaiKhoan trong câu lệnh SQL.</param>
+        /// <returns>Mệnh đề SQL WHERE lọc người dùng.</returns>
         private static string GetUserFilter(string tableAlias = "TK")
         {
             if (CurrentSession.IsAdmin) return "";
             return $" AND ({tableAlias}.MaKH = @MaKH OR {tableAlias}.MaKH IN (SELECT MaKH FROM dbo.NguoiDung WHERE MaNguoiDung = @MaND OR TenDangNhap = @UserLogin))";
         }
 
+        /// <summary>
+        /// Gán các tham số phân quyền (@MaKH, @MaND, @UserLogin) vào SqlCommand nếu người dùng không phải Quản trị viên.
+        /// </summary>
+        /// <param name="cmd">Đối tượng SqlCommand cần gắn tham số.</param>
         private static void AddUserParam(SqlCommand cmd)
         {
             if (!CurrentSession.IsAdmin)
@@ -126,8 +156,13 @@ namespace BankAccountManagement.Services
         }
 
         // ============================================================
-        //  1. LẤY TẤT CẢ GIAO DỊCH (có phân quyền)
+        //  1. TRUY VẤN TẤT CẢ GIAO DỊCH (THEO PHÂN QUYỀN)
         // ============================================================
+
+        /// <summary>
+        /// Lấy toàn bộ danh sách lịch sử giao dịch phù hợp với phân quyền của người dùng hiện tại.
+        /// </summary>
+        /// <returns>DataTable chứa danh sách giao dịch được sắp xếp giảm dần theo ngày giao dịch.</returns>
         public DataTable GetAllTransactions()
         {
             EnsureTableSchema();
@@ -171,8 +206,14 @@ namespace BankAccountManagement.Services
         }
 
         // ============================================================
-        //  2. LẤY CURRENCY CỦA 1 TÀI KHOẢN
+        //  2. LẤY THÔNG TIN LOẠI TIỀN CỦA TÀI KHOẢN
         // ============================================================
+
+        /// <summary>
+        /// Lấy thông tin tiền tệ và tỷ giá quy đổi của một tài khoản cụ thể.
+        /// </summary>
+        /// <param name="soTaiKhoan">Số tài khoản cần tra cứu.</param>
+        /// <returns>Đối tượng <see cref="CurrencyInfo"/> nếu tìm thấy; ngược lại là null.</returns>
         public CurrencyInfo GetAccountCurrency(string soTaiKhoan)
         {
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
@@ -212,8 +253,16 @@ namespace BankAccountManagement.Services
         }
 
         // ============================================================
-        //  3. TÌM KIẾM GIAO DỊCH (có phân quyền)
+        //  3. TÌM KIẾM VÀ LỌC GIAO DỊCH
         // ============================================================
+
+        /// <summary>
+        /// Tìm kiếm giao dịch kết hợp bộ lọc đa tiêu chí (Từ khóa, Số tài khoản, Loại giao dịch) có phân quyền.
+        /// </summary>
+        /// <param name="keyword">Từ khóa tìm kiếm trên nội dung, số tài khoản hoặc mã giao dịch.</param>
+        /// <param name="soTaiKhoan">Bộ lọc theo số tài khoản ("Tất cả" hoặc số cụ thể).</param>
+        /// <param name="tenLoai">Bộ lọc theo tên loại giao dịch ("Tất cả" hoặc tên loại cụ thể).</param>
+        /// <returns>DataTable chứa kết quả tìm kiếm.</returns>
         public DataTable SearchTransactions(string keyword, string soTaiKhoan = "", string tenLoai = "")
         {
             EnsureTableSchema();
@@ -275,8 +324,27 @@ namespace BankAccountManagement.Services
         }
 
         // ============================================================
-        //  4. THÊM GIAO DỊCH (transaction)
+        //  4. THÊM GIAO DỊCH ĐƠN TÀI KHOẢN (NẠP / RÚT / CHI TIÊU)
         // ============================================================
+
+        /// <summary>
+        /// Thực hiện thêm mới một giao dịch tài chính đơn tài khoản (Nạp tiền, Rút tiền) trong một SqlTransaction:
+        /// - BƯỚC 1: Thêm bản ghi vào bảng dbo.GiaoDich.
+        /// - BƯỚC 2: Kiểm tra phân loại giao dịch (INCOME là Thu, EXPENSE là Chi).
+        /// - BƯỚC 3: Nếu là Chi (EXPENSE), khóa dòng kiểm tra số dư và chặn giao dịch nếu không đủ tiền.
+        /// - BƯỚC 4: Cập nhật tăng/giảm số dư SoDuHienTai của tài khoản tương ứng.
+        /// - BƯỚC 5: Commit giao tác và thông báo cập nhật giao diện.
+        /// </summary>
+        /// <param name="maGD">Mã giao dịch duy nhất.</param>
+        /// <param name="soTaiKhoan">Số tài khoản thực hiện giao dịch.</param>
+        /// <param name="maLoaiGD">Mã loại giao dịch (1: Nạp, 2: Rút, 3: Chuyển tiền,...).</param>
+        /// <param name="soTienGoc">Số tiền theo đơn vị tiền gốc của giao dịch.</param>
+        /// <param name="loaiTien">Mã loại tiền tệ.</param>
+        /// <param name="soTienVND">Số tiền đã quy đổi ra VNĐ.</param>
+        /// <param name="noiDung">Nội dung chi tiết của giao dịch.</param>
+        /// <param name="ngayGD">Thời điểm thực hiện giao dịch.</param>
+        /// <param name="trangThai">Trạng thái giao dịch ("Success" hoặc "Hoàn tất").</param>
+        /// <returns>True nếu giao dịch thành công.</returns>
         public bool AddTransaction(string maGD, string soTaiKhoan, int maLoaiGD,
             decimal soTienGoc, string loaiTien, decimal soTienVND, string noiDung,
             DateTime ngayGD, string trangThai)
@@ -284,11 +352,13 @@ namespace BankAccountManagement.Services
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             {
                 conn.Open();
+
+                // Bắt đầu một Transaction để đảm bảo tính nguyên tử giữa bảng GiaoDich và TaiKhoan
                 using (SqlTransaction transaction = conn.BeginTransaction())
                 {
                     try
                     {
-                        // 4.1. INSERT GiaoDich
+                        // 4.1. Thêm bản ghi mới vào bảng GiaoDich
                         const string sqlInsert = @"
                             INSERT INTO dbo.GiaoDich 
                                 (MaGiaoDich, SoTaiKhoan, MaLoaiGD, SoTien, SoTienGoc, 
@@ -311,17 +381,16 @@ namespace BankAccountManagement.Services
                             cmd.ExecuteNonQuery();
                         }
 
-                        // 4.2. Lấy phân loại INCOME/EXPENSE
+                        // 4.2. Tra cứu phân loại giao dịch (INCOME / EXPENSE)
                         string phanLoai = "";
-                        const string getLoaiSql =
-                            "SELECT PhanLoai FROM dbo.LoaiGiaoDich WHERE MaLoaiGD = @MaLoai";
+                        const string getLoaiSql = "SELECT PhanLoai FROM dbo.LoaiGiaoDich WHERE MaLoaiGD = @MaLoai";
                         using (SqlCommand cmd = new SqlCommand(getLoaiSql, conn, transaction))
                         {
                             cmd.Parameters.AddWithValue("@MaLoai", maLoaiGD);
                             phanLoai = cmd.ExecuteScalar()?.ToString() ?? "";
                         }
 
-                        // 4.3. Cập nhật số dư nếu giao dịch thành công
+                        // 4.3. Cập nhật số dư tài khoản nếu giao dịch thành công
                         if (trangThai == "Success" || trangThai == "Hoàn tất")
                         {
                             string curAccount = "VND";
@@ -353,12 +422,14 @@ namespace BankAccountManagement.Services
 
                             string sqlUpdate = "";
                             if (phanLoai == "INCOME")
+                            {
                                 sqlUpdate = @"UPDATE dbo.TaiKhoan 
                                               SET SoDuHienTai = SoDuHienTai + @SoTien 
                                               WHERE SoTaiKhoan = @SoTaiKhoan";
+                            }
                             else if (phanLoai == "EXPENSE")
                             {
-                                // Đối với User: Mọi giao dịch chi/rút tiền tuyệt đối không được vượt quá số dư tài khoản
+                                // Đối với Member: Kiểm tra khóa dòng tuyệt đối không cho phép chi tiêu vượt quá số dư hiện có
                                 const string sqlCheckBal = @"
                                     SELECT SoDuHienTai 
                                     FROM dbo.TaiKhoan WITH (UPDLOCK) 
@@ -395,6 +466,7 @@ namespace BankAccountManagement.Services
                             }
                         }
 
+                        // Hoàn tất Transaction
                         transaction.Commit();
                         NotifyTransactionChanged();
                         return true;
@@ -409,10 +481,26 @@ namespace BankAccountManagement.Services
         }
 
         // ============================================================
-        //  4.1. CHUYỂN KHOẢN 2 BÊN (Giao dịch 2 bên cho User)
-        //  - Bên gửi: Trừ tiền, tạo GD Chi (EXPENSE)
-        //  - Bên nhận: Cộng tiền, tạo GD Thu (INCOME)
+        //  4.1. CHUYỂN KHOẢN HAI CHIỀU (TWO-PARTY TRANSFER ENGINE)
         // ============================================================
+
+        /// <summary>
+        /// Thực hiện quy trình chuyển khoản liên tài khoản 2 bên trong một giao tác SQL Transaction toàn vẹn (ACID):
+        /// - Bên gửi: Khóa dòng kiểm tra số dư, trích tiền và ghi bản ghi giao dịch Chi (MaLoaiGD = 3).
+        /// - Bên nhận (nếu tồn tại trong hệ thống): Cộng tiền tương ứng và ghi bản ghi giao dịch Thu (MaLoaiGD = 4).
+        /// - Nếu bất kỳ bước nào lỗi (không đủ số dư, tài khoản khóa), toàn bộ giao dịch sẽ Rollback hoàn hảo.
+        /// </summary>
+        /// <param name="maGD">Mã giao dịch gốc.</param>
+        /// <param name="tkGui">Số tài khoản nguồn trích nợ.</param>
+        /// <param name="tkNhan">Số tài khoản thụ hưởng nhận tiền.</param>
+        /// <param name="soTienGoc">Số tiền gốc theo loại tiền tệ chuyển.</param>
+        /// <param name="loaiTien">Loại tiền tệ chuyển khoản.</param>
+        /// <param name="soTienVND">Số tiền tương đương quy đổi sang VNĐ.</param>
+        /// <param name="noiDungGui">Nội dung ghi chú phía người gửi.</param>
+        /// <param name="noiDungNhan">Nội dung thông báo phía người nhận.</param>
+        /// <param name="ngayGD">Ngày giờ phát sinh giao dịch.</param>
+        /// <param name="trangThai">Trạng thái giao dịch.</param>
+        /// <returns>True nếu chuyển khoản thành công cả hai chiều.</returns>
         public bool TransferMoney(string maGD, string tkGui, string tkNhan,
             decimal soTienGoc, string loaiTien, decimal soTienVND,
             string noiDungGui, string noiDungNhan, DateTime ngayGD, string trangThai)
@@ -424,7 +512,7 @@ namespace BankAccountManagement.Services
                 {
                     try
                     {
-                        // 1. Kiểm tra tài khoản gửi và số dư
+                        // BƯỚC 1: Khóa dòng và kiểm tra số dư tài khoản gửi
                         decimal soDuGui = 0;
                         string curGui = "VND";
                         decimal quyDoiGui = 1;
@@ -453,7 +541,7 @@ namespace BankAccountManagement.Services
                             }
                         }
 
-                        // Trừ tiền tài khoản gửi
+                        // Tính số tiền cần khấu trừ theo loại tiền của tài khoản gửi
                         decimal amountDeductSender = (curGui == "VND") 
                             ? soTienVND 
                             : (curGui.Equals(loaiTien, StringComparison.OrdinalIgnoreCase) 
@@ -464,6 +552,7 @@ namespace BankAccountManagement.Services
                             throw new Exception($"Số dư tài khoản chuyển ({soDuGui:N0} {curGui}) không đủ để thực hiện giao dịch!");
                         }
 
+                        // BƯỚC 2: Khấu trừ tiền tài khoản gửi
                         const string sqlDeductSender = @"
                             UPDATE dbo.TaiKhoan 
                             SET SoDuHienTai = SoDuHienTai - @Amount 
@@ -475,7 +564,7 @@ namespace BankAccountManagement.Services
                             cmd.ExecuteNonQuery();
                         }
 
-                        // 2. Ghi nhận giao dịch bên gửi (CHI - MaLoaiGD = 3 Chuyển khoản)
+                        // BƯỚC 3: Ghi nhận giao dịch phía bên gửi (Chi - MaLoaiGD = 3)
                         string maGD_Gui = maGD + "1";
                         if (maGD_Gui.Length > 30) maGD_Gui = maGD_Gui.Substring(0, 30);
 
@@ -500,7 +589,7 @@ namespace BankAccountManagement.Services
                             cmd.ExecuteNonQuery();
                         }
 
-                        // 3. Kiểm tra tài khoản nhận
+                        // BƯỚC 4: Kiểm tra tài khoản nhận trong hệ thống
                         string curNhan = "VND";
                         decimal quyDoiNhan = 1;
                         bool recipientExists = false;
@@ -525,6 +614,7 @@ namespace BankAccountManagement.Services
                             }
                         }
 
+                        // BƯỚC 5: Nếu tài khoản nhận cùng nằm trong hệ thống ngân hàng, cộng tiền và ghi nhận giao dịch Thu
                         if (recipientExists)
                         {
                             decimal amountCreditRecipient = (curNhan == "VND") 
@@ -543,7 +633,6 @@ namespace BankAccountManagement.Services
                                 cmd.ExecuteNonQuery();
                             }
 
-                            // 4. Ghi nhận giao dịch bên nhận (THU - MaLoaiGD = 1 Nạp tiền / Thu tiền chuyển khoản)
                             string maGD_Nhan = maGD + "2";
                             if (maGD_Nhan.Length > 30) maGD_Nhan = maGD_Nhan.Substring(0, 30);
 
@@ -572,6 +661,7 @@ namespace BankAccountManagement.Services
                             }
                         }
 
+                        // BƯỚC 6: Commit giao tác hoàn tất thành công
                         transaction.Commit();
                         NotifyTransactionChanged();
                         return true;
@@ -586,10 +676,17 @@ namespace BankAccountManagement.Services
         }
 
         // ============================================================
-        //  5. THỐNG KÊ GIAO DỊCH (có phân quyền)
+        //  5. THỐNG KÊ TỔNG QUAN GIAO DỊCH (THU, CHI, SỐ LƯỢNG)
         // ============================================================
-        public DataTable GetTransactionStatistics(string keyword = "",
-            string soTaiKhoan = "", string tenLoai = "")
+
+        /// <summary>
+        /// Thống kê các chỉ số giao dịch (Tổng số giao dịch, Tổng tiền thu, Tổng tiền chi) theo bộ lọc tìm kiếm.
+        /// </summary>
+        /// <param name="keyword">Từ khóa tìm kiếm nội dung.</param>
+        /// <param name="soTaiKhoan">Số tài khoản lọc ("Tất cả" hoặc số cụ thể).</param>
+        /// <param name="tenLoai">Loại giao dịch lọc ("Tất cả" hoặc tên loại).</param>
+        /// <returns>DataTable chứa 1 hàng gồm 3 cột: TongGiaoDich, TongThu, TongChi.</returns>
+        public DataTable GetTransactionStatistics(string keyword = "", string soTaiKhoan = "", string tenLoai = "")
         {
             DataTable dt = new DataTable();
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
@@ -643,8 +740,13 @@ namespace BankAccountManagement.Services
         }
 
         // ============================================================
-        //  6. LẤY DANH SÁCH TÀI KHOẢN CHO COMBOBOX (có phân quyền)
+        //  6. LẤY DANH SÁCH TÀI KHOẢN CHO COMBOBOX
         // ============================================================
+
+        /// <summary>
+        /// Lấy danh sách các tài khoản đang hoạt động kèm tên ngân hàng để nạp vào ComboBox chọn tài khoản.
+        /// </summary>
+        /// <returns>DataTable gồm 2 cột: SoTaiKhoan và HienThi.</returns>
         public DataTable GetAccountsList()
         {
             DataTable dt = new DataTable();
@@ -671,6 +773,11 @@ namespace BankAccountManagement.Services
         // ============================================================
         //  7. LẤY DANH SÁCH LOẠI GIAO DỊCH
         // ============================================================
+
+        /// <summary>
+        /// Lấy danh mục tất cả các loại giao dịch (MaLoaiGD, TenLoaiGD) trong bảng dbo.LoaiGiaoDich.
+        /// </summary>
+        /// <returns>DataTable chứa danh mục loại giao dịch.</returns>
         public DataTable GetTransactionTypes()
         {
             DataTable dt = new DataTable();
@@ -693,12 +800,17 @@ namespace BankAccountManagement.Services
         // ============================================================
         //  8. LẤY SỐ DƯ HIỆN TẠI CỦA TÀI KHOẢN
         // ============================================================
+
+        /// <summary>
+        /// Truy vấn số dư hiện tại của một tài khoản cụ thể.
+        /// </summary>
+        /// <param name="soTaiKhoan">Số tài khoản cần kiểm tra.</param>
+        /// <returns>Số dư hiện tại dạng decimal (0 nếu không tìm thấy).</returns>
         public decimal GetAccountBalance(string soTaiKhoan)
         {
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             {
-                const string sql =
-                    "SELECT ISNULL(SoDuHienTai, 0) FROM dbo.TaiKhoan WHERE SoTaiKhoan = @SoTaiKhoan";
+                const string sql = "SELECT ISNULL(SoDuHienTai, 0) FROM dbo.TaiKhoan WHERE SoTaiKhoan = @SoTaiKhoan";
 
                 using (SqlCommand cmd = new SqlCommand(sql, conn))
                 {
@@ -713,6 +825,11 @@ namespace BankAccountManagement.Services
         // ============================================================
         //  9. LẤY DANH SÁCH LOẠI TIỀN TỆ
         // ============================================================
+
+        /// <summary>
+        /// Lấy danh sách các đơn vị tiền tệ và tỷ giá quy đổi trong hệ thống.
+        /// </summary>
+        /// <returns>Danh sách các đối tượng <see cref="CurrencyInfo"/>.</returns>
         public List<CurrencyInfo> GetCurrencies()
         {
             var currencies = new List<CurrencyInfo>();
@@ -751,8 +868,14 @@ namespace BankAccountManagement.Services
         }
 
         // ============================================================
-        //  10. LẤY DANH SÁCH GIAO DỊCH CHUYỂN KHOẢN THÀNH CÔNG GẦN ĐÂY
+        //  10. LẤY GIAO DỊCH CHUYỂN KHOẢN GẦN ĐÂY
         // ============================================================
+
+        /// <summary>
+        /// Lấy 20 giao dịch chuyển khoản thành công gần nhất phục vụ danh sách gợi ý chuyển tiền nhanh.
+        /// </summary>
+        /// <param name="maKH">Mã khách hàng (tuỳ chọn).</param>
+        /// <returns>DataTable chứa các giao dịch chuyển tiền gần nhất.</returns>
         public DataTable GetRecentTransfers(string maKH = null)
         {
             DataTable dt = new DataTable();
@@ -788,8 +911,13 @@ namespace BankAccountManagement.Services
         }
 
         // ============================================================
-        //  11. LẤY DANH SÁCH TẤT CẢ NGÂN HÀNG (MaNganHang - TenNganHang)
+        //  11. LẤY DANH SÁCH TẤT CẢ NGÂN HÀNG
         // ============================================================
+
+        /// <summary>
+        /// Lấy danh mục tất cả ngân hàng trong hệ thống (MaNganHang, HienThi).
+        /// </summary>
+        /// <returns>DataTable danh mục ngân hàng.</returns>
         public DataTable GetBanksList()
         {
             DataTable dt = new DataTable();
@@ -811,8 +939,14 @@ namespace BankAccountManagement.Services
         }
 
         // ============================================================
-        //  11.1. LẤY DANH SÁCH TÀI KHOẢN VÀ THÔNG TIN NGÂN HÀNG CỦA USER
+        //  11.1. LẤY TÀI KHOẢN VÀ THÔNG TIN NGÂN HÀNG CỦA USER
         // ============================================================
+
+        /// <summary>
+        /// Lấy danh sách các tài khoản kèm thông tin chi tiết tên ngân hàng, số dư và loại tiền của một khách hàng.
+        /// </summary>
+        /// <param name="maKH">Mã khách hàng.</param>
+        /// <returns>DataTable chứa danh sách tài khoản.</returns>
         public DataTable GetUserAccountsWithBankInfo(string maKH)
         {
             DataTable dt = new DataTable();
@@ -841,8 +975,15 @@ namespace BankAccountManagement.Services
         }
 
         // ============================================================
-        //  11.2. LẤY TÀI KHOẢN CỦA USER TẠI NGÂN HÀNG ĐƯỢC CHỌN
+        //  11.2. LẤY SỐ TÀI KHOẢN CỦA USER TẠI MỘT NGÂN HÀNG
         // ============================================================
+
+        /// <summary>
+        /// Lấy số tài khoản đầu tiên của một khách hàng mở tại một ngân hàng cụ thể.
+        /// </summary>
+        /// <param name="maKH">Mã khách hàng.</param>
+        /// <param name="maNganHang">Mã ngân hàng (ví dụ: "NH01").</param>
+        /// <returns>Chuỗi số tài khoản nếu có; ngược lại trả về null.</returns>
         public string GetUserAccountForBank(string maKH, string maNganHang)
         {
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
@@ -864,8 +1005,14 @@ namespace BankAccountManagement.Services
         }
 
         // ============================================================
-        //  12. LẤY TỔNG SỐ DƯ THỰC TẾ CỦA TÀI KHOẢN ĐĂNG NHẬP (VND)
+        //  12. TÍNH TỔNG SỐ DƯ QUY ĐỔI VNĐ CỦA USER
         // ============================================================
+
+        /// <summary>
+        /// Tính toán tổng số dư thực tế trên toàn bộ các tài khoản thanh toán của người dùng hiện tại (quy đổi VNĐ).
+        /// </summary>
+        /// <param name="maKH">Mã khách hàng.</param>
+        /// <returns>Tổng số dư tiền gửi khả dụng.</returns>
         public decimal GetTotalUserBalance(string maKH)
         {
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
@@ -894,8 +1041,14 @@ namespace BankAccountManagement.Services
         }
 
         // ============================================================
-        //  13. LẤY MÃ NGÂN HÀNG CỦA 1 SỐ TÀI KHOẢN
+        //  13. LẤY MÃ NGÂN HÀNG CỦA MỘT TÀI KHOẢN
         // ============================================================
+
+        /// <summary>
+        /// Tra cứu mã ngân hàng nơi một số tài khoản được phát hành.
+        /// </summary>
+        /// <param name="soTaiKhoan">Số tài khoản ngân hàng cần kiểm tra.</param>
+        /// <returns>Mã ngân hàng (ví dụ: "NH01") hoặc null nếu không tồn tại.</returns>
         public string GetAccountBank(string soTaiKhoan)
         {
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
@@ -912,8 +1065,14 @@ namespace BankAccountManagement.Services
         }
 
         // ============================================================
-        //  14. LẤY TÊN CHỦ TÀI KHOẢN (NGƯỜI NHẬN) THEO SỐ TÀI KHOẢN
+        //  14. LẤY HỌ TÊN CHỦ SỞ HỮU TÀI KHOẢN
         // ============================================================
+
+        /// <summary>
+        /// Tra cứu họ và tên chủ tài khoản thụ hưởng theo số tài khoản (phục vụ hiển thị xác nhận người nhận khi chuyển khoản).
+        /// </summary>
+        /// <param name="soTaiKhoan">Số tài khoản người nhận.</param>
+        /// <returns>Họ và tên của chủ tài khoản.</returns>
         public string GetAccountOwnerName(string soTaiKhoan)
         {
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
