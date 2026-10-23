@@ -45,13 +45,10 @@ namespace BankAccountManagement.Forms
             // Bật bộ đệm kép (DoubleBuffer) để chống hiện tượng giật/nháy hình khi vẽ giao diện
             this.DoubleBuffered = true;
 
-            // BƯỚC 1: Bo góc mềm mại cho form và các panel nhập liệu
-            ApplyRoundedCorners();
-
-            // BƯỚC 2: Đăng ký các sự kiện bàn phím, chuột và placeholder
+            // Đăng ký các sự kiện bàn phím, chuột và placeholder
             SetupEvents();
 
-            // BƯỚC 3: Điền sẵn tên đăng nhập nếu được truyền từ màn hình đăng ký thành công
+            // Điền sẵn tên đăng nhập nếu được truyền từ màn hình đăng ký thành công
             if (!string.IsNullOrWhiteSpace(prefilledUsername))
             {
                 txtUsername.Text = prefilledUsername;
@@ -80,7 +77,12 @@ namespace BankAccountManagement.Forms
         protected override void OnShown(EventArgs e)
         {
             base.OnShown(e);
-            SetRoundedRegion(this, 16);
+            try
+            {
+                ApplyRoundedCorners();
+                SetRoundedRegion(this, 16);
+            }
+            catch { }
         }
 
         /// <summary>
@@ -90,7 +92,7 @@ namespace BankAccountManagement.Forms
         /// <param name="radius">Bán kính bo tròn góc.</param>
         private static void SetRoundedRegion(Control ctrl, int radius)
         {
-            if (ctrl == null || ctrl.IsDisposed) return;
+            if (ctrl == null || ctrl.IsDisposed || !ctrl.IsHandleCreated) return;
             if (ctrl.Width <= 0 || ctrl.Height <= 0) return;
 
             try

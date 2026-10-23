@@ -85,11 +85,18 @@ namespace BankAccountManagement.Forms
         /// </summary>
         private static void SetRoundedRegion(Control ctrl, int radius)
         {
+            if (ctrl == null || ctrl.IsDisposed || !ctrl.IsHandleCreated) return;
             if (ctrl.Width <= 0 || ctrl.Height <= 0) return;
 
-            using (var path = RoundedPath(ctrl.ClientRectangle, radius))
+            try
             {
-                ctrl.Region = new Region(path);
+                using (var path = RoundedPath(ctrl.ClientRectangle, radius))
+                {
+                    ctrl.Region = new Region(path);
+                }
+            }
+            catch
+            {
             }
         }
 
