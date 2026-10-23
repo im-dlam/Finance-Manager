@@ -47,14 +47,11 @@ namespace BankAccountManagement
                 // 3.1. KHỞI CHẠY MÀN HÌNH ĐĂNG NHẬP (MODAL DIALOG)
                 // -------------------------------------------------------------
                 DialogResult loginResult;
-                _activeLoginForm = new LoginForm();
-                try
+                using (var loginForm = new LoginForm())
                 {
-                    // Hiển thị LoginForm dạng hộp thoại modal, dừng thực thi hàm Main cho tới khi đóng form
-                    loginResult = _activeLoginForm.ShowDialog();
-
-                    // Neo giữ tham chiếu _activeLoginForm trong bộ nhớ, ngăn GC thu gom khi đang mở hộp thoại
-                    GC.KeepAlive(_activeLoginForm);
+                    _activeLoginForm = loginForm;
+                    loginResult = loginForm.ShowDialog();
+                    _activeLoginForm = null;
 
                     // Nếu người dùng nhấn nút Đóng (✕) hoặc đăng nhập thất bại thì thoát hẳn ứng dụng
                     if (loginResult != DialogResult.OK || CurrentSession.User == null)
@@ -62,43 +59,26 @@ namespace BankAccountManagement
                         break;
                     }
                 }
-                finally
-                {
-                    // Giải phóng tài nguyên đồ họa (GDI handles, icon, bitmap) của LoginForm
-                    var formToDispose = _activeLoginForm;
-                    _activeLoginForm = null;
-                    formToDispose?.Dispose();
-                }
 
                 // -------------------------------------------------------------
                 // 3.2. KHỞI CHẠY MÀN HÌNH CHÍNH (MAINFORM)
                 // -------------------------------------------------------------
-                _activeMainForm = new MainForm(CurrentSession.User);
-                try
+                using (var mainForm = new MainForm(CurrentSession.User))
                 {
-                    // Chạy vòng lặp thông điệp chính của ứng dụng với MainForm làm cửa sổ trung tâm
-                    Application.Run(_activeMainForm);
-
-                    // Neo giữ tham chiếu _activeMainForm
-                    GC.KeepAlive(_activeMainForm);
+                    _activeMainForm = mainForm;
+                    Application.Run(mainForm);
+                    _activeMainForm = null;
 
                     // Kiểm tra kết quả đóng MainForm:
                     // - Nếu DialogResult == Retry: Người dùng chọn "Đăng xuất" -> Tiếp tục vòng lặp để mở lại LoginForm.
                     // - Nếu không phải Retry: Người dùng tắt ứng dụng -> Thoát khỏi vòng lặp và kết thúc chương trình.
-                    if (_activeMainForm.DialogResult != DialogResult.Retry)
+                    if (mainForm.DialogResult != DialogResult.Retry)
                     {
                         break;
                     }
 
                     // Xóa thông tin phiên làm việc cũ khi đăng xuất để đảm bảo an toàn bảo mật
                     CurrentSession.Clear();
-                }
-                finally
-                {
-                    // Giải phóng tài nguyên của MainForm
-                    var formToDispose = _activeMainForm;
-                    _activeMainForm = null;
-                    formToDispose?.Dispose();
                 }
             }
         }
