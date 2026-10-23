@@ -72,6 +72,14 @@ namespace BankAccountManagement.Forms
             SetRoundedRegion(pnlUser, 10);
             SetRoundedRegion(pnlPass, 10);
             SetRoundedRegion(btnLogin, 10);
+        }
+
+        /// <summary>
+        /// Sự kiện khi Form đã hiển thị hoàn chỉnh: Bo góc cửa sổ an toàn sau khi đã có Win32 Handle.
+        /// </summary>
+        protected override void OnShown(EventArgs e)
+        {
+            base.OnShown(e);
             SetRoundedRegion(this, 16);
         }
 

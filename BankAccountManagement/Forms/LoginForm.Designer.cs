@@ -1,4 +1,4 @@
-﻿namespace BankAccountManagement.Forms
+namespace BankAccountManagement.Forms
 {
     partial class LoginForm
     {
@@ -65,7 +65,7 @@
             // lblSideLogo
             // 
             this.lblSideLogo.BackColor = System.Drawing.Color.Transparent;
-            this.lblSideLogo.Font = new System.Drawing.Font("Segoe UI Emoji", 44F, System.Drawing.FontStyle.Bold);
+            this.lblSideLogo.Font = new System.Drawing.Font("Segoe UI Emoji", 44F, System.Drawing.FontStyle.Regular);
             this.lblSideLogo.ForeColor = System.Drawing.Color.White;
             this.lblSideLogo.Location = new System.Drawing.Point(60, 150);
             this.lblSideLogo.Name = "lblSideLogo";

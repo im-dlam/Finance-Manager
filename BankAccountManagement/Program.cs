@@ -28,7 +28,8 @@ namespace BankAccountManagement
         [STAThread] // Bắt buộc cho WinForms: Thiết lập mô hình phân luồng Single Thread Apartment cho UI
         static void Main()
         {
-            // BƯỚC 1: Cấu hình giao diện Windows Forms hiện đại
+            // BƯỚC 1: Cấu hình giao diện Windows Forms hiện đại và chế độ bắt ngoại lệ UI
+            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
             Application.EnableVisualStyles(); // Bật phong cách giao diện trực quan của hệ điều hành Windows
             Application.SetCompatibleTextRenderingDefault(false); // Dùng GDI+ để kết xuất chữ sắc nét, nhất quán
 
