@@ -7,3 +7,4 @@ Config/database.ini
 UpgradeLog.htm
 *.slnx
 .agents/
+*.docx

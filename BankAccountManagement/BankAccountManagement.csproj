@@ -263,6 +263,9 @@
     <Compile Include="Services\StartupService.cs" />
     <Compile Include="Services\StatisticService.cs" />
     <Compile Include="Services\TransactionService.cs" />
+    <EmbeddedResource Include="Forms\AddTransactionForm.resx">
+      <DependentUpon>AddTransactionForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Forms\AccountForm.resx">
       <DependentUpon>AccountForm.cs</DependentUpon>
     </EmbeddedResource>
