@@ -12,16 +12,6 @@ namespace BankAccountManagement
     /// </summary>
     internal static class Program
     {
-        // =========================================================================
-        // KHAI BÁO THAM CHIẾU TĨNH (STATIC GC ROOT)
-        // =========================================================================
-        // Trong .NET WinForms, khi gọi ShowDialog() hoặc Run() với biến cục bộ trong hàm,
-        // trình tối ưu JIT và Garbage Collector (GC) có thể xem đối tượng Form là "hết vòng đời",
-        // dẫn đến việc thu gom sớm các con trỏ hàm native WndProc (gây lỗi CallbackOnCollectedDelegate).
-        // Giữ 2 biến static ở cấp AppDomain này đảm bảo Form luôn tồn tại bền vững trong suốt thời gian hiển thị.
-        private static LoginForm _activeLoginForm;
-        private static MainForm _activeMainForm;
-
         /// <summary>
         /// Hàm Main - Điểm bắt đầu thực thi của chương trình.
         /// </summary>
@@ -45,32 +35,14 @@ namespace BankAccountManagement
             while (true)
             {
                 // -------------------------------------------------------------
-                // 3.1. KHỞI CHẠY MÀN HÌNH ĐĂNG NHẬP (MODAL DIALOG)
+                // 3.1. KHỞI CHẠY MÀN HÌNH ĐĂNG NHẬP
                 // -------------------------------------------------------------
-                DialogResult loginResult;
                 using (var loginForm = new LoginForm())
                 {
-                    _activeLoginForm = loginForm;
-                    try
-                    {
-                        loginResult = loginForm.ShowDialog();
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show(
-                            $"Đã xảy ra lỗi trong quá trình hiển thị màn hình Đăng nhập:\n\n{ex.Message}\n\nNgăn xếp lỗi (Stack Trace):\n{ex.StackTrace}",
-                            "Lỗi hệ thống",
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.Error);
-                        break;
-                    }
-                    finally
-                    {
-                        _activeLoginForm = null;
-                    }
+                    Application.Run(loginForm);
 
                     // Nếu người dùng nhấn nút Đóng (✕) hoặc đăng nhập thất bại thì thoát hẳn ứng dụng
-                    if (loginResult != DialogResult.OK || CurrentSession.User == null)
+                    if (loginForm.DialogResult != DialogResult.OK || CurrentSession.User == null)
                     {
                         break;
                     }
@@ -81,9 +53,7 @@ namespace BankAccountManagement
                 // -------------------------------------------------------------
                 using (var mainForm = new MainForm(CurrentSession.User))
                 {
-                    _activeMainForm = mainForm;
                     Application.Run(mainForm);
-                    _activeMainForm = null;
 
                     // Kiểm tra kết quả đóng MainForm:
                     // - Nếu DialogResult == Retry: Người dùng chọn "Đăng xuất" -> Tiếp tục vòng lặp để mở lại LoginForm.

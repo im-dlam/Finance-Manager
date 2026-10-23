@@ -174,8 +174,8 @@ namespace BankAccountManagement.Forms
         /// </summary>
         private void SetupEvents()
         {
-            // 1. Nút Đóng form (✕): Gán DialogResult = Cancel để Program.cs nhận diện thoát ứng dụng
-            btnClose.Click += (s, e) => { this.DialogResult = DialogResult.Cancel; };
+            // 1. Nút Đóng form (✕): Gán DialogResult = Cancel và đóng form để thoát ứng dụng
+            btnClose.Click += (s, e) => { this.DialogResult = DialogResult.Cancel; this.Close(); };
 
             // 2. Kéo thả form bằng chuột thuần (Managed Dragging - Không dùng Win32 API P/Invoke để tránh lỗi bộ nhớ)
             pnlSide.MouseDown += DragMouseDown;
@@ -349,8 +349,9 @@ namespace BankAccountManagement.Forms
             Console.WriteLine($"[Login] User '{CurrentSession.User?.MaNguoiDung}' ({CurrentSession.User?.Quyen}) logged in successfully.");
             HideError();
 
-            // BƯỚC 5: Thiết lập DialogResult = OK để thoát modal loop về Program.cs và mở MainForm
+            // BƯỚC 5: Thiết lập DialogResult = OK và đóng form để Program.cs tiếp tục mở MainForm
             this.DialogResult = DialogResult.OK;
+            this.Close();
         }
 
         /// <summary>Hiển thị nhãn thông báo lỗi màu đỏ.</summary>
