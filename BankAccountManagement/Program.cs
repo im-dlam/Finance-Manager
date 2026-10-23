@@ -50,8 +50,23 @@ namespace BankAccountManagement
                 using (var loginForm = new LoginForm())
                 {
                     _activeLoginForm = loginForm;
-                    loginResult = loginForm.ShowDialog();
-                    _activeLoginForm = null;
+                    try
+                    {
+                        loginResult = loginForm.ShowDialog();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(
+                            $"Đã xảy ra lỗi trong quá trình hiển thị màn hình Đăng nhập:\n\n{ex.Message}\n\nNgăn xếp lỗi (Stack Trace):\n{ex.StackTrace}",
+                            "Lỗi hệ thống",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error);
+                        break;
+                    }
+                    finally
+                    {
+                        _activeLoginForm = null;
+                    }
 
                     // Nếu người dùng nhấn nút Đóng (✕) hoặc đăng nhập thất bại thì thoát hẳn ứng dụng
                     if (loginResult != DialogResult.OK || CurrentSession.User == null)

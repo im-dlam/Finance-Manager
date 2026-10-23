@@ -82,11 +82,19 @@ namespace BankAccountManagement.Forms
         /// <param name="radius">Bán kính bo tròn góc.</param>
         private static void SetRoundedRegion(Control ctrl, int radius)
         {
+            if (ctrl == null || ctrl.IsDisposed) return;
             if (ctrl.Width <= 0 || ctrl.Height <= 0) return;
 
-            using (var path = RoundedPath(ctrl.ClientRectangle, radius))
+            try
             {
-                ctrl.Region = new Region(path);
+                using (var path = RoundedPath(ctrl.ClientRectangle, radius))
+                {
+                    ctrl.Region = new Region(path);
+                }
+            }
+            catch
+            {
+                // Bỏ qua lỗi GDI nếu control đang vẽ lại
             }
         }
 
@@ -114,6 +122,9 @@ namespace BankAccountManagement.Forms
         /// </summary>
         private void PnlSide_Paint(object sender, PaintEventArgs e)
         {
+            if (pnlSide == null || e?.Graphics == null) return;
+            if (pnlSide.ClientRectangle.Width <= 0 || pnlSide.ClientRectangle.Height <= 0) return;
+
             var g = e.Graphics;
             g.SmoothingMode = SmoothingMode.AntiAlias; // Khử răng cưa cho đường nét mềm mại
 
@@ -320,8 +331,14 @@ namespace BankAccountManagement.Forms
             }
 
             // BƯỚC 4: Đăng nhập thành công -> Lưu thông tin người dùng vào phiên làm việc toàn cục (CurrentSession)
+            if (result.User == null)
+            {
+                ShowError("✖  Lỗi hệ thống: Dữ liệu người dùng rỗng.");
+                return;
+            }
+
             CurrentSession.SetUser(result.User);
-            Console.WriteLine($"[Login] User '{CurrentSession.User.MaNguoiDung}' ({CurrentSession.User.Quyen}) logged in successfully.");
+            Console.WriteLine($"[Login] User '{CurrentSession.User?.MaNguoiDung}' ({CurrentSession.User?.Quyen}) logged in successfully.");
             HideError();
 
             // BƯỚC 5: Thiết lập DialogResult = OK để thoát modal loop về Program.cs và mở MainForm
