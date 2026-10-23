@@ -932,5 +932,10 @@ namespace BankAccountManagement
         }
 
         #endregion
+
+        private void AddTransactionForm_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }
