@@ -209,6 +209,9 @@
     <Compile Include="Forms\AddTransactionForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\AddTransactionForm.Designer.cs">
+      <DependentUpon>AddTransactionForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Forms\TransactionForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -295,6 +298,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\SaveMoneyForm.resx">
       <DependentUpon>SaveMoneyForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\SaveMoneyUserForm.resx">
+      <DependentUpon>SaveMoneyUserForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\SettingsForm.resx">
       <DependentUpon>SettingsForm.cs</DependentUpon>
