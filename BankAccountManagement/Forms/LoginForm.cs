@@ -208,7 +208,6 @@ namespace BankAccountManagement.Forms
                     }
                     GC.KeepAlive(signup); // Giữ an toàn bộ nhớ
                 }
-                Application.DoEvents(); // Xả sạch hàng đợi thông điệp
                 this.Show(); // Hiện lại LoginForm
             };
 

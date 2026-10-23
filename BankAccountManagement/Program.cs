@@ -70,9 +70,6 @@ namespace BankAccountManagement
                     formToDispose?.Dispose();
                 }
 
-                // Xả sạch các thông điệp Win32 còn tồn đọng trong message queue trước khi mở MainForm
-                Application.DoEvents();
-
                 // -------------------------------------------------------------
                 // 3.2. KHỞI CHẠY MÀN HÌNH CHÍNH (MAINFORM)
                 // -------------------------------------------------------------
@@ -103,9 +100,6 @@ namespace BankAccountManagement
                     _activeMainForm = null;
                     formToDispose?.Dispose();
                 }
-
-                // Xả sạch các thông điệp Win32 còn tồn đọng trước khi lặp lại vòng mở LoginForm
-                Application.DoEvents();
             }
         }
     }

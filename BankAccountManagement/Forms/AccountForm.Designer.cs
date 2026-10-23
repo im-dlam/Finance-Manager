@@ -203,7 +203,7 @@ namespace BankAccountManagement.Forms
             this.lblTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.lblTitle.Location = new System.Drawing.Point(35, 18);
             this.lblTitle.Name = "lblTitle";
-            this.lblTitle.Size = new System.Drawing.Size(399, 32);
+            this.lblTitle.Size = new System.Drawing.Size(590, 48);
             this.lblTitle.TabIndex = 0;
             this.lblTitle.Text = "QUẢN LÝ THÔNG TIN TÀI KHOẢN";
             // 
@@ -214,7 +214,7 @@ namespace BankAccountManagement.Forms
             this.lblSubtitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
             this.lblSubtitle.Location = new System.Drawing.Point(37, 58);
             this.lblSubtitle.Name = "lblSubtitle";
-            this.lblSubtitle.Size = new System.Drawing.Size(434, 17);
+            this.lblSubtitle.Size = new System.Drawing.Size(630, 25);
             this.lblSubtitle.TabIndex = 1;
             this.lblSubtitle.Text = "Xem và chỉnh sửa thông tin tài khoản cá nhân, định danh và đổi mật khẩu";
             // 
@@ -226,7 +226,7 @@ namespace BankAccountManagement.Forms
             this.lblSearch.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.lblSearch.Location = new System.Drawing.Point(825, 32);
             this.lblSearch.Name = "lblSearch";
-            this.lblSearch.Size = new System.Drawing.Size(75, 19);
+            this.lblSearch.Size = new System.Drawing.Size(105, 28);
             this.lblSearch.TabIndex = 2;
             this.lblSearch.Text = "Tìm kiếm:";
             // 
@@ -237,7 +237,7 @@ namespace BankAccountManagement.Forms
             this.txtSearch.Font = new System.Drawing.Font("Segoe UI", 10.5F);
             this.txtSearch.Location = new System.Drawing.Point(906, 30);
             this.txtSearch.Name = "txtSearch";
-            this.txtSearch.Size = new System.Drawing.Size(250, 26);
+            this.txtSearch.Size = new System.Drawing.Size(250, 35);
             this.txtSearch.TabIndex = 3;
             // 
             // btnSearch
@@ -316,7 +316,7 @@ namespace BankAccountManagement.Forms
             this.lblListTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.lblListTitle.Location = new System.Drawing.Point(42, 20);
             this.lblListTitle.Name = "lblListTitle";
-            this.lblListTitle.Size = new System.Drawing.Size(185, 25);
+            this.lblListTitle.Size = new System.Drawing.Size(262, 36);
             this.lblListTitle.TabIndex = 1;
             this.lblListTitle.Text = "Danh sách tài khoản";
             // 
@@ -328,7 +328,7 @@ namespace BankAccountManagement.Forms
             this.lblListCount.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(163)))), ((int)(((byte)(74)))));
             this.lblListCount.Location = new System.Drawing.Point(726, 26);
             this.lblListCount.Name = "lblListCount";
-            this.lblListCount.Size = new System.Drawing.Size(83, 19);
+            this.lblListCount.Size = new System.Drawing.Size(119, 28);
             this.lblListCount.TabIndex = 2;
             this.lblListCount.Text = "0 tài khoản";
             this.lblListCount.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -514,7 +514,7 @@ namespace BankAccountManagement.Forms
             this.label1.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.label1.Location = new System.Drawing.Point(30, 146);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(106, 15);
+            this.label1.Size = new System.Drawing.Size(170, 25);
             this.label1.TabIndex = 23;
             this.label1.Text = "Mã Khách Hàng(*)";
             // 
@@ -523,7 +523,7 @@ namespace BankAccountManagement.Forms
             this.cboCustomerCode.FormattingEnabled = true;
             this.cboCustomerCode.Location = new System.Drawing.Point(35, 164);
             this.cboCustomerCode.Name = "cboCustomerCode";
-            this.cboCustomerCode.Size = new System.Drawing.Size(316, 25);
+            this.cboCustomerCode.Size = new System.Drawing.Size(316, 36);
             this.cboCustomerCode.TabIndex = 22;
             // 
             // lblFormAccent
@@ -541,7 +541,7 @@ namespace BankAccountManagement.Forms
             this.lblFormTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.lblFormTitle.Location = new System.Drawing.Point(42, 20);
             this.lblFormTitle.Name = "lblFormTitle";
-            this.lblFormTitle.Size = new System.Drawing.Size(180, 25);
+            this.lblFormTitle.Size = new System.Drawing.Size(256, 36);
             this.lblFormTitle.TabIndex = 1;
             this.lblFormTitle.Text = "Thông tin tài khoản";
             // 
@@ -560,7 +560,7 @@ namespace BankAccountManagement.Forms
             this.lblAccountNumber.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.lblAccountNumber.Location = new System.Drawing.Point(30, 96);
             this.lblAccountNumber.Name = "lblAccountNumber";
-            this.lblAccountNumber.Size = new System.Drawing.Size(105, 17);
+            this.lblAccountNumber.Size = new System.Drawing.Size(151, 25);
             this.lblAccountNumber.TabIndex = 3;
             this.lblAccountNumber.Text = "Số tài khoản (*)";
             // 
@@ -570,7 +570,7 @@ namespace BankAccountManagement.Forms
             this.txtAccountNumber.Font = new System.Drawing.Font("Segoe UI", 10.5F);
             this.txtAccountNumber.Location = new System.Drawing.Point(33, 108);
             this.txtAccountNumber.Name = "txtAccountNumber";
-            this.txtAccountNumber.Size = new System.Drawing.Size(320, 26);
+            this.txtAccountNumber.Size = new System.Drawing.Size(320, 35);
             this.txtAccountNumber.TabIndex = 4;
             // 
             // lblCustomer
@@ -580,7 +580,7 @@ namespace BankAccountManagement.Forms
             this.lblCustomer.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.lblCustomer.Location = new System.Drawing.Point(35, 210);
             this.lblCustomer.Name = "lblCustomer";
-            this.lblCustomer.Size = new System.Drawing.Size(100, 17);
+            this.lblCustomer.Size = new System.Drawing.Size(143, 25);
             this.lblCustomer.TabIndex = 5;
             this.lblCustomer.Text = "Khách hàng (*)";
             // 
@@ -590,7 +590,7 @@ namespace BankAccountManagement.Forms
             this.cboCustomer.Font = new System.Drawing.Font("Segoe UI", 10.5F);
             this.cboCustomer.Location = new System.Drawing.Point(33, 225);
             this.cboCustomer.Name = "cboCustomer";
-            this.cboCustomer.Size = new System.Drawing.Size(320, 27);
+            this.cboCustomer.Size = new System.Drawing.Size(320, 38);
             this.cboCustomer.TabIndex = 6;
             // 
             // lblBank
@@ -600,7 +600,7 @@ namespace BankAccountManagement.Forms
             this.lblBank.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.lblBank.Location = new System.Drawing.Point(26, 269);
             this.lblBank.Name = "lblBank";
-            this.lblBank.Size = new System.Drawing.Size(96, 17);
+            this.lblBank.Size = new System.Drawing.Size(139, 25);
             this.lblBank.TabIndex = 7;
             this.lblBank.Text = "Ngân hàng (*)";
             // 
@@ -610,7 +610,7 @@ namespace BankAccountManagement.Forms
             this.cboBank.Font = new System.Drawing.Font("Segoe UI", 10.5F);
             this.cboBank.Location = new System.Drawing.Point(33, 282);
             this.cboBank.Name = "cboBank";
-            this.cboBank.Size = new System.Drawing.Size(320, 27);
+            this.cboBank.Size = new System.Drawing.Size(320, 38);
             this.cboBank.TabIndex = 8;
             // 
             // lblCurrency
@@ -620,7 +620,7 @@ namespace BankAccountManagement.Forms
             this.lblCurrency.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.lblCurrency.Location = new System.Drawing.Point(30, 326);
             this.lblCurrency.Name = "lblCurrency";
-            this.lblCurrency.Size = new System.Drawing.Size(62, 17);
+            this.lblCurrency.Size = new System.Drawing.Size(88, 25);
             this.lblCurrency.TabIndex = 9;
             this.lblCurrency.Text = "Loại tiền";
             // 
@@ -630,7 +630,7 @@ namespace BankAccountManagement.Forms
             this.cboCurrency.Font = new System.Drawing.Font("Segoe UI", 10.5F);
             this.cboCurrency.Location = new System.Drawing.Point(33, 339);
             this.cboCurrency.Name = "cboCurrency";
-            this.cboCurrency.Size = new System.Drawing.Size(320, 27);
+            this.cboCurrency.Size = new System.Drawing.Size(320, 38);
             this.cboCurrency.TabIndex = 10;
             // 
             // lblBalance
@@ -640,7 +640,7 @@ namespace BankAccountManagement.Forms
             this.lblBalance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.lblBalance.Location = new System.Drawing.Point(30, 373);
             this.lblBalance.Name = "lblBalance";
-            this.lblBalance.Size = new System.Drawing.Size(98, 17);
+            this.lblBalance.Size = new System.Drawing.Size(143, 25);
             this.lblBalance.TabIndex = 11;
             this.lblBalance.Text = "Số dư ban đầu";
             // 
@@ -650,7 +650,7 @@ namespace BankAccountManagement.Forms
             this.txtBalance.Font = new System.Drawing.Font("Segoe UI", 10.5F);
             this.txtBalance.Location = new System.Drawing.Point(33, 388);
             this.txtBalance.Name = "txtBalance";
-            this.txtBalance.Size = new System.Drawing.Size(320, 26);
+            this.txtBalance.Size = new System.Drawing.Size(320, 35);
             this.txtBalance.TabIndex = 12;
             // 
             // lblStatus
@@ -660,7 +660,7 @@ namespace BankAccountManagement.Forms
             this.lblStatus.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.lblStatus.Location = new System.Drawing.Point(30, 422);
             this.lblStatus.Name = "lblStatus";
-            this.lblStatus.Size = new System.Drawing.Size(71, 17);
+            this.lblStatus.Size = new System.Drawing.Size(102, 25);
             this.lblStatus.TabIndex = 13;
             this.lblStatus.Text = "Trạng thái";
             // 
@@ -670,7 +670,7 @@ namespace BankAccountManagement.Forms
             this.cboStatus.Font = new System.Drawing.Font("Segoe UI", 10.5F);
             this.cboStatus.Location = new System.Drawing.Point(33, 435);
             this.cboStatus.Name = "cboStatus";
-            this.cboStatus.Size = new System.Drawing.Size(320, 27);
+            this.cboStatus.Size = new System.Drawing.Size(320, 38);
             this.cboStatus.TabIndex = 14;
             // 
             // lblOpenDate
@@ -680,7 +680,7 @@ namespace BankAccountManagement.Forms
             this.lblOpenDate.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.lblOpenDate.Location = new System.Drawing.Point(30, 478);
             this.lblOpenDate.Name = "lblOpenDate";
-            this.lblOpenDate.Size = new System.Drawing.Size(64, 17);
+            this.lblOpenDate.Size = new System.Drawing.Size(93, 25);
             this.lblOpenDate.TabIndex = 15;
             this.lblOpenDate.Text = "Ngày mở";
             // 
@@ -690,7 +690,7 @@ namespace BankAccountManagement.Forms
             this.dtpOpenDate.Format = System.Windows.Forms.DateTimePickerFormat.Short;
             this.dtpOpenDate.Location = new System.Drawing.Point(33, 495);
             this.dtpOpenDate.Name = "dtpOpenDate";
-            this.dtpOpenDate.Size = new System.Drawing.Size(320, 26);
+            this.dtpOpenDate.Size = new System.Drawing.Size(320, 35);
             this.dtpOpenDate.TabIndex = 16;
             // 
             // pnlFormDivider2
@@ -852,7 +852,7 @@ namespace BankAccountManagement.Forms
             this.lblStatusMessage.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(163)))), ((int)(((byte)(74)))));
             this.lblStatusMessage.Location = new System.Drawing.Point(465, 554);
             this.lblStatusMessage.Name = "lblStatusMessage";
-            this.lblStatusMessage.Size = new System.Drawing.Size(0, 17);
+            this.lblStatusMessage.Size = new System.Drawing.Size(0, 25);
             this.lblStatusMessage.TabIndex = 36;
             // 
             // btnResetProfile
@@ -894,7 +894,7 @@ namespace BankAccountManagement.Forms
             this.pnlEditDiv4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
             this.pnlEditDiv4.Location = new System.Drawing.Point(24, 524);
             this.pnlEditDiv4.Name = "pnlEditDiv4";
-            this.pnlEditDiv4.Size = new System.Drawing.Size(786, 1);
+            this.pnlEditDiv4.Size = new System.Drawing.Size(841, 1);
             this.pnlEditDiv4.TabIndex = 33;
             // 
             // txtEditConfirmPassword
@@ -904,7 +904,7 @@ namespace BankAccountManagement.Forms
             this.txtEditConfirmPassword.Location = new System.Drawing.Point(545, 480);
             this.txtEditConfirmPassword.Name = "txtEditConfirmPassword";
             this.txtEditConfirmPassword.PasswordChar = '●';
-            this.txtEditConfirmPassword.Size = new System.Drawing.Size(245, 25);
+            this.txtEditConfirmPassword.Size = new System.Drawing.Size(245, 34);
             this.txtEditConfirmPassword.TabIndex = 32;
             // 
             // lblEditConfirmPassTitle
@@ -914,7 +914,7 @@ namespace BankAccountManagement.Forms
             this.lblEditConfirmPassTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.lblEditConfirmPassTitle.Location = new System.Drawing.Point(545, 458);
             this.lblEditConfirmPassTitle.Name = "lblEditConfirmPassTitle";
-            this.lblEditConfirmPassTitle.Size = new System.Drawing.Size(136, 15);
+            this.lblEditConfirmPassTitle.Size = new System.Drawing.Size(203, 25);
             this.lblEditConfirmPassTitle.TabIndex = 31;
             this.lblEditConfirmPassTitle.Text = "Xác nhận mật khẩu mới:";
             // 
@@ -925,7 +925,7 @@ namespace BankAccountManagement.Forms
             this.txtEditNewPassword.Location = new System.Drawing.Point(284, 480);
             this.txtEditNewPassword.Name = "txtEditNewPassword";
             this.txtEditNewPassword.PasswordChar = '●';
-            this.txtEditNewPassword.Size = new System.Drawing.Size(245, 25);
+            this.txtEditNewPassword.Size = new System.Drawing.Size(245, 34);
             this.txtEditNewPassword.TabIndex = 30;
             // 
             // lblEditNewPassTitle
@@ -935,7 +935,7 @@ namespace BankAccountManagement.Forms
             this.lblEditNewPassTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.lblEditNewPassTitle.Location = new System.Drawing.Point(284, 458);
             this.lblEditNewPassTitle.Name = "lblEditNewPassTitle";
-            this.lblEditNewPassTitle.Size = new System.Drawing.Size(141, 15);
+            this.lblEditNewPassTitle.Size = new System.Drawing.Size(213, 25);
             this.lblEditNewPassTitle.TabIndex = 29;
             this.lblEditNewPassTitle.Text = "Mật khẩu mới (≥ 6 ký tự):";
             // 
@@ -946,7 +946,7 @@ namespace BankAccountManagement.Forms
             this.txtEditOldPassword.Location = new System.Drawing.Point(24, 480);
             this.txtEditOldPassword.Name = "txtEditOldPassword";
             this.txtEditOldPassword.PasswordChar = '●';
-            this.txtEditOldPassword.Size = new System.Drawing.Size(245, 25);
+            this.txtEditOldPassword.Size = new System.Drawing.Size(245, 34);
             this.txtEditOldPassword.TabIndex = 28;
             // 
             // lblEditOldPassTitle
@@ -956,7 +956,7 @@ namespace BankAccountManagement.Forms
             this.lblEditOldPassTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.lblEditOldPassTitle.Location = new System.Drawing.Point(24, 458);
             this.lblEditOldPassTitle.Name = "lblEditOldPassTitle";
-            this.lblEditOldPassTitle.Size = new System.Drawing.Size(102, 15);
+            this.lblEditOldPassTitle.Size = new System.Drawing.Size(152, 25);
             this.lblEditOldPassTitle.TabIndex = 27;
             this.lblEditOldPassTitle.Text = "Mật khẩu hiện tại:";
             // 
@@ -967,7 +967,7 @@ namespace BankAccountManagement.Forms
             this.lblPasswordSectionTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(38)))), ((int)(((byte)(38)))));
             this.lblPasswordSectionTitle.Location = new System.Drawing.Point(24, 434);
             this.lblPasswordSectionTitle.Name = "lblPasswordSectionTitle";
-            this.lblPasswordSectionTitle.Size = new System.Drawing.Size(478, 15);
+            this.lblPasswordSectionTitle.Size = new System.Drawing.Size(704, 23);
             this.lblPasswordSectionTitle.TabIndex = 26;
             this.lblPasswordSectionTitle.Text = "🔑 THAY ĐỔI MẬT KHẨU (Để trống 3 ô bên dưới nếu không có nhu cầu đổi mật khẩu)";
             // 
@@ -978,7 +978,7 @@ namespace BankAccountManagement.Forms
             this.pnlEditDiv3.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
             this.pnlEditDiv3.Location = new System.Drawing.Point(24, 424);
             this.pnlEditDiv3.Name = "pnlEditDiv3";
-            this.pnlEditDiv3.Size = new System.Drawing.Size(786, 1);
+            this.pnlEditDiv3.Size = new System.Drawing.Size(841, 1);
             this.pnlEditDiv3.TabIndex = 25;
             // 
             // txtEditAddress
@@ -989,7 +989,7 @@ namespace BankAccountManagement.Forms
             this.txtEditAddress.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.txtEditAddress.Location = new System.Drawing.Point(24, 382);
             this.txtEditAddress.Name = "txtEditAddress";
-            this.txtEditAddress.Size = new System.Drawing.Size(766, 25);
+            this.txtEditAddress.Size = new System.Drawing.Size(821, 34);
             this.txtEditAddress.TabIndex = 24;
             // 
             // lblEditAddressTitle
@@ -999,7 +999,7 @@ namespace BankAccountManagement.Forms
             this.lblEditAddressTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
             this.lblEditAddressTitle.Location = new System.Drawing.Point(24, 360);
             this.lblEditAddressTitle.Name = "lblEditAddressTitle";
-            this.lblEditAddressTitle.Size = new System.Drawing.Size(87, 15);
+            this.lblEditAddressTitle.Size = new System.Drawing.Size(137, 25);
             this.lblEditAddressTitle.TabIndex = 23;
             this.lblEditAddressTitle.Text = "Địa chỉ liên hệ:";
             // 
@@ -1010,7 +1010,7 @@ namespace BankAccountManagement.Forms
             this.cboEditGender.FormattingEnabled = true;
             this.cboEditGender.Location = new System.Drawing.Point(420, 322);
             this.cboEditGender.Name = "cboEditGender";
-            this.cboEditGender.Size = new System.Drawing.Size(370, 25);
+            this.cboEditGender.Size = new System.Drawing.Size(370, 36);
             this.cboEditGender.TabIndex = 22;
             // 
             // lblEditGenderTitle
@@ -1020,7 +1020,7 @@ namespace BankAccountManagement.Forms
             this.lblEditGenderTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
             this.lblEditGenderTitle.Location = new System.Drawing.Point(420, 300);
             this.lblEditGenderTitle.Name = "lblEditGenderTitle";
-            this.lblEditGenderTitle.Size = new System.Drawing.Size(58, 15);
+            this.lblEditGenderTitle.Size = new System.Drawing.Size(90, 25);
             this.lblEditGenderTitle.TabIndex = 21;
             this.lblEditGenderTitle.Text = "Giới tính:";
             // 
@@ -1030,7 +1030,7 @@ namespace BankAccountManagement.Forms
             this.dtpEditBirthDate.Format = System.Windows.Forms.DateTimePickerFormat.Short;
             this.dtpEditBirthDate.Location = new System.Drawing.Point(24, 322);
             this.dtpEditBirthDate.Name = "dtpEditBirthDate";
-            this.dtpEditBirthDate.Size = new System.Drawing.Size(370, 25);
+            this.dtpEditBirthDate.Size = new System.Drawing.Size(370, 34);
             this.dtpEditBirthDate.TabIndex = 20;
             // 
             // lblEditBirthDateTitle
@@ -1040,7 +1040,7 @@ namespace BankAccountManagement.Forms
             this.lblEditBirthDateTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
             this.lblEditBirthDateTitle.Location = new System.Drawing.Point(24, 300);
             this.lblEditBirthDateTitle.Name = "lblEditBirthDateTitle";
-            this.lblEditBirthDateTitle.Size = new System.Drawing.Size(63, 15);
+            this.lblEditBirthDateTitle.Size = new System.Drawing.Size(102, 25);
             this.lblEditBirthDateTitle.TabIndex = 19;
             this.lblEditBirthDateTitle.Text = "Ngày sinh:";
             // 
@@ -1050,7 +1050,7 @@ namespace BankAccountManagement.Forms
             this.txtEditEmail.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.txtEditEmail.Location = new System.Drawing.Point(420, 262);
             this.txtEditEmail.Name = "txtEditEmail";
-            this.txtEditEmail.Size = new System.Drawing.Size(370, 25);
+            this.txtEditEmail.Size = new System.Drawing.Size(370, 34);
             this.txtEditEmail.TabIndex = 18;
             // 
             // lblEditEmailTitle
@@ -1060,7 +1060,7 @@ namespace BankAccountManagement.Forms
             this.lblEditEmailTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
             this.lblEditEmailTitle.Location = new System.Drawing.Point(420, 240);
             this.lblEditEmailTitle.Name = "lblEditEmailTitle";
-            this.lblEditEmailTitle.Size = new System.Drawing.Size(95, 15);
+            this.lblEditEmailTitle.Size = new System.Drawing.Size(153, 25);
             this.lblEditEmailTitle.TabIndex = 17;
             this.lblEditEmailTitle.Text = "Địa chỉ Email (*):";
             // 
@@ -1070,7 +1070,7 @@ namespace BankAccountManagement.Forms
             this.txtEditPhone.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.txtEditPhone.Location = new System.Drawing.Point(24, 262);
             this.txtEditPhone.Name = "txtEditPhone";
-            this.txtEditPhone.Size = new System.Drawing.Size(370, 25);
+            this.txtEditPhone.Size = new System.Drawing.Size(370, 34);
             this.txtEditPhone.TabIndex = 16;
             // 
             // lblEditPhoneTitle
@@ -1080,7 +1080,7 @@ namespace BankAccountManagement.Forms
             this.lblEditPhoneTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
             this.lblEditPhoneTitle.Location = new System.Drawing.Point(24, 240);
             this.lblEditPhoneTitle.Name = "lblEditPhoneTitle";
-            this.lblEditPhoneTitle.Size = new System.Drawing.Size(99, 15);
+            this.lblEditPhoneTitle.Size = new System.Drawing.Size(156, 25);
             this.lblEditPhoneTitle.TabIndex = 15;
             this.lblEditPhoneTitle.Text = "Số điện thoại (*):";
             // 
@@ -1090,7 +1090,7 @@ namespace BankAccountManagement.Forms
             this.txtEditIdCard.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.txtEditIdCard.Location = new System.Drawing.Point(420, 202);
             this.txtEditIdCard.Name = "txtEditIdCard";
-            this.txtEditIdCard.Size = new System.Drawing.Size(370, 25);
+            this.txtEditIdCard.Size = new System.Drawing.Size(370, 34);
             this.txtEditIdCard.TabIndex = 14;
             // 
             // lblEditIdCardTitle
@@ -1100,7 +1100,7 @@ namespace BankAccountManagement.Forms
             this.lblEditIdCardTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
             this.lblEditIdCardTitle.Location = new System.Drawing.Point(420, 180);
             this.lblEditIdCardTitle.Name = "lblEditIdCardTitle";
-            this.lblEditIdCardTitle.Size = new System.Drawing.Size(114, 15);
+            this.lblEditIdCardTitle.Size = new System.Drawing.Size(177, 25);
             this.lblEditIdCardTitle.TabIndex = 13;
             this.lblEditIdCardTitle.Text = "Số CMND/CCCD (*):";
             // 
@@ -1110,7 +1110,7 @@ namespace BankAccountManagement.Forms
             this.txtEditFullName.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.txtEditFullName.Location = new System.Drawing.Point(24, 202);
             this.txtEditFullName.Name = "txtEditFullName";
-            this.txtEditFullName.Size = new System.Drawing.Size(370, 25);
+            this.txtEditFullName.Size = new System.Drawing.Size(370, 34);
             this.txtEditFullName.TabIndex = 12;
             // 
             // lblEditFullNameTitle
@@ -1120,7 +1120,7 @@ namespace BankAccountManagement.Forms
             this.lblEditFullNameTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
             this.lblEditFullNameTitle.Location = new System.Drawing.Point(24, 180);
             this.lblEditFullNameTitle.Name = "lblEditFullNameTitle";
-            this.lblEditFullNameTitle.Size = new System.Drawing.Size(80, 15);
+            this.lblEditFullNameTitle.Size = new System.Drawing.Size(127, 25);
             this.lblEditFullNameTitle.TabIndex = 11;
             this.lblEditFullNameTitle.Text = "Họ và tên (*):";
             // 
@@ -1131,7 +1131,7 @@ namespace BankAccountManagement.Forms
             this.lblPersonalSectionTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(99)))), ((int)(((byte)(235)))));
             this.lblPersonalSectionTitle.Location = new System.Drawing.Point(24, 154);
             this.lblPersonalSectionTitle.Name = "lblPersonalSectionTitle";
-            this.lblPersonalSectionTitle.Size = new System.Drawing.Size(339, 15);
+            this.lblPersonalSectionTitle.Size = new System.Drawing.Size(504, 23);
             this.lblPersonalSectionTitle.TabIndex = 10;
             this.lblPersonalSectionTitle.Text = "✏️ THÔNG TIN CÁ NHÂN & LIÊN HỆ (ĐƯỢC PHÉP CHỈNH SỬA)";
             // 
@@ -1142,7 +1142,7 @@ namespace BankAccountManagement.Forms
             this.pnlEditDiv2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
             this.pnlEditDiv2.Location = new System.Drawing.Point(24, 144);
             this.pnlEditDiv2.Name = "pnlEditDiv2";
-            this.pnlEditDiv2.Size = new System.Drawing.Size(786, 1);
+            this.pnlEditDiv2.Size = new System.Drawing.Size(841, 1);
             this.pnlEditDiv2.TabIndex = 9;
             // 
             // txtEditAccountNumber
@@ -1154,7 +1154,7 @@ namespace BankAccountManagement.Forms
             this.txtEditAccountNumber.Location = new System.Drawing.Point(420, 104);
             this.txtEditAccountNumber.Name = "txtEditAccountNumber";
             this.txtEditAccountNumber.ReadOnly = true;
-            this.txtEditAccountNumber.Size = new System.Drawing.Size(370, 25);
+            this.txtEditAccountNumber.Size = new System.Drawing.Size(370, 34);
             this.txtEditAccountNumber.TabIndex = 8;
             // 
             // lblEditAccountNumberTitle
@@ -1164,7 +1164,7 @@ namespace BankAccountManagement.Forms
             this.lblEditAccountNumberTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.lblEditAccountNumberTitle.Location = new System.Drawing.Point(420, 82);
             this.lblEditAccountNumberTitle.Name = "lblEditAccountNumberTitle";
-            this.lblEditAccountNumberTitle.Size = new System.Drawing.Size(194, 15);
+            this.lblEditAccountNumberTitle.Size = new System.Drawing.Size(310, 25);
             this.lblEditAccountNumberTitle.TabIndex = 7;
             this.lblEditAccountNumberTitle.Text = "Số thẻ / Số tài khoản 🔒 (Cố định):";
             // 
@@ -1177,7 +1177,7 @@ namespace BankAccountManagement.Forms
             this.txtEditUsername.Location = new System.Drawing.Point(24, 104);
             this.txtEditUsername.Name = "txtEditUsername";
             this.txtEditUsername.ReadOnly = true;
-            this.txtEditUsername.Size = new System.Drawing.Size(370, 25);
+            this.txtEditUsername.Size = new System.Drawing.Size(370, 34);
             this.txtEditUsername.TabIndex = 6;
             // 
             // lblEditUsernameTitle
@@ -1187,7 +1187,7 @@ namespace BankAccountManagement.Forms
             this.lblEditUsernameTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(71)))), ((int)(((byte)(85)))), ((int)(((byte)(105)))));
             this.lblEditUsernameTitle.Location = new System.Drawing.Point(24, 82);
             this.lblEditUsernameTitle.Name = "lblEditUsernameTitle";
-            this.lblEditUsernameTitle.Size = new System.Drawing.Size(160, 15);
+            this.lblEditUsernameTitle.Size = new System.Drawing.Size(258, 25);
             this.lblEditUsernameTitle.TabIndex = 5;
             this.lblEditUsernameTitle.Text = "Tên đăng nhập 🔒 (Cố định):";
             // 
@@ -1198,7 +1198,7 @@ namespace BankAccountManagement.Forms
             this.lblFixedSectionTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
             this.lblFixedSectionTitle.Location = new System.Drawing.Point(24, 56);
             this.lblFixedSectionTitle.Name = "lblFixedSectionTitle";
-            this.lblFixedSectionTitle.Size = new System.Drawing.Size(313, 15);
+            this.lblFixedSectionTitle.Size = new System.Drawing.Size(460, 23);
             this.lblFixedSectionTitle.TabIndex = 4;
             this.lblFixedSectionTitle.Text = "🔒 THÔNG TIN CỐ ĐỊNH HỆ THỐNG (KHÔNG THỂ SỬA)";
             // 
@@ -1209,7 +1209,7 @@ namespace BankAccountManagement.Forms
             this.pnlEditDiv1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
             this.pnlEditDiv1.Location = new System.Drawing.Point(24, 46);
             this.pnlEditDiv1.Name = "pnlEditDiv1";
-            this.pnlEditDiv1.Size = new System.Drawing.Size(786, 1);
+            this.pnlEditDiv1.Size = new System.Drawing.Size(841, 1);
             this.pnlEditDiv1.TabIndex = 3;
             // 
             // lblEditSubtitle
@@ -1219,7 +1219,7 @@ namespace BankAccountManagement.Forms
             this.lblEditSubtitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
             this.lblEditSubtitle.Location = new System.Drawing.Point(405, 20);
             this.lblEditSubtitle.Name = "lblEditSubtitle";
-            this.lblEditSubtitle.Size = new System.Drawing.Size(333, 15);
+            this.lblEditSubtitle.Size = new System.Drawing.Size(486, 23);
             this.lblEditSubtitle.TabIndex = 2;
             this.lblEditSubtitle.Text = "Cập nhật thông tin cá nhân và thay đổi mật khẩu tài khoản số";
             // 
@@ -1230,7 +1230,7 @@ namespace BankAccountManagement.Forms
             this.lblEditTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.lblEditTitle.Location = new System.Drawing.Point(36, 15);
             this.lblEditTitle.Name = "lblEditTitle";
-            this.lblEditTitle.Size = new System.Drawing.Size(281, 21);
+            this.lblEditTitle.Size = new System.Drawing.Size(429, 32);
             this.lblEditTitle.TabIndex = 1;
             this.lblEditTitle.Text = "CHỈNH SỬA THÔNG TIN TÀI KHOẢN";
             // 
@@ -1306,10 +1306,10 @@ namespace BankAccountManagement.Forms
             this.lblSideNoticeText.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lblSideNoticeText.Font = new System.Drawing.Font("Segoe UI", 8.5F);
             this.lblSideNoticeText.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
-            this.lblSideNoticeText.Location = new System.Drawing.Point(12, 25);
+            this.lblSideNoticeText.Location = new System.Drawing.Point(12, 35);
             this.lblSideNoticeText.Name = "lblSideNoticeText";
             this.lblSideNoticeText.Padding = new System.Windows.Forms.Padding(0, 6, 0, 0);
-            this.lblSideNoticeText.Size = new System.Drawing.Size(368, 163);
+            this.lblSideNoticeText.Size = new System.Drawing.Size(368, 153);
             this.lblSideNoticeText.TabIndex = 1;
             this.lblSideNoticeText.Text = resources.GetString("lblSideNoticeText.Text");
             // 
@@ -1321,7 +1321,7 @@ namespace BankAccountManagement.Forms
             this.lblSideNoticeTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
             this.lblSideNoticeTitle.Location = new System.Drawing.Point(12, 10);
             this.lblSideNoticeTitle.Name = "lblSideNoticeTitle";
-            this.lblSideNoticeTitle.Size = new System.Drawing.Size(195, 15);
+            this.lblSideNoticeTitle.Size = new System.Drawing.Size(316, 25);
             this.lblSideNoticeTitle.TabIndex = 0;
             this.lblSideNoticeTitle.Text = "🔒 Quy định an toàn ngân hàng số:";
             // 
@@ -1333,7 +1333,7 @@ namespace BankAccountManagement.Forms
             this.lblSideOpenDate.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.lblSideOpenDate.Location = new System.Drawing.Point(318, 240);
             this.lblSideOpenDate.Name = "lblSideOpenDate";
-            this.lblSideOpenDate.Size = new System.Drawing.Size(76, 17);
+            this.lblSideOpenDate.Size = new System.Drawing.Size(116, 25);
             this.lblSideOpenDate.TabIndex = 15;
             this.lblSideOpenDate.Text = "20/10/2026";
             this.lblSideOpenDate.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -1345,7 +1345,7 @@ namespace BankAccountManagement.Forms
             this.lblSideOpenDateTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
             this.lblSideOpenDateTitle.Location = new System.Drawing.Point(18, 240);
             this.lblSideOpenDateTitle.Name = "lblSideOpenDateTitle";
-            this.lblSideOpenDateTitle.Size = new System.Drawing.Size(111, 15);
+            this.lblSideOpenDateTitle.Size = new System.Drawing.Size(168, 25);
             this.lblSideOpenDateTitle.TabIndex = 14;
             this.lblSideOpenDateTitle.Text = "Ngày mở tài khoản:";
             // 
@@ -1357,7 +1357,7 @@ namespace BankAccountManagement.Forms
             this.lblSideAccType.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.lblSideAccType.Location = new System.Drawing.Point(318, 206);
             this.lblSideAccType.Name = "lblSideAccType";
-            this.lblSideAccType.Size = new System.Drawing.Size(79, 17);
+            this.lblSideAccType.Size = new System.Drawing.Size(113, 25);
             this.lblSideAccType.TabIndex = 13;
             this.lblSideAccType.Text = "Thanh toán";
             this.lblSideAccType.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -1369,7 +1369,7 @@ namespace BankAccountManagement.Forms
             this.lblSideAccTypeTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
             this.lblSideAccTypeTitle.Location = new System.Drawing.Point(18, 206);
             this.lblSideAccTypeTitle.Name = "lblSideAccTypeTitle";
-            this.lblSideAccTypeTitle.Size = new System.Drawing.Size(84, 15);
+            this.lblSideAccTypeTitle.Size = new System.Drawing.Size(126, 25);
             this.lblSideAccTypeTitle.TabIndex = 12;
             this.lblSideAccTypeTitle.Text = "Loại tài khoản:";
             // 
@@ -1381,7 +1381,7 @@ namespace BankAccountManagement.Forms
             this.lblSideBank.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.lblSideBank.Location = new System.Drawing.Point(305, 172);
             this.lblSideBank.Name = "lblSideBank";
-            this.lblSideBank.Size = new System.Drawing.Size(89, 17);
+            this.lblSideBank.Size = new System.Drawing.Size(130, 25);
             this.lblSideBank.TabIndex = 11;
             this.lblSideBank.Text = "Vietcombank";
             this.lblSideBank.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -1393,7 +1393,7 @@ namespace BankAccountManagement.Forms
             this.lblSideBankTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
             this.lblSideBankTitle.Location = new System.Drawing.Point(18, 172);
             this.lblSideBankTitle.Name = "lblSideBankTitle";
-            this.lblSideBankTitle.Size = new System.Drawing.Size(126, 15);
+            this.lblSideBankTitle.Size = new System.Drawing.Size(189, 25);
             this.lblSideBankTitle.TabIndex = 10;
             this.lblSideBankTitle.Text = "Ngân hàng phát hành:";
             // 
@@ -1405,7 +1405,7 @@ namespace BankAccountManagement.Forms
             this.lblSideMaKH.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.lblSideMaKH.Location = new System.Drawing.Point(325, 138);
             this.lblSideMaKH.Name = "lblSideMaKH";
-            this.lblSideMaKH.Size = new System.Drawing.Size(68, 17);
+            this.lblSideMaKH.Size = new System.Drawing.Size(105, 25);
             this.lblSideMaKH.TabIndex = 9;
             this.lblSideMaKH.Text = "KH000001";
             this.lblSideMaKH.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -1417,7 +1417,7 @@ namespace BankAccountManagement.Forms
             this.lblSideMaKHTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
             this.lblSideMaKHTitle.Location = new System.Drawing.Point(18, 138);
             this.lblSideMaKHTitle.Name = "lblSideMaKHTitle";
-            this.lblSideMaKHTitle.Size = new System.Drawing.Size(120, 15);
+            this.lblSideMaKHTitle.Size = new System.Drawing.Size(177, 25);
             this.lblSideMaKHTitle.TabIndex = 8;
             this.lblSideMaKHTitle.Text = "Mã khách hàng (CIF):";
             // 
@@ -1438,7 +1438,7 @@ namespace BankAccountManagement.Forms
             this.lblSideRole.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(22)))), ((int)(((byte)(163)))), ((int)(((byte)(74)))));
             this.lblSideRole.Location = new System.Drawing.Point(93, 100);
             this.lblSideRole.Name = "lblSideRole";
-            this.lblSideRole.Size = new System.Drawing.Size(129, 15);
+            this.lblSideRole.Size = new System.Drawing.Size(184, 23);
             this.lblSideRole.TabIndex = 6;
             this.lblSideRole.Text = "● Thành viên xác thực";
             // 
@@ -1449,7 +1449,7 @@ namespace BankAccountManagement.Forms
             this.lblSideUsername.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(116)))), ((int)(((byte)(139)))));
             this.lblSideUsername.Location = new System.Drawing.Point(93, 79);
             this.lblSideUsername.Name = "lblSideUsername";
-            this.lblSideUsername.Size = new System.Drawing.Size(166, 17);
+            this.lblSideUsername.Size = new System.Drawing.Size(236, 25);
             this.lblSideUsername.TabIndex = 5;
             this.lblSideUsername.Text = "@member  🔒 (Định danh)";
             // 
@@ -1460,7 +1460,7 @@ namespace BankAccountManagement.Forms
             this.lblSideFullName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.lblSideFullName.Location = new System.Drawing.Point(92, 53);
             this.lblSideFullName.Name = "lblSideFullName";
-            this.lblSideFullName.Size = new System.Drawing.Size(93, 21);
+            this.lblSideFullName.Size = new System.Drawing.Size(131, 31);
             this.lblSideFullName.TabIndex = 4;
             this.lblSideFullName.Text = "Lê Viết Đạt";
             // 
@@ -1507,7 +1507,7 @@ namespace BankAccountManagement.Forms
             this.lblSideOverviewTitle.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(15)))), ((int)(((byte)(23)))), ((int)(((byte)(42)))));
             this.lblSideOverviewTitle.Location = new System.Drawing.Point(28, 14);
             this.lblSideOverviewTitle.Name = "lblSideOverviewTitle";
-            this.lblSideOverviewTitle.Size = new System.Drawing.Size(144, 19);
+            this.lblSideOverviewTitle.Size = new System.Drawing.Size(214, 30);
             this.lblSideOverviewTitle.TabIndex = 1;
             this.lblSideOverviewTitle.Text = "TỔNG QUAN HỒ SƠ";
             // 
@@ -1554,7 +1554,7 @@ namespace BankAccountManagement.Forms
             this.lblUserStatus.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(16)))), ((int)(((byte)(185)))), ((int)(((byte)(129)))));
             this.lblUserStatus.Location = new System.Drawing.Point(292, 182);
             this.lblUserStatus.Name = "lblUserStatus";
-            this.lblUserStatus.Size = new System.Drawing.Size(106, 15);
+            this.lblUserStatus.Size = new System.Drawing.Size(156, 23);
             this.lblUserStatus.TabIndex = 10;
             this.lblUserStatus.Text = "● Đang hoạt động";
             // 
@@ -1566,7 +1566,7 @@ namespace BankAccountManagement.Forms
             this.lblUserHolder.ForeColor = System.Drawing.Color.White;
             this.lblUserHolder.Location = new System.Drawing.Point(20, 182);
             this.lblUserHolder.Name = "lblUserHolder";
-            this.lblUserHolder.Size = new System.Drawing.Size(85, 17);
+            this.lblUserHolder.Size = new System.Drawing.Size(120, 25);
             this.lblUserHolder.TabIndex = 9;
             this.lblUserHolder.Text = "LÊ VIẾT ĐẠT";
             // 
@@ -1593,7 +1593,7 @@ namespace BankAccountManagement.Forms
             this.lblUserBalance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(204)))), ((int)(((byte)(21)))));
             this.lblUserBalance.Location = new System.Drawing.Point(20, 142);
             this.lblUserBalance.Name = "lblUserBalance";
-            this.lblUserBalance.Size = new System.Drawing.Size(170, 30);
+            this.lblUserBalance.Size = new System.Drawing.Size(243, 45);
             this.lblUserBalance.TabIndex = 7;
             this.lblUserBalance.Text = "5,000,000 VND";
             // 
@@ -1605,7 +1605,7 @@ namespace BankAccountManagement.Forms
             this.lblUserBalLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(148)))), ((int)(((byte)(163)))), ((int)(((byte)(184)))));
             this.lblUserBalLabel.Location = new System.Drawing.Point(20, 126);
             this.lblUserBalLabel.Name = "lblUserBalLabel";
-            this.lblUserBalLabel.Size = new System.Drawing.Size(93, 12);
+            this.lblUserBalLabel.Size = new System.Drawing.Size(140, 20);
             this.lblUserBalLabel.TabIndex = 6;
             this.lblUserBalLabel.Text = "SỐ DƯ KHẢ DỤNG";
             // 
@@ -1633,7 +1633,7 @@ namespace BankAccountManagement.Forms
             this.lblUserStk.ForeColor = System.Drawing.Color.White;
             this.lblUserStk.Location = new System.Drawing.Point(20, 90);
             this.lblUserStk.Name = "lblUserStk";
-            this.lblUserStk.Size = new System.Drawing.Size(142, 25);
+            this.lblUserStk.Size = new System.Drawing.Size(209, 38);
             this.lblUserStk.TabIndex = 4;
             this.lblUserStk.Text = "1000  0000  01";
             // 
@@ -1645,7 +1645,7 @@ namespace BankAccountManagement.Forms
             this.lblUserStkLabel.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(148)))), ((int)(((byte)(163)))), ((int)(((byte)(184)))));
             this.lblUserStkLabel.Location = new System.Drawing.Point(20, 72);
             this.lblUserStkLabel.Name = "lblUserStkLabel";
-            this.lblUserStkLabel.Size = new System.Drawing.Size(177, 12);
+            this.lblUserStkLabel.Size = new System.Drawing.Size(260, 20);
             this.lblUserStkLabel.TabIndex = 3;
             this.lblUserStkLabel.Text = "SỐ THẺ / SỐ TÀI KHOẢN (CỐ ĐỊNH)";
             // 
@@ -1657,7 +1657,7 @@ namespace BankAccountManagement.Forms
             this.lblUserChip.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(204)))), ((int)(((byte)(21)))));
             this.lblUserChip.Location = new System.Drawing.Point(20, 46);
             this.lblUserChip.Name = "lblUserChip";
-            this.lblUserChip.Size = new System.Drawing.Size(94, 15);
+            this.lblUserChip.Size = new System.Drawing.Size(142, 23);
             this.lblUserChip.TabIndex = 2;
             this.lblUserChip.Text = "💳 SMART CHIP";
             // 
@@ -1682,13 +1682,13 @@ namespace BankAccountManagement.Forms
             this.lblUserBankName.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(204)))), ((int)(((byte)(21)))));
             this.lblUserBankName.Location = new System.Drawing.Point(20, 16);
             this.lblUserBankName.Name = "lblUserBankName";
-            this.lblUserBankName.Size = new System.Drawing.Size(117, 20);
+            this.lblUserBankName.Size = new System.Drawing.Size(171, 30);
             this.lblUserBankName.TabIndex = 0;
             this.lblUserBankName.Text = "VIETCOMBANK";
             // 
             // AccountForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(11F, 28F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(241)))), ((int)(((byte)(245)))), ((int)(((byte)(249)))));
             this.ClientSize = new System.Drawing.Size(1336, 860);
