@@ -66,46 +66,23 @@ namespace BankAccountManagement.Forms
         /// </summary>
         private void ApplyRoundedCorners()
         {
-            SetRoundedRegion(pnlUser, 10);
-            SetRoundedRegion(pnlPass, 10);
-            SetRoundedRegion(btnLogin, 10);
+            // Để mặc định không can thiệp Win32 Region để chống lỗi GDI+ E_POINTER 0x80004003 trên Windows 10/11
         }
 
         /// <summary>
-        /// Sự kiện khi Form đã hiển thị hoàn chỉnh: Bo góc cửa sổ an toàn sau khi đã có Win32 Handle.
+        /// Sự kiện khi Form đã hiển thị hoàn chỉnh.
         /// </summary>
         protected override void OnShown(EventArgs e)
         {
             base.OnShown(e);
-            try
-            {
-                ApplyRoundedCorners();
-                SetRoundedRegion(this, 16);
-            }
-            catch { }
         }
 
         /// <summary>
         /// Cắt vùng hiển thị (Region) của control theo hình chữ nhật bo góc.
         /// </summary>
-        /// <param name="ctrl">Control cần bo góc.</param>
-        /// <param name="radius">Bán kính bo tròn góc.</param>
         private static void SetRoundedRegion(Control ctrl, int radius)
         {
-            if (ctrl == null || ctrl.IsDisposed || !ctrl.IsHandleCreated) return;
-            if (ctrl.Width <= 0 || ctrl.Height <= 0) return;
-
-            try
-            {
-                using (var path = RoundedPath(ctrl.ClientRectangle, radius))
-                {
-                    ctrl.Region = new Region(path);
-                }
-            }
-            catch
-            {
-                // Bỏ qua lỗi GDI nếu control đang vẽ lại
-            }
+            // Bỏ can thiệp Region để tránh xung đột render GDI+
         }
 
         /// <summary>
@@ -132,38 +109,45 @@ namespace BankAccountManagement.Forms
         /// </summary>
         private void PnlSide_Paint(object sender, PaintEventArgs e)
         {
-            if (pnlSide == null || e?.Graphics == null) return;
-            if (pnlSide.ClientRectangle.Width <= 0 || pnlSide.ClientRectangle.Height <= 0) return;
-
-            var g = e.Graphics;
-            g.SmoothingMode = SmoothingMode.AntiAlias; // Khử răng cưa cho đường nét mềm mại
-
-            // 1. Nền Gradient nghiêng 55 độ từ màu tím (#7800DC) sang hồng cánh sen (#C605FF)
-            using (var brush = new LinearGradientBrush(
-                pnlSide.ClientRectangle,
-                Color.FromArgb(120, 0, 220),
-                Color.FromArgb(198, 5, 255),
-                55f))
+            try
             {
-                g.FillRectangle(brush, pnlSide.ClientRectangle);
+                if (pnlSide == null || e?.Graphics == null) return;
+                if (pnlSide.ClientRectangle.Width <= 0 || pnlSide.ClientRectangle.Height <= 0) return;
+
+                var g = e.Graphics;
+                g.SmoothingMode = SmoothingMode.AntiAlias; // Khử răng cưa cho đường nét mềm mại
+
+                // 1. Nền Gradient nghiêng 55 độ từ màu tím (#7800DC) sang hồng cánh sen (#C605FF)
+                using (var brush = new LinearGradientBrush(
+                    pnlSide.ClientRectangle,
+                    Color.FromArgb(120, 0, 220),
+                    Color.FromArgb(198, 5, 255),
+                    55f))
+                {
+                    g.FillRectangle(brush, pnlSide.ClientRectangle);
+                }
+
+                // 2. Vẽ các vòng tròn trang trí bán trong suốt tạo chiều sâu
+                using (var c1 = new SolidBrush(Color.FromArgb(30, 255, 255, 255)))
+                    g.FillEllipse(c1, -80, -80, 300, 300);
+
+                using (var c2 = new SolidBrush(Color.FromArgb(25, 255, 255, 255)))
+                    g.FillEllipse(c2, 250, 400, 320, 320);
+
+                using (var c3 = new SolidBrush(Color.FromArgb(20, 255, 255, 255)))
+                    g.FillEllipse(c3, 300, -80, 220, 220);
+
+                // 3. Đường thẳng nghệ thuật vắt ngang
+                using (var pen = new Pen(Color.FromArgb(15, 255, 255, 255), 60))
+                {
+                    pen.StartCap = LineCap.Round;
+                    pen.EndCap = LineCap.Round;
+                    g.DrawLine(pen, 420, 0, 0, 600);
+                }
             }
-
-            // 2. Vẽ các vòng tròn trang trí bán trong suốt tạo chiều sâu
-            using (var c1 = new SolidBrush(Color.FromArgb(30, 255, 255, 255)))
-                g.FillEllipse(c1, -80, -80, 300, 300);
-
-            using (var c2 = new SolidBrush(Color.FromArgb(25, 255, 255, 255)))
-                g.FillEllipse(c2, 250, 400, 320, 320);
-
-            using (var c3 = new SolidBrush(Color.FromArgb(20, 255, 255, 255)))
-                g.FillEllipse(c3, 300, -80, 220, 220);
-
-            // 3. Đường thẳng nghệ thuật vắt ngang
-            using (var pen = new Pen(Color.FromArgb(15, 255, 255, 255), 60))
+            catch
             {
-                pen.StartCap = LineCap.Round;
-                pen.EndCap = LineCap.Round;
-                g.DrawLine(pen, 420, 0, 0, 600);
+                // Bỏ qua lỗi GDI+ vẽ nền nếu context tạm thời chưa sẵn sàng
             }
         }
 
@@ -176,65 +160,86 @@ namespace BankAccountManagement.Forms
         /// </summary>
         private void SetupEvents()
         {
-            // 1. Nút Đóng form (✕): Gán DialogResult = Cancel và đóng form để thoát ứng dụng
-            btnClose.Click += (s, e) => { this.DialogResult = DialogResult.Cancel; this.Close(); };
-
-            // 2. Kéo thả form bằng chuột thuần (Managed Dragging - Không dùng Win32 API P/Invoke để tránh lỗi bộ nhớ)
-            pnlSide.MouseDown += DragMouseDown;
-            pnlSide.MouseMove += DragMouseMove;
-            pnlSide.MouseUp += DragMouseUp;
-
-            pnlMain.MouseDown += DragMouseDown;
-            pnlMain.MouseMove += DragMouseMove;
-            pnlMain.MouseUp += DragMouseUp;
-
-            lblBrand.MouseDown += DragMouseDown;
-            lblBrand.MouseMove += DragMouseMove;
-            lblBrand.MouseUp += DragMouseUp;
-
-            // 3. Nhấn Enter tại ô Username hoặc Password để kích hoạt đăng nhập nhanh
-            txtUsername.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) { e.SuppressKeyPress = true; btnLogin.PerformClick(); } };
-            txtPassword.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) { e.SuppressKeyPress = true; btnLogin.PerformClick(); } };
-
-            // 4. Hiệu ứng đổi màu đường viền chân ô nhập khi focus
-            txtUsername.Enter += (s, e) => pnlUserLine.BackColor = Color.FromArgb(150, 0, 252);
-            txtUsername.Leave += (s, e) => pnlUserLine.BackColor = Color.FromArgb(220, 222, 230);
-            txtPassword.Enter += (s, e) => pnlPassLine.BackColor = Color.FromArgb(150, 0, 252);
-            txtPassword.Leave += (s, e) => pnlPassLine.BackColor = Color.FromArgb(220, 222, 230);
-
-            // 5. Nút ẩn/hiện mật khẩu (👁 / 🙈)
-            btnTogglePass.Click += (s, e) =>
+            try
             {
-                _passwordVisible = !_passwordVisible;
-                txtPassword.UseSystemPasswordChar = !_passwordVisible;
-                btnTogglePass.Text = _passwordVisible ? "🙈" : "👁";
-            };
+                if (btnClose != null)
+                    btnClose.Click += (s, e) => { this.DialogResult = DialogResult.Cancel; this.Close(); };
 
-            // 6. Nút Đăng nhập
-            btnLogin.Click += BtnLogin_Click;
-
-            // 7. Liên kết chuyển sang Form Đăng ký tài khoản (SignupForm)
-            linkSignup.LinkClicked += (s, e) =>
-            {
-                this.Hide(); // Ẩn LoginForm tạm thời
-                using (var signup = new SignupForm())
+                if (pnlSide != null)
                 {
-                    // Mở SignupForm modal, truyền this làm form cha
-                    if (signup.ShowDialog(this) == DialogResult.OK && !string.IsNullOrWhiteSpace(signup.RegisteredUsername))
-                    {
-                        // Điền sẵn username vừa tạo thành công
-                        txtUsername.Text = signup.RegisteredUsername;
-                        txtUsername.ForeColor = Color.FromArgb(40, 45, 60);
-                        this.ActiveControl = txtPassword;
-                    }
-                    GC.KeepAlive(signup); // Giữ an toàn bộ nhớ
+                    pnlSide.MouseDown += DragMouseDown;
+                    pnlSide.MouseMove += DragMouseMove;
+                    pnlSide.MouseUp += DragMouseUp;
                 }
-                this.Show(); // Hiện lại LoginForm
-            };
 
-            // 8. Cấu hình chữ gợi ý (Placeholder)
-            SetPlaceholder(txtUsername, "Enter your username");
-            SetPlaceholder(txtPassword, "Enter your password", isPassword: true);
+                if (pnlMain != null)
+                {
+                    pnlMain.MouseDown += DragMouseDown;
+                    pnlMain.MouseMove += DragMouseMove;
+                    pnlMain.MouseUp += DragMouseUp;
+                }
+
+                if (lblBrand != null)
+                {
+                    lblBrand.MouseDown += DragMouseDown;
+                    lblBrand.MouseMove += DragMouseMove;
+                    lblBrand.MouseUp += DragMouseUp;
+                }
+
+                if (txtUsername != null)
+                {
+                    txtUsername.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) { e.SuppressKeyPress = true; btnLogin?.PerformClick(); } };
+                    txtUsername.Enter += (s, e) => { if (pnlUserLine != null) pnlUserLine.BackColor = Color.FromArgb(150, 0, 252); };
+                    txtUsername.Leave += (s, e) => { if (pnlUserLine != null) pnlUserLine.BackColor = Color.FromArgb(220, 222, 230); };
+                    SetPlaceholder(txtUsername, "Enter your username");
+                }
+
+                if (txtPassword != null)
+                {
+                    txtPassword.KeyDown += (s, e) => { if (e.KeyCode == Keys.Enter) { e.SuppressKeyPress = true; btnLogin?.PerformClick(); } };
+                    txtPassword.Enter += (s, e) => { if (pnlPassLine != null) pnlPassLine.BackColor = Color.FromArgb(150, 0, 252); };
+                    txtPassword.Leave += (s, e) => { if (pnlPassLine != null) pnlPassLine.BackColor = Color.FromArgb(220, 222, 230); };
+                    SetPlaceholder(txtPassword, "Enter your password", isPassword: true);
+                }
+
+                if (btnTogglePass != null)
+                {
+                    btnTogglePass.Click += (s, e) =>
+                    {
+                        _passwordVisible = !_passwordVisible;
+                        if (txtPassword != null) txtPassword.UseSystemPasswordChar = !_passwordVisible;
+                        btnTogglePass.Text = _passwordVisible ? "🙈" : "👁";
+                    };
+                }
+
+                if (btnLogin != null)
+                    btnLogin.Click += BtnLogin_Click;
+
+                if (linkSignup != null)
+                {
+                    linkSignup.LinkClicked += (s, e) =>
+                    {
+                        this.Hide();
+                        using (var signup = new SignupForm())
+                        {
+                            if (signup.ShowDialog(this) == DialogResult.OK && !string.IsNullOrWhiteSpace(signup.RegisteredUsername))
+                            {
+                                if (txtUsername != null)
+                                {
+                                    txtUsername.Text = signup.RegisteredUsername;
+                                    txtUsername.ForeColor = Color.FromArgb(40, 45, 60);
+                                }
+                                if (txtPassword != null) this.ActiveControl = txtPassword;
+                            }
+                            GC.KeepAlive(signup);
+                        }
+                        this.Show();
+                    };
+                }
+            }
+            catch
+            {
+            }
         }
 
         #endregion
@@ -318,56 +323,72 @@ namespace BankAccountManagement.Forms
         /// </summary>
         private void BtnLogin_Click(object sender, EventArgs e)
         {
-            // BƯỚC 1: Lấy và chuẩn hóa dữ liệu đầu vào
-            string user = IsPlaceholder(txtUsername) ? "" : txtUsername.Text.Trim();
-            string pass = IsPlaceholder(txtPassword) ? "" : txtPassword.Text;
-
-            // BƯỚC 2: Kiểm tra validation cơ bản
-            if (string.IsNullOrWhiteSpace(user) || string.IsNullOrWhiteSpace(pass))
+            try
             {
-                ShowError("⚠  Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.");
-                return;
-            }
+                // BƯỚC 1: Lấy và chuẩn hóa dữ liệu đầu vào
+                string user = (txtUsername == null || IsPlaceholder(txtUsername)) ? "" : txtUsername.Text.Trim();
+                string pass = (txtPassword == null || IsPlaceholder(txtPassword)) ? "" : txtPassword.Text;
 
-            // BƯỚC 3: Gọi AuthService để xác thực tài khoản với Cơ sở dữ liệu SQL Server
-            AuthResult result = AuthService.Login(user, pass);
-            if (!result.Success)
+                // BƯỚC 2: Kiểm tra validation cơ bản
+                if (string.IsNullOrWhiteSpace(user) || string.IsNullOrWhiteSpace(pass))
+                {
+                    ShowError("⚠  Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.");
+                    return;
+                }
+
+                // BƯỚC 3: Gọi AuthService để xác thực tài khoản với Cơ sở dữ liệu SQL Server
+                AuthResult result = AuthService.Login(user, pass);
+                if (result == null || !result.Success)
+                {
+                    // Đăng nhập thất bại: hiển thị thông báo lỗi thân thiện và chọn lại ô mật khẩu
+                    ShowError("✖  " + (result?.Message ?? "Tên đăng nhập hoặc mật khẩu không đúng."));
+                    if (txtPassword != null)
+                    {
+                        txtPassword.SelectAll();
+                        txtPassword.Focus();
+                    }
+                    return;
+                }
+
+                // BƯỚC 4: Đăng nhập thành công -> Lưu thông tin người dùng vào phiên làm việc toàn cục (CurrentSession)
+                if (result.User == null)
+                {
+                    ShowError("✖  Lỗi hệ thống: Dữ liệu người dùng rỗng.");
+                    return;
+                }
+
+                CurrentSession.SetUser(result.User);
+                Console.WriteLine($"[Login] User '{CurrentSession.User?.MaNguoiDung}' ({CurrentSession.User?.Quyen}) logged in successfully.");
+                HideError();
+
+                // BƯỚC 5: Thiết lập DialogResult = OK và đóng form để Program.cs tiếp tục mở MainForm
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+            }
+            catch (Exception ex)
             {
-                // Đăng nhập thất bại: hiển thị thông báo lỗi thân thiện và chọn lại ô mật khẩu
-                ShowError("✖  " + result.Message);
-                txtPassword.SelectAll();
-                txtPassword.Focus();
-                return;
+                ShowError("✖  Lỗi đăng nhập: " + ex.Message);
             }
-
-            // BƯỚC 4: Đăng nhập thành công -> Lưu thông tin người dùng vào phiên làm việc toàn cục (CurrentSession)
-            if (result.User == null)
-            {
-                ShowError("✖  Lỗi hệ thống: Dữ liệu người dùng rỗng.");
-                return;
-            }
-
-            CurrentSession.SetUser(result.User);
-            Console.WriteLine($"[Login] User '{CurrentSession.User?.MaNguoiDung}' ({CurrentSession.User?.Quyen}) logged in successfully.");
-            HideError();
-
-            // BƯỚC 5: Thiết lập DialogResult = OK và đóng form để Program.cs tiếp tục mở MainForm
-            this.DialogResult = DialogResult.OK;
-            this.Close();
         }
 
         /// <summary>Hiển thị nhãn thông báo lỗi màu đỏ.</summary>
         private void ShowError(string msg)
         {
-            lblError.Text = msg;
-            lblError.Visible = true;
+            if (lblError != null)
+            {
+                lblError.Text = msg;
+                lblError.Visible = true;
+            }
         }
 
         /// <summary>Ẩn nhãn thông báo lỗi.</summary>
         private void HideError()
         {
-            lblError.Visible = false;
-            lblError.Text = "";
+            if (lblError != null)
+            {
+                lblError.Visible = false;
+                lblError.Text = "";
+            }
         }
 
         #endregion
